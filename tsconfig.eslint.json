@@ -14,7 +14,10 @@
         "apps/client/src/**/*.tsx",
         "apps/client/vite.config.ts",
         "packages/shared/src/**/*.ts",
-        "packages/shared/test/**/*.ts"
+        "packages/shared/test/**/*.ts",
+        "scripts/**/*.ts",
+        "db/**/*.ts",
+        "drizzle.config.ts"
     ],
     "exclude": ["dist", "node_modules", "**/dist/**"]
 }

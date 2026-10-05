@@ -1,11 +1,14 @@
 import { deepStrictEqual, strictEqual } from 'node:assert/strict';
 import type { Server } from 'node:http';
 import { test } from 'node:test';
+import { DatabaseSync } from 'node:sqlite';
+import { sqliteRepository } from '../src/db/database.js';
 
 import { createApp } from '../src/app.js';
 
 void test('GET /api/health returns ok', async () => {
-    const app = createApp();
+    const database = new DatabaseSync(':memory:');
+    const app = createApp(sqliteRepository(database));
 
     const server = await new Promise<Server>((resolve) => {
         const server = app.listen(0, '127.0.0.1', () => {
@@ -37,5 +40,6 @@ void test('GET /api/health returns ok', async () => {
                 resolve();
             });
         });
+        database.close();
     }
 });

@@ -10,6 +10,11 @@ lerna-debug.log*
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Runtime data
+data/
+.sites-runtime/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 pids
 *.pid
 *.seed

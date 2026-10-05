@@ -1,0 +1,402 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "11d30eea-1c86-4de9-8327-52ca2b0e5a93",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "compatibility": {
+      "name": "compatibility",
+      "columns": {
+        "species_id": {
+          "name": "species_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "machine": {
+          "name": "machine",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "compatibility_species_id_species_species_id_fk": {
+          "name": "compatibility_species_id_species_species_id_fk",
+          "tableFrom": "compatibility",
+          "tableTo": "species",
+          "columnsFrom": [
+            "species_id"
+          ],
+          "columnsTo": [
+            "species_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "compatibility_machine_machines_machine_fk": {
+          "name": "compatibility_machine_machines_machine_fk",
+          "tableFrom": "compatibility",
+          "tableTo": "machines",
+          "columnsFrom": [
+            "machine"
+          ],
+          "columnsTo": [
+            "machine"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "compatibility_species_id_machine_pk": {
+          "columns": [
+            "species_id",
+            "machine"
+          ],
+          "name": "compatibility_species_id_machine_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "evolutions": {
+      "name": "evolutions",
+      "columns": {
+        "edge_id": {
+          "name": "edge_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "from_species_id": {
+          "name": "from_species_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "to_species_id": {
+          "name": "to_species_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "internal_only": {
+          "name": "internal_only",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "data": {
+          "name": "data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_evolutions_from": {
+          "name": "idx_evolutions_from",
+          "columns": [
+            "from_species_id"
+          ],
+          "isUnique": false
+        },
+        "idx_evolutions_to": {
+          "name": "idx_evolutions_to",
+          "columns": [
+            "to_species_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "evolutions_from_species_id_species_species_id_fk": {
+          "name": "evolutions_from_species_id_species_species_id_fk",
+          "tableFrom": "evolutions",
+          "tableTo": "species",
+          "columnsFrom": [
+            "from_species_id"
+          ],
+          "columnsTo": [
+            "species_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "evolutions_to_species_id_species_species_id_fk": {
+          "name": "evolutions_to_species_id_species_species_id_fk",
+          "tableFrom": "evolutions",
+          "tableTo": "species",
+          "columnsFrom": [
+            "to_species_id"
+          ],
+          "columnsTo": [
+            "species_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "learnsets": {
+      "name": "learnsets",
+      "columns": {
+        "species_id": {
+          "name": "species_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "move_id": {
+          "name": "move_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "learnsets_species_id_species_species_id_fk": {
+          "name": "learnsets_species_id_species_species_id_fk",
+          "tableFrom": "learnsets",
+          "tableTo": "species",
+          "columnsFrom": [
+            "species_id"
+          ],
+          "columnsTo": [
+            "species_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "learnsets_move_id_moves_move_id_fk": {
+          "name": "learnsets_move_id_moves_move_id_fk",
+          "tableFrom": "learnsets",
+          "tableTo": "moves",
+          "columnsFrom": [
+            "move_id"
+          ],
+          "columnsTo": [
+            "move_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "learnsets_species_id_position_pk": {
+          "columns": [
+            "species_id",
+            "position"
+          ],
+          "name": "learnsets_species_id_position_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "machines": {
+      "name": "machines",
+      "columns": {
+        "machine": {
+          "name": "machine",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "number": {
+          "name": "number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "move_id": {
+          "name": "move_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "machines_move_id_moves_move_id_fk": {
+          "name": "machines_move_id_moves_move_id_fk",
+          "tableFrom": "machines",
+          "tableTo": "moves",
+          "columnsFrom": [
+            "move_id"
+          ],
+          "columnsTo": [
+            "move_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "machine_kind": {
+          "name": "machine_kind",
+          "value": "\"machines\".\"kind\" IN ('TM', 'HM')"
+        }
+      }
+    },
+    "metadata": {
+      "name": "metadata",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "moves": {
+      "name": "moves",
+      "columns": {
+        "move_id": {
+          "name": "move_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "species": {
+      "name": "species",
+      "columns": {
+        "species_id": {
+          "name": "species_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "search_name": {
+          "name": "search_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "same_name_count": {
+          "name": "same_name_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "move_count": {
+          "name": "move_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "machine_count": {
+          "name": "machine_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_species_search_name": {
+          "name": "idx_species_search_name",
+          "columns": [
+            "search_name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

@@ -1,8 +1,10 @@
 import { strictEqual } from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { add } from '../src/index.js';
+import { normalizeSearch } from '../src/index.js';
 
-void test('smoke test', () => {
-    strictEqual(add(1, 2), 3);
+void test('search ignores accents and case while retaining gender symbols', () => {
+    strictEqual(normalizeSearch('Flabébé'), 'flabebe');
+    strictEqual(normalizeSearch('NIDORAN♀'), 'nidoran♀');
+    strictEqual(normalizeSearch('Farfetch’d'), "farfetch'd");
 });

@@ -4,3 +4,5 @@ dist
 .vscode
 package-lock.json
 *.md
+docs/pokemon_emerald_ex_*.json
+drizzle/meta/

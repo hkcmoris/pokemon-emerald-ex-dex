@@ -12,7 +12,7 @@
         "npm": ">=10"
     },
     "scripts": {
-        "dev": "npm run dev -w apps/server",
+        "dev": "npm run build -w packages/shared && tsx scripts/dev.ts",
         "dev:server": "npm run dev -w apps/server",
         "dev:client": "npm run dev -w apps/client",
         "build": "npm run build -w packages/shared && npm run build -w apps/server && npm run build -w apps/client",
@@ -30,12 +30,18 @@
         "clean:modules": "node -e \"fs.rmSync('node_modules', { recursive: true, force: true })\"",
         "clean:lock": "node -e \"fs.rmSync('package-lock.json', { force: true })\"",
         "reinstall": "npm run clean:modules && npm ci",
-        "reset:deps": "npm run clean:modules && npm run clean:lock && npm install"
+        "reset:deps": "npm run clean:modules && npm run clean:lock && npm install",
+        "db:import": "npm run build -w packages/shared && tsx scripts/import-data.ts",
+        "db:generate": "drizzle-kit generate",
+        "build:hosted": "npm run build && tsx scripts/build-hosted.ts"
     },
     "devDependencies": {
         "@eslint/js": "10.0.1",
         "@tailwindcss/language-server": "0.16.0",
         "@types/node": "22.20.4",
+        "drizzle-kit": "0.31.10",
+        "drizzle-orm": "0.45.2",
+        "esbuild": "0.28.1",
         "eslint": "10.11.0",
         "globals": "17.12.0",
         "prettier": "3.9.9",
