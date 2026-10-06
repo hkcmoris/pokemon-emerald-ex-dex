@@ -1,17 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type {
-    LearnsetEntry,
-    Pokemon,
-    SpeciesEvolution,
-    SpeciesMachine,
-} from '@pokemon-emerald-ex-dex/shared';
+import type { LearnsetEntry, Pokemon, SpeciesMachine } from '@pokemon-emerald-ex-dex/shared';
 
-import { ApiRequestError, fetchSpeciesDetails, fetchSpeciesEvolutions } from './api.js';
-import { EvolutionLine, EvolutionRuleDetails } from './EvolutionLine.js';
+import { ApiRequestError, fetchSpeciesDetails } from './api.js';
+import { EvolutionLine } from './EvolutionLine.js';
+import { FormsSection } from './FormsSection.js';
+import { formDisplayName } from './forms.js';
 import { DexFooter } from './DexFooter.js';
 import { statLabels } from './dex.js';
-import { speciesHref } from './navigation.js';
 import { TypeBadges } from './TypeBadges.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { MoveCategory } from './MoveCategory.js';
@@ -150,50 +146,6 @@ function MoveTable({
     );
 }
 
-function EvolutionRules({
-    links,
-    speciesId,
-    datasetId,
-}: {
-    links: readonly SpeciesEvolution[];
-    speciesId: number;
-    datasetId: string | undefined;
-}) {
-    return (
-        <ul className="evolution-rules">
-            {links.map((link) => {
-                const outgoing = link.fromSpeciesId === speciesId;
-                const relatedId = outgoing ? link.toSpeciesId : link.fromSpeciesId;
-                const relatedName = outgoing ? link.toName : link.fromName;
-                return (
-                    <li key={link.edgeOrder}>
-                        {link.internalOnly && (
-                            <p className="mb-1 text-xs text-stone-600">
-                                {outgoing ? 'Changes to' : 'Changes from'}
-                            </p>
-                        )}
-                        <div className="flex items-center gap-3">
-                            <SpeciesSprite
-                                datasetId={datasetId}
-                                file={outgoing ? link.toSprite : link.fromSprite}
-                                name={relatedName}
-                            />
-                            <a className="species-link" href={speciesHref(relatedId)}>
-                                {relatedName}{' '}
-                                <span className="font-mono text-xs font-normal">
-                                    #{String(relatedId).padStart(4, '0')}
-                                </span>
-                            </a>
-                        </div>
-                        <p className="mt-2 text-sm leading-relaxed">{link.summary}</p>
-                        <EvolutionRuleDetails link={link} />
-                    </li>
-                );
-            })}
-        </ul>
-    );
-}
-
 function StatsPanel({ entry, version }: { entry: Pokemon; version: string }) {
     return (
         <aside className="detail-panel" aria-labelledby="stats-title">
@@ -262,18 +214,14 @@ export function SpeciesPage({
         retry: (count, error) =>
             !(error instanceof ApiRequestError && error.status === 404) && count < 1,
     });
-    const evolution = useQuery({
-        queryKey: ['species-evolution', speciesId],
-        queryFn: ({ signal }) => fetchSpeciesEvolutions(speciesId, signal),
-        retry: (count, error) =>
-            !(error instanceof ApiRequestError && error.status === 404) && count < 1,
-    });
     useEffect(() => {
         if (details.isSuccess) heading.current?.focus();
     }, [details.isSuccess]);
     const entry = details.data;
+    const evolutionBase = entry?.forms?.members.find(
+        (member) => member.speciesId === entry.evolutionBaseSpeciesId,
+    );
     const missing = details.error instanceof ApiRequestError && details.error.status === 404;
-    const internal = entry?.evolutionLinks.filter((link) => link.internalOnly) ?? [];
     const tms = entry?.machines.filter((move) => move.kind === 'TM') ?? [];
     const hms = entry?.machines.filter((move) => move.kind === 'HM') ?? [];
 
@@ -297,7 +245,10 @@ export function SpeciesPage({
                                 tabIndex={-1}
                                 className="mt-3 text-4xl font-semibold tracking-tight sm:text-6xl"
                             >
-                                {entry?.name ?? (missing ? 'Species not found' : 'Species details')}
+                                {(entry
+                                    ? formDisplayName(entry.name, entry.formInfo)
+                                    : undefined) ??
+                                    (missing ? 'Species not found' : 'Species details')}
                             </h1>
                             {entry && (
                                 <div className="mt-5">
@@ -315,7 +266,7 @@ export function SpeciesPage({
                                         <SpeciesSprite
                                             datasetId={datasetId}
                                             file={entry.sprites?.front ?? null}
-                                            name={entry.name}
+                                            name={formDisplayName(entry.name, entry.formInfo)}
                                             size={128}
                                             loading="eager"
                                         />
@@ -325,7 +276,7 @@ export function SpeciesPage({
                                         <SpeciesSprite
                                             datasetId={datasetId}
                                             file={entry.sprites?.shinyFront ?? null}
-                                            name={entry.name}
+                                            name={formDisplayName(entry.name, entry.formInfo)}
                                             size={128}
                                             shiny
                                             loading="eager"
@@ -345,6 +296,10 @@ export function SpeciesPage({
                 </div>
             </header>
             <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
+                <nav className="dex-navigation mb-5" aria-label="Dex sections">
+                    <a href="#/">Pokémon</a>
+                    <a href="#/items">Items</a>
+                </nav>
                 {details.isPending ? (
                     <div className="dex-list px-6 py-16 text-center" role="status">
                         Loading species details…
@@ -384,52 +339,44 @@ export function SpeciesPage({
                                         <h2 id="evolution-title">Evolution</h2>
                                     </div>
                                     <div className="p-5 sm:p-6">
-                                        {evolution.isPending ? (
-                                            <p className="empty-note" role="status">
-                                                Loading full evolution line…
+                                        {entry.evolutionBaseSpeciesId !== speciesId && (
+                                            <p className="empty-note mb-5">
+                                                Evolution family of{' '}
+                                                {entry.forms?.baseName ?? entry.name}. This species'
+                                                forms are listed separately below.
                                             </p>
-                                        ) : evolution.isError ? (
-                                            <div role="alert">
-                                                <p className="empty-note">
-                                                    Could not load the full evolution line.
-                                                </p>
-                                                <button
-                                                    className="page-button mt-3"
-                                                    onClick={() => {
-                                                        void evolution.refetch();
-                                                    }}
-                                                >
-                                                    Try again
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <EvolutionLine
-                                                entry={entry}
-                                                links={evolution.data}
-                                                datasetId={datasetId}
-                                            />
                                         )}
+                                        <EvolutionLine
+                                            entry={{
+                                                speciesId: entry.evolutionBaseSpeciesId,
+                                                name:
+                                                    entry.evolutionBaseSpeciesId === speciesId
+                                                        ? formDisplayName(
+                                                              entry.name,
+                                                              entry.formInfo,
+                                                          )
+                                                        : (evolutionBase?.name ?? entry.name),
+                                                sprites: evolutionBase
+                                                    ? { front: evolutionBase.sprite }
+                                                    : entry.sprites,
+                                            }}
+                                            links={entry.evolutionFamily}
+                                            datasetId={datasetId}
+                                            currentPageSpeciesId={speciesId}
+                                            currentLabel={
+                                                entry.evolutionBaseSpeciesId === speciesId
+                                                    ? 'Current stage'
+                                                    : 'Base species'
+                                            }
+                                        />
                                     </div>
-                                    {internal.length > 0 && (
-                                        <details className="internal-routes">
-                                            <summary>
-                                                Internal form changes{' '}
-                                                <span className="count-label">
-                                                    {internal.length}
-                                                </span>
-                                            </summary>
-                                            <p className="mb-4 mt-3 text-xs leading-relaxed text-stone-600">
-                                                These are internal form-routing markers, rather than
-                                                ordinary player-triggered evolutions.
-                                            </p>
-                                            <EvolutionRules
-                                                links={internal}
-                                                speciesId={speciesId}
-                                                datasetId={datasetId}
-                                            />
-                                        </details>
-                                    )}
                                 </section>
+                                <FormsSection
+                                    forms={entry.forms}
+                                    changes={entry.formChanges}
+                                    speciesId={speciesId}
+                                    datasetId={datasetId}
+                                />
                                 <section
                                     className="species-section"
                                     aria-labelledby="learnset-title"

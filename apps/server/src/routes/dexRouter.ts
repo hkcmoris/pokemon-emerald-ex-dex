@@ -107,6 +107,7 @@ export function createDexRouter(repository: DexRepository): Router {
                     'machines',
                     'details',
                     'sprites',
+                    'forms',
                 ].includes(resource))
         ) {
             throw new HttpError(404, 'not_found', 'Endpoint not found');
@@ -140,6 +141,9 @@ export function createDexRouter(repository: DexRepository): Router {
             case 'evolution':
                 res.json({ data: await repository.getEvolutions(id) });
                 break;
+            case 'forms':
+                res.json({ data: await repository.getSpeciesForms(id) });
+                break;
             case 'machines':
                 res.json({ data: await repository.getMachines(id) });
                 break;
@@ -152,6 +156,30 @@ export function createDexRouter(repository: DexRepository): Router {
         checkQueryKeys(req.query, ['q', 'page', 'pageSize']);
         const { page, pageSize } = pagination(req.query);
         res.json(await repository.listMoves(stringQuery(req.query.q, 'q', 100), page, pageSize));
+    });
+
+    router.get('/item-pockets', async (_req, res) => {
+        res.json({ data: await repository.getItemPockets() });
+    });
+
+    router.get('/items', async (req, res) => {
+        checkQueryKeys(req.query, ['q', 'pocket', 'page', 'pageSize']);
+        const { page, pageSize } = pagination(req.query);
+        res.json(
+            await repository.listItems(
+                stringQuery(req.query.q, 'q', 100),
+                stringQuery(req.query.pocket, 'pocket', 32),
+                page,
+                pageSize,
+            ),
+        );
+    });
+
+    router.get('/items/:id', async (req, res) => {
+        const id = integer(req.params.id, 'item ID', 0, 65535);
+        const item = await repository.getItem(id);
+        if (!item) throw new HttpError(404, 'not_found', 'Item not found');
+        res.json({ data: item });
     });
 
     router.get(['/moves/:id', '/moves/:id/:resource'], async (req, res) => {

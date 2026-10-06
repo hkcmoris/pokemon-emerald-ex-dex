@@ -10,9 +10,14 @@ results with linked species detail pages. Duplicate names remain separate entrie
 species/form ID. Stats are base stats, not calculated battle stats.
 
 Click a species name to see all its imported data: base stats and types, level-up moves,
-the full evolution family, internal form changes, and compatible TMs/HMs. The evolution
+the full evolution family, related forms and form-change rules, and compatible TMs/HMs. The evolution
 line includes every stage and branch, with the viewed species highlighted. Each stage
 links to its detail page and preserves every alternative evolution method.
+Forms have their own section with sprites, friendly labels and transition summaries.
+Mega, Gigantamax, Primal and Ultra Burst forms display their base species' normal
+evolution family without treating form changes as evolution edges. ROM names remain
+unchanged in SQL and the API. Existing databases need `011_forms.sql`, followed by
+`012_import_forms_1.0.4.sql`; see [the forms upgrade](docs/database.md#upgrade-an-already-imported-database-with-forms).
 The list shows each species' standard front sprite; detail pages show standard and
 shiny front sprites. The four forms without exported sprites show placeholders.
 On mobile, a compact header and side-by-side type/sort filters leave room for the
@@ -37,7 +42,7 @@ neither the client nor the server reads them at runtime.
 ## SQL database preparation
 
 MySQL/MariaDB schema for an existing shared database, a prepared transactional import
-of the four JSON exports and sprite manifest, verification queries, and API query examples are in
+of the five JSON exports and sprite manifest, verification queries, and API query examples are in
 `scripts/sql/`. See [database setup and import instructions](docs/database.md).
 All dex tables, explicitly named constraints and indexes use the `emerald_ex_` prefix.
 
@@ -129,7 +134,7 @@ bundle includes the frontend, a PHP 8.4 API, and all PNG assets. On the server,
 copy `api/private/config.example.php` to `api/private/config.local.php` and fill
 in your production database credentials. No Node process or npm installation is
 needed on the hosting server. The API uses the existing `emerald_ex_*` tables;
-no additional SQL migration is required. Keep `config.local.php` on the server
+apply the forms upgrade before deploying this version. Keep `config.local.php` on the server
 when uploading future builds. See [the complete FileZilla instructions](docs/webzdarma.md).
 
 The PHP source lives in `apps/server/php/`. The Node backend remains available
@@ -193,3 +198,10 @@ docs/             Project notes and architecture decisions
 ## Notes
 
 Important project-specific decisions, limitations, or deployment notes go here.
+
+
+The SQL-backed item catalog includes all 828 ROM items and native icons, searchable
+by name/ID and pocket at `#/items`. Evolution and form panels show linked item sprites
+from editable database filenames. Existing databases upgrade with
+`scripts/sql/013_items.sql` followed by `014_import_items_1.0.4.sql` after the forms
+migrations; see [database setup](docs/database.md) and [Webzdarma deployment](docs/webzdarma.md).

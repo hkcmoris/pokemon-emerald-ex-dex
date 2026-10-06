@@ -28,7 +28,12 @@ export async function prepareWebzdarmaUpload(projectRoot: string): Promise<strin
         await mkdir(dirname(target), { recursive: true });
         await cp(join(root, 'apps/server/php', file), target);
     }
-    for (const folder of ['move-categories', 'types', 'pokemon_emerald_ex_1.0.4_battle_sprites']) {
+    for (const folder of [
+        'move-categories',
+        'types',
+        'items',
+        'pokemon_emerald_ex_1.0.4_battle_sprites',
+    ]) {
         await cp(join(root, 'assets', folder), join(output, 'assets', folder), {
             recursive: true,
             filter: async (source) =>
@@ -41,7 +46,9 @@ export async function prepareWebzdarmaUpload(projectRoot: string): Promise<strin
         'Upload the CONTENTS of this folder to /pokemon-emerald-ex-dex/ using FileZilla.\n' +
             'Include the hidden .htaccess files. Enable PHP 8.4 in the hosting panel.\n' +
             'On the server, copy api/private/config.example.php to config.local.php and fill in the production database credentials.\n' +
-            'Keep config.local.php on the server during future uploads. No SQL reimport is required if migrations 001-010 are already applied.\n' +
+            'Keep config.local.php on the server during future uploads.\n' +
+            'If forms have not yet been imported, select the existing database and import scripts/sql/011_forms.sql, then scripts/sql/012_import_forms_1.0.4.sql with an administrator. Do not run the full replacement import for an upgrade.\n' +
+            'Before deploying the items release, import scripts/sql/013_items.sql, then scripts/sql/014_import_items_1.0.4.sql. Forms migrations 011/012 are prerequisites. Preserve config.local.php.\n' +
             'Check /pokemon-emerald-ex-dex/api/health, then /pokemon-emerald-ex-dex/api/v1/dataset.\n',
         'utf8',
     );

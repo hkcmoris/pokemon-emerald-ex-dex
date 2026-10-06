@@ -70,6 +70,9 @@ void test(
             join(root, 'assets/move-categories'),
             { recursive: true },
         );
+        await cp(new URL('../../../assets/items', import.meta.url), join(root, 'assets/items'), {
+            recursive: true,
+        });
         const server = await startPhpTestServer(root, {
             ...process.env,
             DB_HOST: '',
@@ -91,6 +94,9 @@ void test(
             ['/icons/types/.htaccess', 403],
             ['/icons/types/..%5cprivate.png', 403],
             ['/sprites/emerald-ex-1.0.4/unknown/a.png', 404],
+            ['/icons/items/0300_Gengarite.png', 200],
+            ['/icons/items/README.txt', 404],
+            ['/icons/items/nested%2f0300_Gengarite.png', 404],
         ] as const) {
             strictEqual((await fetch(`${server.url}${path}`)).status, status, path);
         }

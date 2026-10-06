@@ -39,7 +39,8 @@ JOIN emerald_ex_move_categories AS c ON c.dataset_id = m.dataset_id AND c.catego
 WHERE l.dataset_id = @dataset_id AND l.species_id = @species_id
 ORDER BY l.entry_order;
 
--- GET /api/v1/species/:id/evolution: outgoing rules; use to_species_id for pre-evolutions.
+-- One evolution traversal step: outgoing rules; also query to_species_id for ancestors.
+-- The API iterates both directions for the full family, resolving battle forms to their base.
 -- Internal routing markers are stored but excluded from player-triggered evolutions.
 SELECT e.edge_order AS edgeOrder, e.from_species_id AS fromSpeciesId,
        e.to_species_id AS toSpeciesId, s.name AS toName, em.name AS method,
@@ -49,6 +50,39 @@ JOIN emerald_ex_species AS s ON s.dataset_id = e.dataset_id AND s.species_id = e
 JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
 WHERE e.dataset_id = @dataset_id AND e.from_species_id = @species_id AND e.internal_only = 0
 ORDER BY e.edge_order;
+
+-- GET /api/v1/species/:id/forms: membership and group base (no row means data: null).
+SELECT fg.form_group_id AS formGroupId, fg.base_species_id AS baseSpeciesId,
+       base.name AS baseName, sf.is_base_form AS isBaseForm, sf.form_kind AS formKind,
+       sf.form_label AS formLabel
+FROM emerald_ex_species_forms AS sf
+JOIN emerald_ex_form_groups AS fg
+    ON fg.dataset_id = sf.dataset_id AND fg.form_group_id = sf.form_group_id
+JOIN emerald_ex_species AS base
+    ON base.dataset_id = fg.dataset_id AND base.species_id = fg.base_species_id
+WHERE sf.dataset_id = @dataset_id AND sf.species_id = @species_id;
+
+-- All members and standard front sprites for the requested member's group.
+SELECT members.species_id AS speciesId, s.name, members.form_kind AS formKind,
+       members.form_label AS formLabel, members.is_base_form AS isBaseForm, sp.front_file AS sprite
+FROM emerald_ex_species_forms AS requested
+JOIN emerald_ex_species_forms AS members
+    ON members.dataset_id = requested.dataset_id AND members.form_group_id = requested.form_group_id
+JOIN emerald_ex_species AS s
+    ON s.dataset_id = members.dataset_id AND s.species_id = members.species_id
+LEFT JOIN emerald_ex_species_sprites AS sp
+    ON sp.dataset_id = members.dataset_id AND sp.species_id = members.species_id
+WHERE requested.dataset_id = @dataset_id AND requested.species_id = @species_id
+ORDER BY members.is_base_form DESC, members.species_id;
+
+-- Requested-species outgoing rules; /forms also includes sources OR targets among all members.
+-- Restoration uses NULL target FK, raw target 0 and restore_previous_form = 1.
+SELECT source_species_id, change_order, target_species_id, raw_target_species_id,
+       restore_previous_form, method_id, form_kind, battle_only, details, summary,
+       raw_param1, raw_param2, raw_param3
+FROM emerald_ex_form_changes
+WHERE dataset_id = @dataset_id AND source_species_id = @species_id
+ORDER BY change_order;
 
 -- Optional /api/v1/species/:id/machines for TM/HM compatibility.
 SELECT ma.machine_code AS machine, ma.kind, ma.number, m.move_id AS moveId, m.name
@@ -90,3 +124,14 @@ SELECT t.type_id AS typeId, t.name, t.icon_file AS iconFile
 FROM emerald_ex_moves AS m
 JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
 WHERE m.dataset_id = @dataset_id AND m.move_id = @move_id;
+
+
+-- Item metadata and editable icon filenames (GET /api/v1/items/:id).
+SELECT i.item_id, i.name, i.description, i.price, p.name AS pocket, i.icon_file
+FROM emerald_ex_items i JOIN emerald_ex_item_pockets p ON p.dataset_id = i.dataset_id AND p.pocket_id = i.pocket_id
+WHERE i.dataset_id = @dataset_id AND i.item_id = 300;
+
+-- Evolution items are separate references, never additional evolution edges.
+SELECT r.edge_order, r.role, i.item_id, i.name, i.icon_file
+FROM emerald_ex_evolution_items r JOIN emerald_ex_items i ON i.dataset_id = r.dataset_id AND i.item_id = r.item_id
+WHERE r.dataset_id = @dataset_id AND i.item_id = 213;

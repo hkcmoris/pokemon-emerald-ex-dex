@@ -22,7 +22,7 @@ Use `.env.local` at the repository root for development. The backend loads it be
 | `DEV_API_TARGET` | Vite dev/preview proxy target | `http://127.0.0.1:3000` |
 
 The API only issues SELECT queries. Its production database account needs SELECT on
-the 14 dex tables. Apply schema/import scripts separately with an administrative
+the 22 dex tables. Apply schema/import scripts separately with an administrative
 account. The backend uses a pool of at most five connections and checks that the
 configured dataset exists before listening. Connections and queries have timeouts;
 the pool closes when the process receives SIGINT or SIGTERM.
@@ -39,13 +39,14 @@ write endpoints. Configure request limits at the production reverse proxy if nee
 | `/api/v1/types` | Complete ROM type catalog with `typeId`, `name`, and `iconFile`, sorted by name |
 | `/api/v1/species` | Paginated species with stats and ordered type names/IDs |
 | `/api/v1/species/:id` | One species/form with stats and types |
-| `/api/v1/species/:id/details` | Species, complete learnset, full TM/HM move records, and incoming/outgoing evolution rules including internal form markers |
+| `/api/v1/species/:id/details` | Species, learnset, TM/HM records, immediate/public full-family evolutions, form metadata, group and form-change rules |
 | `/api/v1/species/:id/name` | `{ name }` |
 | `/api/v1/species/:id/stats` | Six stats and `baseStatTotal` |
 | `/api/v1/species/:id/types` | Ordered `{ typeId, name, iconFile, slot }` records |
 | `/api/v1/species/:id/sprites` | Standard/shiny front/back filenames, optional second frames, frame count and missing-sprite reason |
 | `/api/v1/species/:id/learnset` | Ordered level-up entries with full move records |
 | `/api/v1/species/:id/evolution` | Full connected evolution family, including ancestors, descendants and branches; excludes internal routing markers |
+| `/api/v1/species/:id/forms` | Actual ROM form group with members and changes, or `null` for an ungrouped species |
 | `/api/v1/species/:id/machines` | TM/HM compatibility records |
 | `/api/v1/moves` | Paginated moves, ordered by internal move ID |
 | `/api/v1/moves/:id` | Full move record including description and engine IDs |
@@ -114,12 +115,14 @@ Totals and ordering depend on the filters. Shared TypeScript contracts live in
 `packages/shared/src/dex.ts`.
 
 The species detail response extends the core species record with `learnset`,
-`machines`, and `evolutionLinks` arrays. Machine records include the full move plus
-`machine`, `kind`, and `number`. Evolution links include both species IDs/names,
-`internalOnly`, the rule summary, method/trigger, level, complete conditions, and raw
-ROM identifiers. `fromSprite` and `toSprite` contain each endpoint's standard front
-filename (or NULL if unavailable), so incoming evolutions and internal form changes
-show the correct species/form sprite. Rules retain their original `edgeOrder`.
+`machines`, `evolutionLinks`, `evolutionFamily`, `evolutionBaseSpeciesId`, `formInfo`,
+`forms`, and `formChanges`. Machine records include the full move plus `machine`,
+`kind`, and `number`. Evolution links include both species IDs/names, `internalOnly`,
+the rule summary, method/trigger, level, complete conditions, and raw ROM identifiers.
+`fromSprite` and `toSprite` contain standard front filenames or NULL. Rules retain
+their original `edgeOrder`. Both evolution arrays exclude internal routing markers
+and form changes. `evolutionLinks` contains only immediate relationships of the
+requested species; `evolutionFamily` contains the complete resolved family.
 
 The `/evolution` endpoint returns all player-facing rules in the species' connected
 evolution family, following relationships in both directions. Any stage or branch
@@ -128,17 +131,54 @@ IDs/names, `fromSprite`, `toSprite`, and the complete evolution method/condition
 Alternative methods for the same pair remain separate rules. Internal form-routing
 markers are excluded from both traversal and results; `internalOnly` is always
 false. Species with no public evolution relationships return an empty array.
-The detail response's `evolutionLinks` still contains the requested species'
-immediate incoming/outgoing links, including internal form markers. The dex detail
-page fetches `/evolution` separately to display the full family with the viewed
-species highlighted; internal markers remain in their separate detail section.
+For non-base group members of kind `mega`, `gigantamax`, `primal`, or `ultra_burst`,
+the API resolves the family from the group's `baseSpeciesId`. An incoming battle-only
+`ultra_burst` rule also identifies Ultra Necrozma, whose authoritative group kind is
+`alternate`. Regional and other alternate forms retain their own evolution behavior.
+This resolution applies to `/evolution` and the detail response's `evolutionFamily`;
+`evolutionBaseSpeciesId` identifies the species used. It inserts no evolution edges.
+The client uses the embedded family and forms, without additional sequential requests.
+Inherited families highlight the base species; the Forms section highlights the
+requested form.
 
 For example, `/api/v1/species/92/evolution`, `/api/v1/species/93/evolution`, and
 `/api/v1/species/94/evolution` each return Gastly → Haunter and both Haunter → Gengar
 rules (trade and Linking Cord). Likewise, any Eevee evolution returns all Eevee
 branches, rather than only its own path. This changes the former outgoing-only
-behavior without changing the `{ "data": [...] }` envelope. No SQL migration is
-needed.
+behavior without changing the `{ "data": [...] }` envelope. Mega Gengar (914) and
+Gigantamax Gengar (1496) also return this family after the forms migration.
+
+### Form groups and changes
+
+`/api/v1/species/94/forms`, `/api/v1/species/914/forms`, and
+`/api/v1/species/1496/forms` return the same `{ "data": ... }` group: `formGroupId`
+33, `baseSpeciesId` 94, `baseName` Gengar, and members 94, 914, 1496. Members are
+ordered base first, then by species ID. Each has `speciesId`, raw ROM `name`,
+`formKind`, nullable `formLabel`, `isBaseForm`, and nullable standard front `sprite`.
+Only authoritative ROM groups are returned: an existing ungrouped species gets
+`{ "data": null }`, while an unknown species gets 404.
+
+Group `changes` includes all rules whose source or non-null target belongs to the
+group, ordered by source species ID and local `changeOrder`. Each rule includes
+source/target IDs, raw names and front sprites; `rawTargetSpeciesId`;
+`restorePreviousForm`; method ID/name; `formKind`; `battleOnly`; original `details`
+JSON; `summary`; and `rawParams` with `param1`, `param2`, `param3`. Gengar's rules
+include `mega_evolution_item` with Gengarite (item ID 300) and `gigantamax`.
+Repeated ROM rules remain separate records. Missing item/move/ability IDs are not
+invented. Species ID 0 is an engine restoration sentinel: `targetSpeciesId`,
+`targetName` and `targetSprite` are null, `rawTargetSpeciesId` is 0 and
+`restorePreviousForm` is true. It never links to a fake species 0.
+
+In details, `forms` is the same group object; `formInfo` contains `formGroupId`,
+`baseSpeciesId`, `isBaseForm`, `formKind`, and nullable `formLabel`, or null without
+membership. `formChanges` contains the requested species' outgoing rules, including
+rules for species without authoritative group membership. Relationship-only groups
+(including regional forms) appear even without change rules.
+
+Raw ROM names stay unchanged in every API response. The UI composes labels such as
+Mega Gengar, Gigantamax Gengar, Alolan Raichu, and Mega Charizard X/Y from form metadata;
+a missing label falls back to the ROM name. Form cards show sprites, IDs, labels and
+applicable summaries, link to each species, and stay separate from Evolution.
 
 Core species records, including list and detail responses, include `sprites` with
 `front`, `shinyFront`, `frontFrame2`, `shinyFrontFrame2`, `back`, `shinyBack`,
@@ -183,7 +223,7 @@ See [type icon updates](database.md#update-type-icons).
 Webzdarma deployment uses the PHP 8.4 implementation in `apps/server/php/`.
 Run `npm run build:webzdarma` to create `dist/webzdarma/` for FileZilla. See
 [configuration and upload instructions](webzdarma.md). The existing versioned
-API responses and prefixed SQL tables are unchanged. Under the configured
+API conventions and prefixed SQL tables are shared by both implementations. Under the configured
 subfolder the endpoints are `/pokemon-emerald-ex-dex/api/v1/...`, sprites are
 `/pokemon-emerald-ex-dex/api/sprites/...`, and icons are
 `/pokemon-emerald-ex-dex/api/icons/...`. The build base controls all client URLs.
@@ -202,9 +242,8 @@ The Node deployment instructions below remain available for Node-capable hosts.
 
 The client requests dataset metadata and types, then fetches each species list page
 with the selected filters and sort. Opening `#/species/:id` fetches `/species/:id/details`
-and displays stats, types, learnsets, evolution relationships and TM/HM compatibility.
-Move descriptions and raw identifiers expand inline; internal form markers are
-labelled separately from ordinary evolutions. Hash routes support direct links and
+and displays stats, types, learnsets, evolution families, forms and TM/HM compatibility.
+Move descriptions, form rules and raw identifiers expand inline. Hash routes support direct links and
 reloads on static hosting without additional frontend rewrite rules. Returning to
 the list preserves filters during the session.
 The list loads standard front sprites lazily at 64×64. Details show standard and
@@ -245,6 +284,10 @@ For type icons, import `009_type_icons.sql` and `010_seed_type_icons.sql` before
 deploying the API and include `assets/types/` alongside the backend at its
 repository-relative location. The existing `/api/*` proxy forwards these images.
 
+For forms, import `011_forms.sql`, then `012_import_forms_1.0.4.sql` into the existing
+database using an administrator before deploying the updated APIs/client. See
+[upgrade instructions](database.md#upgrade-an-already-imported-database-with-forms).
+
 ## Verification
 
 `npm run check` runs type checks, lint, formatting and database-independent tests.
@@ -253,7 +296,7 @@ repository-relative location. The existing `/api/*` proxy forwards these images.
 source fixture, pagination/filtering/sorting, species and move subresources, empty
 relationships, internal-marker exclusion and dataset isolation. Aggregate detail
 responses are checked against the source learnsets, complete move data, and evolution
-rules in both directions, including internal markers. Sprite references are compared
+rules in both directions, excluding internal markers. Sprite references are compared
 against the manifest for every species; unit tests check PNG serving, unknown paths,
 filename encoding, image alternatives and missing-sprite placeholders.
 Move category filenames are compared with SQL across move lists, subresources and
@@ -264,3 +307,33 @@ Type tests compare catalog/slot/move filenames with SQL and verify that all supp
 PNGs are served. Client tests cover the Electric/Dark names, replacement filenames,
 and missing-icon text. Browser checks confirm list/detail/move displays and mobile
 row visibility, including filename changes without rebuilding or restarting.
+Form tests cover authoritative counts, malformed input, Gengar membership/item rules,
+Primal Reversion, regional forms, Rotom choices, weather, held items, Ultra Burst and
+restoration targets. PHP/Node parity checks compare `/forms`, embedded details and
+inherited evolution families. Client tests cover labels, sprites, navigation,
+ungrouped species, restoration and separate Evolution/Forms sections.
+
+
+## Items and evolution item icons
+
+Both Node and PHP 8.4 expose the same SQL-backed resources:
+
+- `GET /api/v1/items?q=stone&pocket=Items&page=1&pageSize=40`: paginated items in ROM ID order. `q` accepts a name substring or numeric ID (optionally prefixed with `#`); `%`, `_` and `!` are literal search characters. `pocket` is an exact pocket name. Pagination uses the existing `data`/`meta` envelope and a maximum page size of 250.
+- `GET /api/v1/items/:id`: all item metadata, including `pluralName`, `description`, `price`, `pocketId`, `pocket`, `secondaryId`, `holdEffectId`, `holdEffectParam`, `importance`, `notConsumed`, `itemUseTypeId`, `battleUsageId`, `flingPower`, `iconFile` and the diagnostic `rom` object. IDs range from 0 through 65535 at the API boundary; missing IDs return 404. Item 0 is a real exported placeholder, unlike the species restoration sentinel.
+- `GET /api/v1/item-pockets`: five `{ pocketId, name }` records.
+- `GET /api/icons/items/:filename`: native 24×24 PNG from `assets/items/`, with the existing image caching and path restrictions.
+
+Evolution records and form-change records now include `items`, an array of
+`{ role, itemId, name, iconFile }` references loaded through relational join tables.
+An evolution can require a used `item` or a `heldItem`; form rules also include roles
+such as `megaStone`, `heldOrb` and `ultraItem`. Rules without explicit item IDs have
+an empty array. Existing `conditions`/`details` and human-readable summaries remain
+unchanged; expanded rule names can differ from compact ROM item names. IDs identify
+items, never a name match or an inferred raw parameter.
+
+Species `/details`, `/evolution` and `/forms` embed these references so the frontend
+can render linked item sprites without additional item requests. For example,
+Pikachu → Raichu includes Thunder Stone #213, while Gengar's Mega form includes
+Gengarite #300 in its separate Forms section. The item catalog opens at `#/items`
+and an individual item at `#/items/:id`. Missing filenames/images retain the name
+and link with an accessible placeholder.

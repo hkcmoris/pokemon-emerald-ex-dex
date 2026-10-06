@@ -19,4 +19,11 @@ export type {
     SpeciesMachine,
     SpeciesType,
     SpeciesSprites,
+    SpeciesFormInfo,
+    FormGroupMember,
+    FormChange,
+    SpeciesFormGroup,
+    Item,
+    ItemPocket,
+    RuleItem,
 } from './dex.js';

@@ -1,7 +1,8 @@
-import type { Pokemon, SpeciesEvolution } from '@pokemon-emerald-ex-dex/shared';
+import type { SpeciesEvolution } from '@pokemon-emerald-ex-dex/shared';
 
 import { speciesHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
+import { RuleItems } from './ItemIcon.js';
 
 interface EvolutionStage {
     speciesId: number;
@@ -10,7 +11,16 @@ interface EvolutionStage {
     incoming: SpeciesEvolution[];
 }
 
-function evolutionStages(entry: Pokemon, links: readonly SpeciesEvolution[]): EvolutionStage[][] {
+interface EvolutionEntry {
+    speciesId: number;
+    name: string;
+    sprites: { front: string | null } | null;
+}
+
+function evolutionStages(
+    entry: EvolutionEntry,
+    links: readonly SpeciesEvolution[],
+): EvolutionStage[][] {
     const species = new Map<number, EvolutionStage>();
     for (const link of links) {
         if (link.internalOnly) continue;
@@ -40,6 +50,8 @@ function evolutionStages(entry: Pokemon, links: readonly SpeciesEvolution[]): Ev
             incoming: [],
         });
     }
+    const current = species.get(entry.speciesId);
+    if (current) current.name = entry.name;
     const stages: EvolutionStage[][] = [];
     while (species.size > 0) {
         const remaining = [...species.values()];
@@ -100,10 +112,14 @@ export function EvolutionLine({
     entry,
     links,
     datasetId,
+    currentLabel = 'Current stage',
+    currentPageSpeciesId = entry.speciesId,
 }: {
-    entry: Pokemon;
+    entry: EvolutionEntry;
     links: readonly SpeciesEvolution[];
     datasetId: string | undefined;
+    currentLabel?: string;
+    currentPageSpeciesId?: number;
 }) {
     const stages = evolutionStages(entry, links);
     return (
@@ -126,7 +142,11 @@ export function EvolutionLine({
                                         <a
                                             className="evolution-species"
                                             href={speciesHref(node.speciesId)}
-                                            aria-current={current ? 'page' : undefined}
+                                            aria-current={
+                                                node.speciesId === currentPageSpeciesId
+                                                    ? 'page'
+                                                    : undefined
+                                            }
                                         >
                                             <SpeciesSprite
                                                 datasetId={datasetId}
@@ -139,7 +159,7 @@ export function EvolutionLine({
                                             </span>
                                             {current && (
                                                 <span className="current-stage-label">
-                                                    Current stage
+                                                    {currentLabel}
                                                 </span>
                                             )}
                                         </a>
@@ -154,6 +174,7 @@ export function EvolutionLine({
                                                             {link.summary}
                                                         </p>
                                                         <EvolutionRuleDetails link={link} />
+                                                        <RuleItems items={link.items} />
                                                     </li>
                                                 ))}
                                             </ul>

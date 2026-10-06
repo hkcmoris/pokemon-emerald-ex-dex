@@ -30,7 +30,14 @@ foreach (['q=a&q=b', 'page=0', 'pageSize=251', 'sort=DROP+TABLE', 'extra=1', 'q=
 }
 validateEndpoint('/v1/species', requestQuery('q=%230001&type=Poison&sort=speed&page=2&pageSize=40'));
 validateEndpoint('/v1/species/0001/details', []);
+validateEndpoint('/v1/species/914/forms', []);
 validateEndpoint('/v1/moves/0/type', []);
+validateEndpoint('/v1/items/0', []);
+validateEndpoint('/v1/item-pockets', []);
+validateEndpoint('/v1/items', requestQuery('q=%230300&pocket=Items&page=1'));
+foreach (['q=a&q=b', 'pageSize=251', 'pocket[]=Items', 'extra=1'] as $query) { expectError(static fn() => validateEndpoint('/v1/items', requestQuery($query)), 400); }
+expectError(static fn() => validateEndpoint('/v1/items/-1', []), 400);
+expectError(static fn() => validateEndpoint('/v1/items/1/unknown', []), 404);
 expectError(static fn() => validateEndpoint('/v1/species/1/private', []), 404);
 expectError(static fn() => validateEndpoint('/v1/species/1/details/extra', []), 404);
 foreach (['/icons/types/../config.png', '/icons/types/.secret.png', '/icons/types/a\\b.png', '/icons/types/a.png/extra', '/sprites/emerald-ex-1.0.4/private/a.png'] as $path) {
@@ -41,4 +48,5 @@ foreach (['/icons/types/../config.png', '/icons/types/.secret.png', '/icons/type
 if (imagePath('/icons/types/48px-Fire.png', $argv[1]) === null) {
     throw new RuntimeException('Missing known type icon');
 }
+if (imagePath('/icons/items/0300_Gengarite.png', $argv[1]) === null) { throw new RuntimeException('Missing known item icon'); }
 echo "PHP validation passed\n";

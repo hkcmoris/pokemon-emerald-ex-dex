@@ -61,6 +61,39 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
         for (let page = 1; page <= 5; page++) await compare(`moves?page=${page}&pageSize=250`);
     });
     await t.test(
+        'item metadata, pockets, search, and database-driven rule icons match',
+        async () => {
+            await compare('item-pockets');
+            for (let page = 1; page <= 4; page++) await compare(`items?page=${page}&pageSize=250`);
+            for (const id of [0, 213, 300, 465, 796, 827]) await compare(`items/${id}`);
+            for (const query of [
+                'q=%230300',
+                'q=stone',
+                'pocket=Berries',
+                'pocket=Pok%C3%A9%20Balls',
+                'q=%25',
+                'q=_',
+                'q=%21',
+                'q=' + '9'.repeat(100),
+                'page=65535',
+            ])
+                await compare(`items?${query}`);
+            await compare('items/65535', 404);
+            for (const path of [
+                'items/-1',
+                'items?pageSize=251',
+                'items?pocket[]=Items',
+                'items?q=a&q=b',
+                'items?unknown=1',
+            ])
+                await compare(path, 400);
+            await compare('items/1/unknown', 404);
+            await compare('species/25/details');
+            await compare('species/61/evolution');
+            await compare('species/94/forms');
+        },
+    );
+    await t.test(
         'search, filtering, sorting, Unicode, literal wildcards, and empty pages match',
         async () => {
             for (const query of [
@@ -85,7 +118,10 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
     await t.test(
         'complete species details include forms, missing sprites, incoming evolutions, conditions, learnsets, and machines',
         async () => {
-            for (const id of [1, 25, 29, 92, 716, 958, 1431, 1432, 1433, 1435, 1523]) {
+            for (const id of [
+                1, 25, 29, 92, 94, 914, 1496, 382, 954, 384, 953, 479, 351, 483, 1167, 1209, 1420,
+                716, 958, 1431, 1432, 1433, 1435, 1523,
+            ]) {
                 await compare(`species/${id}/details`);
             }
             for (const resource of [
@@ -97,6 +133,7 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
                 '/evolution',
                 '/machines',
                 '/sprites',
+                '/forms',
             ]) {
                 await compare(`species/1${resource}`);
             }
@@ -142,6 +179,19 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
         },
     );
     await t.test(
+        'forms responses match for every member of representative groups and ungrouped species',
+        async () => {
+            for (const id of [
+                94, 914, 1496, 382, 954, 384, 953, 26, 958, 479, 351, 483, 718, 1167, 800, 1207,
+                1209, 1420, 1,
+            ]) {
+                await compare(`species/${id}/forms`);
+                await compare(`species/${id}/evolution`);
+            }
+            await compare('species/65535/forms', 404);
+        },
+    );
+    await t.test(
         'all move subresources, zero ID, damage aliases, and missing moves match',
         async () => {
             for (const resource of ['', '/name', '/category', '/pp', '/damage', '/power', '/type'])
@@ -172,6 +222,7 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
             for (const path of [
                 'icons/types/48px-Lightning.png',
                 'icons/types/Ghost.png',
+                'icons/items/0300_Gengarite.png',
                 'icons/move-categories/physical.png',
                 'sprites/emerald-ex-1.0.4/front/0001_Bulbasaur.png',
                 'sprites/emerald-ex-1.0.4/shiny_front/0001_Bulbasaur.png',

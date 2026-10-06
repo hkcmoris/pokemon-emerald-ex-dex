@@ -37,6 +37,7 @@ function edge(edgeOrder: number, from: Pokemon, to: Pokemon, summary: string): S
         summary,
         rawParam: 25,
         internalOnly: false,
+        items: [],
     };
 }
 
@@ -116,4 +117,21 @@ void test('internal markers do not become evolution stages and cyclic data rende
     ]);
     deepStrictEqual(result.ids, [1, 2]);
     deepStrictEqual(result.current, [1]);
+});
+
+void test('evolution panels show item icons and links for both use-item and held-item rules', () => {
+    const pikachu = species(25, 'Pikachu');
+    const raichu = species(26, 'Raichu');
+    const link = edge(1, pikachu, raichu, 'Use Thunder Stone.');
+    link.items = [
+        { role: 'item', itemId: 213, name: 'Thunder Stone', iconFile: '0213_Thunder_Stone.png' },
+    ];
+    const result = render(pikachu, [link]);
+    match(result.html, /Thunder Stone item icon/);
+    match(result.html, /href="#\/items\/213"/);
+    match(result.html, /0213_Thunder_Stone.png/);
+    link.items = [
+        { role: 'heldItem', itemId: 465, name: 'King’s Rock', iconFile: '0465_King_s_Rock.png' },
+    ];
+    match(render(pikachu, [link]).html, /href="#\/items\/465"/);
 });

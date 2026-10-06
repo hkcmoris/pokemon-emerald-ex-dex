@@ -24,11 +24,20 @@ for (const kind of sourceKinds) {
 }
 
 void test('all exports produce a complete relational import, including move zero and form markers', async () => {
-    const { sql, spritesSql, counts, datasetId } = buildDexImport(sources);
+    const { sql, spritesSql, formsSql, itemsSql, counts, datasetId } = buildDexImport(sources);
     strictEqual(datasetId, 'emerald-ex-1.0.4');
+    strictEqual(
+        itemsSql,
+        await readFile(new URL('sql/014_import_items_1.0.4.sql', import.meta.url), 'utf8'),
+    );
+    deepStrictEqual(
+        [...itemsSql.matchAll(/DELETE FROM (\w+)/g)].map((match) => match[1]),
+        ['emerald_ex_form_change_items', 'emerald_ex_evolution_items', 'emerald_ex_sources'],
+    );
+    strictEqual(itemsSql.includes('icon_file = VALUES(icon_file)'), false);
     deepStrictEqual(counts, {
         emerald_ex_datasets: 1,
-        emerald_ex_sources: 5,
+        emerald_ex_sources: 7,
         emerald_ex_types: 19,
         emerald_ex_move_categories: 3,
         emerald_ex_evolution_methods: 48,
@@ -41,6 +50,14 @@ void test('all exports produce a complete relational import, including move zero
         emerald_ex_machines: 58,
         emerald_ex_species_machines: 32358,
         emerald_ex_evolutions: 644,
+        emerald_ex_form_change_methods: 20,
+        emerald_ex_form_groups: 209,
+        emerald_ex_species_forms: 700,
+        emerald_ex_form_changes: 1600,
+        emerald_ex_item_pockets: 5,
+        emerald_ex_items: 828,
+        emerald_ex_evolution_items: 125,
+        emerald_ex_form_change_items: 1167,
     });
     strictEqual(sql.includes("('emerald-ex-1.0.4', 0, '-', ''"), true);
     strictEqual(sql.includes('65534'), true);
@@ -56,6 +73,22 @@ void test('all exports produce a complete relational import, including move zero
     deepStrictEqual(deletes, ['emerald_ex_species_sprites', 'emerald_ex_sources']);
     strictEqual(spritesSql.includes("AND source_kind = 'battle_sprites'"), true);
     strictEqual(spritesSql.includes('1431, NULL, NULL, NULL, NULL, NULL, NULL, 0'), true);
+    strictEqual(
+        formsSql,
+        await readFile(new URL('sql/012_import_forms_1.0.4.sql', import.meta.url), 'utf8'),
+    );
+    deepStrictEqual(
+        [...formsSql.matchAll(/DELETE FROM (\w+)/g)].map((match) => match[1]),
+        [
+            'emerald_ex_form_changes',
+            'emerald_ex_species_forms',
+            'emerald_ex_form_groups',
+            'emerald_ex_form_change_methods',
+            'emerald_ex_sources',
+        ],
+    );
+    strictEqual(formsSql.includes("AND source_kind = 'forms'"), true);
+    strictEqual(formsSql.includes("('emerald-ex-1.0.4', 1167, 0, NULL, 0, 1,"), true);
 });
 
 void test('SQL string literals preserve Unicode, quotes and backslashes under NO_BACKSLASH_ESCAPES', () => {
@@ -71,7 +104,7 @@ void test('schema, import and query examples stay within the dex table namespace
     const tables = new Set(
         [...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map((match) => match[1]),
     );
-    strictEqual(tables.size, 14);
+    strictEqual(tables.size, 22);
     strictEqual(
         [...tables].every((name) => name.startsWith('emerald_ex_')),
         true,
@@ -92,16 +125,150 @@ void test('schema, import and query examples stay within the dex table namespace
         '008_seed_move_category_icons.sql',
         '009_type_icons.sql',
         '010_seed_type_icons.sql',
+        '011_forms.sql',
+        '012_import_forms_1.0.4.sql',
+        '013_items.sql',
+        '014_import_items_1.0.4.sql',
     ]) {
         const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
         strictEqual(/^\s*(?:(?:CREATE|ALTER|DROP) DATABASE|USE\s)/im.test(sql), false, file);
         for (const match of sql.matchAll(
-            /\b(?:REFERENCES|FROM|JOIN|INSERT INTO|UPDATE|ALTER TABLE) (\w+(?:\.\w+)?)/g,
+            /\b(?:REFERENCES|FROM|JOIN|INSERT INTO|(?<!DUPLICATE KEY )UPDATE|ALTER TABLE) (\w+(?:\.\w+)?)/g,
         )) {
             if (match[1] === 'information_schema.COLUMNS') continue;
             strictEqual(tables.has(match[1]), true, `${file}: ${match[1]}`);
         }
     }
+});
+
+interface FormsFixture {
+    metadata: Record<string, unknown>;
+    methodLegend: Record<string, string>;
+    groups: {
+        formGroupId: number;
+        baseSpeciesId: number;
+        baseName: string;
+        members: {
+            speciesId: number;
+            name: string;
+            isBaseForm: boolean;
+            formKind: string;
+            formLabel: string | null;
+        }[];
+    }[];
+    changes: {
+        sourceSpeciesId: number;
+        sourceName: string;
+        targetSpeciesId: number;
+        targetName: string | null;
+        restorePreviousForm: boolean;
+        methodId: number;
+        changeOrder: number;
+        details: Record<string, unknown>;
+        rawParams: Record<string, number>;
+    }[];
+    species: { speciesId: number; name: string }[];
+}
+
+void test('form imports reject malformed counts, memberships, species, methods and restore sentinels', () => {
+    const cases: ((data: FormsFixture) => void)[] = [
+        (data) => {
+            data.metadata.game = 'Other game';
+        },
+        (data) => {
+            data.metadata.version = '9.9.9';
+        },
+        (data) => {
+            data.metadata.formGroupCount = 210;
+        },
+        (data) => {
+            data.species.pop();
+        },
+        (data) => {
+            data.species[0].name = 'Wrong name';
+        },
+        (data) => {
+            data.groups[1].formGroupId = data.groups[0].formGroupId;
+        },
+        (data) => {
+            data.groups[0].members[0].isBaseForm = false;
+        },
+        (data) => {
+            data.groups[0].members[1].isBaseForm = true;
+        },
+        (data) => {
+            data.groups[0].members[1].speciesId = 65535;
+        },
+        (data) => {
+            data.groups[0].members.push(data.groups[0].members[1]);
+        },
+        (data) => {
+            data.groups[0].baseSpeciesId = 65535;
+        },
+        (data) => {
+            data.changes.pop();
+        },
+        (data) => {
+            data.changes[0].methodId = 65535;
+        },
+        (data) => {
+            delete data.methodLegend['20'];
+        },
+        (data) => {
+            data.changes[0].sourceSpeciesId = 65535;
+        },
+        (data) => {
+            data.changes[0].targetSpeciesId = 65535;
+        },
+        (data) => {
+            data.changes[0].targetSpeciesId = 0;
+            data.changes[0].targetName = null;
+        },
+        (data) => {
+            data.changes.find((change) => change.targetSpeciesId === 0)!.restorePreviousForm =
+                false;
+        },
+        (data) => {
+            data.changes[1].changeOrder = data.changes[0].changeOrder;
+        },
+        (data) => {
+            data.changes[0].rawParams.param1 = 65536;
+        },
+    ];
+    for (const mutate of cases) {
+        const data = JSON.parse(sources.forms.contents) as FormsFixture;
+        mutate(data);
+        throws(() =>
+            buildDexImport({
+                ...sources,
+                forms: { ...sources.forms, contents: JSON.stringify(data) },
+            }),
+        );
+    }
+});
+
+void test('the forms migration matches the fresh schema and preserves opaque mechanic details', async () => {
+    const schema = await readFile(new URL('sql/001_schema.sql', import.meta.url), 'utf8');
+    const migration = await readFile(new URL('sql/011_forms.sql', import.meta.url), 'utf8');
+    strictEqual(
+        schema
+            .replaceAll('\r\n', '\n')
+            .includes(
+                migration.slice(migration.indexOf('CREATE TABLE')).trim().replaceAll('\r\n', '\n'),
+            ),
+        true,
+    );
+    const { formsSql } = buildDexImport(sources);
+    for (const name of [
+        'Gengarite',
+        'Blue Orb',
+        'Rotom Catalog',
+        'Forecast',
+        'DragonAscent',
+        'Ultranecrozium Z',
+    ])
+        strictEqual(formsSql.includes(name), true, name);
+    strictEqual(formsSql.includes('"heldItem":null,"requiredAbility":null'), true);
 });
 
 void test('the type icon seed maps all supplied PNGs, including Electric/Lightning and Dark/Darkness', async () => {
@@ -141,7 +308,14 @@ void test('sprite references point to existing 64x64 PNGs and agree with the mig
         new URL('sql/005_species_sprites.sql', import.meta.url),
         'utf8',
     );
-    strictEqual(schema.includes(migration.slice(migration.indexOf('CREATE TABLE')).trim()), true);
+    strictEqual(
+        schema
+            .replaceAll('\r\n', '\n')
+            .includes(
+                migration.slice(migration.indexOf('CREATE TABLE')).trim().replaceAll('\r\n', '\n'),
+            ),
+        true,
+    );
 });
 
 void test('sprite import rejects mismatched species, missing variants, traversal and wrong counts', () => {
@@ -196,5 +370,69 @@ void test('wrong source versions and incorrect base-stat totals are rejected', (
                 stats_types: { ...sources.stats_types, contents: wrongStats },
             }),
         /Stat total mismatch/,
+    );
+});
+
+void test('items reject missing IDs, invalid counts, pockets, paths, booleans and rule references', () => {
+    const original = JSON.parse(sources.items.contents) as {
+        metadata: Record<string, unknown>;
+        items: Record<string, unknown>[];
+    };
+    const cases = [
+        (data: typeof original) => {
+            data.metadata.version = '9.9.9';
+        },
+        (data: typeof original) => {
+            data.metadata.itemCount = 829;
+        },
+        (data: typeof original) => {
+            data.items.pop();
+        },
+        (data: typeof original) => {
+            data.items[1].itemId = 0;
+        },
+        (data: typeof original) => {
+            data.items[1].pocket = 'Wrong';
+        },
+        (data: typeof original) => {
+            data.items[1].icon = 'icons/../secret.png';
+        },
+        (data: typeof original) => {
+            data.items[1].notConsumed = 1;
+        },
+        (data: typeof original) => {
+            data.items[1].price = -1;
+        },
+    ];
+    for (const change of cases) {
+        const data = structuredClone(original);
+        change(data);
+        throws(() =>
+            buildDexImport({
+                ...sources,
+                items: { ...sources.items, contents: JSON.stringify(data) },
+            }),
+        );
+    }
+    const evolution = JSON.parse(sources.evolutions.contents) as {
+        edges: { conditions: Record<string, unknown> }[];
+    };
+    evolution.edges[0].conditions.item = { itemId: 828, name: 'Unknown' };
+    throws(
+        () =>
+            buildDexImport({
+                ...sources,
+                evolutions: { ...sources.evolutions, contents: JSON.stringify(evolution) },
+            }),
+        /integer/,
+    );
+});
+
+void test('all 828 item icon files exist and have native 24x24 PNG headers', async () => {
+    const data = JSON.parse(sources.items.contents) as { items: { icon: string }[] };
+    await validateSpriteFiles(
+        fileURLToPath(new URL('../assets/items/', import.meta.url)),
+        data.items.map((item) => item.icon.slice('icons/'.length)),
+        24,
     );
 });

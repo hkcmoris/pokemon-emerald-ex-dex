@@ -8,6 +8,8 @@ export const sourceKinds = [
     'evolutions',
     'tm_hm_compatibility',
     'battle_sprites',
+    'forms',
+    'items',
 ] as const;
 export type SourceKind = (typeof sourceKinds)[number];
 export const sourceFileNames: Record<SourceKind, string> = {
@@ -16,6 +18,8 @@ export const sourceFileNames: Record<SourceKind, string> = {
     evolutions: 'pokemon_emerald_ex_1.0.4_evolutions.json',
     tm_hm_compatibility: 'pokemon_emerald_ex_1.0.4_tm_hm_compatibility.json',
     battle_sprites: 'pokemon_emerald_ex_1.0.4_battle_sprites/sprite_manifest.json',
+    forms: 'pokemon_emerald_ex_1.0.4_forms.json',
+    items: 'pokemon_emerald_ex_1.0.4_items.json',
 };
 
 export function sourceFilePath(kind: SourceKind): string {
@@ -114,6 +118,8 @@ export function sqlLiteral(value: SqlValue): string {
 export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
     sql: string;
     spritesSql: string;
+    formsSql: string;
+    itemsSql: string;
     counts: Record<string, number>;
     datasetId: string;
 } {
@@ -204,6 +210,7 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
         'evolutions',
         'tm_hm_compatibility',
         'battle_sprites',
+        'forms',
     ] as const) {
         const entries = records(documents[kind].species);
         const names = indexNames(entries, 'speciesId');
@@ -496,6 +503,314 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
             record(evolution.metadata).internalFormRoutingMarkers,
         'Internal form marker count mismatch',
     );
+    const forms = documents.forms;
+    const formMetadata = record(forms.metadata);
+    for (const [key, expected] of Object.entries({
+        speciesFormCount: 1523,
+        formGroupCount: 209,
+        speciesInFormGroups: 700,
+        speciesWithFormChangeTables: 367,
+        formChangeRuleCount: 1600,
+    }))
+        assert(formMetadata[key] === expected, `Forms metadata count mismatch: ${key}`);
+    const formMethods = new Map(
+        Object.entries(record(forms.methodLegend)).map(([id, name]) => [
+            integer(Number(id), 1),
+            text(name),
+        ]),
+    );
+    assert(
+        formMethods.size === 20 && new Set(formMethods.values()).size === 20,
+        'Form method count/name mismatch',
+    );
+    const formTables: TableData[] = [
+        add('form_change_methods', ['method_id', 'name'], [...formMethods.entries()]),
+    ];
+    const groups = records(forms.groups);
+    const groupIds = new Set<number>();
+    const memberships = new Map<
+        number,
+        { groupId: number; baseId: number; member: JsonRecord; ids: number[] }
+    >();
+    const memberRows: SqlValue[][] = [];
+    formTables.push(
+        add(
+            'form_groups',
+            ['form_group_id', 'base_species_id'],
+            groups.map((group) => {
+                const groupId = integer(group.formGroupId, 1);
+                const baseId = integer(group.baseSpeciesId, 1);
+                assert(!groupIds.has(groupId), `Duplicate form group: ${groupId}`);
+                groupIds.add(groupId);
+                assert(
+                    speciesNames.get(baseId) === group.baseName,
+                    `Unknown/mismatched form base: ${baseId}`,
+                );
+                const members = records(group.members);
+                assert(
+                    members.filter((member) => boolean(member.isBaseForm)).length === 1,
+                    `Form group must have exactly one base: ${groupId}`,
+                );
+                assert(
+                    members.some(
+                        (member) => member.speciesId === baseId && member.isBaseForm === true,
+                    ),
+                    `Form group base mismatch: ${groupId}`,
+                );
+                const ids = members.map((member) => integer(member.speciesId, 1));
+                for (const member of members) {
+                    const id = integer(member.speciesId, 1);
+                    assert(
+                        speciesNames.get(id) === member.name && speciesNames.has(id),
+                        `Unknown/mismatched form member: ${id}`,
+                    );
+                    assert(!memberships.has(id), `Duplicate form membership: ${id}`);
+                    memberships.set(id, { groupId, baseId, member, ids });
+                    memberRows.push([
+                        groupId,
+                        id,
+                        boolean(member.isBaseForm),
+                        text(member.formKind),
+                        member.formLabel === null ? null : text(member.formLabel),
+                    ]);
+                }
+                return [groupId, baseId];
+            }),
+        ),
+    );
+    assert(
+        groups.length === 209 && memberships.size === 700,
+        'Form group/membership count mismatch',
+    );
+    formTables.push(
+        add(
+            'species_forms',
+            ['form_group_id', 'species_id', 'is_base_form', 'form_kind', 'form_label'],
+            memberRows,
+        ),
+    );
+    for (const entry of records(forms.species)) {
+        const id = integer(entry.speciesId, 1);
+        const membership = memberships.get(id);
+        // The species convenience view can include inferred memberships/kinds
+        // absent from the authoritative ROM groups (for example Ogerpon).
+        if (!membership) continue;
+        assert(
+            entry.formGroupId === membership.groupId && entry.baseSpeciesId === membership.baseId,
+            `Forms species/group mismatch: ${id}`,
+        );
+        assert(
+            entry.isBaseForm === membership.member.isBaseForm,
+            `Forms species metadata mismatch: ${id}`,
+        );
+        assert(
+            JSON.stringify(entry.relatedFormSpeciesIds) === JSON.stringify(membership.ids),
+            `Forms species members mismatch: ${id}`,
+        );
+    }
+    const changeKeys = new Set<string>();
+    const changeSources = new Set<number>();
+    const changes = records(forms.changes);
+    formTables.push(
+        add(
+            'form_changes',
+            [
+                'source_species_id',
+                'change_order',
+                'target_species_id',
+                'raw_target_species_id',
+                'restore_previous_form',
+                'method_id',
+                'form_kind',
+                'battle_only',
+                'details',
+                'summary',
+                'raw_param1',
+                'raw_param2',
+                'raw_param3',
+            ],
+            changes.map((change) => {
+                const sourceId = integer(change.sourceSpeciesId, 1);
+                const targetId = integer(change.targetSpeciesId);
+                const order = integer(change.changeOrder);
+                const restore = boolean(change.restorePreviousForm);
+                const method = integer(change.methodId, 1);
+                assert(
+                    speciesNames.has(sourceId) && speciesNames.get(sourceId) === change.sourceName,
+                    `Unknown/mismatched form change source: ${sourceId}`,
+                );
+                assert(
+                    (targetId === 0 && restore && change.targetName === null) ||
+                        (targetId > 0 &&
+                            !restore &&
+                            speciesNames.has(targetId) &&
+                            speciesNames.get(targetId) === change.targetName),
+                    `Invalid form change target/restore: ${targetId}`,
+                );
+                assert(
+                    formMethods.has(method) && formMethods.get(method) === change.method,
+                    `Unknown form change method: ${method}`,
+                );
+                const key = `${sourceId}/${order}`;
+                assert(!changeKeys.has(key), `Duplicate form change: ${key}`);
+                changeKeys.add(key);
+                changeSources.add(sourceId);
+                const params = record(change.rawParams);
+                return [
+                    sourceId,
+                    order,
+                    targetId === 0 ? null : targetId,
+                    targetId,
+                    restore,
+                    method,
+                    text(change.formKind),
+                    boolean(change.battleOnly),
+                    JSON.stringify(record(change.details)),
+                    text(change.summary),
+                    integer(params.param1),
+                    integer(params.param2),
+                    integer(params.param3),
+                ];
+            }),
+        ),
+    );
+    assert(
+        changes.length === 1600 && changeSources.size === 367,
+        'Form change/source count mismatch',
+    );
+    const items = records(documents.items.items);
+    const itemMetadata = record(documents.items.metadata);
+    const itemNames = indexNames(items, 'itemId');
+    assert(items.length === 828 && itemMetadata.itemCount === 828, 'Item count mismatch');
+    assert(JSON.stringify(itemMetadata.itemIdRange) === '[0,827]', 'Item ID range mismatch');
+    assert(
+        itemMetadata.nativeIconSize === '24x24' && itemMetadata.iconFormat === 'PNG RGBA',
+        'Item icon format mismatch',
+    );
+    const pockets = new Map<number, string>();
+    const itemRows = items.map((entry, order) => {
+        const id = integer(entry.itemId, 0, 827);
+        assert(id === order, `Unexpected item ID/order: ${id}`);
+        const pocketId = integer(entry.pocketId, 1, 5);
+        const pocket = text(entry.pocket);
+        assert(
+            !pockets.has(pocketId) || pockets.get(pocketId) === pocket,
+            'Conflicting item pocket',
+        );
+        pockets.set(pocketId, pocket);
+        const icon = text(entry.icon);
+        assert(
+            new RegExp(`^icons/${String(id).padStart(4, '0')}_[A-Za-z0-9_-]+\\.png$`).test(icon) &&
+                icon.length <= 255,
+            `Invalid item icon path: ${id}`,
+        );
+        const rom = record(entry.rom);
+        for (const key of [
+            'fieldUseFunctionPointer',
+            'effectPointer',
+            'iconPointer',
+            'palettePointer',
+        ])
+            assert(
+                rom[key] === null || /^0x[0-9A-Fa-f]{8}$/.test(text(rom[key])),
+                `Invalid item ROM pointer: ${id}/${key}`,
+            );
+        integer(rom.paletteByteCount);
+        return [
+            id,
+            text(entry.name),
+            entry.pluralName === null ? null : text(entry.pluralName),
+            text(entry.description),
+            integer(entry.price, 0, 4294967295),
+            pocketId,
+            integer(entry.secondaryId),
+            integer(entry.holdEffectId),
+            integer(entry.holdEffectParam, 0, 255),
+            integer(entry.importance, 0, 255),
+            boolean(entry.notConsumed),
+            integer(entry.itemUseTypeId, 0, 255),
+            integer(entry.battleUsageId, 0, 255),
+            integer(entry.flingPower, 0, 255),
+            icon.slice('icons/'.length),
+            JSON.stringify(rom),
+        ];
+    });
+    assert(pockets.size === 5, 'Item pocket count mismatch');
+    const pocketCounts = record(itemMetadata.pocketCounts);
+    assert(Object.keys(pocketCounts).length === pockets.size, 'Item pocket metadata mismatch');
+    for (const [id, name] of pockets)
+        assert(
+            items.filter((entry) => entry.pocketId === id).length === pocketCounts[name],
+            `Item pocket count mismatch: ${name}`,
+        );
+    const itemTables = [
+        add(
+            'item_pockets',
+            ['pocket_id', 'name'],
+            [...pockets.entries()].sort(([a], [b]) => a - b),
+        ),
+        add(
+            'items',
+            [
+                'item_id',
+                'name',
+                'plural_name',
+                'description',
+                'price',
+                'pocket_id',
+                'secondary_id',
+                'hold_effect_id',
+                'hold_effect_param',
+                'importance',
+                'not_consumed',
+                'item_use_type_id',
+                'battle_usage_id',
+                'fling_power',
+                'icon_file',
+                'rom',
+            ],
+            itemRows,
+        ),
+    ];
+    function itemReferences(details: JsonRecord): [string, number][] {
+        return Object.entries(details).flatMap(([role, value]) => {
+            if (
+                typeof value !== 'object' ||
+                value === null ||
+                Array.isArray(value) ||
+                !Object.hasOwn(value, 'itemId')
+            )
+                return [];
+            const id = integer(record(value).itemId, 0, 827);
+            assert(itemNames.has(id), `Unknown rule item: ${id}`);
+            // Other exports can use expanded names; the numeric ROM ID is authoritative.
+            return [[role, id] as [string, number]];
+        });
+    }
+    itemTables.push(
+        add(
+            'evolution_items',
+            ['edge_order', 'role', 'item_id'],
+            edges.flatMap((edge, order) =>
+                itemReferences(record(edge.conditions)).map(([role, id]) => [order + 1, role, id]),
+            ),
+        ),
+    );
+    itemTables.push(
+        add(
+            'form_change_items',
+            ['source_species_id', 'change_order', 'role', 'item_id'],
+            changes.flatMap((change) =>
+                itemReferences(record(change.details)).map(([role, id]) => [
+                    integer(change.sourceSpeciesId, 1),
+                    integer(change.changeOrder),
+                    role,
+                    id,
+                ]),
+            ),
+        ),
+    );
+
     const counts = Object.fromEntries(tables.map((table) => [table.name, table.rows.length]));
     assert(
         counts[`${tablePrefix}learnset_entries`] === record(learnsets.metadata).levelUpEntryCount,
@@ -548,5 +863,75 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
         'SET SESSION sql_mode = @dex_previous_sql_mode;',
         '',
     ];
-    return { sql: lines.join('\n'), spritesSql: spritesLines.join('\n'), counts, datasetId };
+    const formsLines = [
+        '-- Generated by npm run db:generate-import. Imports only form data and its source metadata.',
+        '-- Run 011_forms.sql first in your existing database. Use a batch client that stops on errors.',
+        'SET NAMES utf8mb4;',
+        'SET @dex_previous_sql_mode = @@SESSION.sql_mode;',
+        "SET SESSION sql_mode = 'STRICT_ALL_TABLES,NO_BACKSLASH_ESCAPES,NO_ENGINE_SUBSTITUTION';",
+        'START TRANSACTION;',
+        `SELECT dataset_id FROM ${tablePrefix}datasets WHERE dataset_id = ${sqlLiteral(datasetId)} FOR UPDATE;`,
+        ...[...formTables]
+            .reverse()
+            .map(
+                (table) => `DELETE FROM ${table.name} WHERE dataset_id = ${sqlLiteral(datasetId)};`,
+            ),
+        `DELETE FROM ${sourceTable.name} WHERE dataset_id = ${sqlLiteral(datasetId)} AND source_kind = 'forms';`,
+        ...insertStatements({
+            ...sourceTable,
+            rows: sourceTable.rows.filter((row) => row[1] === 'forms'),
+        }),
+        ...formTables.flatMap(insertStatements),
+        '\nCOMMIT;',
+        'SET SESSION sql_mode = @dex_previous_sql_mode;',
+        '',
+    ];
+    const itemsLines = [
+        '-- Generated by npm run db:generate-import. Run 013_items.sql first; forms must already be imported.',
+        '-- Imports items and item references only. Preserves existing icon filenames on repeat imports.',
+        'SET NAMES utf8mb4;',
+        'SET @dex_previous_sql_mode = @@SESSION.sql_mode;',
+        "SET SESSION sql_mode = 'STRICT_ALL_TABLES,NO_BACKSLASH_ESCAPES,NO_ENGINE_SUBSTITUTION';",
+        'START TRANSACTION;',
+        `SELECT dataset_id FROM ${tablePrefix}datasets WHERE dataset_id = ${sqlLiteral(datasetId)} FOR UPDATE;`,
+        ...itemTables
+            .slice(2)
+            .reverse()
+            .map(
+                (table) => `DELETE FROM ${table.name} WHERE dataset_id = ${sqlLiteral(datasetId)};`,
+            ),
+        `DELETE FROM ${sourceTable.name} WHERE dataset_id = ${sqlLiteral(datasetId)} AND source_kind = 'items';`,
+        ...insertStatements({
+            ...sourceTable,
+            rows: sourceTable.rows.filter((row) => row[1] === 'items'),
+        }),
+        ...itemTables.flatMap((table, index) =>
+            insertStatements(table).map((line) => {
+                if (index >= 2 || !line.endsWith(';')) return line;
+                const columns = table.columns.filter(
+                    (column) =>
+                        !['dataset_id', 'item_id', 'pocket_id', 'icon_file'].includes(column),
+                );
+                // pocket_id is mutable on items but is the PK of item_pockets.
+                if (index === 1) columns.push('pocket_id');
+                return (
+                    line.slice(0, -1) +
+                    '\nON DUPLICATE KEY UPDATE ' +
+                    columns.map((column) => `${column} = VALUES(${column})`).join(', ') +
+                    ';'
+                );
+            }),
+        ),
+        '\nCOMMIT;',
+        'SET SESSION sql_mode = @dex_previous_sql_mode;',
+        '',
+    ];
+    return {
+        sql: lines.join('\n'),
+        spritesSql: spritesLines.join('\n'),
+        formsSql: formsLines.join('\n'),
+        itemsSql: itemsLines.join('\n'),
+        counts,
+        datasetId,
+    };
 }

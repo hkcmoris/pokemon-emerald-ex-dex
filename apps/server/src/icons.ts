@@ -6,6 +6,7 @@ export const categoryIconAssetRoot = fileURLToPath(
 );
 
 export const typeIconAssetRoot = fileURLToPath(new URL('../../../assets/types/', import.meta.url));
+export const itemIconAssetRoot = fileURLToPath(new URL('../../../assets/items/', import.meta.url));
 
 function createPngIconRouter(assetRoot: string): Router {
     const router = express.Router();
@@ -40,4 +41,8 @@ export function createCategoryIconRouter(): Router {
 
 export function createTypeIconRouter(): Router {
     return createPngIconRouter(typeIconAssetRoot);
+}
+
+export function createItemIconRouter(): Router {
+    return createPngIconRouter(itemIconAssetRoot);
 }

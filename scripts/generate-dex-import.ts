@@ -20,7 +20,7 @@ for (const kind of sourceKinds) {
         contents: await readFile(new URL(sourceFilePath(kind), root), 'utf8'),
     };
 }
-const { sql, spritesSql, counts, datasetId } = buildDexImport(sources);
+const { sql, spritesSql, formsSql, itemsSql, counts, datasetId } = buildDexImport(sources);
 const manifest = JSON.parse(sources.battle_sprites.contents) as {
     species: { files: Record<string, string> }[];
 };
@@ -29,8 +29,16 @@ await validateSpriteFiles(
     manifest.species.flatMap((entry) => Object.values(entry.files)),
 );
 const output = new URL('scripts/sql/002_import_emerald_ex_1.0.4.sql', root);
+const items = JSON.parse(sources.items.contents) as { items: { icon: string }[] };
+await validateSpriteFiles(
+    fileURLToPath(new URL('assets/items/', root)),
+    items.items.map((item) => item.icon.slice('icons/'.length)),
+    24,
+);
 await mkdir(new URL('./', output), { recursive: true });
 await writeFile(output, sql, 'utf8');
 await writeFile(new URL('scripts/sql/006_import_sprites_1.0.4.sql', root), spritesSql, 'utf8');
+await writeFile(new URL('scripts/sql/012_import_forms_1.0.4.sql', root), formsSql, 'utf8');
+await writeFile(new URL('scripts/sql/014_import_items_1.0.4.sql', root), itemsSql, 'utf8');
 console.log(`Prepared ${datasetId}: ${fileURLToPath(output)}`);
 console.table(counts);

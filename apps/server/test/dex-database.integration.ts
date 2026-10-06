@@ -16,6 +16,10 @@ import type {
     SpeciesDetails,
     SpeciesEvolution,
     SpeciesSprites,
+    FormChange,
+    Item,
+    RuleItem,
+    SpeciesFormGroup,
 } from '@pokemon-emerald-ex-dex/shared';
 import { createConnection, createPool } from 'mariadb';
 
@@ -113,7 +117,34 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_evolutions.json', import.meta.url),
             'utf8',
         ),
-    ) as { edges: Omit<SpeciesEvolution, 'edgeOrder' | 'fromSprite' | 'toSprite'>[] };
+    ) as { edges: Omit<SpeciesEvolution, 'edgeOrder' | 'fromSprite' | 'toSprite' | 'items'>[] };
+    const itemSource = JSON.parse(
+        await readFile(
+            new URL('../../../docs/pokemon_emerald_ex_1.0.4_items.json', import.meta.url),
+            'utf8',
+        ),
+    ) as { items: (Omit<Item, 'iconFile'> & { icon: string })[] };
+    const itemIcons = new Map(
+        (
+            await pool.execute<{ itemId: number; iconFile: string | null }[]>(
+                'SELECT item_id AS itemId, icon_file AS iconFile FROM emerald_ex_items WHERE dataset_id = ?',
+                ['emerald-ex-1.0.4'],
+            )
+        ).map((row) => [row.itemId, row.iconFile]),
+    );
+    function ruleItems(conditions: Readonly<Record<string, unknown>>): RuleItem[] {
+        return Object.entries(conditions)
+            .filter(
+                ([, value]) =>
+                    typeof value === 'object' && value !== null && Object.hasOwn(value, 'itemId'),
+            )
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([role, value]) => {
+                const id = (value as { itemId: number }).itemId;
+                const item = itemSource.items.find((entry) => entry.itemId === id)!;
+                return { role, itemId: id, name: item.name, iconFile: itemIcons.get(id) ?? null };
+            });
+    }
     async function get<T>(path: string): Promise<T> {
         const response = await fetch(`${server.url}/api/v1/${path}`);
         strictEqual(response.status, 200, path);
@@ -124,6 +155,48 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
     }
 
     try {
+        await t.test(
+            'all item metadata, pockets, filters and rule references match the ROM export',
+            async () => {
+                const rows: Item[] = [];
+                for (let page = 1; page <= 4; page++)
+                    rows.push(
+                        ...(await get<PageResponse<Item>>(`items?page=${page}&pageSize=250`)).data,
+                    );
+                deepStrictEqual(
+                    rows,
+                    itemSource.items.map(({ icon: _icon, ...item }) => ({
+                        ...item,
+                        iconFile: itemIcons.get(item.itemId) ?? null,
+                    })),
+                );
+                strictEqual((await get<PageResponse<Item>>('items?pocket=Berries')).meta.total, 68);
+                strictEqual(
+                    (await get<PageResponse<Item>>('items?q=%230300')).data[0].name,
+                    'Gengarite',
+                );
+                strictEqual((await get<ApiResponse<Item>>('items/0')).data.name, '????????');
+                const links = (await get<ApiResponse<SpeciesEvolution[]>>('species/25/evolution'))
+                    .data;
+                deepStrictEqual(links.find((edge) => edge.toSpeciesId === 26)?.items, [
+                    {
+                        role: 'item',
+                        itemId: 213,
+                        name: 'Thunder Stone',
+                        iconFile: itemIcons.get(213),
+                    },
+                ]);
+                const forms = (await get<ApiResponse<SpeciesFormGroup>>('species/94/forms')).data;
+                deepStrictEqual(forms.changes.find((rule) => rule.targetSpeciesId === 914)?.items, [
+                    {
+                        role: 'megaStone',
+                        itemId: 300,
+                        name: 'Gengarite',
+                        iconFile: itemIcons.get(300),
+                    },
+                ]);
+            },
+        );
         await t.test('type catalog and species slots retain SQL icon filenames', async () => {
             deepStrictEqual(
                 (await get<ApiResponse<PokemonType[]>>('types')).data,
@@ -152,13 +225,23 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             },
         );
         await t.test(
-            'complete species details preserve incoming/outgoing evolutions, internal routes and full machine moves',
+            'complete species details preserve public incoming/outgoing evolutions and full machine moves',
             async () => {
                 for (const id of [1, 2, 25, 104, 958]) {
                     const details = (
                         await get<ApiResponse<SpeciesDetails>>(`species/${id}/details`)
                     ).data;
-                    const { learnset, machines, evolutionLinks, ...core } = details;
+                    const {
+                        learnset,
+                        machines,
+                        evolutionLinks,
+                        evolutionFamily: _family,
+                        evolutionBaseSpeciesId: _baseId,
+                        formInfo: _info,
+                        forms: _forms,
+                        formChanges: _changes,
+                        ...core
+                    } = details;
                     deepStrictEqual(
                         core,
                         expected.find((entry) => entry.speciesId === id),
@@ -171,6 +254,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                         .map((edge, index) => ({
                             ...edge,
                             edgeOrder: index + 1,
+                            items: ruleItems(edge.conditions),
                             fromSprite:
                                 expected.find((entry) => entry.speciesId === edge.fromSpeciesId)
                                     ?.sprites?.front ?? null,
@@ -178,7 +262,11 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                                 expected.find((entry) => entry.speciesId === edge.toSpeciesId)
                                     ?.sprites?.front ?? null,
                         }))
-                        .filter((edge) => edge.fromSpeciesId === id || edge.toSpeciesId === id);
+                        .filter(
+                            (edge) =>
+                                !edge.internalOnly &&
+                                (edge.fromSpeciesId === id || edge.toSpeciesId === id),
+                        );
                     deepStrictEqual(evolutionLinks, expectedLinks);
                     const compatible = (await get<ApiResponse<Machine[]>>(`species/${id}/machines`))
                         .data;
@@ -359,6 +447,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                         .map((edge, index) => ({
                             ...edge,
                             edgeOrder: index + 1,
+                            items: ruleItems(edge.conditions),
                             fromSprite:
                                 expected.find((entry) => entry.speciesId === edge.fromSpeciesId)
                                     ?.sprites?.front ?? null,
@@ -495,11 +584,278 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
         );
 
         await t.test(
+            'relational form groups preserve all mechanics, sentinel targets, sprites and base evolution inheritance',
+            async () => {
+                const formSource = JSON.parse(
+                    await readFile(
+                        new URL(
+                            '../../../docs/pokemon_emerald_ex_1.0.4_forms.json',
+                            import.meta.url,
+                        ),
+                        'utf8',
+                    ),
+                ) as {
+                    groups: Omit<SpeciesFormGroup, 'changes'>[];
+                    changes: Omit<
+                        FormChange,
+                        'sourceSprite' | 'targetSprite' | 'rawTargetSpeciesId' | 'items'
+                    >[];
+                };
+                const sprite = (id: number | null) =>
+                    expected.find((entry) => entry.speciesId === id)?.sprites?.front ?? null;
+                const normalizeChange = (
+                    change: (typeof formSource.changes)[number],
+                ): FormChange => ({
+                    ...change,
+                    items: ruleItems(change.details),
+                    rawTargetSpeciesId: change.targetSpeciesId ?? 0,
+                    targetSpeciesId: change.targetSpeciesId === 0 ? null : change.targetSpeciesId,
+                    sourceSprite: sprite(change.sourceSpeciesId),
+                    targetSprite: sprite(change.targetSpeciesId),
+                });
+                for (const id of [94, 382, 384, 26, 479, 351, 483, 718, 800]) {
+                    const group = formSource.groups.find((group) =>
+                        group.members.some((member) => member.speciesId === id),
+                    );
+                    if (!group) throw new Error(`Missing form fixture ${id}`);
+                    const memberIds = group.members.map((member) => member.speciesId);
+                    const expectedGroup = {
+                        ...group,
+                        members: group.members
+                            .map((member) => ({ ...member, sprite: sprite(member.speciesId) }))
+                            .sort(
+                                (a, b) =>
+                                    Number(b.isBaseForm) - Number(a.isBaseForm) ||
+                                    a.speciesId - b.speciesId,
+                            ),
+                        changes: formSource.changes
+                            .filter(
+                                (change) =>
+                                    memberIds.includes(change.sourceSpeciesId) ||
+                                    (change.targetSpeciesId !== null &&
+                                        memberIds.includes(change.targetSpeciesId)),
+                            )
+                            .sort(
+                                (a, b) =>
+                                    a.sourceSpeciesId - b.sourceSpeciesId ||
+                                    a.changeOrder - b.changeOrder,
+                            )
+                            .map(normalizeChange),
+                    };
+                    for (const member of group.members) {
+                        deepStrictEqual(
+                            (
+                                await get<ApiResponse<SpeciesFormGroup>>(
+                                    `species/${member.speciesId}/forms`,
+                                )
+                            ).data,
+                            expectedGroup,
+                        );
+                    }
+                }
+                const gengar = (await get<ApiResponse<SpeciesFormGroup>>('species/94/forms')).data;
+                deepStrictEqual(
+                    gengar.members.map((member) => [
+                        member.speciesId,
+                        member.formKind,
+                        member.isBaseForm,
+                    ]),
+                    [
+                        [94, 'base', true],
+                        [914, 'mega', false],
+                        [1496, 'gigantamax', false],
+                    ],
+                );
+                const mega = gengar.changes.find(
+                    (change) => change.sourceSpeciesId === 94 && change.targetSpeciesId === 914,
+                );
+                strictEqual(mega?.method, 'mega_evolution_item');
+                deepStrictEqual(mega?.details.megaStone, {
+                    itemId: 300,
+                    name: 'Gengarite',
+                    constant: 'ITEM_GENGARITE',
+                });
+                strictEqual(
+                    gengar.changes.some(
+                        (change) =>
+                            change.sourceSpeciesId === 94 &&
+                            change.targetSpeciesId === 1496 &&
+                            change.method === 'gigantamax',
+                    ),
+                    true,
+                );
+                for (const [source, target, method, detailKey, requirement] of [
+                    [
+                        382,
+                        954,
+                        'primal_reversion',
+                        'heldOrb',
+                        { itemId: 291, name: 'Blue Orb', constant: 'ITEM_BLUE_ORB' },
+                    ],
+                    [
+                        384,
+                        953,
+                        'mega_evolution_move',
+                        'requiredMove',
+                        { moveId: 620, name: 'DragonAscent' },
+                    ],
+                    [
+                        479,
+                        479,
+                        'item_use_multichoice',
+                        'item',
+                        { itemId: 694, name: 'Rotom Catalog', constant: 'ITEM_ROTOM_CATALOG' },
+                    ],
+                    [
+                        351,
+                        1051,
+                        'battle_weather',
+                        'requiredAbility',
+                        { abilityId: 59, name: 'Forecast' },
+                    ],
+                    [483, 483, 'item_hold', 'heldItem', null],
+                    [
+                        1207,
+                        1209,
+                        'ultra_burst',
+                        'ultraItem',
+                        {
+                            itemId: 391,
+                            name: 'Ultranecrozium Z',
+                            constant: 'ITEM_ULTRANECROZIUM_Z',
+                        },
+                    ],
+                ] as const) {
+                    const group = (
+                        await get<ApiResponse<SpeciesFormGroup>>(`species/${source}/forms`)
+                    ).data;
+                    const rule = group.changes.find(
+                        (change) =>
+                            change.sourceSpeciesId === source &&
+                            change.targetSpeciesId === target &&
+                            change.method === method,
+                    );
+                    if (!rule) throw new Error(`Missing ${method} rule`);
+                    deepStrictEqual(rule.details[detailKey], requirement);
+                    if (method === 'item_use_multichoice') strictEqual(rule.details.choiceIndex, 0);
+                    if (method === 'battle_weather')
+                        strictEqual(rule.details.battleWeatherMask, 448);
+                }
+                const regional = (await get<ApiResponse<SpeciesFormGroup>>('species/958/forms'))
+                    .data;
+                strictEqual(regional.baseSpeciesId, 26);
+                strictEqual(
+                    regional.members.find((member) => member.speciesId === 958)?.formKind,
+                    'regional',
+                );
+                for (const [id, base] of [
+                    [94, 94],
+                    [914, 94],
+                    [1496, 94],
+                    [954, 382],
+                    [958, 958],
+                    [1209, 800],
+                    [1, 1],
+                    [1420, 1420],
+                ]) {
+                    const details = (
+                        await get<ApiResponse<SpeciesDetails>>(`species/${id}/details`)
+                    ).data;
+                    strictEqual(details.evolutionBaseSpeciesId, base);
+                    deepStrictEqual(
+                        details.forms,
+                        (await get<ApiResponse<SpeciesFormGroup | null>>(`species/${id}/forms`))
+                            .data,
+                    );
+                    deepStrictEqual(
+                        details.evolutionFamily,
+                        (await get<ApiResponse<SpeciesEvolution[]>>(`species/${base}/evolution`))
+                            .data,
+                    );
+                    strictEqual(
+                        details.evolutionLinks.every((edge) => !edge.internalOnly),
+                        true,
+                    );
+                    deepStrictEqual(
+                        details.formChanges,
+                        formSource.changes
+                            .filter((change) => change.sourceSpeciesId === id)
+                            .map(normalizeChange),
+                    );
+                    if ([94, 914, 1496].includes(id)) {
+                        strictEqual(details.name, 'Gengar');
+                        deepStrictEqual(
+                            details.evolutionFamily.map((edge) => [
+                                edge.fromSpeciesId,
+                                edge.toSpeciesId,
+                            ]),
+                            [
+                                [92, 93],
+                                [93, 94],
+                                [93, 94],
+                            ],
+                        );
+                    }
+                }
+                const noForms = (await get<ApiResponse<SpeciesDetails>>('species/1/details')).data;
+                strictEqual(noForms.forms, null);
+                strictEqual(noForms.formInfo, null);
+                const sentinel = (
+                    await get<ApiResponse<SpeciesDetails>>('species/1167/details')
+                ).data.formChanges.find((change) => change.restorePreviousForm);
+                if (!sentinel) throw new Error('Missing restore-previous fixture');
+                strictEqual(sentinel.targetSpeciesId, null);
+                strictEqual(sentinel.method, 'faint');
+                strictEqual(sentinel.rawTargetSpeciesId, 0);
+                strictEqual(sentinel.targetName, null);
+                strictEqual(sentinel.targetSprite, null);
+                for (const [table, count] of [
+                    ['form_change_methods', 20],
+                    ['form_groups', 209],
+                    ['species_forms', 700],
+                    ['form_changes', 1600],
+                    ['sources', 7],
+                ] as const) {
+                    strictEqual(
+                        Number(
+                            (
+                                await pool.query<{ n: number }[]>(
+                                    `SELECT COUNT(*) AS n FROM emerald_ex_${table} WHERE dataset_id='emerald-ex-1.0.4'`,
+                                )
+                            )[0].n,
+                        ),
+                        count,
+                    );
+                }
+                strictEqual(
+                    Number(
+                        (
+                            await pool.query<{ n: number }[]>(
+                                'SELECT COUNT(*) AS n FROM emerald_ex_species WHERE species_id=0',
+                            )
+                        )[0].n,
+                    ),
+                    0,
+                );
+                strictEqual(
+                    Number(
+                        (
+                            await pool.query<{ n: number }[]>(
+                                'SELECT COUNT(*) AS n FROM emerald_ex_evolutions WHERE from_species_id IN (914,1496) OR to_species_id IN (914,1496)',
+                            )
+                        )[0].n,
+                    ),
+                    0,
+                );
+            },
+        );
+        await t.test(
             'a different configured dataset cannot return Emerald EX records',
             async () => {
                 const other = new DexRepository(poolDatabase(pool), 'dex-test-missing-dataset');
                 strictEqual(await other.getSpecies(1), undefined);
                 strictEqual(await other.getSpeciesDetails(1), undefined);
+                strictEqual(await other.getSpeciesForms(94), null);
                 strictEqual(await other.getMove(33), undefined);
                 deepStrictEqual(await other.getLearnset(1), []);
                 deepStrictEqual(await other.getEvolutions(1), []);

@@ -7,6 +7,8 @@ import type {
     SpeciesQuery,
     SpeciesDetails,
     SpeciesEvolution,
+    Item,
+    ItemPocket,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { apiUrl } from './apiUrl.js';
@@ -64,4 +66,24 @@ export function fetchSpecies(
         pageSize: String(query.pageSize),
     });
     return get<PageResponse<Pokemon>>(`species?${parameters}`, signal);
+}
+
+export async function fetchItem(id: number, signal?: AbortSignal): Promise<Item> {
+    return (await get<ApiResponse<Item>>(`items/${id}`, signal)).data;
+}
+
+export async function fetchItemPockets(signal?: AbortSignal): Promise<ItemPocket[]> {
+    return (await get<ApiResponse<ItemPocket[]>>('item-pockets', signal)).data;
+}
+
+export function fetchItems(
+    q: string,
+    pocket: string,
+    page: number,
+    signal?: AbortSignal,
+): Promise<PageResponse<Item>> {
+    return get<PageResponse<Item>>(
+        `items?${new URLSearchParams({ q, pocket, page: String(page), pageSize: '40' })}`,
+        signal,
+    );
 }

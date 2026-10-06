@@ -27,6 +27,7 @@ void test('Webzdarma upload includes protected PHP config templates and images, 
     await writeFile(join(root, '.env.local'), 'do not copy local credentials');
     for (const folder of [
         'types',
+        'items',
         'move-categories',
         'pokemon_emerald_ex_1.0.4_battle_sprites/front',
     ]) {

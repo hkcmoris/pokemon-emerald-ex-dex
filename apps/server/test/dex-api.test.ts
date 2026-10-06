@@ -25,8 +25,16 @@ void test('invalid IDs, query values and unknown resources are rejected before q
             'species/0',
             'species/0/details',
             'species/0/sprites',
+            'species/0/forms',
             'species/65536',
             'moves/-1',
+            'items/-1',
+            'items/65536',
+            'items/abc',
+            'items?q=a&q=b',
+            'items?pocket[x]=Items',
+            'items?pageSize=251',
+            'items?unknown=1',
             'moves/65536',
             'species?page=0',
             'species?pageSize=251',
@@ -42,7 +50,12 @@ void test('invalid IDs, query values and unknown resources are rejected before q
             const body = (await response.json()) as { error: { message: string } };
             strictEqual(typeof body.error.message, 'string');
         }
-        for (const path of ['species/1/unknown', 'moves/33/unknown', 'unknown']) {
+        for (const path of [
+            'species/1/unknown',
+            'moves/33/unknown',
+            'items/1/unknown',
+            'unknown',
+        ]) {
             strictEqual((await fetch(`${server.url}/api/v1/${path}`)).status, 404, path);
         }
         strictEqual(queries, 0);
@@ -63,7 +76,10 @@ void test('unknown species and moves return 404, including their subresources', 
             'species/1/learnset',
             'species/1/evolution',
             'species/1/machines',
+            'species/1/forms',
             'moves/0',
+            'items/0',
+            'items/65535',
             'moves/33/type',
         ]) {
             strictEqual((await fetch(`${server.url}/api/v1/${path}`)).status, 404, path);

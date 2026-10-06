@@ -76,7 +76,15 @@ on the server after uploading, and preserve the server's configuration on update
    literal backslash as `\\`. The private directory denies browser access.
 5. Check the URLs below, then open the dex.
 
-No new SQL migration is required for PHP hosting. If the production database
+Before uploading this forms release, select the existing shared database in
+Webzdarma/phpMyAdmin and import `scripts/sql/011_forms.sql`, then
+`scripts/sql/012_import_forms_1.0.4.sql`, using an administrative account. These
+add/import only the forms tables and source metadata, preserving other dex data
+and other projects' tables. Do not run the full replacement import for an upgrade.
+Use the same order for local MariaDB before running API tests. See
+[forms upgrade details](database.md#upgrade-an-already-imported-database-with-forms).
+
+If the production database
 has not yet received the previous sprite/category/type upgrades, import
 `005_species_sprites.sql`, `006_import_sprites_1.0.4.sql`,
 `007_move_category_icons.sql`, `008_seed_move_category_icons.sql`,
@@ -122,6 +130,13 @@ PHP preview tests do not validate Apache configuration.
 * `https://devground.cz/pokemon-emerald-ex-dex/api/v1/species/94/evolution` returns
   the full Gastly → Haunter → Gengar line, including both trade and Linking Cord
   rules for Haunter → Gengar (three rules total).
+* `/pokemon-emerald-ex-dex/api/v1/species/94/forms`, `/species/914/forms`, and
+  `/species/1496/forms` under the same API prefix return group 33 with Gengar,
+  Mega Gengar and Gigantamax Gengar. Rules include Gengarite (item 300).
+* `/pokemon-emerald-ex-dex/api/v1/species/914/details` retains raw name `Gengar`,
+  embeds the form group and Gastly → Haunter → Gengar family, and reports
+  `evolutionBaseSpeciesId: 94`. Open `#/species/914` to check the Mega Gengar
+  heading, separate Forms section, sprites, links and Gengarite summary.
 * `https://devground.cz/pokemon-emerald-ex-dex/api/icons/types/48px-Fire.png`
   displays the fire type icon.
 * `https://devground.cz/pokemon-emerald-ex-dex/api/private/config.local.php`
@@ -172,3 +187,24 @@ PHP 8.4 and report a skip when only an older PHP is installed.
 For later updates, rebuild and upload the generated contents. Keep the remote
 `api/private/config.local.php`; it is excluded from generated bundles, so a normal
 overwrite upload preserves it. Confirm FileZilla finishes all transfers.
+
+
+## Item catalog release
+
+Select your existing production database in phpMyAdmin. Forms upgrades `011`/`012`
+are prerequisites. Import `scripts/sql/013_items.sql`, then
+`scripts/sql/014_import_items_1.0.4.sql`; do not run replacement import `002` on the
+existing website. Apply the same scripts to the local database. The API account needs
+SELECT access to the four new prefixed item tables.
+
+Run `npm run build:webzdarma`, then upload the contents of `dist/webzdarma/` into
+`/pokemon-emerald-ex-dex/`, including `assets/items/`, the rebuilt client assets and
+updated PHP API files. Preserve `api/private/config.local.php`. The bundle includes
+only PNG assets and excludes item JSON exports and ROM source files.
+
+Check `/pokemon-emerald-ex-dex/api/v1/items/300` for Gengarite and its DB filename,
+`/pokemon-emerald-ex-dex/api/icons/items/0300_Gengarite.png` for the icon, then the
+`#/items` catalog and Pikachu's evolution panel (Thunder Stone #213). Gengarite
+appears in the separate form panel. Editing `emerald_ex_items.icon_file` changes the
+icon without rebuilding the frontend; allow for the one-day image cache if replacing
+bytes under the same filename.

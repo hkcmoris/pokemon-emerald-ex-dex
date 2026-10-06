@@ -104,6 +104,7 @@ export interface Evolution {
     conditions: Readonly<Record<string, unknown>>;
     summary: string;
     rawParam: number;
+    items: RuleItem[];
 }
 
 export interface Machine {
@@ -131,4 +132,86 @@ export interface SpeciesDetails extends Pokemon {
     learnset: LearnsetEntry[];
     machines: SpeciesMachine[];
     evolutionLinks: SpeciesEvolution[];
+    evolutionFamily: SpeciesEvolution[];
+    evolutionBaseSpeciesId: number;
+    formInfo: SpeciesFormInfo | null;
+    forms: SpeciesFormGroup | null;
+    formChanges: FormChange[];
+}
+
+export interface SpeciesFormInfo {
+    formGroupId: number;
+    baseSpeciesId: number;
+    isBaseForm: boolean;
+    formKind: string;
+    formLabel: string | null;
+}
+
+export interface FormGroupMember {
+    speciesId: number;
+    name: string;
+    formKind: string;
+    formLabel: string | null;
+    isBaseForm: boolean;
+    sprite: string | null;
+}
+
+export interface FormChange {
+    changeOrder: number;
+    sourceSpeciesId: number;
+    sourceName: string;
+    targetSpeciesId: number | null;
+    rawTargetSpeciesId: number;
+    targetName: string | null;
+    restorePreviousForm: boolean;
+    methodId: number;
+    method: string;
+    formKind: string;
+    battleOnly: boolean;
+    details: Readonly<Record<string, unknown>>;
+    summary: string;
+    rawParams: { param1: number; param2: number; param3: number };
+    sourceSprite: string | null;
+    targetSprite: string | null;
+    items: RuleItem[];
+}
+
+export interface ItemPocket {
+    pocketId: number;
+    name: string;
+}
+
+export interface Item {
+    itemId: number;
+    name: string;
+    pluralName: string | null;
+    description: string;
+    price: number;
+    pocketId: number;
+    pocket: string;
+    secondaryId: number;
+    holdEffectId: number;
+    holdEffectParam: number;
+    importance: number;
+    notConsumed: boolean;
+    itemUseTypeId: number;
+    battleUsageId: number;
+    flingPower: number;
+    iconFile: string | null;
+    rom: Readonly<Record<string, unknown>>;
+}
+
+export interface RuleItem {
+    role: string;
+    itemId: number;
+    name: string;
+    iconFile: string | null;
+}
+
+export interface SpeciesFormGroup {
+    formGroupId: number;
+    baseSpeciesId: number;
+    baseName: string;
+    members: FormGroupMember[];
+    changes: FormChange[];
 }
