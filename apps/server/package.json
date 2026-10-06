@@ -9,12 +9,14 @@
         "build": "tsc -p tsconfig.build.json",
         "start": "node dist/index.js",
         "test": "node --import tsx --test \"test/**/*.test.ts\"",
+        "test:db": "node --import tsx --test test/dex-database.integration.ts",
         "typecheck": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
         "@pokemon-emerald-ex-dex/shared": "0.1.0",
         "dotenv": "18.0.4",
         "express": "5.2.1",
+        "mariadb": "3.5.4",
         "pino": "10.3.1",
         "pino-http": "11.0.0"
     },

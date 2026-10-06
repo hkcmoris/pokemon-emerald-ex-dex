@@ -1,14 +1,8 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import {
-    dexMetadata,
-    filterPokemon,
-    pokemon,
-    pokemonTypes,
-    statLabels,
-    type DexSort,
-    type Pokemon,
-} from './dex.js';
+import { statLabels, type DexSort, type Pokemon } from './dex.js';
+import { fetchCatalog, fetchSpecies } from './api.js';
 
 const pageSize = 40;
 const sortOptions: ReadonlyArray<{ value: DexSort; label: string }> = [
@@ -30,7 +24,7 @@ function TypeBadges({ types }: { types: readonly string[] }) {
     );
 }
 
-function PokemonDetails({ entry }: { entry: Pokemon }) {
+function PokemonDetails({ entry, version }: { entry: Pokemon; version: string }) {
     return (
         <aside className="detail-panel" aria-labelledby="detail-title">
             <p className="eyebrow">Species / form {String(entry.speciesId).padStart(4, '0')}</p>
@@ -61,8 +55,8 @@ function PokemonDetails({ entry }: { entry: Pokemon }) {
                 ))}
             </dl>
             <p className="mt-7 text-xs leading-relaxed text-stone-600">
-                Base stats extracted from Emerald EX {dexMetadata.version}. Bars use a 0–255 scale.
-                These are not calculated battle stats.
+                Base stats extracted from Emerald EX {version}. Bars use a 0–255 scale. These are
+                not calculated battle stats.
             </p>
         </aside>
     );
@@ -74,11 +68,26 @@ export function App() {
     const [sort, setSort] = useState<DexSort>('id');
     const [page, setPage] = useState(0);
     const [selectedId, setSelectedId] = useState<number | null>(null);
-    const results = filterPokemon(pokemon, query, type, sort);
-    const pageCount = Math.ceil(results.length / pageSize);
-    const currentPage = Math.min(page, Math.max(0, pageCount - 1));
-    const visible = results.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+    const catalog = useQuery({
+        queryKey: ['catalog'],
+        queryFn: ({ signal }) => fetchCatalog(signal),
+    });
+    const parameters = { q: query.trim(), type, sort, page: page + 1, pageSize };
+    const species = useQuery({
+        queryKey: ['species', parameters],
+        queryFn: ({ signal }) => fetchSpecies(parameters, signal),
+        enabled: catalog.isSuccess,
+    });
+    const dexMetadata = catalog.data?.dataset;
+    const pokemonTypes = catalog.data?.types ?? [];
+    const results = species.data?.data ?? [];
+    const total = species.data?.meta.total ?? 0;
+    const pageCount = species.data?.meta.totalPages ?? 0;
+    const currentPage = page;
+    const visible = results;
     const selected = results.find((entry) => entry.speciesId === selectedId) ?? results[0];
+    const failed = catalog.isError || species.isError;
+    const loading = catalog.isPending || species.isPending;
 
     function resetFilters() {
         setQuery('');
@@ -93,7 +102,7 @@ export function App() {
                 <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14">
                     <div className="flex items-center justify-between gap-4">
                         <p className="eyebrow">Hoenn field reference</p>
-                        <span className="version-tag">EX / {dexMetadata.version}</span>
+                        <span className="version-tag">EX / {dexMetadata?.version ?? '…'}</span>
                     </div>
                     <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-6xl">
                         Emerald <span className="font-light">EX Dex</span>
@@ -105,7 +114,7 @@ export function App() {
                         </p>
                         <p className="text-sm text-emerald-100">
                             <strong className="text-xl tabular-nums">
-                                {pokemon.length.toLocaleString('en-US')}
+                                {dexMetadata?.speciesFormCount.toLocaleString('en-US') ?? '…'}
                             </strong>{' '}
                             species & forms
                         </p>
@@ -120,6 +129,7 @@ export function App() {
                         <input
                             className="filter-input"
                             type="search"
+                            maxLength={100}
                             placeholder="Name or species ID, e.g. Bulbasaur or #0001"
                             value={query}
                             onChange={(event) => {
@@ -139,9 +149,9 @@ export function App() {
                             }}
                         >
                             <option value="">All types</option>
-                            {pokemonTypes.map((value) => (
-                                <option key={value} value={value}>
-                                    {value}
+                            {pokemonTypes.map(({ typeId, name }) => (
+                                <option key={typeId} value={name}>
+                                    {name}
                                 </option>
                             ))}
                         </select>
@@ -170,14 +180,38 @@ export function App() {
 
                 <div className="mb-4 flex items-center justify-between gap-3">
                     <p className="text-sm text-stone-600" role="status">
-                        {results.length.toLocaleString('en-US')} matching species & forms
+                        {failed
+                            ? 'Dex unavailable'
+                            : loading
+                              ? 'Loading species…'
+                              : `${total.toLocaleString('en-US')} matching species & forms`}
                     </p>
                     <button className="text-button" onClick={resetFilters}>
                         Reset filters
                     </button>
                 </div>
 
-                {selected ? (
+                {failed ? (
+                    <div className="dex-list px-6 py-16 text-center" role="alert">
+                        <h2 className="text-xl font-semibold">Couldn’t load the dex</h2>
+                        <p className="mt-2 text-sm text-stone-600">
+                            Check that the server is running, then try again.
+                        </p>
+                        <button
+                            className="page-button mt-5"
+                            onClick={() => {
+                                void catalog.refetch();
+                                void species.refetch();
+                            }}
+                        >
+                            Try again
+                        </button>
+                    </div>
+                ) : loading ? (
+                    <div className="dex-list px-6 py-16 text-center" role="status">
+                        Loading the dex…
+                    </div>
+                ) : selected ? (
                     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
                         <section className="dex-list" aria-label="Pokémon results">
                             <div className="overflow-x-auto">
@@ -248,13 +282,12 @@ export function App() {
                             >
                                 <span className="text-xs text-stone-600">
                                     {currentPage * pageSize + 1}–
-                                    {Math.min((currentPage + 1) * pageSize, results.length)} of{' '}
-                                    {results.length}
+                                    {Math.min((currentPage + 1) * pageSize, total)} of {total}
                                 </span>
                                 <div className="flex items-center gap-3">
                                     <button
                                         className="page-button"
-                                        disabled={currentPage === 0}
+                                        disabled={currentPage === 0 || species.isFetching}
                                         onClick={() => setPage(currentPage - 1)}
                                     >
                                         Previous
@@ -264,7 +297,9 @@ export function App() {
                                     </span>
                                     <button
                                         className="page-button"
-                                        disabled={currentPage + 1 >= pageCount}
+                                        disabled={
+                                            currentPage + 1 >= pageCount || species.isFetching
+                                        }
                                         onClick={() => setPage(currentPage + 1)}
                                     >
                                         Next
@@ -272,7 +307,7 @@ export function App() {
                                 </div>
                             </nav>
                         </section>
-                        <PokemonDetails entry={selected} />
+                        <PokemonDetails entry={selected} version={dexMetadata?.version ?? ''} />
                     </div>
                 ) : (
                     <div className="dex-list px-6 py-16 text-center">

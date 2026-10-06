@@ -11,6 +11,8 @@
         "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json"
     },
     "dependencies": {
+        "@pokemon-emerald-ex-dex/shared": "0.1.0",
+        "@tanstack/react-query": "5.104.1",
         "react": "19.3.0",
         "react-dom": "19.3.0"
     },

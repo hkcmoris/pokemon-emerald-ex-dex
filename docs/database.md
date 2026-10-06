@@ -1,8 +1,8 @@
 # MySQL / MariaDB data preparation
 
-The SQL scripts prepare the database for a future `/api/v1` API. The current frontend
-still imports the stats/type export directly; this change does not install API routes
-or connect to the configured database.
+The SQL scripts populate the database used by the `/api/v1` API. The frontend fetches
+paginated species data through this API. JSON exports are used only for import
+generation and tests. See [API setup and endpoints](api.md).
 
 Target versions: MySQL 8.0.16+ or MariaDB 10.11+. Tables use InnoDB, foreign keys,
 `utf8mb4`, and enforced check constraints. Select your website's existing database in
@@ -36,7 +36,7 @@ stat totals, move references and repeated move attributes, type/category mapping
 evolution methods, TM/HM references, duplicate IDs/pairs, numeric ranges and exported
 row counts. Validation finishes before the output file is written. The generator uses
 built-in Node.js APIs and never connects to a database. Regenerate the SQL after editing
-an export; JSON files are import inputs, not the future API's runtime storage.
+an export; JSON files are import inputs, not the API's runtime storage.
 `npm test` also checks that the prepared SQL still matches the current source exports.
 
 The generated file is intentionally included as a ready-to-run SQL artifact. Inserts
@@ -96,8 +96,8 @@ and must not continue to `COMMIT`.
 
 The script temporarily enables strict SQL mode and `NO_BACKSLASH_ESCAPES`, doubles
 single quotes, and restores the prior SQL mode on success. Foreign keys stay enabled.
-Future tables referencing these records may prevent snapshot replacement; imports
-should remain an administrative operation, separate from the API's read-only user.
+Additional tables referencing these records may prevent snapshot replacement; imports
+remain an administrative operation, separate from the API's read-only user.
 
 ## Relational model
 
@@ -135,18 +135,18 @@ rules, and 26 internal form-routing markers. Type ID 9 (`Mystery`) is retained i
 
 ## API mapping
 
-`004_api_query_examples.sql` covers the proposed species/name/learnset/stats/types/evolution
-and moves/name/category/pp/damage/type routes, plus TM/HM compatibility. The future API
-must bind both the ID and a configured dataset (`emerald-ex-1.0.4` initially), even if
+`004_api_query_examples.sql` illustrates the species/name/learnset/stats/types/evolution
+and moves/name/category/pp/damage/type routes, plus TM/HM compatibility. The API
+binds both the ID and a configured dataset (`emerald-ex-1.0.4` initially), even if
 only the ID appears in the URL. Unknown species/move IDs return 404; valid species with
 no learnset/evolution/machines return an empty array. Parse numeric IDs strictly, bound
 list endpoints, and use driver parameters rather than string concatenation.
 
-`/evolution` should normally exclude `internal_only = 1`. Incoming edges are available
-by `to_species_id`; form-routing markers can be exposed separately if needed.
+`/evolution` excludes `internal_only = 1`. Incoming edges are stored under
+`to_species_id`; form-routing markers and pre-evolutions can be exposed separately later.
 
-The exported `power` is base move power. `/moves/:id/damage` can return `{ power: n }`,
-but it must not imply calculated in-battle damage; `/power` is a clearer eventual name.
+The exported `power` is base move power. `/moves/:id/damage` and `/moves/:id/power`
+return `{ data: { power: n, effectId: n } }`, rather than calculated in-battle damage.
 `power = 0` and `accuracy = 0` retain their raw engine semantics: special/status damage
 and no normal percentage accuracy check. Keep effect/target IDs for future battle logic.
 

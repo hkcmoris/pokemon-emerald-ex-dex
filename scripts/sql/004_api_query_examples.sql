@@ -1,4 +1,4 @@
--- Illustrative queries, not installed HTTP endpoints.
+-- Illustrative SELECTs for the SQL-backed /api/v1 endpoints.
 -- In the API, bind parameters with a database driver; never concatenate request values.
 -- Each route resolves a configured dataset as well as the URL's internal ROM ID.
 SET @dataset_id = 'emerald-ex-1.0.4';

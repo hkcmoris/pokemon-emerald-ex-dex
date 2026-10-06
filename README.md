@@ -2,20 +2,22 @@
 
 A searchable reference for Pokémon Emerald EX 1.0.4 species and forms, types, and base stats.
 
-The client imports `docs/pokemon_emerald_ex_1.0.4_stats_types.json` directly at build time.
+The client fetches data from the SQL-backed `/api/v1` API.
 It includes all 1,523 species/form entries, search by name or exact internal species ID
 (including `#0001`), type filtering, sorting by ID/name/base stat total/speed, and paginated
 results with a stat detail panel. Duplicate names remain separate entries keyed by ROM
 species/form ID. Stats are base stats, not calculated battle stats.
 
-The learnset, evolution, and TM/HM exports in `docs/` are not yet displayed.
+Learnsets, evolutions, moves, and TM/HM compatibility are available through the API;
+the current UI displays types and base stats. JSON exports in `docs/` are import inputs
+and test fixtures; neither the client nor the server reads them at runtime.
 
 ## SQL database preparation
 
 MySQL/MariaDB schema for an existing shared database, a prepared transactional import
-of all four JSON exports, verification queries, and query examples for the planned `/api/v1` endpoints are in
+of all four JSON exports, verification queries, and API query examples are in
 `scripts/sql/`. See [database setup and import instructions](docs/database.md).
-All dex tables, named constraints and indexes use the `emerald_ex_` prefix.
+All dex tables, explicitly named constraints and indexes use the `emerald_ex_` prefix.
 
 Regenerate the import after changing the source exports:
 
@@ -23,8 +25,8 @@ Regenerate the import after changing the source exports:
 npm run db:generate-import
 ```
 
-These scripts prepare future SQL-backed API storage; the frontend currently still uses
-the local stats/type export.
+The API reads these prefixed tables in the database selected by its configuration.
+See [API endpoints and deployment](docs/api.md).
 
 ## Tech stack
 
@@ -46,12 +48,39 @@ npm install
 
 ## Development
 
+Import the schema and data into local MariaDB using the [database instructions](docs/database.md).
+Create `.env.local` in the repository root with your local configuration:
+
+```dotenv
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=emerald_ex_dev
+DB_USER=root
+DB_PASS=your_local_password
+DEX_DATASET_ID=emerald-ex-1.0.4
+```
+
+Keep credentials in this ignored file. `.env.local` takes precedence over `.env` during
+development; process environment variables take precedence over both. Production
+(`NODE_ENV=production`) ignores `.env.local`.
+
+Build the shared package and start the backend in one terminal:
+
+```bash
+npm run build -w packages/shared
+npm run dev:server
+```
+
+Start the client in a second terminal:
+
 ```bash
 npm run dev:client
 ```
 
-Open the Vite URL printed in the terminal. The dex does not require the backend or a database.
-Use `npm run dev:server` to run the backend separately.
+Open the Vite URL printed in the terminal. Vite forwards `/api` requests to
+`http://127.0.0.1:3000`; set `DEV_API_TARGET` in `.env.local` if the backend uses a
+different address. The backend checks the configured dataset at startup and closes
+its database pool on shutdown.
 
 ## Build
 
@@ -65,6 +94,15 @@ npm run build
 npm test
 ```
 
+Run the read-only integration tests against your imported local database:
+
+```bash
+npm run test:db
+```
+
+These require local database credentials and the original 1.0.4 import. They refuse
+a remote `DB_HOST`. Regular `npm run check` does not require a running database.
+
 ## Full check
 
 ```bash
@@ -73,10 +111,12 @@ npm run check
 
 ## Environment variables
 
-Copy `.env.example` to `.env` and fill in the required values.
+For a new local setup, copy `.env.example` to `.env.local` and fill in your local
+database credentials. Keep production configuration in `.env` or process environment
+variables. See [configuration and deployment](docs/api.md).
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 ## Project structure

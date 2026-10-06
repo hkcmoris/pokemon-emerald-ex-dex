@@ -3,7 +3,10 @@ import { fileURLToPath } from 'node:url';
 import { config } from 'dotenv';
 
 config({
-    path: fileURLToPath(new URL('../../../../.env', import.meta.url)),
+    path: (process.env.NODE_ENV === 'production' ? ['.env'] : ['.env.local', '.env']).map((name) =>
+        fileURLToPath(new URL(`../../../../${name}`, import.meta.url)),
+    ),
+    quiet: true,
 });
 
 export function getRequiredEnv(name: string): string {
