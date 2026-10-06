@@ -16,7 +16,9 @@ shiny front sprites. The four forms without exported sprites show placeholders.
 On mobile, a compact header and side-by-side type/sort filters leave room for the
 initial species rows without scrolling.
 Expand move names for descriptions and full move data, or evolution rules for their
-conditions and ROM identifiers. Related species link to their own pages. Detail URLs
+conditions and ROM identifiers. Move categories show Physical, Special, and Status
+icons alongside their labels in both level-up and TM/HM tables.
+Related species link to their own pages. Detail URLs
 such as `#/species/1` can be bookmarked; returning to the list preserves its filters
 during the session. JSON exports in `docs/` are import inputs and test fixtures;
 neither the client nor the server reads them at runtime.

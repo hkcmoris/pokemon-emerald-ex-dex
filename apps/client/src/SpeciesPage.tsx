@@ -13,6 +13,7 @@ import { statLabels } from './dex.js';
 import { speciesHref } from './navigation.js';
 import { TypeBadges } from './TypeBadges.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
+import { MoveCategory } from './MoveCategory.js';
 
 type SpeciesMove = LearnsetEntry | SpeciesMachine;
 
@@ -107,7 +108,9 @@ function MoveTable({
                                     <TypeBadges types={[move.type]} />
                                 </div>
                             </th>
-                            <td className="align-top text-xs">{move.category}</td>
+                            <td className="align-top text-xs">
+                                <MoveCategory category={move.category} />
+                            </td>
                             <td
                                 className="text-right align-top tabular-nums"
                                 title={
