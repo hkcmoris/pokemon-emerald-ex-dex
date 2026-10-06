@@ -5,6 +5,9 @@ SET @dataset_id = 'emerald-ex-1.0.4';
 SELECT category_id, name, icon_file FROM emerald_ex_move_categories
 WHERE dataset_id = @dataset_id ORDER BY category_id;
 
+SELECT type_id, name, icon_file FROM emerald_ex_types
+WHERE dataset_id = @dataset_id ORDER BY type_id;
+
 SELECT 'species' AS entity, COUNT(*) AS actual, 1523 AS expected FROM emerald_ex_species WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'stats', COUNT(*), 1523 FROM emerald_ex_species_stats WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'types', COUNT(*), 19 FROM emerald_ex_types WHERE dataset_id = @dataset_id

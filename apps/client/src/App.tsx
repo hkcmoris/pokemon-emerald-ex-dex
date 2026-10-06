@@ -240,7 +240,10 @@ export function App() {
                                                             >
                                                                 {entry.name}
                                                             </a>
-                                                            <TypeBadges types={entry.types} />
+                                                            <TypeBadges
+                                                                types={entry.types}
+                                                                iconFiles={entry.typeIconFiles}
+                                                            />
                                                         </div>
                                                     </div>
                                                 </th>

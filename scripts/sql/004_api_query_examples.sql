@@ -22,7 +22,7 @@ SELECT hp, attack, defense, sp_attack AS spAttack, sp_defense AS spDefense,
 FROM emerald_ex_species_stats WHERE dataset_id = @dataset_id AND species_id = @species_id;
 
 -- GET /api/v1/species/:id/types
-SELECT t.type_id AS typeId, t.name, st.slot
+SELECT t.type_id AS typeId, t.name, t.icon_file AS iconFile, st.slot
 FROM emerald_ex_species_types AS st
 JOIN emerald_ex_types AS t ON t.dataset_id = st.dataset_id AND t.type_id = st.type_id
 WHERE st.dataset_id = @dataset_id AND st.species_id = @species_id
@@ -30,7 +30,7 @@ ORDER BY st.slot;
 
 -- GET /api/v1/species/:id/learnset (level-up moves, including level 0)
 SELECT l.entry_order AS entryOrder, l.level, m.move_id AS moveId, m.name,
-       t.name AS type, c.name AS category, c.icon_file AS categoryIconFile,
+       t.name AS type, t.icon_file AS typeIconFile, c.name AS category, c.icon_file AS categoryIconFile,
        m.power, m.accuracy, m.pp, m.priority, m.description
 FROM emerald_ex_learnset_entries AS l
 JOIN emerald_ex_moves AS m ON m.dataset_id = l.dataset_id AND m.move_id = l.move_id
@@ -60,6 +60,7 @@ ORDER BY ma.kind DESC, ma.number;
 
 -- GET /api/v1/moves/:id
 SELECT m.move_id AS moveId, m.name, m.description, m.type_id AS typeId, t.name AS type,
+       t.icon_file AS typeIconFile,
        m.category_id AS categoryId, c.name AS category, c.icon_file AS categoryIconFile,
        m.power, m.accuracy, m.pp,
        m.priority, m.effect_id AS effectId, m.target_id AS targetId
@@ -85,7 +86,7 @@ SELECT pp FROM emerald_ex_moves WHERE dataset_id = @dataset_id AND move_id = @mo
 SELECT power, effect_id AS effectId FROM emerald_ex_moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
 
 -- GET /api/v1/moves/:id/type
-SELECT t.type_id AS typeId, t.name
+SELECT t.type_id AS typeId, t.name, t.icon_file AS iconFile
 FROM emerald_ex_moves AS m
 JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
 WHERE m.dataset_id = @dataset_id AND m.move_id = @move_id;

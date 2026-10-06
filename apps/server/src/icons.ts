@@ -5,7 +5,9 @@ export const categoryIconAssetRoot = fileURLToPath(
     new URL('../../../assets/move-categories/', import.meta.url),
 );
 
-export function createCategoryIconRouter(): Router {
+export const typeIconAssetRoot = fileURLToPath(new URL('../../../assets/types/', import.meta.url));
+
+function createPngIconRouter(assetRoot: string): Router {
     const router = express.Router();
     router.use((req, _res, next) => {
         let path: string;
@@ -22,7 +24,7 @@ export function createCategoryIconRouter(): Router {
         next();
     });
     router.use(
-        express.static(categoryIconAssetRoot, {
+        express.static(assetRoot, {
             dotfiles: 'deny',
             index: false,
             redirect: false,
@@ -30,4 +32,12 @@ export function createCategoryIconRouter(): Router {
         }),
     );
     return router;
+}
+
+export function createCategoryIconRouter(): Router {
+    return createPngIconRouter(categoryIconAssetRoot);
+}
+
+export function createTypeIconRouter(): Router {
+    return createPngIconRouter(typeIconAssetRoot);
 }

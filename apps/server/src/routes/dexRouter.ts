@@ -188,7 +188,9 @@ export function createDexRouter(repository: DexRepository): Router {
                 res.json({ data: { power: move.power, effectId: move.effectId } });
                 break;
             case 'type':
-                res.json({ data: { typeId: move.typeId, name: move.type } });
+                res.json({
+                    data: { typeId: move.typeId, name: move.type, iconFile: move.typeIconFile },
+                });
                 break;
             default:
                 res.json({ data: move });

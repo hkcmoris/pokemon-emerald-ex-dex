@@ -10,7 +10,7 @@ void test('catalog metadata and type choices come from the API', async (t) => {
         version: '2.0',
         speciesFormCount: 3,
     };
-    const types = [{ typeId: 18, name: 'Fairy' }];
+    const types = [{ typeId: 18, name: 'Fairy', iconFile: 'fairy-v2.png' }];
     const paths: string[] = [];
     t.mock.method(globalThis, 'fetch', (path: string) => {
         paths.push(path);

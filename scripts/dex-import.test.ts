@@ -89,6 +89,8 @@ void test('schema, import and query examples stay within the dex table namespace
         '006_import_sprites_1.0.4.sql',
         '007_move_category_icons.sql',
         '008_seed_move_category_icons.sql',
+        '009_type_icons.sql',
+        '010_seed_type_icons.sql',
     ]) {
         const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
         strictEqual(/^\s*(?:(?:CREATE|ALTER|DROP) DATABASE|USE\s)/im.test(sql), false, file);
@@ -98,6 +100,27 @@ void test('schema, import and query examples stay within the dex table namespace
             if (match[1] === 'information_schema.COLUMNS') continue;
             strictEqual(tables.has(match[1]), true, `${file}: ${match[1]}`);
         }
+    }
+});
+
+void test('the type icon seed maps all supplied PNGs, including Electric/Lightning and Dark/Darkness', async () => {
+    const seed = await readFile(new URL('sql/010_seed_type_icons.sql', import.meta.url), 'utf8');
+    const icons = new Map(
+        [...seed.matchAll(/WHEN (\d+) THEN '([^']+)'/g)].map((match) => [
+            Number(match[1]),
+            match[2],
+        ]),
+    );
+    strictEqual(icons.size, 18);
+    strictEqual(icons.get(13), '48px-Lightning.png');
+    strictEqual(icons.get(17), '48px-Darkness.png');
+    strictEqual(icons.has(9), false);
+    strictEqual(seed.includes('icon_file IS NULL'), true);
+    const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+    for (const file of icons.values()) {
+        strictEqual(/[/\\]/.test(file), false);
+        const bytes = await readFile(new URL(`../assets/types/${file}`, import.meta.url));
+        deepStrictEqual(bytes.subarray(0, 8), pngSignature, file);
     }
 });
 

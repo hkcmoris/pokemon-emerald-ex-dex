@@ -36,13 +36,13 @@ write endpoints. Configure request limits at the production reverse proxy if nee
 | --- | --- |
 | `/api/health` | Existing `{ "ok": true }` process health response |
 | `/api/v1/dataset` | Dataset ID, game, version and species/form count from SQL |
-| `/api/v1/types` | Complete ROM type catalog, sorted by name |
+| `/api/v1/types` | Complete ROM type catalog with `typeId`, `name`, and `iconFile`, sorted by name |
 | `/api/v1/species` | Paginated species with stats and ordered type names/IDs |
 | `/api/v1/species/:id` | One species/form with stats and types |
 | `/api/v1/species/:id/details` | Species, complete learnset, full TM/HM move records, and incoming/outgoing evolution rules including internal form markers |
 | `/api/v1/species/:id/name` | `{ name }` |
 | `/api/v1/species/:id/stats` | Six stats and `baseStatTotal` |
-| `/api/v1/species/:id/types` | Ordered `{ typeId, name, slot }` records |
+| `/api/v1/species/:id/types` | Ordered `{ typeId, name, iconFile, slot }` records |
 | `/api/v1/species/:id/sprites` | Standard/shiny front/back filenames, optional second frames, frame count and missing-sprite reason |
 | `/api/v1/species/:id/learnset` | Ordered level-up entries with full move records |
 | `/api/v1/species/:id/evolution` | Outgoing evolution rules, excluding internal routing markers |
@@ -52,7 +52,7 @@ write endpoints. Configure request limits at the production reverse proxy if nee
 | `/api/v1/moves/:id/name` | `{ name }` |
 | `/api/v1/moves/:id/category` | `{ categoryId, name, iconFile }` |
 | `/api/v1/moves/:id/pp` | `{ pp }` |
-| `/api/v1/moves/:id/type` | `{ typeId, name }` |
+| `/api/v1/moves/:id/type` | `{ typeId, name, iconFile }` |
 | `/api/v1/moves/:id/power` | `{ power, effectId }` |
 | `/api/v1/moves/:id/damage` | Alias of `/power`; base power, not calculated battle damage |
 
@@ -91,6 +91,7 @@ Example: `/api/v1/species?q=Bulbasaur&page=1&pageSize=40`
       "name": "Bulbasaur",
       "types": ["Grass", "Poison"],
       "typeIds": [12, 3],
+      "typeIconFiles": ["48px-Grass.png", "Poison.png"],
       "stats": { "hp": 45, "attack": 49, "defense": 49, "spAttack": 65, "spDefense": 65, "speed": 45 },
       "baseStatTotal": 318,
       "sprites": {
@@ -146,6 +147,19 @@ are read from disk when requested, so uploading a new filename and changing SQL
 does not require an application rebuild or restart. See the
 [icon update instructions](database.md#update-move-category-icons).
 
+Type filenames come from `emerald_ex_types.icon_file`. Species list and detail
+records expose `typeIconFiles` in the same primary/secondary slot order as `types`
+and `typeIds`. Full move, learnset, and machine detail records expose `typeIconFile`.
+The type catalog and species/move type subresources return `iconFile` alongside
+the unchanged IDs and names.
+
+Type PNGs are served at `/api/icons/types/:filename` from `assets/types/`, with the
+same flat-filename restrictions, one-day cache and validators as category icons.
+The client displays 24×24 icons with accessible type names and hover titles on
+species lists, species headers/stat panels, and level-up/TM/HM tables. NULL or
+failed images show the type name instead. Type filters retain their text choices.
+See [type icon updates](database.md#update-type-icons).
+
 ## Client and deployment
 
 The client requests dataset metadata and types, then fetches each species list page
@@ -189,6 +203,10 @@ the API. Deploy `assets/move-categories/` alongside the backend at its
 repository-relative location, including when running compiled `apps/server/dist`
 files. The existing `/api/*` proxy also forwards category image requests.
 
+For type icons, import `009_type_icons.sql` and `010_seed_type_icons.sql` before
+deploying the API and include `assets/types/` alongside the backend at its
+repository-relative location. The existing `/api/*` proxy forwards these images.
+
 ## Verification
 
 `npm run check` runs type checks, lint, formatting and database-independent tests.
@@ -204,3 +222,7 @@ Move category filenames are compared with SQL across move lists, subresources an
 full machine records. Category image tests check PNG bytes and path restrictions;
 client tests check replacement filenames and retained text labels. Browser checks
 also cover NULL references, missing files and updates without a rebuild/restart.
+Type tests compare catalog/slot/move filenames with SQL and verify that all supplied
+PNGs are served. Client tests cover the Electric/Dark names, replacement filenames,
+and missing-icon text. Browser checks confirm list/detail/move displays and mobile
+row visibility, including filename changes without rebuilding or restarting.

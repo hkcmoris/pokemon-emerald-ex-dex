@@ -22,6 +22,11 @@ come from `emerald_ex_move_categories.icon_file`; the API serves the PNGs from
 `assets/move-categories/`. Import `007_move_category_icons.sql`, then
 `008_seed_move_category_icons.sql` to upgrade an existing database. See
 [how to replace category icons](docs/database.md#update-move-category-icons).
+Types display SQL-backed icons on species and move tables, with type names available
+as accessible labels and hover titles. Missing icons retain text labels. Import
+`009_type_icons.sql`, then `010_seed_type_icons.sql` for an existing database and
+deploy `assets/types/` alongside the backend. See
+[how to replace type icons](docs/database.md#update-type-icons).
 Related species link to their own pages. Detail URLs
 such as `#/species/1` can be bookmarked; returning to the list preserves its filters
 during the session. JSON exports in `docs/` are import inputs and test fixtures;

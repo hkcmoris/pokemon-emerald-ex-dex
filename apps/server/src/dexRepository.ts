@@ -40,7 +40,8 @@ const speciesSelect = `SELECT s.species_id AS speciesId, s.name,
         ON st.dataset_id = s.dataset_id AND st.species_id = s.species_id`;
 
 const moveFields = `m.move_id AS moveId, m.name, m.description,
-    m.type_id AS typeId, t.name AS type, m.category_id AS categoryId, c.name AS category,
+    m.type_id AS typeId, t.name AS type, t.icon_file AS typeIconFile,
+    m.category_id AS categoryId, c.name AS category,
     c.icon_file AS categoryIconFile,
     m.power, m.accuracy, m.pp, m.priority, m.effect_id AS effectId, m.target_id AS targetId`;
 
@@ -95,7 +96,7 @@ export class DexRepository {
 
     getTypes(): Promise<PokemonType[]> {
         return this.database.query<PokemonType>(
-            'SELECT type_id AS typeId, name FROM emerald_ex_types WHERE dataset_id = ? ORDER BY name',
+            'SELECT type_id AS typeId, name, icon_file AS iconFile FROM emerald_ex_types WHERE dataset_id = ? ORDER BY name',
             [this.datasetId],
         );
     }
@@ -196,7 +197,7 @@ export class DexRepository {
 
     getSpeciesTypes(id: number): Promise<SpeciesType[]> {
         return this.database.query<SpeciesType>(
-            `SELECT t.type_id AS typeId, t.name, st.slot FROM emerald_ex_species_types AS st
+            `SELECT t.type_id AS typeId, t.name, t.icon_file AS iconFile, st.slot FROM emerald_ex_species_types AS st
              JOIN emerald_ex_types AS t ON t.dataset_id = st.dataset_id AND t.type_id = st.type_id
              WHERE st.dataset_id = ? AND st.species_id = ? ORDER BY st.slot`,
             [this.datasetId, id],
@@ -271,7 +272,7 @@ export class DexRepository {
     private async hydrateSpecies(rows: SpeciesRow[]): Promise<Pokemon[]> {
         if (rows.length === 0) return [];
         const types = await this.database.query<TypeRow>(
-            `SELECT st.species_id AS speciesId, st.slot, t.type_id AS typeId, t.name
+            `SELECT st.species_id AS speciesId, st.slot, t.type_id AS typeId, t.name, t.icon_file AS iconFile
              FROM emerald_ex_species_types AS st
              JOIN emerald_ex_types AS t ON t.dataset_id = st.dataset_id AND t.type_id = st.type_id
              WHERE st.dataset_id = ? AND st.species_id IN (${rows.map(() => '?').join(', ')})
@@ -301,6 +302,7 @@ export class DexRepository {
             baseStatTotal,
             types: (bySpecies.get(speciesId) ?? []).map((type) => type.name),
             typeIds: (bySpecies.get(speciesId) ?? []).map((type) => type.typeId),
+            typeIconFiles: (bySpecies.get(speciesId) ?? []).map((type) => type.iconFile),
             sprites: sprites.get(speciesId) ?? null,
         }));
     }

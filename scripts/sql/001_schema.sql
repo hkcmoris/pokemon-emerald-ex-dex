@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS emerald_ex_types (
     dataset_id VARCHAR(64) NOT NULL,
     type_id SMALLINT UNSIGNED NOT NULL,
     name VARCHAR(32) NOT NULL,
+    icon_file VARCHAR(255) NULL,
     PRIMARY KEY (dataset_id, type_id),
     UNIQUE KEY emerald_ex_uq_types_name (dataset_id, name),
     CONSTRAINT emerald_ex_fk_types_dataset FOREIGN KEY (dataset_id) REFERENCES emerald_ex_datasets (dataset_id)

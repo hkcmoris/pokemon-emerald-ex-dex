@@ -105,7 +105,10 @@ function MoveTable({
                                     </div>
                                 </details>
                                 <div className="mt-2">
-                                    <TypeBadges types={[move.type]} />
+                                    <TypeBadges
+                                        types={[move.type]}
+                                        iconFiles={[move.typeIconFile]}
+                                    />
                                 </div>
                             </th>
                             <td className="align-top text-xs">
@@ -264,8 +267,12 @@ function StatsPanel({ entry, version }: { entry: Pokemon; version: string }) {
                 {entry.types.map((type, index) => (
                     <div key={type}>
                         <dt>{index === 0 ? 'Primary' : 'Secondary'} type</dt>
-                        <dd>
-                            {type} · ID {entry.typeIds[index]}
+                        <dd className="flex items-center gap-2">
+                            <TypeBadges
+                                types={[type]}
+                                iconFiles={[entry.typeIconFiles[index] ?? null]}
+                            />
+                            <span>ID {entry.typeIds[index]}</span>
                         </dd>
                     </div>
                 ))}
@@ -331,7 +338,10 @@ export function SpeciesPage({
                             </h1>
                             {entry && (
                                 <div className="mt-5">
-                                    <TypeBadges types={entry.types} />
+                                    <TypeBadges
+                                        types={entry.types}
+                                        iconFiles={entry.typeIconFiles}
+                                    />
                                 </div>
                             )}
                         </div>

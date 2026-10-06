@@ -11,6 +11,7 @@ import type {
     Move,
     PageResponse,
     Pokemon,
+    PokemonType,
     SpeciesType,
     SpeciesDetails,
     SpeciesEvolution,
@@ -41,7 +42,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_stats_types.json', import.meta.url),
             'utf8',
         ),
-    ) as { species: Omit<Pokemon, 'sprites'>[] };
+    ) as { species: Omit<Pokemon, 'sprites' | 'typeIconFiles'>[] };
     const spriteSource = JSON.parse(
         await readFile(
             new URL(
@@ -68,11 +69,17 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             >;
         }[];
     };
+    const typeRows = await pool.execute<PokemonType[]>(
+        'SELECT type_id AS typeId, name, icon_file AS iconFile FROM emerald_ex_types WHERE dataset_id = ? ORDER BY name',
+        ['emerald-ex-1.0.4'],
+    );
+    const typeIcons = new Map(typeRows.map((type) => [type.typeId, type.iconFile]));
     const expected = source.species.map((entry): Pokemon => {
         const sprite = spriteSource.species.find((row) => row.speciesId === entry.speciesId);
         if (!sprite) throw new Error(`Missing sprite fixture: ${entry.speciesId}`);
         return {
             ...entry,
+            typeIconFiles: entry.typeIds.map((id) => typeIcons.get(id) ?? null),
             sprites: {
                 front: sprite.files.front ?? null,
                 shinyFront: sprite.files.shinyFront ?? null,
@@ -90,7 +97,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_learnsets.json', import.meta.url),
             'utf8',
         ),
-    ) as { moves: Omit<Move, 'categoryIconFile'>[] };
+    ) as { moves: Omit<Move, 'categoryIconFile' | 'typeIconFile'>[] };
     const categoryRows = await pool.execute<{ categoryId: number; iconFile: string | null }[]>(
         'SELECT category_id AS categoryId, icon_file AS iconFile FROM emerald_ex_move_categories WHERE dataset_id = ?',
         ['emerald-ex-1.0.4'],
@@ -98,6 +105,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
     const categoryIcons = new Map(categoryRows.map((row) => [row.categoryId, row.iconFile]));
     const expectedMoves: Move[] = moveSource.moves.map((move) => ({
         ...move,
+        typeIconFile: typeIcons.get(move.typeId) ?? null,
         categoryIconFile: categoryIcons.get(move.categoryId) ?? null,
     }));
     const evolutionSource = JSON.parse(
@@ -116,6 +124,19 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
     }
 
     try {
+        await t.test('type catalog and species slots retain SQL icon filenames', async () => {
+            deepStrictEqual(
+                (await get<ApiResponse<PokemonType[]>>('types')).data,
+                typeRows.map(({ typeId, name, iconFile }) => ({ typeId, name, iconFile })),
+            );
+            for (const id of [1, 25, 92, 1523]) {
+                const types = (await get<ApiResponse<SpeciesType[]>>(`species/${id}/types`)).data;
+                deepStrictEqual(
+                    types.map((type) => type.iconFile),
+                    expected.find((entry) => entry.speciesId === id)?.typeIconFiles,
+                );
+            }
+        });
         await t.test(
             'sprite references match each form and preserve explicit missing sprites',
             async () => {
@@ -342,6 +363,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                 deepStrictEqual((await get<ApiResponse<object>>('moves/33/type')).data, {
                     typeId: move.typeId,
                     name: move.type,
+                    iconFile: move.typeIconFile,
                 });
                 deepStrictEqual((await get<ApiResponse<object>>('moves/33/pp')).data, {
                     pp: move.pp,

@@ -12,6 +12,7 @@ export interface Pokemon {
     name: string;
     types: readonly string[];
     typeIds: readonly number[];
+    typeIconFiles: readonly (string | null)[];
     stats: BaseStats;
     baseStatTotal: number;
     sprites: SpeciesSprites | null;
@@ -61,6 +62,7 @@ export interface DexDataset {
 export interface PokemonType {
     typeId: number;
     name: string;
+    iconFile: string | null;
 }
 
 export interface SpeciesType extends PokemonType {
@@ -73,6 +75,7 @@ export interface Move {
     description: string;
     typeId: number;
     type: string;
+    typeIconFile: string | null;
     categoryId: number;
     category: string;
     categoryIconFile: string | null;
