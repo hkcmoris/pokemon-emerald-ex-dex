@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
+import { apiUrl } from './apiUrl.js';
+
 function CategoryIcon({ file }: { file: string }) {
     const [failed, setFailed] = useState(false);
     if (failed) return null;
     return (
         <img
-            src={`/api/icons/move-categories/${encodeURIComponent(file)}`}
+            src={apiUrl(`icons/move-categories/${encodeURIComponent(file)}`)}
             alt=""
             className="h-6 w-7 shrink-0 object-contain"
             onError={() => setFailed(true)}

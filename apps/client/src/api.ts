@@ -8,6 +8,8 @@ import type {
     SpeciesDetails,
 } from '@pokemon-emerald-ex-dex/shared';
 
+import { apiUrl } from './apiUrl.js';
+
 export class ApiRequestError extends Error {
     constructor(public readonly status: number) {
         super(`The dex API returned HTTP ${status}`);
@@ -15,7 +17,7 @@ export class ApiRequestError extends Error {
 }
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
-    const response = await fetch(`/api/v1/${path}`, { signal });
+    const response = await fetch(apiUrl(`v1/${path}`), { signal });
     if (!response.ok) {
         throw new ApiRequestError(response.status);
     }

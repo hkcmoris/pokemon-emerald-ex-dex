@@ -1,10 +1,12 @@
 import { useState } from 'react';
 
+import { apiUrl } from './apiUrl.js';
+
 function TypeBadge({ name, file }: { name: string; file: string | null }) {
     const [failed, setFailed] = useState(false);
     return file && !failed ? (
         <img
-            src={`/api/icons/types/${encodeURIComponent(file)}`}
+            src={apiUrl(`icons/types/${encodeURIComponent(file)}`)}
             alt={name}
             title={name}
             width={24}

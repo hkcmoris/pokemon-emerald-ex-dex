@@ -1,8 +1,12 @@
 import { useState } from 'react';
 
+import { apiUrl } from './apiUrl.js';
+
 export function spriteUrl(datasetId: string | undefined, file: string | null): string | null {
     if (!datasetId || !file) return null;
-    return `/api/sprites/${encodeURIComponent(datasetId)}/${file.split('/').map(encodeURIComponent).join('/')}`;
+    return apiUrl(
+        `sprites/${encodeURIComponent(datasetId)}/${file.split('/').map(encodeURIComponent).join('/')}`,
+    );
 }
 
 function SpriteImage({

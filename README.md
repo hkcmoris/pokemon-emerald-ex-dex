@@ -115,6 +115,37 @@ its database pool on shutdown.
 npm run build
 ```
 
+For Webzdarma PHP 8.4 hosting at `https://devground.cz/pokemon-emerald-ex-dex/`:
+
+```bash
+npm run build:webzdarma
+```
+
+Upload the contents of `dist/webzdarma/` into the server's
+`pokemon-emerald-ex-dex/` directory, including the hidden `.htaccess` files. This
+bundle includes the frontend, a PHP 8.4 API, and all PNG assets. On the server,
+copy `api/private/config.example.php` to `api/private/config.local.php` and fill
+in your production database credentials. No Node process or npm installation is
+needed on the hosting server. The API uses the existing `emerald_ex_*` tables;
+no additional SQL migration is required. Keep `config.local.php` on the server
+when uploading future builds. See [the complete FileZilla instructions](docs/webzdarma.md).
+
+The PHP source lives in `apps/server/php/`. The Node backend remains available
+for local development and Node hosting; both implementations share the existing
+API contract. Client API and image paths use Vite's build base, so the Webzdarma
+build uses `/pokemon-emerald-ex-dex/api/` without occupying the domain's root `/api`.
+
+To preview the complete PHP bundle locally with PHP 8.4, `pdo_mysql`, and `mbstring`:
+
+```bash
+npm run dev:php
+```
+
+This uses your ignored `.env.local` database settings. Set `PHP_BINARY` there if
+PHP 8.4 is not on PATH. Open `http://127.0.0.1:3001/pokemon-emerald-ex-dex/`.
+Run the explicit read-only PHP/Node parity checks against local MariaDB with
+`npm run test:php:db`; this also rebuilds the upload bundle.
+
 ## Test
 
 ```bash

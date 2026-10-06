@@ -162,6 +162,26 @@ See [type icon updates](database.md#update-type-icons).
 
 ## Client and deployment
 
+Webzdarma deployment uses the PHP 8.4 implementation in `apps/server/php/`.
+Run `npm run build:webzdarma` to create `dist/webzdarma/` for FileZilla. See
+[configuration and upload instructions](webzdarma.md). The existing versioned
+API responses and prefixed SQL tables are unchanged. Under the configured
+subfolder the endpoints are `/pokemon-emerald-ex-dex/api/v1/...`, sprites are
+`/pokemon-emerald-ex-dex/api/sprites/...`, and icons are
+`/pokemon-emerald-ex-dex/api/icons/...`. The build base controls all client URLs.
+The PHP API reads only SQL and PNG files at runtime, using native PDO prepared
+statements. It supports GET and HEAD, rejects other methods with 405, returns
+JSON errors without SQL or credentials, and caches PNGs for one day. PHP's
+`/api/health` checks the HTTP runtime; `/api/v1/dataset` also checks database access.
+
+The PHP backend uses hosting configuration in `api/private/config.local.php`
+(copied from `config.example.php`), with process environment variables taking
+precedence. Apache denies HTTP access to the private directory. Local PHP
+preview inherits `.env.local` through the Node preview launcher, without
+including it in the upload. `npm run test:php:db` compares PHP and Node responses
+against local MariaDB using only SELECT queries; it refuses a remote database.
+The Node deployment instructions below remain available for Node-capable hosts.
+
 The client requests dataset metadata and types, then fetches each species list page
 with the selected filters and sort. Opening `#/species/:id` fetches `/species/:id/details`
 and displays stats, types, learnsets, evolution relationships and TM/HM compatibility.
