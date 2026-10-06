@@ -98,9 +98,23 @@ export function createDexRouter(repository: DexRepository): Router {
         if (
             resource &&
             (typeof resource !== 'string' ||
-                !['name', 'stats', 'types', 'learnset', 'evolution', 'machines'].includes(resource))
+                ![
+                    'name',
+                    'stats',
+                    'types',
+                    'learnset',
+                    'evolution',
+                    'machines',
+                    'details',
+                ].includes(resource))
         ) {
             throw new HttpError(404, 'not_found', 'Endpoint not found');
+        }
+        if (resource === 'details') {
+            const details = await repository.getSpeciesDetails(id);
+            if (!details) throw new HttpError(404, 'not_found', 'Species not found');
+            res.json({ data: details });
+            return;
         }
         const species = await repository.getSpecies(id);
         if (!species) throw new HttpError(404, 'not_found', 'Species not found');

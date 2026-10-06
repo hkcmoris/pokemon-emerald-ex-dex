@@ -14,5 +14,8 @@ export type {
     Pokemon,
     PokemonType,
     SpeciesQuery,
+    SpeciesDetails,
+    SpeciesEvolution,
+    SpeciesMachine,
     SpeciesType,
 } from './dex.js';

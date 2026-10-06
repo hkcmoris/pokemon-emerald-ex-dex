@@ -1,7 +1,7 @@
 import { deepStrictEqual, rejects, strictEqual } from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { fetchCatalog, fetchSpecies } from './api.js';
+import { ApiRequestError, fetchCatalog, fetchSpecies, fetchSpeciesDetails } from './api.js';
 
 void test('catalog metadata and type choices come from the API', async (t) => {
     const dataset = {
@@ -61,4 +61,23 @@ void test('cancelled requests are rejected', async (t) => {
         return Promise.resolve(Response.json({ data: [] }));
     });
     await rejects(fetchCatalog(controller.signal), { name: 'AbortError' });
+});
+
+void test('species details are loaded by internal ID with the cancellation signal', async (t) => {
+    const signal = new AbortController().signal;
+    const record = { speciesId: 25, learnset: [], machines: [], evolutionLinks: [] };
+    t.mock.method(globalThis, 'fetch', (path: string, init: RequestInit) => {
+        strictEqual(path, '/api/v1/species/25/details');
+        strictEqual(init.signal, signal);
+        return Promise.resolve(Response.json({ data: record }));
+    });
+    deepStrictEqual(await fetchSpeciesDetails(25, signal), record);
+});
+
+void test('a missing species preserves its 404 status for the detail page', async (t) => {
+    t.mock.method(globalThis, 'fetch', () => Promise.resolve(new Response('', { status: 404 })));
+    await rejects(
+        fetchSpeciesDetails(65535),
+        (error: unknown) => error instanceof ApiRequestError && error.status === 404,
+    );
 });

@@ -97,3 +97,20 @@ export interface Machine {
     moveId: number;
     name: string;
 }
+
+export interface SpeciesMachine extends Move {
+    machine: string;
+    kind: 'TM' | 'HM';
+    number: number;
+}
+
+export interface SpeciesEvolution extends Evolution {
+    fromName: string;
+    internalOnly: boolean;
+}
+
+export interface SpeciesDetails extends Pokemon {
+    learnset: LearnsetEntry[];
+    machines: SpeciesMachine[];
+    evolutionLinks: SpeciesEvolution[];
+}

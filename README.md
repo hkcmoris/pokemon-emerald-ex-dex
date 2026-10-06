@@ -1,16 +1,21 @@
 # Pokémon Emerald EX Dex
 
-A searchable reference for Pokémon Emerald EX 1.0.4 species and forms, types, and base stats.
+A searchable reference for Pokémon Emerald EX 1.0.4 species and forms, stats, types,
+learnsets, evolutions, and TM/HM compatibility.
 
 The client fetches data from the SQL-backed `/api/v1` API.
 It includes all 1,523 species/form entries, search by name or exact internal species ID
 (including `#0001`), type filtering, sorting by ID/name/base stat total/speed, and paginated
-results with a stat detail panel. Duplicate names remain separate entries keyed by ROM
+results with linked species detail pages. Duplicate names remain separate entries keyed by ROM
 species/form ID. Stats are base stats, not calculated battle stats.
 
-Learnsets, evolutions, moves, and TM/HM compatibility are available through the API;
-the current UI displays types and base stats. JSON exports in `docs/` are import inputs
-and test fixtures; neither the client nor the server reads them at runtime.
+Click a species name to see all its imported data: base stats and types, level-up moves,
+incoming and outgoing evolution rules, internal form changes, and compatible TMs/HMs.
+Expand move names for descriptions and full move data, or evolution rules for their
+conditions and ROM identifiers. Related species link to their own pages. Detail URLs
+such as `#/species/1` can be bookmarked; returning to the list preserves its filters
+during the session. JSON exports in `docs/` are import inputs and test fixtures;
+neither the client nor the server reads them at runtime.
 
 ## SQL database preparation
 

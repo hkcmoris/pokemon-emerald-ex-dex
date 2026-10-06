@@ -12,6 +12,8 @@ import type {
     PageResponse,
     Pokemon,
     SpeciesType,
+    SpeciesDetails,
+    SpeciesEvolution,
 } from '@pokemon-emerald-ex-dex/shared';
 import { createConnection, createPool } from 'mariadb';
 
@@ -45,6 +47,12 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             'utf8',
         ),
     ) as { moves: Move[] };
+    const evolutionSource = JSON.parse(
+        await readFile(
+            new URL('../../../docs/pokemon_emerald_ex_1.0.4_evolutions.json', import.meta.url),
+            'utf8',
+        ),
+    ) as { edges: Omit<SpeciesEvolution, 'edgeOrder'>[] };
     async function get<T>(path: string): Promise<T> {
         const response = await fetch(`${server.url}/api/v1/${path}`);
         strictEqual(response.status, 200, path);
@@ -55,6 +63,52 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
     }
 
     try {
+        await t.test(
+            'complete species details preserve incoming/outgoing evolutions, internal routes and full machine moves',
+            async () => {
+                for (const id of [1, 2, 25, 104, 958]) {
+                    const details = (
+                        await get<ApiResponse<SpeciesDetails>>(`species/${id}/details`)
+                    ).data;
+                    const { learnset, machines, evolutionLinks, ...core } = details;
+                    deepStrictEqual(
+                        core,
+                        source.species.find((entry) => entry.speciesId === id),
+                    );
+                    deepStrictEqual(
+                        learnset,
+                        (await get<ApiResponse<LearnsetEntry[]>>(`species/${id}/learnset`)).data,
+                    );
+                    const expectedLinks = evolutionSource.edges
+                        .map((edge, index) => ({ ...edge, edgeOrder: index + 1 }))
+                        .filter((edge) => edge.fromSpeciesId === id || edge.toSpeciesId === id);
+                    deepStrictEqual(evolutionLinks, expectedLinks);
+                    const compatible = (await get<ApiResponse<Machine[]>>(`species/${id}/machines`))
+                        .data;
+                    deepStrictEqual(
+                        machines.map(({ machine, kind, number, moveId, name }) => ({
+                            machine,
+                            kind,
+                            number,
+                            moveId,
+                            name,
+                        })),
+                        compatible,
+                    );
+                    for (const {
+                        machine: _machine,
+                        kind: _kind,
+                        number: _number,
+                        ...move
+                    } of machines) {
+                        deepStrictEqual(
+                            move,
+                            moveSource.moves.find((entry) => entry.moveId === move.moveId),
+                        );
+                    }
+                }
+            },
+        );
         await t.test(
             'SQL metadata and every paginated species match the original export',
             async () => {
@@ -261,7 +315,12 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                         [],
                     );
                 }
-                for (const path of ['species/65535', 'species/65535/learnset', 'moves/65535']) {
+                for (const path of [
+                    'species/65535',
+                    'species/65535/details',
+                    'species/65535/learnset',
+                    'moves/65535',
+                ]) {
                     strictEqual((await fetch(`${server.url}/api/v1/${path}`)).status, 404);
                 }
                 const internal = await pool.execute<{ speciesId: number }[]>(
@@ -286,6 +345,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             async () => {
                 const other = new DexRepository(poolDatabase(pool), 'dex-test-missing-dataset');
                 strictEqual(await other.getSpecies(1), undefined);
+                strictEqual(await other.getSpeciesDetails(1), undefined);
                 strictEqual(await other.getMove(33), undefined);
                 deepStrictEqual(await other.getLearnset(1), []);
                 deepStrictEqual(await other.getEvolutions(1), []);

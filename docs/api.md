@@ -39,6 +39,7 @@ write endpoints. Configure request limits at the production reverse proxy if nee
 | `/api/v1/types` | Complete ROM type catalog, sorted by name |
 | `/api/v1/species` | Paginated species with stats and ordered type names/IDs |
 | `/api/v1/species/:id` | One species/form with stats and types |
+| `/api/v1/species/:id/details` | Species, complete learnset, full TM/HM move records, and incoming/outgoing evolution rules including internal form markers |
 | `/api/v1/species/:id/name` | `{ name }` |
 | `/api/v1/species/:id/stats` | Six stats and `baseStatTotal` |
 | `/api/v1/species/:id/types` | Ordered `{ typeId, name, slot }` records |
@@ -100,10 +101,24 @@ Example: `/api/v1/species?q=Bulbasaur&page=1&pageSize=40`
 Totals and ordering depend on the filters. Shared TypeScript contracts live in
 `packages/shared/src/dex.ts`.
 
+The species detail response extends the core species record with `learnset`,
+`machines`, and `evolutionLinks` arrays. Machine records include the full move plus
+`machine`, `kind`, and `number`. Evolution links include both species IDs/names,
+`internalOnly`, the rule summary, method/trigger, level, complete conditions, and raw
+ROM identifiers. Rules retain their original `edgeOrder`. The existing `/evolution`
+endpoint continues to return only outgoing player-facing rules.
+
 ## Client and deployment
 
-The client requests dataset metadata and types, then fetches each species page with
-the selected filters and sort. TanStack Query caches responses briefly, passes
+The client requests dataset metadata and types, then fetches each species list page
+with the selected filters and sort. Opening `#/species/:id` fetches `/species/:id/details`
+and displays stats, types, learnsets, evolution relationships and TM/HM compatibility.
+Move descriptions and raw identifiers expand inline; internal form markers are
+labelled separately from ordinary evolutions. Hash routes support direct links and
+reloads on static hosting without additional frontend rewrite rules. Returning to
+the list preserves filters during the session.
+
+TanStack Query caches responses briefly, passes
 cancellation signals to fetch, and manages loading/error/retry states. Changing a
 query uses a different cache key, so a late response cannot replace the current filter's
 results. Client builds do not bundle the source exports or database credentials.
@@ -126,4 +141,6 @@ backend or change production database contents.
 `npm run test:db` runs read-only HTTP/SQL integration tests against the local imported
 1.0.4 dataset and refuses a remote `DB_HOST`. It checks all 1,523 species against the
 source fixture, pagination/filtering/sorting, species and move subresources, empty
-relationships, internal-marker exclusion and dataset isolation.
+relationships, internal-marker exclusion and dataset isolation. Aggregate detail
+responses are checked against the source learnsets, complete move data, and evolution
+rules in both directions, including internal markers.

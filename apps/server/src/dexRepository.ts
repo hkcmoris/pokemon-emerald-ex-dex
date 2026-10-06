@@ -10,6 +10,9 @@ import type {
     PokemonType,
     SpeciesQuery,
     SpeciesType,
+    SpeciesDetails,
+    SpeciesEvolution,
+    SpeciesMachine,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import type { Database, SqlParameter } from './database.js';
@@ -129,6 +132,55 @@ export class DexRepository {
             [this.datasetId, id],
         );
         return (await this.hydrateSpecies(rows))[0];
+    }
+
+    async getSpeciesDetails(id: number): Promise<SpeciesDetails | undefined> {
+        const species = await this.getSpecies(id);
+        if (!species) return undefined;
+        const [learnset, machines, evolutionLinks] = await Promise.all([
+            this.getLearnset(id),
+            this.getMachineMoves(id),
+            this.getEvolutionLinks(id),
+        ]);
+        return { ...species, learnset, machines, evolutionLinks };
+    }
+
+    private getMachineMoves(id: number): Promise<SpeciesMachine[]> {
+        return this.database.query<SpeciesMachine>(
+            `SELECT ma.machine_code AS machine, ma.kind, ma.number, ${moveFields}
+             FROM emerald_ex_species_machines AS sm
+             JOIN emerald_ex_machines AS ma ON ma.dataset_id = sm.dataset_id AND ma.machine_code = sm.machine_code
+             JOIN emerald_ex_moves AS m ON m.dataset_id = ma.dataset_id AND m.move_id = ma.move_id
+             ${moveJoins}
+             WHERE sm.dataset_id = ? AND sm.species_id = ? ORDER BY ma.kind DESC, ma.number`,
+            [this.datasetId, id],
+        );
+    }
+
+    private async getEvolutionLinks(id: number): Promise<SpeciesEvolution[]> {
+        const rows = await this.database.query<
+            Omit<SpeciesEvolution, 'conditions' | 'internalOnly'> & {
+                conditions: string;
+                internalOnly: number;
+            }
+        >(
+            `SELECT e.edge_order AS edgeOrder, e.from_species_id AS fromSpeciesId,
+                e.to_species_id AS toSpeciesId, source.name AS fromName, target.name AS toName,
+                em.method_id AS methodId, em.name AS method, e.trigger_name AS \`trigger\`,
+                e.level, e.conditions, e.summary, e.raw_param AS rawParam, e.internal_only AS internalOnly
+             FROM emerald_ex_evolutions AS e
+             JOIN emerald_ex_species AS source ON source.dataset_id = e.dataset_id AND source.species_id = e.from_species_id
+             JOIN emerald_ex_species AS target ON target.dataset_id = e.dataset_id AND target.species_id = e.to_species_id
+             JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
+             WHERE e.dataset_id = ? AND (e.from_species_id = ? OR e.to_species_id = ?)
+             ORDER BY e.edge_order`,
+            [this.datasetId, id, id],
+        );
+        return rows.map((row) => ({
+            ...row,
+            conditions: parseConditions(row.conditions),
+            internalOnly: Boolean(row.internalOnly),
+        }));
     }
 
     getSpeciesTypes(id: number): Promise<SpeciesType[]> {

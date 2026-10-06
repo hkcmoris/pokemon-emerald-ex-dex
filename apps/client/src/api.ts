@@ -5,14 +5,29 @@ import type {
     Pokemon,
     PokemonType,
     SpeciesQuery,
+    SpeciesDetails,
 } from '@pokemon-emerald-ex-dex/shared';
+
+export class ApiRequestError extends Error {
+    constructor(public readonly status: number) {
+        super(`The dex API returned HTTP ${status}`);
+    }
+}
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
     const response = await fetch(`/api/v1/${path}`, { signal });
     if (!response.ok) {
-        throw new Error(`The dex API returned HTTP ${response.status}`);
+        throw new ApiRequestError(response.status);
     }
     return response.json() as Promise<T>;
+}
+
+export async function fetchSpeciesDetails(
+    id: number,
+    signal?: AbortSignal,
+): Promise<SpeciesDetails> {
+    const response = await get<ApiResponse<SpeciesDetails>>(`species/${id}/details`, signal);
+    return response.data;
 }
 
 export async function fetchCatalog(signal?: AbortSignal): Promise<{

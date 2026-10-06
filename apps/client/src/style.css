@@ -193,6 +193,118 @@ tbody tr:hover {
     background: #edf4e5;
 }
 
+.back-link {
+    color: #d8e8c5;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+.species-section {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #d2dace;
+    border-radius: 6px;
+    background: #fff;
+}
+.section-heading {
+    border-bottom: 1px solid #e3e8df;
+    padding: 1.25rem 1.5rem;
+}
+.section-heading h2 {
+    margin-top: 0.35rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+.count-label {
+    margin-left: 0.35rem;
+    color: #66806b;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    vertical-align: middle;
+}
+.empty-note {
+    color: #69726a;
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+.species-link {
+    color: #174c37;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.evolution-rules > li {
+    border-left: 2px solid #b5d566;
+    padding-left: 1rem;
+}
+.evolution-rules > li + li {
+    margin-top: 1.5rem;
+}
+summary {
+    cursor: pointer;
+}
+.rule-details {
+    color: #5c6d60;
+    font-size: 0.75rem;
+}
+.rom-fields {
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+.rom-fields > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+}
+.rom-fields dt {
+    color: #69726a;
+}
+.rom-fields dd {
+    overflow-wrap: anywhere;
+}
+.condition-data {
+    overflow-wrap: anywhere;
+    border-left: 2px solid #d2dace;
+    padding-left: 0.75rem;
+    font-size: 0.7rem;
+    white-space: pre-wrap;
+}
+.internal-routes {
+    border-top: 1px solid #e3e8df;
+    background: #f6f8f2;
+    padding: 1rem 1.5rem;
+    font-size: 0.8rem;
+}
+.move-table {
+    min-width: 620px;
+}
+.move-table th:nth-child(2) {
+    width: 38%;
+    min-width: 210px;
+}
+.move-details summary {
+    color: #174c37;
+    font-weight: 600;
+}
+.move-description {
+    margin-top: 0.75rem;
+    color: #4e6255;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.6;
+}
+.machine-heading {
+    border-top: 1px solid #e3e8df;
+    padding: 1rem 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
 @media (min-width: 1024px) {
     .detail-panel {
         position: sticky;
