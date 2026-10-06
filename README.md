@@ -10,6 +10,21 @@ species/form ID. Stats are base stats, not calculated battle stats.
 
 The learnset, evolution, and TM/HM exports in `docs/` are not yet displayed.
 
+## SQL database preparation
+
+MySQL/MariaDB schema, a prepared transactional import of all four JSON exports,
+verification queries, and query examples for the planned `/api/v1` endpoints are in
+`scripts/sql/`. See [database setup and import instructions](docs/database.md).
+
+Regenerate the import after changing the source exports:
+
+```bash
+npm run db:generate-import
+```
+
+These scripts prepare future SQL-backed API storage; the frontend currently still uses
+the local stats/type export.
+
 ## Tech stack
 
 * Node.js

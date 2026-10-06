@@ -1,0 +1,147 @@
+# MySQL / MariaDB data preparation
+
+The SQL scripts prepare the database for a future `/api/v1` API. The current frontend
+still imports the stats/type export directly; this change does not install API routes
+or connect to the configured database.
+
+Target versions: MySQL 8.0.16+ or MariaDB 10.11+. Tables use InnoDB, foreign keys,
+`utf8mb4`, and enforced check constraints. The scripts select no database implicitly:
+choose the destination in the SQL client. `000_create_database.sql` optionally creates
+`pokemon_emerald_ex` if you have CREATE privileges.
+
+## Files and execution order
+
+1. `scripts/sql/000_create_database.sql` — optional database creation.
+2. `scripts/sql/001_schema.sql` — tables, keys, constraints and indexes.
+3. `scripts/sql/002_import_emerald_ex_1.0.4.sql` — prepared data import.
+4. `scripts/sql/003_verify_import.sql` — counts and representative records.
+5. `scripts/sql/004_api_query_examples.sql` — example queries for the proposed API.
+
+The import file is generated from all four local exports in `docs/`:
+
+```bash
+npm run db:generate-import
+```
+
+Generation validates game/version and ROM hashes, species IDs and names across exports,
+stat totals, move references and repeated move attributes, type/category mappings,
+evolution methods, TM/HM references, duplicate IDs/pairs, numeric ranges and exported
+row counts. Validation finishes before the output file is written. The generator uses
+built-in Node.js APIs and never connects to a database. Regenerate the SQL after editing
+an export; JSON files are import inputs, not the future API's runtime storage.
+`npm test` also checks that the prepared SQL still matches the current source exports.
+
+The generated file is intentionally included as a ready-to-run SQL artifact. Inserts
+are batched into at most 250 rows per statement; no `LOAD_FILE`, JSON_TABLE, database
+FILE permission, server-side source paths, or ORM is required.
+
+### Run with the SQL command-line client
+
+Examples below use the MySQL client name `mysql`; substitute `mariadb` for MariaDB.
+Use your database user and host. `-p` prompts for the password without putting it in
+the script or command line. Do not use `--force`: the batch must stop at the first error.
+
+For Bash or Windows Command Prompt, from the repository root:
+
+```bash
+mysql --default-character-set=utf8mb4 --batch -h localhost -u dex_admin -p < scripts/sql/000_create_database.sql
+mysql --default-character-set=utf8mb4 --batch -h localhost -u dex_admin -p pokemon_emerald_ex < scripts/sql/001_schema.sql
+mysql --default-character-set=utf8mb4 --batch -h localhost -u dex_admin -p pokemon_emerald_ex < scripts/sql/002_import_emerald_ex_1.0.4.sql
+mysql --default-character-set=utf8mb4 --batch -h localhost -u dex_admin -p pokemon_emerald_ex < scripts/sql/003_verify_import.sql
+```
+
+For PowerShell, set UTF-8 pipeline encoding and stream each file to the client:
+
+```powershell
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+Get-Content -Raw -Encoding utf8 scripts/sql/001_schema.sql | mysql --default-character-set=utf8mb4 --batch -h localhost -u dex_admin -p pokemon_emerald_ex
+if ($LASTEXITCODE -ne 0) { throw 'Schema creation failed' }
+Get-Content -Raw -Encoding utf8 scripts/sql/002_import_emerald_ex_1.0.4.sql | mysql --default-character-set=utf8mb4 --batch -h localhost -u dex_admin -p pokemon_emerald_ex
+if ($LASTEXITCODE -ne 0) { throw 'Import failed' }
+Get-Content -Raw -Encoding utf8 scripts/sql/003_verify_import.sql | mysql --default-character-set=utf8mb4 --batch -h localhost -u dex_admin -p pokemon_emerald_ex
+```
+
+Create the database first, or select an existing empty database. If the client is not
+on PATH, use its full executable path. Never commit connection credentials.
+
+### Re-import behavior
+
+Schema creation is repeatable with `CREATE TABLE IF NOT EXISTS`; it is not a migration
+mechanism for changing an already-created table definition. DDL commits independently,
+so apply it before importing data.
+
+The import starts one transaction, locks the dataset record, deletes that dataset's
+rows in foreign-key order, and inserts the complete new snapshot. It commits only
+after every INSERT succeeds. Re-running it replaces `emerald-ex-1.0.4` and leaves other
+datasets intact. Any error in a stop-on-error batch closes the connection and rolls
+back the uncommitted replacement. An interactive client must issue `ROLLBACK` on error
+and must not continue to `COMMIT`.
+
+The script temporarily enables strict SQL mode and `NO_BACKSLASH_ESCAPES`, doubles
+single quotes, and restores the prior SQL mode on success. Foreign keys stay enabled.
+Future tables referencing these records may prevent snapshot replacement; imports
+should remain an administrative operation, separate from the API's read-only user.
+
+## Relational model
+
+Every primary key includes `dataset_id`, so game versions can coexist without mixing
+their internal IDs. Names are not species identities: multiple forms share a name.
+
+| Table | Contents |
+| --- | --- |
+| `dex_datasets` | Game/version identity |
+| `dex_sources` | Source filename, SHA-256 and extraction metadata |
+| `species` | Internal ROM species/form ID and display name |
+| `species_stats` | Six base stats and a generated total |
+| `pokemon_types`, `species_types` | ROM type mapping and ordered species types |
+| `moves`, `move_categories` | Full move records and category mapping |
+| `learnset_entries` | Species, original entry order, level and move reference |
+| `evolution_methods`, `evolutions` | Directed evolution edges and trigger conditions |
+| `machines`, `species_machines` | TM/HM definitions and species compatibility |
+
+`dex_sources.metadata` and `evolutions.conditions` are SQL JSON columns for extraction
+notes and heterogeneous evolution requirements. Queryable species, stats, move fields,
+learnsets and relationships live in relational columns, not serialized export blobs.
+Conditions preserve raw item/move/map/party/nature information and `raw_param` without
+inventing item or map catalogs that the supplied files do not contain.
+
+The import uses the top-level evolution `edges` as the canonical relationship list;
+the duplicated per-species `evolutions`/`preEvolutions` arrays are derived representations.
+Learnset attributes repeated in the JSON are validated against `moves` and stored once.
+Original learnset entry order and level 0 are preserved. Mono-types occupy one slot.
+Move ID 0 (`-`) is retained as the ROM sentinel, without an auto-increment identity.
+
+Expected 1.0.4 data: 1,523 species/forms, 935 moves, 23,729 level-up entries,
+2,280 species/type rows, 58 machines, 32,358 compatibility pairs, 618 normal evolution
+rules, and 26 internal form-routing markers. Type ID 9 (`Mystery`) is retained in the
+19-entry type catalog even though no species currently uses it.
+
+## API mapping
+
+`004_api_query_examples.sql` covers the proposed species/name/learnset/stats/types/evolution
+and moves/name/category/pp/damage/type routes, plus TM/HM compatibility. The future API
+must bind both the ID and a configured dataset (`emerald-ex-1.0.4` initially), even if
+only the ID appears in the URL. Unknown species/move IDs return 404; valid species with
+no learnset/evolution/machines return an empty array. Parse numeric IDs strictly, bound
+list endpoints, and use driver parameters rather than string concatenation.
+
+`/evolution` should normally exclude `internal_only = 1`. Incoming edges are available
+by `to_species_id`; form-routing markers can be exposed separately if needed.
+
+The exported `power` is base move power. `/moves/:id/damage` can return `{ power: n }`,
+but it must not imply calculated in-battle damage; `/power` is a clearer eventual name.
+`power = 0` and `accuracy = 0` retain their raw engine semantics: special/status damage
+and no normal percentage accuracy check. Keep effect/target IDs for future battle logic.
+
+Dialect references: [MariaDB generated columns](https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/generated-columns),
+[MariaDB JSON type](https://mariadb.com/docs/server/reference/data-types/string-data-types/json),
+and [MySQL SQL modes](https://dev.mysql.com/doc/refman/8.0/en/sql-mode.html).
+
+## Verification
+
+The scripts were executed on an isolated MariaDB 12.0.2 instance on 2026-10-06.
+Database creation, schema creation, full import, repeated schema/import, count checks
+and every API query example passed. Additional checks confirmed rollback after an
+intentional foreign-key failure, preservation of another dataset, exact equality of
+all 935 move records with the source, and rejection of invalid type slots, accuracy,
+and base-stat ranges. MySQL execution has not been verified on a live MySQL instance.
