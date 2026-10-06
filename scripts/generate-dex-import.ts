@@ -5,6 +5,7 @@ import {
     buildDexImport,
     sourceKinds,
     sourceFileNames,
+    sourceFilePath,
     type SourceFile,
     type SourceKind,
 } from './dex-import.js';
@@ -16,7 +17,7 @@ for (const kind of sourceKinds) {
     const fileName = sourceFileNames[kind];
     sources[kind] = {
         fileName,
-        contents: await readFile(new URL(`docs/${fileName}`, root), 'utf8'),
+        contents: await readFile(new URL(sourceFilePath(kind), root), 'utf8'),
     };
 }
 const { sql, spritesSql, counts, datasetId } = buildDexImport(sources);
@@ -24,7 +25,7 @@ const manifest = JSON.parse(sources.battle_sprites.contents) as {
     species: { files: Record<string, string> }[];
 };
 await validateSpriteFiles(
-    fileURLToPath(new URL('docs/pokemon_emerald_ex_1.0.4_battle_sprites/', root)),
+    fileURLToPath(new URL('assets/pokemon_emerald_ex_1.0.4_battle_sprites/', root)),
     manifest.species.flatMap((entry) => Object.values(entry.files)),
 );
 const output = new URL('scripts/sql/002_import_emerald_ex_1.0.4.sql', root);

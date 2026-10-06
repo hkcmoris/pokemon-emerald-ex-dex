@@ -192,7 +192,7 @@ backend or change production database contents.
 
 Before deploying this sprite update, import `005_species_sprites.sql` and
 `006_import_sprites_1.0.4.sql` into the existing database with an administrative
-account. Include `docs/pokemon_emerald_ex_1.0.4_battle_sprites/` at its repository-relative
+account. Include `assets/pokemon_emerald_ex_1.0.4_battle_sprites/` at its repository-relative
 location alongside the backend (including a compiled `apps/server/dist` deployment).
 The existing `/api/*` reverse-proxy rule also forwards sprite requests. No client-side
 JSON manifest or database credentials are needed.

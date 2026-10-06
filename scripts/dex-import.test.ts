@@ -7,6 +7,7 @@ import {
     buildDexImport,
     sourceKinds,
     sourceFileNames,
+    sourceFilePath,
     sqlLiteral,
     type SourceFile,
     type SourceKind,
@@ -18,7 +19,7 @@ for (const kind of sourceKinds) {
     const fileName = sourceFileNames[kind];
     sources[kind] = {
         fileName,
-        contents: await readFile(new URL(`../docs/${fileName}`, import.meta.url), 'utf8'),
+        contents: await readFile(new URL(`../${sourceFilePath(kind)}`, import.meta.url), 'utf8'),
     };
 }
 
@@ -130,7 +131,9 @@ void test('sprite references point to existing 64x64 PNGs and agree with the mig
         species: { files: Record<string, string> }[];
     };
     await validateSpriteFiles(
-        fileURLToPath(new URL('../docs/pokemon_emerald_ex_1.0.4_battle_sprites/', import.meta.url)),
+        fileURLToPath(
+            new URL('../assets/pokemon_emerald_ex_1.0.4_battle_sprites/', import.meta.url),
+        ),
         manifest.species.flatMap((entry) => Object.values(entry.files)),
     );
     const schema = await readFile(new URL('sql/001_schema.sql', import.meta.url), 'utf8');

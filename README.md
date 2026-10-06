@@ -43,7 +43,7 @@ For an already imported database, run `scripts/sql/005_species_sprites.sql` foll
 by `scripts/sql/006_import_sprites_1.0.4.sql` using an administrative account. This adds
 the sprite filenames without replacing existing species, moves or relationships.
 Apply the upgrade to both local and production databases before deploying the API
-changes. Include `docs/pokemon_emerald_ex_1.0.4_battle_sprites/` with the backend's
+changes. Include `assets/pokemon_emerald_ex_1.0.4_battle_sprites/` with the backend's
 deployment files so it can serve the PNGs. See the database and deployment docs below.
 
 Regenerate the import after changing the source exports:

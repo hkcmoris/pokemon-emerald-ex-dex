@@ -17,6 +17,10 @@ export const sourceFileNames: Record<SourceKind, string> = {
     tm_hm_compatibility: 'pokemon_emerald_ex_1.0.4_tm_hm_compatibility.json',
     battle_sprites: 'pokemon_emerald_ex_1.0.4_battle_sprites/sprite_manifest.json',
 };
+
+export function sourceFilePath(kind: SourceKind): string {
+    return `${kind === 'battle_sprites' ? 'assets' : 'docs'}/${sourceFileNames[kind]}`;
+}
 export const spriteFolders = {
     front: 'front',
     shinyFront: 'shiny_front',

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import express, { type Router } from 'express';
 
 export const spriteAssetRoot = fileURLToPath(
-    new URL('../../../docs/pokemon_emerald_ex_1.0.4_battle_sprites/', import.meta.url),
+    new URL('../../../assets/pokemon_emerald_ex_1.0.4_battle_sprites/', import.meta.url),
 );
 
 export function createSpriteRouter(): Router {

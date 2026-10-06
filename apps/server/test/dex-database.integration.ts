@@ -46,7 +46,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
     const spriteSource = JSON.parse(
         await readFile(
             new URL(
-                '../../../docs/pokemon_emerald_ex_1.0.4_battle_sprites/sprite_manifest.json',
+                '../../../assets/pokemon_emerald_ex_1.0.4_battle_sprites/sprite_manifest.json',
                 import.meta.url,
             ),
             'utf8',
