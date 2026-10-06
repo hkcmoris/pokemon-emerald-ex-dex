@@ -111,6 +111,41 @@ tbody tr:hover {
 .pokemon-name:hover {
     text-decoration: underline;
 }
+.species-sprite {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+.species-sprite img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+.sprite-placeholder {
+    color: #809087;
+    font-size: 1.5rem;
+}
+.species-portraits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.species-portraits figure {
+    text-align: center;
+}
+.species-portraits .species-sprite {
+    box-sizing: content-box;
+    border: 1px solid #567563;
+    border-radius: 6px;
+    background: #f2f5ef;
+}
+.species-portraits figcaption {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+}
 .type-badge {
     display: inline-block;
     border: 1px solid #b8c7b3;
@@ -303,6 +338,28 @@ summary {
     padding: 1rem 1.5rem;
     font-size: 0.8rem;
     font-weight: 600;
+}
+
+@media (max-width: 639px) {
+    .dex-list-header .version-tag {
+        padding: 0.3rem 0.45rem;
+        font-size: 0.65rem;
+    }
+    .filter-label {
+        gap: 0.25rem;
+    }
+    .filter-input {
+        min-height: 44px;
+        padding: 0.55rem 0.65rem;
+        font-size: 1rem;
+    }
+    .dex-list th,
+    .dex-list td {
+        padding: 0.5rem;
+    }
+    .dex-list .pokemon-name {
+        margin-bottom: 0.25rem;
+    }
 }
 
 @media (min-width: 1024px) {

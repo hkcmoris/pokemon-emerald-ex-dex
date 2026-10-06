@@ -7,8 +7,24 @@ export const sourceKinds = [
     'learnsets',
     'evolutions',
     'tm_hm_compatibility',
+    'battle_sprites',
 ] as const;
 export type SourceKind = (typeof sourceKinds)[number];
+export const sourceFileNames: Record<SourceKind, string> = {
+    stats_types: 'pokemon_emerald_ex_1.0.4_stats_types.json',
+    learnsets: 'pokemon_emerald_ex_1.0.4_learnsets.json',
+    evolutions: 'pokemon_emerald_ex_1.0.4_evolutions.json',
+    tm_hm_compatibility: 'pokemon_emerald_ex_1.0.4_tm_hm_compatibility.json',
+    battle_sprites: 'pokemon_emerald_ex_1.0.4_battle_sprites/sprite_manifest.json',
+};
+export const spriteFolders = {
+    front: 'front',
+    shinyFront: 'shiny_front',
+    frontFrame2: 'front_frame2',
+    shinyFrontFrame2: 'shiny_front_frame2',
+    back: 'back',
+    shinyBack: 'shiny_back',
+} as const;
 export interface SourceFile {
     fileName: string;
     contents: string;
@@ -19,6 +35,18 @@ interface TableData {
     name: string;
     columns: string[];
     rows: SqlValue[][];
+}
+
+function insertStatements(table: TableData): string[] {
+    const lines: string[] = [];
+    for (let offset = 0; offset < table.rows.length; offset += 250) {
+        const rows = table.rows.slice(offset, offset + 250);
+        lines.push(
+            `\nINSERT INTO ${table.name} (${table.columns.join(', ')}) VALUES`,
+            rows.map((row) => `(${row.map(sqlLiteral).join(', ')})`).join(',\n') + ';',
+        );
+    }
+    return lines;
 }
 
 function assert(condition: boolean, message: string): asserts condition {
@@ -81,6 +109,7 @@ export function sqlLiteral(value: SqlValue): string {
 
 export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
     sql: string;
+    spritesSql: string;
     counts: Record<string, number>;
     datasetId: string;
 } {
@@ -101,16 +130,18 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
     const datasetId = `emerald-ex-${version}`;
     const tables: TableData[] = [];
     function add(name: string, columns: string[], rows: SqlValue[][]) {
-        tables.push({
+        const table = {
             name: `${tablePrefix}${name}`,
             columns: ['dataset_id', ...columns],
             rows: rows.map((row) => [datasetId, ...row]),
-        });
+        };
+        tables.push(table);
+        return table;
     }
 
     const romHashes = new Set<string>();
     add('datasets', ['game', 'version'], [[game, version]]);
-    add(
+    const sourceTable = add(
         'sources',
         ['source_kind', 'file_name', 'file_sha256', 'metadata'],
         sourceKinds.map((kind) => {
@@ -164,7 +195,12 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
     const speciesNames = indexNames(speciesEntries, 'speciesId');
     assert(!speciesNames.has(0), 'Species ID 0 is not a species/form');
     assert(speciesEntries.length === metadata.speciesFormCount, 'Species count mismatch');
-    for (const kind of ['learnsets', 'evolutions', 'tm_hm_compatibility'] as const) {
+    for (const kind of [
+        'learnsets',
+        'evolutions',
+        'tm_hm_compatibility',
+        'battle_sprites',
+    ] as const) {
         const entries = records(documents[kind].species);
         const names = indexNames(entries, 'speciesId');
         assert(names.size === speciesNames.size, `Species count mismatch in ${kind}`);
@@ -172,6 +208,79 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
             assert(speciesNames.get(id) === name, `Species/name mismatch in ${kind}: ${id}`);
     }
     add('species', ['species_id', 'name'], [...speciesNames.entries()]);
+    const spriteEntries = records(documents.battle_sprites.species);
+    const spriteKeys = Object.keys(spriteFolders) as (keyof typeof spriteFolders)[];
+    const spriteTable = add(
+        'species_sprites',
+        [
+            'species_id',
+            'front_file',
+            'shiny_front_file',
+            'front_frame2_file',
+            'shiny_front_frame2_file',
+            'back_file',
+            'shiny_back_file',
+            'front_frame_count',
+            'missing_reason',
+        ],
+        spriteEntries.map((entry) => {
+            const id = integer(entry.speciesId, 1);
+            const available = boolean(entry.available);
+            const frames = integer(entry.frontFrameCount, 0, 2);
+            const files = record(entry.files);
+            assert(
+                Object.keys(files).every((key) => Object.hasOwn(spriteFolders, key)),
+                `Unknown sprite variant: ${id}`,
+            );
+            assert(
+                available ? frames >= 1 : frames === 0 && Object.keys(files).length === 0,
+                `Invalid sprite availability: ${id}`,
+            );
+            const paths = spriteKeys.map((key) => {
+                const required = available && (frames === 2 || !key.endsWith('Frame2'));
+                assert(
+                    required === (files[key] !== undefined),
+                    `Missing/unexpected sprite ${key}: ${id}`,
+                );
+                if (!required) return null;
+                const path = text(files[key]);
+                const prefix = `${spriteFolders[key]}/${String(id).padStart(4, '0')}_`;
+                assert(
+                    path.length <= 255 &&
+                        path.startsWith(prefix) &&
+                        path.endsWith('.png') &&
+                        !/[\\/]/.test(path.slice(prefix.length)),
+                    `Invalid sprite path: ${path}`,
+                );
+                return path;
+            });
+            return [id, ...paths, frames, available ? null : text(entry.reason)];
+        }),
+    );
+    const spriteMetadata = record(documents.battle_sprites.metadata);
+    assert(
+        spriteEntries.filter((entry) => entry.available).length ===
+            spriteMetadata.speciesWithSprites,
+        'Available sprite count mismatch',
+    );
+    assert(
+        spriteEntries.filter((entry) => !entry.available).length === spriteMetadata.missingSpecies,
+        'Missing sprite count mismatch',
+    );
+    for (const [key, countKey] of Object.entries({
+        front: 'frontPngs',
+        shinyFront: 'shinyFrontPngs',
+        frontFrame2: 'frontFrame2Pngs',
+        shinyFrontFrame2: 'shinyFrontFrame2Pngs',
+        back: 'backPngs',
+        shinyBack: 'shinyBackPngs',
+    })) {
+        assert(
+            spriteEntries.filter((entry) => record(entry.files)[key] !== undefined).length ===
+                spriteMetadata[countKey],
+            `Sprite file count mismatch: ${key}`,
+        );
+    }
     const statKeys = ['hp', 'attack', 'defense', 'spAttack', 'spDefense', 'speed'];
     add(
         'species_stats',
@@ -414,15 +523,26 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
                 (table) => `DELETE FROM ${table.name} WHERE dataset_id = ${sqlLiteral(datasetId)};`,
             ),
     ];
-    for (const table of tables) {
-        for (let offset = 0; offset < table.rows.length; offset += 250) {
-            const rows = table.rows.slice(offset, offset + 250);
-            lines.push(
-                `\nINSERT INTO ${table.name} (${table.columns.join(', ')}) VALUES`,
-                rows.map((row) => `(${row.map(sqlLiteral).join(', ')})`).join(',\n') + ';',
-            );
-        }
-    }
+    for (const table of tables) lines.push(...insertStatements(table));
     lines.push('\nCOMMIT;', 'SET SESSION sql_mode = @dex_previous_sql_mode;', '');
-    return { sql: lines.join('\n'), counts, datasetId };
+    const spritesLines = [
+        '-- Generated by npm run db:generate-import. Upgrade an existing imported dex without replacing its other data.',
+        '-- Run 005_species_sprites.sql first. Use a batch client that stops on the first error.',
+        'SET NAMES utf8mb4;',
+        'SET @dex_previous_sql_mode = @@SESSION.sql_mode;',
+        "SET SESSION sql_mode = 'STRICT_ALL_TABLES,NO_BACKSLASH_ESCAPES,NO_ENGINE_SUBSTITUTION';",
+        'START TRANSACTION;',
+        `SELECT dataset_id FROM ${tablePrefix}datasets WHERE dataset_id = ${sqlLiteral(datasetId)} FOR UPDATE;`,
+        `DELETE FROM ${spriteTable.name} WHERE dataset_id = ${sqlLiteral(datasetId)};`,
+        `DELETE FROM ${sourceTable.name} WHERE dataset_id = ${sqlLiteral(datasetId)} AND source_kind = 'battle_sprites';`,
+        ...insertStatements({
+            ...sourceTable,
+            rows: sourceTable.rows.filter((row) => row[1] === 'battle_sprites'),
+        }),
+        ...insertStatements(spriteTable),
+        '\nCOMMIT;',
+        'SET SESSION sql_mode = @dex_previous_sql_mode;',
+        '',
+    ];
+    return { sql: lines.join('\n'), spritesSql: spritesLines.join('\n'), counts, datasetId };
 }

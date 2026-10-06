@@ -12,6 +12,7 @@ import { DexFooter } from './DexFooter.js';
 import { statLabels } from './dex.js';
 import { speciesHref } from './navigation.js';
 import { TypeBadges } from './TypeBadges.js';
+import { SpeciesSprite } from './SpeciesSprite.js';
 
 type SpeciesMove = LearnsetEntry | SpeciesMachine;
 
@@ -142,15 +143,18 @@ function MoveTable({
 function EvolutionRules({
     links,
     speciesId,
+    datasetId,
 }: {
     links: readonly SpeciesEvolution[];
     speciesId: number;
+    datasetId: string | undefined;
 }) {
     return (
         <ul className="evolution-rules">
             {links.map((link) => {
                 const outgoing = link.fromSpeciesId === speciesId;
                 const relatedId = outgoing ? link.toSpeciesId : link.fromSpeciesId;
+                const relatedName = outgoing ? link.toName : link.fromName;
                 return (
                     <li key={link.edgeOrder}>
                         {link.internalOnly && (
@@ -158,12 +162,19 @@ function EvolutionRules({
                                 {outgoing ? 'Changes to' : 'Changes from'}
                             </p>
                         )}
-                        <a className="species-link" href={speciesHref(relatedId)}>
-                            {outgoing ? link.toName : link.fromName}{' '}
-                            <span className="font-mono text-xs font-normal">
-                                #{String(relatedId).padStart(4, '0')}
-                            </span>
-                        </a>
+                        <div className="flex items-center gap-3">
+                            <SpeciesSprite
+                                datasetId={datasetId}
+                                file={outgoing ? link.toSprite : link.fromSprite}
+                                name={relatedName}
+                            />
+                            <a className="species-link" href={speciesHref(relatedId)}>
+                                {relatedName}{' '}
+                                <span className="font-mono text-xs font-normal">
+                                    #{String(relatedId).padStart(4, '0')}
+                                </span>
+                            </a>
+                        </div>
                         <p className="mt-2 text-sm leading-relaxed">{link.summary}</p>
                         <details className="rule-details mt-3">
                             <summary>Rule details</summary>
@@ -257,7 +268,15 @@ function StatsPanel({ entry, version }: { entry: Pokemon; version: string }) {
     );
 }
 
-export function SpeciesPage({ speciesId, version }: { speciesId: number; version: string }) {
+export function SpeciesPage({
+    speciesId,
+    version,
+    datasetId,
+}: {
+    speciesId: number;
+    version: string;
+    datasetId: string | undefined;
+}) {
     const heading = useRef<HTMLHeadingElement>(null);
     const details = useQuery({
         queryKey: ['species-details', speciesId],
@@ -292,21 +311,58 @@ export function SpeciesPage({ speciesId, version }: { speciesId: number; version
                         </a>
                         <span className="version-tag">EX / {version}</span>
                     </div>
-                    <p className="eyebrow mt-8">
-                        Species / form {String(speciesId).padStart(4, '0')}
-                    </p>
-                    <h1
-                        ref={heading}
-                        tabIndex={-1}
-                        className="mt-3 text-4xl font-semibold tracking-tight sm:text-6xl"
-                    >
-                        {entry?.name ?? (missing ? 'Species not found' : 'Species details')}
-                    </h1>
-                    {entry && (
-                        <div className="mt-5">
-                            <TypeBadges types={entry.types} />
+                    <div className="mt-8 grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto]">
+                        <div>
+                            <p className="eyebrow">
+                                Species / form {String(speciesId).padStart(4, '0')}
+                            </p>
+                            <h1
+                                ref={heading}
+                                tabIndex={-1}
+                                className="mt-3 text-4xl font-semibold tracking-tight sm:text-6xl"
+                            >
+                                {entry?.name ?? (missing ? 'Species not found' : 'Species details')}
+                            </h1>
+                            {entry && (
+                                <div className="mt-5">
+                                    <TypeBadges types={entry.types} />
+                                </div>
+                            )}
                         </div>
-                    )}
+                        {entry && (
+                            <div>
+                                <div className="species-portraits">
+                                    <figure>
+                                        <SpeciesSprite
+                                            datasetId={datasetId}
+                                            file={entry.sprites?.front ?? null}
+                                            name={entry.name}
+                                            size={128}
+                                            loading="eager"
+                                        />
+                                        <figcaption>Standard</figcaption>
+                                    </figure>
+                                    <figure>
+                                        <SpeciesSprite
+                                            datasetId={datasetId}
+                                            file={entry.sprites?.shinyFront ?? null}
+                                            name={entry.name}
+                                            size={128}
+                                            shiny
+                                            loading="eager"
+                                        />
+                                        <figcaption>Shiny</figcaption>
+                                    </figure>
+                                </div>
+                                {(!entry.sprites?.front || !entry.sprites.shinyFront) && (
+                                    <p className="mt-3 max-w-xs text-xs text-emerald-100/80">
+                                        {entry.sprites?.missingReason ??
+                                            'Sprites have not been imported for this species.'}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
             <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
@@ -357,6 +413,7 @@ export function SpeciesPage({ speciesId, version }: { speciesId: number; version
                                                 <EvolutionRules
                                                     links={incoming}
                                                     speciesId={speciesId}
+                                                    datasetId={datasetId}
                                                 />
                                             ) : (
                                                 <p className="empty-note">
@@ -372,6 +429,7 @@ export function SpeciesPage({ speciesId, version }: { speciesId: number; version
                                                 <EvolutionRules
                                                     links={outgoing}
                                                     speciesId={speciesId}
+                                                    datasetId={datasetId}
                                                 />
                                             ) : (
                                                 <p className="empty-note">
@@ -395,6 +453,7 @@ export function SpeciesPage({ speciesId, version }: { speciesId: number; version
                                             <EvolutionRules
                                                 links={internal}
                                                 speciesId={speciesId}
+                                                datasetId={datasetId}
                                             />
                                         </details>
                                     )}

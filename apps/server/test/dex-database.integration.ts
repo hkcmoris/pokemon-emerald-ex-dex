@@ -14,6 +14,7 @@ import type {
     SpeciesType,
     SpeciesDetails,
     SpeciesEvolution,
+    SpeciesSprites,
 } from '@pokemon-emerald-ex-dex/shared';
 import { createConnection, createPool } from 'mariadb';
 
@@ -40,7 +41,50 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_stats_types.json', import.meta.url),
             'utf8',
         ),
-    ) as { species: Pokemon[] };
+    ) as { species: Omit<Pokemon, 'sprites'>[] };
+    const spriteSource = JSON.parse(
+        await readFile(
+            new URL(
+                '../../../docs/pokemon_emerald_ex_1.0.4_battle_sprites/sprite_manifest.json',
+                import.meta.url,
+            ),
+            'utf8',
+        ),
+    ) as {
+        species: {
+            speciesId: number;
+            frontFrameCount: number;
+            reason?: string;
+            files: Partial<
+                Record<
+                    | 'front'
+                    | 'shinyFront'
+                    | 'frontFrame2'
+                    | 'shinyFrontFrame2'
+                    | 'back'
+                    | 'shinyBack',
+                    string
+                >
+            >;
+        }[];
+    };
+    const expected = source.species.map((entry): Pokemon => {
+        const sprite = spriteSource.species.find((row) => row.speciesId === entry.speciesId);
+        if (!sprite) throw new Error(`Missing sprite fixture: ${entry.speciesId}`);
+        return {
+            ...entry,
+            sprites: {
+                front: sprite.files.front ?? null,
+                shinyFront: sprite.files.shinyFront ?? null,
+                frontFrame2: sprite.files.frontFrame2 ?? null,
+                shinyFrontFrame2: sprite.files.shinyFrontFrame2 ?? null,
+                back: sprite.files.back ?? null,
+                shinyBack: sprite.files.shinyBack ?? null,
+                frontFrameCount: sprite.frontFrameCount,
+                missingReason: sprite.reason ?? null,
+            },
+        };
+    });
     const moveSource = JSON.parse(
         await readFile(
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_learnsets.json', import.meta.url),
@@ -52,7 +96,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_evolutions.json', import.meta.url),
             'utf8',
         ),
-    ) as { edges: Omit<SpeciesEvolution, 'edgeOrder'>[] };
+    ) as { edges: Omit<SpeciesEvolution, 'edgeOrder' | 'fromSprite' | 'toSprite'>[] };
     async function get<T>(path: string): Promise<T> {
         const response = await fetch(`${server.url}/api/v1/${path}`);
         strictEqual(response.status, 200, path);
@@ -64,6 +108,20 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
 
     try {
         await t.test(
+            'sprite references match each form and preserve explicit missing sprites',
+            async () => {
+                for (const id of [1, 29, 716, 958, 1431, 1432, 1433, 1435]) {
+                    const result = (
+                        await get<ApiResponse<SpeciesSprites | null>>(`species/${id}/sprites`)
+                    ).data;
+                    deepStrictEqual(
+                        result,
+                        expected.find((entry) => entry.speciesId === id)?.sprites,
+                    );
+                }
+            },
+        );
+        await t.test(
             'complete species details preserve incoming/outgoing evolutions, internal routes and full machine moves',
             async () => {
                 for (const id of [1, 2, 25, 104, 958]) {
@@ -73,14 +131,23 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     const { learnset, machines, evolutionLinks, ...core } = details;
                     deepStrictEqual(
                         core,
-                        source.species.find((entry) => entry.speciesId === id),
+                        expected.find((entry) => entry.speciesId === id),
                     );
                     deepStrictEqual(
                         learnset,
                         (await get<ApiResponse<LearnsetEntry[]>>(`species/${id}/learnset`)).data,
                     );
                     const expectedLinks = evolutionSource.edges
-                        .map((edge, index) => ({ ...edge, edgeOrder: index + 1 }))
+                        .map((edge, index) => ({
+                            ...edge,
+                            edgeOrder: index + 1,
+                            fromSprite:
+                                expected.find((entry) => entry.speciesId === edge.fromSpeciesId)
+                                    ?.sprites?.front ?? null,
+                            toSprite:
+                                expected.find((entry) => entry.speciesId === edge.toSpeciesId)
+                                    ?.sprites?.front ?? null,
+                        }))
                         .filter((edge) => edge.fromSpeciesId === id || edge.toSpeciesId === id);
                     deepStrictEqual(evolutionLinks, expectedLinks);
                     const compatible = (await get<ApiResponse<Machine[]>>(`species/${id}/machines`))
@@ -128,7 +195,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     });
                     all.push(...result.data);
                 }
-                deepStrictEqual(all, source.species);
+                deepStrictEqual(all, expected);
                 strictEqual((await species('species?page=8&pageSize=250')).length, 0);
             },
         );
@@ -138,26 +205,26 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             async () => {
                 deepStrictEqual(
                     await species('species?q=%20BULBASAUR%20'),
-                    source.species.filter((entry) => entry.speciesId === 1),
+                    expected.filter((entry) => entry.speciesId === 1),
                 );
                 deepStrictEqual(
                     await species('species?q=%230001'),
-                    source.species.filter((entry) => entry.speciesId === 1),
+                    expected.filter((entry) => entry.speciesId === 1),
                 );
                 deepStrictEqual(
                     await species('species?q=1523'),
-                    source.species.filter((entry) => entry.speciesId === 1523),
+                    expected.filter((entry) => entry.speciesId === 1523),
                 );
                 deepStrictEqual(
                     await species('species?q=Mimikyu'),
-                    source.species.filter((entry) => entry.name === 'Mimikyu'),
+                    expected.filter((entry) => entry.name === 'Mimikyu'),
                 );
                 strictEqual((await species('species?q=Bulbasaur&type=Poison')).length, 1);
                 strictEqual((await species('species?q=Bulbasaur&type=Water')).length, 0);
                 const fairy = await species('species?type=Fairy&pageSize=250');
                 deepStrictEqual(
                     fairy,
-                    source.species.filter((entry) => entry.types.includes('Fairy')),
+                    expected.filter((entry) => entry.types.includes('Fairy')),
                 );
                 for (const q of ['not a pokemon', '%', '_', "' OR 1=1 --"]) {
                     strictEqual((await species(`species?q=${encodeURIComponent(q)}`)).length, 0, q);
@@ -169,7 +236,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             'stat sorts use descending values and ascending IDs for ties across pages',
             async () => {
                 for (const sort of ['total', 'speed'] as const) {
-                    const expected = [...source.species].sort((a, b) => {
+                    const sorted = [...expected].sort((a, b) => {
                         const difference =
                             sort === 'total'
                                 ? b.baseStatTotal - a.baseStatTotal
@@ -178,7 +245,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     });
                     const first = await species(`species?sort=${sort}&pageSize=40`);
                     const second = await species(`species?sort=${sort}&pageSize=40&page=2`);
-                    deepStrictEqual([...first, ...second], expected.slice(0, 80));
+                    deepStrictEqual([...first, ...second], sorted.slice(0, 80));
                 }
                 const byName = await species('species?sort=name&pageSize=250');
                 for (let index = 1; index < byName.length; index++) {
@@ -196,7 +263,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             'species subresources preserve stats, ordered types, level zero, evolution conditions and machines',
             async () => {
                 const record = (await get<ApiResponse<Pokemon>>('species/0001')).data;
-                deepStrictEqual(record, source.species[0]);
+                deepStrictEqual(record, expected[0]);
                 deepStrictEqual((await get<ApiResponse<{ name: string }>>('species/1/name')).data, {
                     name: 'Bulbasaur',
                 });

@@ -11,7 +11,10 @@ UNION ALL SELECT 'machines', COUNT(*), 58 FROM emerald_ex_machines WHERE dataset
 UNION ALL SELECT 'species_machines', COUNT(*), 32358 FROM emerald_ex_species_machines WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'normal_evolutions', COUNT(*), 618 FROM emerald_ex_evolutions WHERE dataset_id = @dataset_id AND internal_only = 0
 UNION ALL SELECT 'form_markers', COUNT(*), 26 FROM emerald_ex_evolutions WHERE dataset_id = @dataset_id AND internal_only = 1
-UNION ALL SELECT 'sources', COUNT(*), 4 FROM emerald_ex_sources WHERE dataset_id = @dataset_id;
+UNION ALL SELECT 'sources', COUNT(*), 5 FROM emerald_ex_sources WHERE dataset_id = @dataset_id
+UNION ALL SELECT 'sprite_records', COUNT(*), 1523 FROM emerald_ex_species_sprites WHERE dataset_id = @dataset_id
+UNION ALL SELECT 'front_sprites', COUNT(front_file), 1519 FROM emerald_ex_species_sprites WHERE dataset_id = @dataset_id
+UNION ALL SELECT 'shiny_front_sprites', COUNT(shiny_front_file), 1519 FROM emerald_ex_species_sprites WHERE dataset_id = @dataset_id;
 
 -- Both queries should return no rows.
 SELECT s.species_id FROM emerald_ex_species AS s

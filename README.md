@@ -11,6 +11,10 @@ species/form ID. Stats are base stats, not calculated battle stats.
 
 Click a species name to see all its imported data: base stats and types, level-up moves,
 incoming and outgoing evolution rules, internal form changes, and compatible TMs/HMs.
+The list shows each species' standard front sprite; detail pages show standard and
+shiny front sprites. The four forms without exported sprites show placeholders.
+On mobile, a compact header and side-by-side type/sort filters leave room for the
+initial species rows without scrolling.
 Expand move names for descriptions and full move data, or evolution rules for their
 conditions and ROM identifiers. Related species link to their own pages. Detail URLs
 such as `#/species/1` can be bookmarked; returning to the list preserves its filters
@@ -20,9 +24,16 @@ neither the client nor the server reads them at runtime.
 ## SQL database preparation
 
 MySQL/MariaDB schema for an existing shared database, a prepared transactional import
-of all four JSON exports, verification queries, and API query examples are in
+of the four JSON exports and sprite manifest, verification queries, and API query examples are in
 `scripts/sql/`. See [database setup and import instructions](docs/database.md).
 All dex tables, explicitly named constraints and indexes use the `emerald_ex_` prefix.
+
+For an already imported database, run `scripts/sql/005_species_sprites.sql` followed
+by `scripts/sql/006_import_sprites_1.0.4.sql` using an administrative account. This adds
+the sprite filenames without replacing existing species, moves or relationships.
+Apply the upgrade to both local and production databases before deploying the API
+changes. Include `docs/pokemon_emerald_ex_1.0.4_battle_sprites/` with the backend's
+deployment files so it can serve the PNGs. See the database and deployment docs below.
 
 Regenerate the import after changing the source exports:
 

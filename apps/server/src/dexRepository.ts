@@ -13,6 +13,7 @@ import type {
     SpeciesDetails,
     SpeciesEvolution,
     SpeciesMachine,
+    SpeciesSprites,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import type { Database, SqlParameter } from './database.js';
@@ -24,6 +25,10 @@ interface SpeciesRow extends BaseStats {
 }
 
 interface TypeRow extends SpeciesType {
+    speciesId: number;
+}
+
+interface SpriteRow extends SpeciesSprites {
     speciesId: number;
 }
 
@@ -167,10 +172,15 @@ export class DexRepository {
             `SELECT e.edge_order AS edgeOrder, e.from_species_id AS fromSpeciesId,
                 e.to_species_id AS toSpeciesId, source.name AS fromName, target.name AS toName,
                 em.method_id AS methodId, em.name AS method, e.trigger_name AS \`trigger\`,
-                e.level, e.conditions, e.summary, e.raw_param AS rawParam, e.internal_only AS internalOnly
+                e.level, e.conditions, e.summary, e.raw_param AS rawParam, e.internal_only AS internalOnly,
+                source_sprite.front_file AS fromSprite, target_sprite.front_file AS toSprite
              FROM emerald_ex_evolutions AS e
              JOIN emerald_ex_species AS source ON source.dataset_id = e.dataset_id AND source.species_id = e.from_species_id
              JOIN emerald_ex_species AS target ON target.dataset_id = e.dataset_id AND target.species_id = e.to_species_id
+             LEFT JOIN emerald_ex_species_sprites AS source_sprite
+                ON source_sprite.dataset_id = e.dataset_id AND source_sprite.species_id = e.from_species_id
+             LEFT JOIN emerald_ex_species_sprites AS target_sprite
+                ON target_sprite.dataset_id = e.dataset_id AND target_sprite.species_id = e.to_species_id
              JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
              WHERE e.dataset_id = ? AND (e.from_species_id = ? OR e.to_species_id = ?)
              ORDER BY e.edge_order`,
@@ -267,6 +277,16 @@ export class DexRepository {
              ORDER BY st.species_id, st.slot`,
             [this.datasetId, ...rows.map((row) => row.speciesId)],
         );
+        const spriteRows = await this.database.query<SpriteRow>(
+            `SELECT species_id AS speciesId, front_file AS front, shiny_front_file AS shinyFront,
+                front_frame2_file AS frontFrame2, shiny_front_frame2_file AS shinyFrontFrame2,
+                back_file AS back, shiny_back_file AS shinyBack,
+                front_frame_count AS frontFrameCount, missing_reason AS missingReason
+             FROM emerald_ex_species_sprites
+             WHERE dataset_id = ? AND species_id IN (${rows.map(() => '?').join(', ')})`,
+            [this.datasetId, ...rows.map((row) => row.speciesId)],
+        );
+        const sprites = new Map(spriteRows.map(({ speciesId, ...sprite }) => [speciesId, sprite]));
         const bySpecies = new Map<number, TypeRow[]>();
         for (const type of types) {
             const entries = bySpecies.get(type.speciesId) ?? [];
@@ -280,6 +300,7 @@ export class DexRepository {
             baseStatTotal,
             types: (bySpecies.get(speciesId) ?? []).map((type) => type.name),
             typeIds: (bySpecies.get(speciesId) ?? []).map((type) => type.typeId),
+            sprites: sprites.get(speciesId) ?? null,
         }));
     }
 }

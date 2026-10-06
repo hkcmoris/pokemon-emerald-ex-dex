@@ -6,6 +6,7 @@ import { fetchCatalog, fetchSpecies } from './api.js';
 import { DexFooter } from './DexFooter.js';
 import { TypeBadges } from './TypeBadges.js';
 import { SpeciesPage } from './SpeciesPage.js';
+import { SpeciesSprite } from './SpeciesSprite.js';
 import {
     navigationSnapshot,
     parseRoute,
@@ -64,6 +65,7 @@ export function App() {
                 key={route.id}
                 speciesId={route.id}
                 version={dexMetadata?.version ?? '…'}
+                datasetId={dexMetadata?.datasetId}
             />
         );
     }
@@ -82,21 +84,23 @@ export function App() {
     return (
         <div className="min-h-screen">
             <header className="dex-header">
-                <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14">
-                    <div className="flex items-center justify-between gap-4">
-                        <p className="eyebrow">Hoenn field reference</p>
-                        <span className="version-tag">EX / {dexMetadata?.version ?? '…'}</span>
+                <div className="dex-list-header mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-3 sm:block sm:px-8 sm:py-14">
+                    <div className="contents sm:flex sm:items-center sm:justify-between sm:gap-4">
+                        <p className="eyebrow hidden sm:block">Hoenn field reference</p>
+                        <span className="version-tag col-start-2 row-start-1">
+                            EX / {dexMetadata?.version ?? '…'}
+                        </span>
                     </div>
-                    <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-6xl">
+                    <h1 className="col-start-1 row-start-1 text-2xl font-semibold tracking-tight sm:mt-6 sm:text-6xl">
                         Emerald <span className="font-light">EX Dex</span>
                     </h1>
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-                        <p className="max-w-xl text-sm leading-relaxed text-emerald-100/80">
+                    <div className="hidden flex-wrap items-center justify-between gap-4 sm:mt-5 sm:flex">
+                        <p className="hidden max-w-xl text-sm leading-relaxed text-emerald-100/80 sm:block">
                             Every species. Every form. Explore stats, moves, and evolutions in
                             Pokémon Emerald EX.
                         </p>
-                        <p className="text-sm text-emerald-100">
-                            <strong className="text-xl tabular-nums">
+                        <p className="text-xs text-emerald-100 sm:text-sm">
+                            <strong className="text-sm tabular-nums sm:text-xl">
                                 {dexMetadata?.speciesFormCount.toLocaleString('en-US') ?? '…'}
                             </strong>{' '}
                             species & forms
@@ -105,9 +109,9 @@ export function App() {
                 </div>
             </header>
 
-            <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
-                <div className="mb-7 grid items-end gap-4 sm:grid-cols-[minmax(0,1fr)_180px_210px]">
-                    <label className="filter-label">
+            <main className="mx-auto max-w-7xl px-3 py-3 sm:px-8 sm:py-8">
+                <div className="mb-3 grid grid-cols-2 items-end gap-2 sm:mb-7 sm:grid-cols-[minmax(0,1fr)_180px_210px] sm:gap-4">
+                    <label className="filter-label col-span-2 sm:col-span-1">
                         Find a Pokémon
                         <input
                             className="filter-input"
@@ -161,8 +165,8 @@ export function App() {
                     </label>
                 </div>
 
-                <div className="mb-4 flex items-center justify-between gap-3">
-                    <p className="text-sm text-stone-600" role="status">
+                <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+                    <p className="text-xs text-stone-600 sm:text-sm" role="status">
                         {failed
                             ? 'Dex unavailable'
                             : loading
@@ -223,13 +227,22 @@ export function App() {
                                                     {String(entry.speciesId).padStart(4, '0')}
                                                 </td>
                                                 <th scope="row" className="text-left">
-                                                    <a
-                                                        className="pokemon-name"
-                                                        href={speciesHref(entry.speciesId)}
-                                                    >
-                                                        {entry.name}
-                                                    </a>
-                                                    <TypeBadges types={entry.types} />
+                                                    <div className="flex items-center gap-3">
+                                                        <SpeciesSprite
+                                                            datasetId={dexMetadata?.datasetId}
+                                                            file={entry.sprites?.front ?? null}
+                                                            name={entry.name}
+                                                        />
+                                                        <div>
+                                                            <a
+                                                                className="pokemon-name"
+                                                                href={speciesHref(entry.speciesId)}
+                                                            >
+                                                                {entry.name}
+                                                            </a>
+                                                            <TypeBadges types={entry.types} />
+                                                        </div>
+                                                    </div>
                                                 </th>
                                                 {statLabels.map(({ key }) => (
                                                     <td

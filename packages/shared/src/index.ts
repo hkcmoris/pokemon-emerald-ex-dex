@@ -18,4 +18,5 @@ export type {
     SpeciesEvolution,
     SpeciesMachine,
     SpeciesType,
+    SpeciesSprites,
 } from './dex.js';

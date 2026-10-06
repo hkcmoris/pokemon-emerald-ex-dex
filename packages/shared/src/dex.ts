@@ -14,6 +14,18 @@ export interface Pokemon {
     typeIds: readonly number[];
     stats: BaseStats;
     baseStatTotal: number;
+    sprites: SpeciesSprites | null;
+}
+
+export interface SpeciesSprites {
+    front: string | null;
+    shinyFront: string | null;
+    frontFrame2: string | null;
+    shinyFrontFrame2: string | null;
+    back: string | null;
+    shinyBack: string | null;
+    frontFrameCount: number;
+    missingReason: string | null;
 }
 
 export type DexSort = 'id' | 'name' | 'total' | 'speed';
@@ -107,6 +119,8 @@ export interface SpeciesMachine extends Move {
 export interface SpeciesEvolution extends Evolution {
     fromName: string;
     internalOnly: boolean;
+    fromSprite: string | null;
+    toSprite: string | null;
 }
 
 export interface SpeciesDetails extends Pokemon {

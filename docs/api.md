@@ -22,7 +22,7 @@ Use `.env.local` at the repository root for development. The backend loads it be
 | `DEV_API_TARGET` | Vite dev/preview proxy target | `http://127.0.0.1:3000` |
 
 The API only issues SELECT queries. Its production database account needs SELECT on
-the 13 dex tables. Apply schema/import scripts separately with an administrative
+the 14 dex tables. Apply schema/import scripts separately with an administrative
 account. The backend uses a pool of at most five connections and checks that the
 configured dataset exists before listening. Connections and queries have timeouts;
 the pool closes when the process receives SIGINT or SIGTERM.
@@ -43,6 +43,7 @@ write endpoints. Configure request limits at the production reverse proxy if nee
 | `/api/v1/species/:id/name` | `{ name }` |
 | `/api/v1/species/:id/stats` | Six stats and `baseStatTotal` |
 | `/api/v1/species/:id/types` | Ordered `{ typeId, name, slot }` records |
+| `/api/v1/species/:id/sprites` | Standard/shiny front/back filenames, optional second frames, frame count and missing-sprite reason |
 | `/api/v1/species/:id/learnset` | Ordered level-up entries with full move records |
 | `/api/v1/species/:id/evolution` | Outgoing evolution rules, excluding internal routing markers |
 | `/api/v1/species/:id/machines` | TM/HM compatibility records |
@@ -91,7 +92,17 @@ Example: `/api/v1/species?q=Bulbasaur&page=1&pageSize=40`
       "types": ["Grass", "Poison"],
       "typeIds": [12, 3],
       "stats": { "hp": 45, "attack": 49, "defense": 49, "spAttack": 65, "spDefense": 65, "speed": 45 },
-      "baseStatTotal": 318
+      "baseStatTotal": 318,
+      "sprites": {
+        "front": "front/0001_Bulbasaur.png",
+        "shinyFront": "shiny_front/0001_Bulbasaur.png",
+        "frontFrame2": "front_frame2/0001_Bulbasaur.png",
+        "shinyFrontFrame2": "shiny_front_frame2/0001_Bulbasaur.png",
+        "back": "back/0001_Bulbasaur.png",
+        "shinyBack": "shiny_back/0001_Bulbasaur.png",
+        "frontFrameCount": 2,
+        "missingReason": null
+      }
     }
   ],
   "meta": { "total": 1, "page": 1, "pageSize": 40, "totalPages": 1 }
@@ -105,8 +116,22 @@ The species detail response extends the core species record with `learnset`,
 `machines`, and `evolutionLinks` arrays. Machine records include the full move plus
 `machine`, `kind`, and `number`. Evolution links include both species IDs/names,
 `internalOnly`, the rule summary, method/trigger, level, complete conditions, and raw
-ROM identifiers. Rules retain their original `edgeOrder`. The existing `/evolution`
+ROM identifiers. `fromSprite` and `toSprite` contain each endpoint's standard front
+filename (or NULL if unavailable), so incoming evolutions and internal form changes
+show the correct species/form sprite. Rules retain their original `edgeOrder`. The existing `/evolution`
 endpoint continues to return only outgoing player-facing rules.
+
+Core species records, including list and detail responses, include `sprites` with
+`front`, `shinyFront`, `frontFrame2`, `shinyFrontFrame2`, `back`, `shinyBack`,
+`frontFrameCount`, and `missingReason`. Filenames are relative to the dataset's sprite
+folder. Unavailable variants are NULL; `sprites` itself is NULL if no sprite record
+has been imported. The four explicitly missing forms retain their source reason.
+
+PNG files are served at `/api/sprites/emerald-ex-1.0.4/:variant/:filename`, for example
+`/api/sprites/emerald-ex-1.0.4/front/0001_Bulbasaur.png`. These responses are images,
+use a one-day cache with ETag/Last-Modified validation, and return 404 for missing files.
+Only PNGs in the six sprite variant folders are served; manifests, directories and
+other source documents are not exposed by this route.
 
 ## Client and deployment
 
@@ -117,6 +142,9 @@ Move descriptions and raw identifiers expand inline; internal form markers are
 labelled separately from ordinary evolutions. Hash routes support direct links and
 reloads on static hosting without additional frontend rewrite rules. Returning to
 the list preserves filters during the session.
+The list loads standard front sprites lazily at 64×64. Details show standard and
+shiny front sprites at 128×128 with pixel-preserving scaling and labelled alternatives.
+Missing references or failed image loads show a placeholder.
 
 TanStack Query caches responses briefly, passes
 cancellation signals to fetch, and manages loading/error/retry states. Changing a
@@ -135,6 +163,13 @@ is a development/preview feature and is not part of the built frontend. Keep all
 database credentials in the backend environment. This migration does not deploy the
 backend or change production database contents.
 
+Before deploying this sprite update, import `005_species_sprites.sql` and
+`006_import_sprites_1.0.4.sql` into the existing database with an administrative
+account. Include `docs/pokemon_emerald_ex_1.0.4_battle_sprites/` at its repository-relative
+location alongside the backend (including a compiled `apps/server/dist` deployment).
+The existing `/api/*` reverse-proxy rule also forwards sprite requests. No client-side
+JSON manifest or database credentials are needed.
+
 ## Verification
 
 `npm run check` runs type checks, lint, formatting and database-independent tests.
@@ -143,4 +178,6 @@ backend or change production database contents.
 source fixture, pagination/filtering/sorting, species and move subresources, empty
 relationships, internal-marker exclusion and dataset isolation. Aggregate detail
 responses are checked against the source learnsets, complete move data, and evolution
-rules in both directions, including internal markers.
+rules in both directions, including internal markers. Sprite references are compared
+against the manifest for every species; unit tests check PNG serving, unknown paths,
+filename encoding, image alternatives and missing-sprite placeholders.

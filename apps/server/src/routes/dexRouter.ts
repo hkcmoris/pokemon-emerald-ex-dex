@@ -106,6 +106,7 @@ export function createDexRouter(repository: DexRepository): Router {
                     'evolution',
                     'machines',
                     'details',
+                    'sprites',
                 ].includes(resource))
         ) {
             throw new HttpError(404, 'not_found', 'Endpoint not found');
@@ -118,6 +119,10 @@ export function createDexRouter(repository: DexRepository): Router {
         }
         const species = await repository.getSpecies(id);
         if (!species) throw new HttpError(404, 'not_found', 'Species not found');
+        if (resource === 'sprites') {
+            res.json({ data: species.sprites });
+            return;
+        }
 
         switch (resource) {
             case 'name':
