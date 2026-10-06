@@ -1,7 +1,6 @@
 import type {
     BaseStats,
     DexDataset,
-    Evolution,
     LearnsetEntry,
     Machine,
     Move,
@@ -147,7 +146,7 @@ export class DexRepository {
         const [learnset, machines, evolutionLinks] = await Promise.all([
             this.getLearnset(id),
             this.getMachineMoves(id),
-            this.getEvolutionLinks(id),
+            this.getEvolutionLinks([id]),
         ]);
         return { ...species, learnset, machines, evolutionLinks };
     }
@@ -164,7 +163,11 @@ export class DexRepository {
         );
     }
 
-    private async getEvolutionLinks(id: number): Promise<SpeciesEvolution[]> {
+    private async getEvolutionLinks(
+        ids: readonly number[],
+        includeInternal = true,
+    ): Promise<SpeciesEvolution[]> {
+        const placeholders = ids.map(() => '?').join(', ');
         const rows = await this.database.query<
             Omit<SpeciesEvolution, 'conditions' | 'internalOnly'> & {
                 conditions: string;
@@ -184,9 +187,11 @@ export class DexRepository {
              LEFT JOIN emerald_ex_species_sprites AS target_sprite
                 ON target_sprite.dataset_id = e.dataset_id AND target_sprite.species_id = e.to_species_id
              JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
-             WHERE e.dataset_id = ? AND (e.from_species_id = ? OR e.to_species_id = ?)
+             WHERE e.dataset_id = ?
+                AND (e.from_species_id IN (${placeholders}) OR e.to_species_id IN (${placeholders}))
+                ${includeInternal ? '' : 'AND e.internal_only = 0'}
              ORDER BY e.edge_order`,
-            [this.datasetId, id, id],
+            [this.datasetId, ...ids, ...ids],
         );
         return rows.map((row) => ({
             ...row,
@@ -214,22 +219,24 @@ export class DexRepository {
         );
     }
 
-    async getEvolutions(id: number): Promise<Evolution[]> {
-        const rows = await this.database.query<
-            Omit<Evolution, 'conditions'> & { conditions: string }
-        >(
-            `SELECT e.edge_order AS edgeOrder, e.from_species_id AS fromSpeciesId,
-                e.to_species_id AS toSpeciesId, s.name AS toName,
-                em.method_id AS methodId, em.name AS method, e.trigger_name AS \`trigger\`,
-                e.level, e.conditions, e.summary, e.raw_param AS rawParam
-             FROM emerald_ex_evolutions AS e
-             JOIN emerald_ex_species AS s ON s.dataset_id = e.dataset_id AND s.species_id = e.to_species_id
-             JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
-             WHERE e.dataset_id = ? AND e.from_species_id = ? AND e.internal_only = 0
-             ORDER BY e.edge_order`,
-            [this.datasetId, id],
-        );
-        return rows.map((row) => ({ ...row, conditions: parseConditions(row.conditions) }));
+    async getEvolutions(id: number): Promise<SpeciesEvolution[]> {
+        const visited = new Set([id]);
+        const edges = new Map<number, SpeciesEvolution>();
+        let frontier = [id];
+        while (frontier.length > 0) {
+            const next = new Set<number>();
+            for (const edge of await this.getEvolutionLinks(frontier, false)) {
+                edges.set(edge.edgeOrder, edge);
+                for (const speciesId of [edge.fromSpeciesId, edge.toSpeciesId]) {
+                    if (!visited.has(speciesId)) {
+                        visited.add(speciesId);
+                        next.add(speciesId);
+                    }
+                }
+            }
+            frontier = [...next];
+        }
+        return [...edges.values()].sort((a, b) => a.edgeOrder - b.edgeOrder);
     }
 
     getMachines(id: number): Promise<Machine[]> {

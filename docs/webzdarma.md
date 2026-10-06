@@ -83,6 +83,35 @@ has not yet received the previous sprite/category/type upgrades, import
 `009_type_icons.sql`, and `010_seed_type_icons.sql` in that order. Do not reimport
 the original data just to change the backend. No database creation is needed.
 
+## Integrate with the main site's .htaccess
+
+The website root has its own `.htaccess`, one directory above the dex. The
+reviewed replacement is `docs/webzdarma-parent.htaccess`. Download a backup of
+the current root file, then upload this replacement to the **website root** and
+rename it to `.htaccess`. This file is separate from the generated dex bundle.
+
+The replacement adds this rule immediately after `RewriteEngine On`, before
+the main site's API rewrites and SPA fallback:
+
+```apache
+RewriteRule ^pokemon-emerald-ex-dex(?:/|$) - [L]
+```
+
+This excludes the dex from those rewrites so its own `.htaccess` files can
+handle API requests. Keep `[L]`: `[END]` would also stop subsequent rewriting in
+child directories. See [Apache's rewrite flags](https://httpd.apache.org/docs/2.4/rewrite/flags.html#flag_end).
+
+The sensitive-file block also uses `Require all denied` in place of legacy
+`Order Allow,Deny` and `Deny from all`. Those older directives require
+`mod_access_compat`; without it, Apache can reject the configuration. See
+[Apache's access-control migration guide](https://httpd.apache.org/docs/2.4/upgrading.html#access).
+The original uploaded file remains in `docs/.htaccess` for comparison. The
+replacement keeps its other rules and headers.
+
+This addresses possible configuration conflicts; the exact cause of an HTTP
+500 still needs the server error log or a successful deployment check. Local
+PHP preview tests do not validate Apache configuration.
+
 ## Verify the deployment
 
 * `https://devground.cz/pokemon-emerald-ex-dex/api/health` returns `{"ok":true}`.
@@ -90,6 +119,9 @@ the original data just to change the backend. No database creation is needed.
   metadata with a species/form count of 1,523. This verifies database access.
 * `https://devground.cz/pokemon-emerald-ex-dex/api/v1/species/1/details` returns
   Bulbasaur's stats, types, sprites, learnset, evolutions, and machines.
+* `https://devground.cz/pokemon-emerald-ex-dex/api/v1/species/94/evolution` returns
+  the full Gastly → Haunter → Gengar line, including both trade and Linking Cord
+  rules for Haunter → Gengar (three rules total).
 * `https://devground.cz/pokemon-emerald-ex-dex/api/icons/types/48px-Fire.png`
   displays the fire type icon.
 * `https://devground.cz/pokemon-emerald-ex-dex/api/private/config.local.php`
@@ -98,6 +130,14 @@ the original data just to change the backend. No database creation is needed.
   to verify standard/shiny sprites and move/type icons.
 
 If health returns 404, check the remote directory and hidden `.htaccess` files.
+If even `index.html` or a PNG returns Apache's HTML **500 Internal Server Error**
+page, the failure happens before the PHP API. Check the server error log for a
+rejected directive, syntax error, or permissions problem in `.htaccess`.
+The bundle uses only `RewriteEngine`, `RewriteCond`, and `RewriteRule`; it does
+not override `Options`, `DirectoryIndex`, or authorization module settings.
+For an older upload, overwrite the app root `.htaccess`, `api/.htaccess`, and
+`api/private/.htaccess` with the regenerated versions. Keep the private directory
+protected. Save manually edited `.htaccess` files as plain UTF-8 without a BOM.
 If it returns `runtime_unavailable`, check PHP 8.4 and the required extensions.
 If dataset returns `database_unavailable`, check `config.local.php` and the
 database values in the hosting panel. A 500 may indicate missing previous SQL

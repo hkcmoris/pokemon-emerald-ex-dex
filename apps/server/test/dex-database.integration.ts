@@ -346,6 +346,63 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
         );
 
         await t.test(
+            'evolution endpoints return the same complete family from every stage and branch',
+            async () => {
+                for (const ids of [
+                    [1, 2, 3],
+                    [92, 93, 94],
+                    [133, 134, 135, 136, 196, 197, 470, 471, 700],
+                    [106, 107, 236, 237],
+                    [25, 26, 172],
+                ]) {
+                    const expectedLinks = evolutionSource.edges
+                        .map((edge, index) => ({
+                            ...edge,
+                            edgeOrder: index + 1,
+                            fromSprite:
+                                expected.find((entry) => entry.speciesId === edge.fromSpeciesId)
+                                    ?.sprites?.front ?? null,
+                            toSprite:
+                                expected.find((entry) => entry.speciesId === edge.toSpeciesId)
+                                    ?.sprites?.front ?? null,
+                        }))
+                        .filter(
+                            (edge) =>
+                                !edge.internalOnly &&
+                                ids.includes(edge.fromSpeciesId) &&
+                                ids.includes(edge.toSpeciesId),
+                        );
+                    for (const id of ids) {
+                        deepStrictEqual(
+                            (await get<ApiResponse<SpeciesEvolution[]>>(`species/${id}/evolution`))
+                                .data,
+                            expectedLinks,
+                            `Complete evolution family for species ${id}`,
+                        );
+                    }
+                }
+                const gengar = (await get<ApiResponse<SpeciesEvolution[]>>('species/94/evolution'))
+                    .data;
+                strictEqual(gengar.length, 3);
+                deepStrictEqual(
+                    gengar.map((edge) => [edge.fromName, edge.toName, edge.method]),
+                    [
+                        ['Gastly', 'Haunter', 'level'],
+                        ['Haunter', 'Gengar', 'trade'],
+                        ['Haunter', 'Gengar', 'use_item'],
+                    ],
+                );
+                for (const id of [151, 958]) {
+                    deepStrictEqual(
+                        (await get<ApiResponse<SpeciesEvolution[]>>(`species/${id}/evolution`))
+                            .data,
+                        [],
+                    );
+                }
+            },
+        );
+
+        await t.test(
             'all moves and move subresources retain power, description and sentinel ID zero',
             async () => {
                 const zero = (await get<ApiResponse<Move>>('moves/0')).data;
@@ -397,7 +454,6 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             async () => {
                 for (const [table, field, resource] of [
                     ['emerald_ex_learnset_entries', 'species_id', 'learnset'],
-                    ['emerald_ex_evolutions', 'from_species_id', 'evolution'],
                     ['emerald_ex_species_machines', 'species_id', 'machines'],
                 ]) {
                     const rows = await pool.execute<{ speciesId: number }[]>(
@@ -427,15 +483,14 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     ['emerald-ex-1.0.4'],
                 );
                 const publicEdges = (
-                    await get<ApiResponse<Evolution[]>>(
+                    await get<ApiResponse<SpeciesEvolution[]>>(
                         `species/${internal[0].speciesId}/evolution`,
                     )
                 ).data;
-                const expected = await pool.execute<{ count: number }[]>(
-                    'SELECT COUNT(*) AS count FROM emerald_ex_evolutions WHERE dataset_id = ? AND from_species_id = ? AND internal_only = 0',
-                    ['emerald-ex-1.0.4', internal[0].speciesId],
+                strictEqual(
+                    publicEdges.every((edge) => !edge.internalOnly),
+                    true,
                 );
-                strictEqual(publicEdges.length, expected[0].count);
             },
         );
 

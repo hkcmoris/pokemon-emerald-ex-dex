@@ -45,7 +45,7 @@ write endpoints. Configure request limits at the production reverse proxy if nee
 | `/api/v1/species/:id/types` | Ordered `{ typeId, name, iconFile, slot }` records |
 | `/api/v1/species/:id/sprites` | Standard/shiny front/back filenames, optional second frames, frame count and missing-sprite reason |
 | `/api/v1/species/:id/learnset` | Ordered level-up entries with full move records |
-| `/api/v1/species/:id/evolution` | Outgoing evolution rules, excluding internal routing markers |
+| `/api/v1/species/:id/evolution` | Full connected evolution family, including ancestors, descendants and branches; excludes internal routing markers |
 | `/api/v1/species/:id/machines` | TM/HM compatibility records |
 | `/api/v1/moves` | Paginated moves, ordered by internal move ID |
 | `/api/v1/moves/:id` | Full move record including description and engine IDs |
@@ -119,8 +119,24 @@ The species detail response extends the core species record with `learnset`,
 `internalOnly`, the rule summary, method/trigger, level, complete conditions, and raw
 ROM identifiers. `fromSprite` and `toSprite` contain each endpoint's standard front
 filename (or NULL if unavailable), so incoming evolutions and internal form changes
-show the correct species/form sprite. Rules retain their original `edgeOrder`. The existing `/evolution`
-endpoint continues to return only outgoing player-facing rules.
+show the correct species/form sprite. Rules retain their original `edgeOrder`.
+
+The `/evolution` endpoint returns all player-facing rules in the species' connected
+evolution family, following relationships in both directions. Any stage or branch
+returns the same array, sorted by `edgeOrder`. Each rule includes both species
+IDs/names, `fromSprite`, `toSprite`, and the complete evolution method/conditions.
+Alternative methods for the same pair remain separate rules. Internal form-routing
+markers are excluded from both traversal and results; `internalOnly` is always
+false. Species with no public evolution relationships return an empty array.
+The detail response's `evolutionLinks` still contains the requested species'
+immediate incoming/outgoing links, including internal form markers.
+
+For example, `/api/v1/species/92/evolution`, `/api/v1/species/93/evolution`, and
+`/api/v1/species/94/evolution` each return Gastly → Haunter and both Haunter → Gengar
+rules (trade and Linking Cord). Likewise, any Eevee evolution returns all Eevee
+branches, rather than only its own path. This changes the former outgoing-only
+behavior without changing the `{ "data": [...] }` envelope. No SQL migration is
+needed.
 
 Core species records, including list and detail responses, include `sprites` with
 `front`, `shinyFront`, `frontFrame2`, `shinyFrontFrame2`, `back`, `shinyBack`,

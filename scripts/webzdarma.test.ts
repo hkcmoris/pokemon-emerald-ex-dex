@@ -59,8 +59,10 @@ void test('Webzdarma upload includes protected PHP config templates and images, 
         ['sprite.png'],
     );
     strictEqual(
-        (await readFile(join(output, 'api/private/.htaccess'), 'utf8')).trim(),
-        'Require all denied',
+        (await readFile(join(output, 'api/private/.htaccess'), 'utf8')).includes(
+            'RewriteRule ^ - [F,L]',
+        ),
+        true,
     );
     await writeFile(
         join(root, 'apps/client/dist/index.html'),

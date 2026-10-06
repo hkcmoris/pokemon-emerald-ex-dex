@@ -1,5 +1,6 @@
-Options -Indexes -MultiViews
-DirectoryIndex index.html
-<FilesMatch "^\.">
-    Require all denied
-</FilesMatch>
+RewriteEngine On
+# Deny hidden files and directories without changing hosting-wide Options settings.
+RewriteRule (^|/)\. - [F,L]
+# Deny directory listings below the app root; index.html is served by the host default.
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule . - [F,L]

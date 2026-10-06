@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import type { ApiResponse, SpeciesEvolution } from '@pokemon-emerald-ex-dex/shared';
 import { createPool } from 'mariadb';
 
 import { createApp } from '../src/app.js';
@@ -100,6 +101,44 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
                 await compare(`species/1${resource}`);
             }
             await compare('species/65535', 404);
+        },
+    );
+    await t.test(
+        'full evolution families match from final stages, branches and species without evolutions',
+        async () => {
+            for (const ids of [
+                [1, 2, 3],
+                [92, 93, 94],
+                [133, 134, 135, 136, 196, 197, 470, 471, 700],
+                [106, 107, 236, 237],
+                [25, 26, 172],
+            ]) {
+                const response = await fetch(`${php.url}/v1/species/${ids[0]}/evolution`);
+                strictEqual(response.status, 200);
+                const { data } = (await response.json()) as ApiResponse<SpeciesEvolution[]>;
+                deepStrictEqual(
+                    [
+                        ...new Set(data.flatMap((edge) => [edge.fromSpeciesId, edge.toSpeciesId])),
+                    ].sort((a, b) => a - b),
+                    [...ids].sort((a, b) => a - b),
+                );
+                for (const id of ids) {
+                    await compare(`species/${id}/evolution`);
+                    const r = await fetch(`${php.url}/v1/species/${id}/evolution`);
+                    strictEqual(r.status, 200);
+                    deepStrictEqual(
+                        ((await r.json()) as ApiResponse<SpeciesEvolution[]>).data,
+                        data,
+                    );
+                }
+            }
+            for (const id of [151, 958]) {
+                await compare(`species/${id}/evolution`);
+                const response = await fetch(`${php.url}/v1/species/${id}/evolution`);
+                strictEqual(response.status, 200);
+                deepStrictEqual(await response.json(), { data: [] });
+            }
+            await compare('species/65535/evolution', 404);
         },
     );
     await t.test(

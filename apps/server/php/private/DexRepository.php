@@ -125,7 +125,7 @@ final class DexRepository
             return null;
         }
         return [...$species, 'learnset' => $this->getLearnset($id),
-            'machines' => $this->getMachineMoves($id), 'evolutionLinks' => $this->getEvolutionLinks($id)];
+            'machines' => $this->getMachineMoves($id), 'evolutionLinks' => $this->getEvolutionLinks([$id])];
     }
 
     public function getSpeciesTypes(int $id): array
@@ -163,7 +163,7 @@ final class DexRepository
             WHERE sm.dataset_id = ? AND sm.species_id = ? ORDER BY ma.kind DESC, ma.number', [$this->datasetId, $id]);
     }
 
-    private static function parseEvolutions(array $rows, bool $withInternal): array
+    private static function parseEvolutions(array $rows): array
     {
         foreach ($rows as &$row) {
             $conditions = json_decode($row['conditions'], false, 512, JSON_THROW_ON_ERROR);
@@ -171,28 +171,36 @@ final class DexRepository
                 throw new RuntimeException('Evolution conditions must be a JSON object');
             }
             $row['conditions'] = $conditions;
-            if ($withInternal) {
-                $row['internalOnly'] = (bool) $row['internalOnly'];
-            }
+            $row['internalOnly'] = (bool) $row['internalOnly'];
         }
         return $rows;
     }
 
     public function getEvolutions(int $id): array
     {
-        $rows = $this->query('SELECT e.edge_order AS edgeOrder, e.from_species_id AS fromSpeciesId,
-            e.to_species_id AS toSpeciesId, s.name AS toName,
-            em.method_id AS methodId, em.name AS method, e.trigger_name AS `trigger`,
-            e.level, e.conditions, e.summary, e.raw_param AS rawParam
-            FROM emerald_ex_evolutions AS e
-            JOIN emerald_ex_species AS s ON s.dataset_id = e.dataset_id AND s.species_id = e.to_species_id
-            JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
-            WHERE e.dataset_id = ? AND e.from_species_id = ? AND e.internal_only = 0 ORDER BY e.edge_order', [$this->datasetId, $id]);
-        return self::parseEvolutions($rows, false);
+        $visited = [$id => true];
+        $edges = [];
+        $frontier = [$id];
+        while ($frontier !== []) {
+            $next = [];
+            foreach ($this->getEvolutionLinks($frontier, false) as $edge) {
+                $edges[$edge['edgeOrder']] = $edge;
+                foreach ([$edge['fromSpeciesId'], $edge['toSpeciesId']] as $speciesId) {
+                    if (!isset($visited[$speciesId])) {
+                        $visited[$speciesId] = true;
+                        $next[] = $speciesId;
+                    }
+                }
+            }
+            $frontier = $next;
+        }
+        ksort($edges, SORT_NUMERIC);
+        return array_values($edges);
     }
 
-    private function getEvolutionLinks(int $id): array
+    private function getEvolutionLinks(array $ids, bool $includeInternal = true): array
     {
+        $placeholders = implode(', ', array_fill(0, count($ids), '?'));
         $rows = $this->query('SELECT e.edge_order AS edgeOrder, e.from_species_id AS fromSpeciesId,
             e.to_species_id AS toSpeciesId, source.name AS fromName, target.name AS toName,
             em.method_id AS methodId, em.name AS method, e.trigger_name AS `trigger`,
@@ -206,8 +214,11 @@ final class DexRepository
             LEFT JOIN emerald_ex_species_sprites AS target_sprite
                 ON target_sprite.dataset_id = e.dataset_id AND target_sprite.species_id = e.to_species_id
             JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
-            WHERE e.dataset_id = ? AND (e.from_species_id = ? OR e.to_species_id = ?) ORDER BY e.edge_order', [$this->datasetId, $id, $id]);
-        return self::parseEvolutions($rows, true);
+            WHERE e.dataset_id = ?
+                AND (e.from_species_id IN (' . $placeholders . ') OR e.to_species_id IN (' . $placeholders . '))
+                ' . ($includeInternal ? '' : 'AND e.internal_only = 0') . '
+            ORDER BY e.edge_order', [$this->datasetId, ...$ids, ...$ids]);
+        return self::parseEvolutions($rows);
     }
 
     public function getMove(int $id): ?array
