@@ -277,6 +277,75 @@ tbody tr:hover {
 .evolution-rules > li + li {
     margin-top: 1.5rem;
 }
+.evolution-stages {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+.evolution-stage {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+.evolution-stage-branched {
+    flex: 3;
+}
+.evolution-stage + .evolution-stage::before {
+    position: absolute;
+    top: 5rem;
+    left: -1.25rem;
+    color: #66806b;
+    font-size: 1.25rem;
+    content: '→';
+}
+.evolution-branches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 1rem;
+}
+.evolution-node {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    border: 2px solid #e3e8df;
+    border-radius: 6px;
+    background: #f6f8f2;
+}
+.evolution-node-current {
+    border-color: #23886b;
+    background: #edf5e5;
+    box-shadow: 0 0 0 2px #23886b20;
+}
+.evolution-species {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem;
+    color: #174c37;
+    font-size: 0.875rem;
+}
+.evolution-species:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.current-stage-label {
+    border-radius: 3px;
+    background: #174c37;
+    padding: 0.2rem 0.5rem;
+    color: #f0f5df;
+    font-size: 0.65rem;
+}
+.evolution-methods {
+    border-top: 1px solid #d2dace;
+    text-align: left;
+}
+.evolution-methods > li {
+    padding: 0.75rem;
+}
+.evolution-methods > li + li {
+    border-top: 1px solid #d2dace;
+}
 summary {
     cursor: pointer;
 }
@@ -341,6 +410,18 @@ summary {
 }
 
 @media (max-width: 639px) {
+    .evolution-stages {
+        flex-direction: column;
+        gap: 2.75rem;
+    }
+    .evolution-stage {
+        width: 100%;
+    }
+    .evolution-stage + .evolution-stage::before {
+        top: -2.25rem;
+        left: calc(50% - 0.5rem);
+        content: '↓';
+    }
     .dex-list-header .version-tag {
         padding: 0.3rem 0.45rem;
         font-size: 0.65rem;

@@ -129,7 +129,9 @@ Alternative methods for the same pair remain separate rules. Internal form-routi
 markers are excluded from both traversal and results; `internalOnly` is always
 false. Species with no public evolution relationships return an empty array.
 The detail response's `evolutionLinks` still contains the requested species'
-immediate incoming/outgoing links, including internal form markers.
+immediate incoming/outgoing links, including internal form markers. The dex detail
+page fetches `/evolution` separately to display the full family with the viewed
+species highlighted; internal markers remain in their separate detail section.
 
 For example, `/api/v1/species/92/evolution`, `/api/v1/species/93/evolution`, and
 `/api/v1/species/94/evolution` each return Gastly → Haunter and both Haunter → Gengar

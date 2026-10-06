@@ -1,7 +1,13 @@
 import { deepStrictEqual, rejects, strictEqual } from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { ApiRequestError, fetchCatalog, fetchSpecies, fetchSpeciesDetails } from './api.js';
+import {
+    ApiRequestError,
+    fetchCatalog,
+    fetchSpecies,
+    fetchSpeciesDetails,
+    fetchSpeciesEvolutions,
+} from './api.js';
 
 void test('catalog metadata and type choices come from the API', async (t) => {
     const dataset = {
@@ -80,4 +86,23 @@ void test('a missing species preserves its 404 status for the detail page', asyn
         fetchSpeciesDetails(65535),
         (error: unknown) => error instanceof ApiRequestError && error.status === 404,
     );
+});
+
+void test('the full evolution line uses its dedicated API endpoint and forwards cancellation', async (t) => {
+    const signal = new AbortController().signal;
+    const links = [
+        { fromSpeciesId: 92, toSpeciesId: 93 },
+        { fromSpeciesId: 93, toSpeciesId: 94 },
+    ];
+    t.mock.method(globalThis, 'fetch', (path: string, init: RequestInit) => {
+        strictEqual(path, '/api/v1/species/94/evolution');
+        strictEqual(init.signal, signal);
+        return Promise.resolve(Response.json({ data: links }));
+    });
+    deepStrictEqual(await fetchSpeciesEvolutions(94, signal), links);
+});
+
+void test('an unavailable evolution line stays an error instead of showing incomplete immediate links', async (t) => {
+    t.mock.method(globalThis, 'fetch', () => Promise.resolve(new Response('', { status: 503 })));
+    await rejects(fetchSpeciesEvolutions(94), /HTTP 503/);
 });

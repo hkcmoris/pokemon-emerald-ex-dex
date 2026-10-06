@@ -6,6 +6,7 @@ import type {
     PokemonType,
     SpeciesQuery,
     SpeciesDetails,
+    SpeciesEvolution,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { apiUrl } from './apiUrl.js';
@@ -29,6 +30,14 @@ export async function fetchSpeciesDetails(
     signal?: AbortSignal,
 ): Promise<SpeciesDetails> {
     const response = await get<ApiResponse<SpeciesDetails>>(`species/${id}/details`, signal);
+    return response.data;
+}
+
+export async function fetchSpeciesEvolutions(
+    id: number,
+    signal?: AbortSignal,
+): Promise<SpeciesEvolution[]> {
+    const response = await get<ApiResponse<SpeciesEvolution[]>>(`species/${id}/evolution`, signal);
     return response.data;
 }
 

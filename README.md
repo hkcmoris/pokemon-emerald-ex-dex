@@ -10,7 +10,9 @@ results with linked species detail pages. Duplicate names remain separate entrie
 species/form ID. Stats are base stats, not calculated battle stats.
 
 Click a species name to see all its imported data: base stats and types, level-up moves,
-incoming and outgoing evolution rules, internal form changes, and compatible TMs/HMs.
+the full evolution family, internal form changes, and compatible TMs/HMs. The evolution
+line includes every stage and branch, with the viewed species highlighted. Each stage
+links to its detail page and preserves every alternative evolution method.
 The list shows each species' standard front sprite; detail pages show standard and
 shiny front sprites. The four forms without exported sprites show placeholders.
 On mobile, a compact header and side-by-side type/sort filters leave room for the

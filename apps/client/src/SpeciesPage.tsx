@@ -7,7 +7,8 @@ import type {
     SpeciesMachine,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { ApiRequestError, fetchSpeciesDetails } from './api.js';
+import { ApiRequestError, fetchSpeciesDetails, fetchSpeciesEvolutions } from './api.js';
+import { EvolutionLine, EvolutionRuleDetails } from './EvolutionLine.js';
 import { DexFooter } from './DexFooter.js';
 import { statLabels } from './dex.js';
 import { speciesHref } from './navigation.js';
@@ -185,43 +186,7 @@ function EvolutionRules({
                             </a>
                         </div>
                         <p className="mt-2 text-sm leading-relaxed">{link.summary}</p>
-                        <details className="rule-details mt-3">
-                            <summary>Rule details</summary>
-                            <dl className="rom-fields mt-3">
-                                <div>
-                                    <dt>Method</dt>
-                                    <dd>{link.method.replaceAll('_', ' ')}</dd>
-                                </div>
-                                <div>
-                                    <dt>Trigger</dt>
-                                    <dd>{link.trigger.replaceAll('_', ' ')}</dd>
-                                </div>
-                                <div>
-                                    <dt>Level</dt>
-                                    <dd>{link.level ?? 'No level requirement'}</dd>
-                                </div>
-                                <div>
-                                    <dt>ROM method ID</dt>
-                                    <dd>{link.methodId}</dd>
-                                </div>
-                                <div>
-                                    <dt>Raw parameter</dt>
-                                    <dd>{link.rawParam}</dd>
-                                </div>
-                                <div>
-                                    <dt>Rule order</dt>
-                                    <dd>{link.edgeOrder}</dd>
-                                </div>
-                            </dl>
-                            {Object.keys(link.conditions).length > 0 && (
-                                <div className="mt-3">
-                                    <p className="text-xs font-semibold">Full conditions</p>
-                                    <pre className="condition-data mt-2">
-                                        {JSON.stringify(link.conditions, null, 2)}
-                                    </pre>
-                                </div>
-                            )}
-                        </details>
+                        <EvolutionRuleDetails link={link} />
                     </li>
                 );
             })}
@@ -297,19 +262,17 @@ export function SpeciesPage({
         retry: (count, error) =>
             !(error instanceof ApiRequestError && error.status === 404) && count < 1,
     });
+    const evolution = useQuery({
+        queryKey: ['species-evolution', speciesId],
+        queryFn: ({ signal }) => fetchSpeciesEvolutions(speciesId, signal),
+        retry: (count, error) =>
+            !(error instanceof ApiRequestError && error.status === 404) && count < 1,
+    });
     useEffect(() => {
         if (details.isSuccess) heading.current?.focus();
     }, [details.isSuccess]);
     const entry = details.data;
     const missing = details.error instanceof ApiRequestError && details.error.status === 404;
-    const incoming =
-        entry?.evolutionLinks.filter(
-            (link) => !link.internalOnly && link.toSpeciesId === speciesId,
-        ) ?? [];
-    const outgoing =
-        entry?.evolutionLinks.filter(
-            (link) => !link.internalOnly && link.fromSpeciesId === speciesId,
-        ) ?? [];
     const internal = entry?.evolutionLinks.filter((link) => link.internalOnly) ?? [];
     const tms = entry?.machines.filter((move) => move.kind === 'TM') ?? [];
     const hms = entry?.machines.filter((move) => move.kind === 'HM') ?? [];
@@ -420,39 +383,32 @@ export function SpeciesPage({
                                         <p className="eyebrow">Species relationships</p>
                                         <h2 id="evolution-title">Evolution</h2>
                                     </div>
-                                    <div className="grid gap-6 p-5 sm:grid-cols-2 sm:p-6">
-                                        <div>
-                                            <h3 className="mb-4 text-sm font-semibold">
-                                                Evolves from
-                                            </h3>
-                                            {incoming.length ? (
-                                                <EvolutionRules
-                                                    links={incoming}
-                                                    speciesId={speciesId}
-                                                    datasetId={datasetId}
-                                                />
-                                            ) : (
+                                    <div className="p-5 sm:p-6">
+                                        {evolution.isPending ? (
+                                            <p className="empty-note" role="status">
+                                                Loading full evolution line…
+                                            </p>
+                                        ) : evolution.isError ? (
+                                            <div role="alert">
                                                 <p className="empty-note">
-                                                    No pre-evolution recorded.
+                                                    Could not load the full evolution line.
                                                 </p>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <h3 className="mb-4 text-sm font-semibold">
-                                                Evolves into
-                                            </h3>
-                                            {outgoing.length ? (
-                                                <EvolutionRules
-                                                    links={outgoing}
-                                                    speciesId={speciesId}
-                                                    datasetId={datasetId}
-                                                />
-                                            ) : (
-                                                <p className="empty-note">
-                                                    No further evolution recorded.
-                                                </p>
-                                            )}
-                                        </div>
+                                                <button
+                                                    className="page-button mt-3"
+                                                    onClick={() => {
+                                                        void evolution.refetch();
+                                                    }}
+                                                >
+                                                    Try again
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <EvolutionLine
+                                                entry={entry}
+                                                links={evolution.data}
+                                                datasetId={datasetId}
+                                            />
+                                        )}
                                     </div>
                                     {internal.length > 0 && (
                                         <details className="internal-routes">
