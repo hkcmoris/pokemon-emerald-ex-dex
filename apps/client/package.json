@@ -1,5 +1,5 @@
 {
-    "name": "@replace-me/client",
+    "name": "@pokemon-emerald-ex-dex/client",
     "version": "0.1.0",
     "private": true,
     "type": "module",
@@ -7,6 +7,7 @@
         "dev": "vite",
         "build": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json && vite build",
         "preview": "vite preview",
+        "test": "node --import tsx --test \"src/**/*.test.ts\"",
         "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json"
     },
     "dependencies": {

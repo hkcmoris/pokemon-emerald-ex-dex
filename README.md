@@ -1,13 +1,21 @@
-# Project Name
+# Pokémon Emerald EX Dex
 
-Short description of what this project does and who it is for.
+A searchable reference for Pokémon Emerald EX 1.0.4 species and forms, types, and base stats.
+
+The client imports `docs/pokemon_emerald_ex_1.0.4_stats_types.json` directly at build time.
+It includes all 1,523 species/form entries, search by name or exact internal species ID
+(including `#0001`), type filtering, sorting by ID/name/base stat total/speed, and paginated
+results with a stat detail panel. Duplicate names remain separate entries keyed by ROM
+species/form ID. Stats are base stats, not calculated battle stats.
+
+The learnset, evolution, and TM/HM exports in `docs/` are not yet displayed.
 
 ## Tech stack
 
 * Node.js
 * TypeScript
 * npm
-* Add project-specific framework here
+* React + Tailwind CSS + Vite
 
 ## Requirements
 
@@ -23,8 +31,11 @@ npm install
 ## Development
 
 ```bash
-npm run dev
+npm run dev:client
 ```
+
+Open the Vite URL printed in the terminal. The dex does not require the backend or a database.
+Use `npm run dev:server` to run the backend separately.
 
 ## Build
 
