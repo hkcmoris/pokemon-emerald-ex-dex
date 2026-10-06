@@ -12,9 +12,10 @@ The learnset, evolution, and TM/HM exports in `docs/` are not yet displayed.
 
 ## SQL database preparation
 
-MySQL/MariaDB schema, a prepared transactional import of all four JSON exports,
-verification queries, and query examples for the planned `/api/v1` endpoints are in
+MySQL/MariaDB schema for an existing shared database, a prepared transactional import
+of all four JSON exports, verification queries, and query examples for the planned `/api/v1` endpoints are in
 `scripts/sql/`. See [database setup and import instructions](docs/database.md).
+All dex tables, named constraints and indexes use the `emerald_ex_` prefix.
 
 Regenerate the import after changing the source exports:
 

@@ -9,32 +9,32 @@ SET @move_id = 33;
 SELECT s.species_id AS speciesId, s.name, st.hp, st.attack, st.defense,
        st.sp_attack AS spAttack, st.sp_defense AS spDefense, st.speed,
        st.base_stat_total AS baseStatTotal
-FROM species AS s
-JOIN species_stats AS st ON st.dataset_id = s.dataset_id AND st.species_id = s.species_id
+FROM emerald_ex_species AS s
+JOIN emerald_ex_species_stats AS st ON st.dataset_id = s.dataset_id AND st.species_id = s.species_id
 WHERE s.dataset_id = @dataset_id AND s.species_id = @species_id;
 
 -- GET /api/v1/species/:id/name
-SELECT name FROM species WHERE dataset_id = @dataset_id AND species_id = @species_id;
+SELECT name FROM emerald_ex_species WHERE dataset_id = @dataset_id AND species_id = @species_id;
 
 -- GET /api/v1/species/:id/stats
 SELECT hp, attack, defense, sp_attack AS spAttack, sp_defense AS spDefense,
        speed, base_stat_total AS baseStatTotal
-FROM species_stats WHERE dataset_id = @dataset_id AND species_id = @species_id;
+FROM emerald_ex_species_stats WHERE dataset_id = @dataset_id AND species_id = @species_id;
 
 -- GET /api/v1/species/:id/types
 SELECT t.type_id AS typeId, t.name, st.slot
-FROM species_types AS st
-JOIN pokemon_types AS t ON t.dataset_id = st.dataset_id AND t.type_id = st.type_id
+FROM emerald_ex_species_types AS st
+JOIN emerald_ex_types AS t ON t.dataset_id = st.dataset_id AND t.type_id = st.type_id
 WHERE st.dataset_id = @dataset_id AND st.species_id = @species_id
 ORDER BY st.slot;
 
 -- GET /api/v1/species/:id/learnset (level-up moves, including level 0)
 SELECT l.entry_order AS entryOrder, l.level, m.move_id AS moveId, m.name,
        t.name AS type, c.name AS category, m.power, m.accuracy, m.pp, m.priority, m.description
-FROM learnset_entries AS l
-JOIN moves AS m ON m.dataset_id = l.dataset_id AND m.move_id = l.move_id
-JOIN pokemon_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
-JOIN move_categories AS c ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id
+FROM emerald_ex_learnset_entries AS l
+JOIN emerald_ex_moves AS m ON m.dataset_id = l.dataset_id AND m.move_id = l.move_id
+JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
+JOIN emerald_ex_move_categories AS c ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id
 WHERE l.dataset_id = @dataset_id AND l.species_id = @species_id
 ORDER BY l.entry_order;
 
@@ -43,17 +43,17 @@ ORDER BY l.entry_order;
 SELECT e.edge_order AS edgeOrder, e.from_species_id AS fromSpeciesId,
        e.to_species_id AS toSpeciesId, s.name AS toName, em.name AS method,
        e.trigger_name AS `trigger`, e.level, e.conditions, e.summary, e.raw_param AS rawParam
-FROM evolutions AS e
-JOIN species AS s ON s.dataset_id = e.dataset_id AND s.species_id = e.to_species_id
-JOIN evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
+FROM emerald_ex_evolutions AS e
+JOIN emerald_ex_species AS s ON s.dataset_id = e.dataset_id AND s.species_id = e.to_species_id
+JOIN emerald_ex_evolution_methods AS em ON em.dataset_id = e.dataset_id AND em.method_id = e.method_id
 WHERE e.dataset_id = @dataset_id AND e.from_species_id = @species_id AND e.internal_only = 0
 ORDER BY e.edge_order;
 
 -- Optional /api/v1/species/:id/machines for TM/HM compatibility.
 SELECT ma.machine_code AS machine, ma.kind, ma.number, m.move_id AS moveId, m.name
-FROM species_machines AS sm
-JOIN machines AS ma ON ma.dataset_id = sm.dataset_id AND ma.machine_code = sm.machine_code
-JOIN moves AS m ON m.dataset_id = ma.dataset_id AND m.move_id = ma.move_id
+FROM emerald_ex_species_machines AS sm
+JOIN emerald_ex_machines AS ma ON ma.dataset_id = sm.dataset_id AND ma.machine_code = sm.machine_code
+JOIN emerald_ex_moves AS m ON m.dataset_id = ma.dataset_id AND m.move_id = ma.move_id
 WHERE sm.dataset_id = @dataset_id AND sm.species_id = @species_id
 ORDER BY ma.kind DESC, ma.number;
 
@@ -61,29 +61,29 @@ ORDER BY ma.kind DESC, ma.number;
 SELECT m.move_id AS moveId, m.name, m.description, m.type_id AS typeId, t.name AS type,
        m.category_id AS categoryId, c.name AS category, m.power, m.accuracy, m.pp,
        m.priority, m.effect_id AS effectId, m.target_id AS targetId
-FROM moves AS m
-JOIN pokemon_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
-JOIN move_categories AS c ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id
+FROM emerald_ex_moves AS m
+JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
+JOIN emerald_ex_move_categories AS c ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id
 WHERE m.dataset_id = @dataset_id AND m.move_id = @move_id;
 
 -- GET /api/v1/moves/:id/name
-SELECT name FROM moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
+SELECT name FROM emerald_ex_moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
 
 -- GET /api/v1/moves/:id/category
 SELECT c.category_id AS categoryId, c.name
-FROM moves AS m
-JOIN move_categories AS c ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id
+FROM emerald_ex_moves AS m
+JOIN emerald_ex_move_categories AS c ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id
 WHERE m.dataset_id = @dataset_id AND m.move_id = @move_id;
 
 -- GET /api/v1/moves/:id/pp
-SELECT pp FROM moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
+SELECT pp FROM emerald_ex_moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
 
 -- GET /api/v1/moves/:id/damage: exported base power, not calculated battle damage.
 -- Prefer /power, or return { power: n } from /damage. Preserve zero and engine IDs.
-SELECT power, effect_id AS effectId FROM moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
+SELECT power, effect_id AS effectId FROM emerald_ex_moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
 
 -- GET /api/v1/moves/:id/type
 SELECT t.type_id AS typeId, t.name
-FROM moves AS m
-JOIN pokemon_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
+FROM emerald_ex_moves AS m
+JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
 WHERE m.dataset_id = @dataset_id AND m.move_id = @move_id;
