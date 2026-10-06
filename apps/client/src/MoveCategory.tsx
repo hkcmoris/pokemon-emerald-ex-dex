@@ -1,20 +1,28 @@
-import physicalIcon from './assets/move-categories/physical.png';
-import specialIcon from './assets/move-categories/special.png';
-import statusIcon from './assets/move-categories/status.png';
+import { useState } from 'react';
 
-export function MoveCategory({ category }: { category: string }) {
-    const icon =
-        category === 'Physical'
-            ? physicalIcon
-            : category === 'Special'
-              ? specialIcon
-              : category === 'Status'
-                ? statusIcon
-                : undefined;
+function CategoryIcon({ file }: { file: string }) {
+    const [failed, setFailed] = useState(false);
+    if (failed) return null;
+    return (
+        <img
+            src={`/api/icons/move-categories/${encodeURIComponent(file)}`}
+            alt=""
+            className="h-6 w-7 shrink-0 object-contain"
+            onError={() => setFailed(true)}
+        />
+    );
+}
 
+export function MoveCategory({
+    category,
+    iconFile,
+}: {
+    category: string;
+    iconFile: string | null;
+}) {
     return (
         <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-            {icon && <img src={icon} alt="" className="h-6 w-7 shrink-0 object-contain" />}
+            {iconFile && <CategoryIcon key={iconFile} file={iconFile} />}
             <span>{category}</span>
         </span>
     );

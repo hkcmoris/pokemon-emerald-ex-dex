@@ -7,6 +7,7 @@ import type { DexRepository } from './dexRepository.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { createApiRouter } from './routes/apiRouter.js';
 import { createSpriteRouter } from './sprites.js';
+import { createCategoryIconRouter } from './icons.js';
 
 export function createApp(repository?: DexRepository): Express {
     const app = express();
@@ -20,6 +21,7 @@ export function createApp(repository?: DexRepository): Express {
     app.use(express.json());
 
     app.use('/api/sprites/emerald-ex-1.0.4', createSpriteRouter());
+    app.use('/api/icons/move-categories', createCategoryIconRouter());
     app.use('/api', createApiRouter(repository));
 
     app.use(errorHandler);

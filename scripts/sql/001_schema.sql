@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS emerald_ex_move_categories (
     dataset_id VARCHAR(64) NOT NULL,
     category_id SMALLINT UNSIGNED NOT NULL,
     name VARCHAR(32) NOT NULL,
+    icon_file VARCHAR(255) NULL,
     PRIMARY KEY (dataset_id, category_id),
     UNIQUE KEY emerald_ex_uq_categories_name (dataset_id, name),
     CONSTRAINT emerald_ex_fk_categories_dataset FOREIGN KEY (dataset_id) REFERENCES emerald_ex_datasets (dataset_id)

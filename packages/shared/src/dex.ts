@@ -75,6 +75,7 @@ export interface Move {
     type: string;
     categoryId: number;
     category: string;
+    categoryIconFile: string | null;
     power: number;
     accuracy: number;
     pp: number;

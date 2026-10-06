@@ -50,7 +50,7 @@ write endpoints. Configure request limits at the production reverse proxy if nee
 | `/api/v1/moves` | Paginated moves, ordered by internal move ID |
 | `/api/v1/moves/:id` | Full move record including description and engine IDs |
 | `/api/v1/moves/:id/name` | `{ name }` |
-| `/api/v1/moves/:id/category` | `{ categoryId, name }` |
+| `/api/v1/moves/:id/category` | `{ categoryId, name, iconFile }` |
 | `/api/v1/moves/:id/pp` | `{ pp }` |
 | `/api/v1/moves/:id/type` | `{ typeId, name }` |
 | `/api/v1/moves/:id/power` | `{ power, effectId }` |
@@ -133,6 +133,19 @@ use a one-day cache with ETag/Last-Modified validation, and return 404 for missi
 Only PNGs in the six sprite variant folders are served; manifests, directories and
 other source documents are not exposed by this route.
 
+All full move records (including learnsets and TM/HM detail records) include
+`categoryIconFile`, read from `emerald_ex_move_categories.icon_file`. The category
+subresource returns this filename as `iconFile`. NULL means no category icon.
+The frontend uses this filename directly, with no built-in mapping or bundled
+fallback. Missing images leave the category's accessible text label visible.
+
+Category PNGs are served at `/api/icons/move-categories/:filename` from the backend's
+`assets/move-categories/` directory. Only PNG filenames directly inside that
+directory are served, with a one-day cache and ETag/Last-Modified validation. Files
+are read from disk when requested, so uploading a new filename and changing SQL
+does not require an application rebuild or restart. See the
+[icon update instructions](database.md#update-move-category-icons).
+
 ## Client and deployment
 
 The client requests dataset metadata and types, then fetches each species list page
@@ -170,6 +183,12 @@ location alongside the backend (including a compiled `apps/server/dist` deployme
 The existing `/api/*` reverse-proxy rule also forwards sprite requests. No client-side
 JSON manifest or database credentials are needed.
 
+For this category icon update, import `007_move_category_icons.sql` and
+`008_seed_move_category_icons.sql` with an administrative account before deploying
+the API. Deploy `assets/move-categories/` alongside the backend at its
+repository-relative location, including when running compiled `apps/server/dist`
+files. The existing `/api/*` proxy also forwards category image requests.
+
 ## Verification
 
 `npm run check` runs type checks, lint, formatting and database-independent tests.
@@ -181,3 +200,7 @@ responses are checked against the source learnsets, complete move data, and evol
 rules in both directions, including internal markers. Sprite references are compared
 against the manifest for every species; unit tests check PNG serving, unknown paths,
 filename encoding, image alternatives and missing-sprite placeholders.
+Move category filenames are compared with SQL across move lists, subresources and
+full machine records. Category image tests check PNG bytes and path restrictions;
+client tests check replacement filenames and retained text labels. Browser checks
+also cover NULL references, missing files and updates without a rebuild/restart.

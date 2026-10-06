@@ -30,7 +30,8 @@ ORDER BY st.slot;
 
 -- GET /api/v1/species/:id/learnset (level-up moves, including level 0)
 SELECT l.entry_order AS entryOrder, l.level, m.move_id AS moveId, m.name,
-       t.name AS type, c.name AS category, m.power, m.accuracy, m.pp, m.priority, m.description
+       t.name AS type, c.name AS category, c.icon_file AS categoryIconFile,
+       m.power, m.accuracy, m.pp, m.priority, m.description
 FROM emerald_ex_learnset_entries AS l
 JOIN emerald_ex_moves AS m ON m.dataset_id = l.dataset_id AND m.move_id = l.move_id
 JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
@@ -59,7 +60,8 @@ ORDER BY ma.kind DESC, ma.number;
 
 -- GET /api/v1/moves/:id
 SELECT m.move_id AS moveId, m.name, m.description, m.type_id AS typeId, t.name AS type,
-       m.category_id AS categoryId, c.name AS category, m.power, m.accuracy, m.pp,
+       m.category_id AS categoryId, c.name AS category, c.icon_file AS categoryIconFile,
+       m.power, m.accuracy, m.pp,
        m.priority, m.effect_id AS effectId, m.target_id AS targetId
 FROM emerald_ex_moves AS m
 JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND t.type_id = m.type_id
@@ -70,7 +72,7 @@ WHERE m.dataset_id = @dataset_id AND m.move_id = @move_id;
 SELECT name FROM emerald_ex_moves WHERE dataset_id = @dataset_id AND move_id = @move_id;
 
 -- GET /api/v1/moves/:id/category
-SELECT c.category_id AS categoryId, c.name
+SELECT c.category_id AS categoryId, c.name, c.icon_file AS iconFile
 FROM emerald_ex_moves AS m
 JOIN emerald_ex_move_categories AS c ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id
 WHERE m.dataset_id = @dataset_id AND m.move_id = @move_id;

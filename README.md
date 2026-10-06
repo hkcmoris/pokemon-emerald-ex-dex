@@ -17,7 +17,11 @@ On mobile, a compact header and side-by-side type/sort filters leave room for th
 initial species rows without scrolling.
 Expand move names for descriptions and full move data, or evolution rules for their
 conditions and ROM identifiers. Move categories show Physical, Special, and Status
-icons alongside their labels in both level-up and TM/HM tables.
+icons alongside their labels in both level-up and TM/HM tables. Category icon filenames
+come from `emerald_ex_move_categories.icon_file`; the API serves the PNGs from
+`assets/move-categories/`. Import `007_move_category_icons.sql`, then
+`008_seed_move_category_icons.sql` to upgrade an existing database. See
+[how to replace category icons](docs/database.md#update-move-category-icons).
 Related species link to their own pages. Detail URLs
 such as `#/species/1` can be bookmarked; returning to the list preserves its filters
 during the session. JSON exports in `docs/` are import inputs and test fixtures;

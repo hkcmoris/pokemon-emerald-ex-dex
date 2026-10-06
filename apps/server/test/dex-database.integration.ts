@@ -90,7 +90,16 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_learnsets.json', import.meta.url),
             'utf8',
         ),
-    ) as { moves: Move[] };
+    ) as { moves: Omit<Move, 'categoryIconFile'>[] };
+    const categoryRows = await pool.execute<{ categoryId: number; iconFile: string | null }[]>(
+        'SELECT category_id AS categoryId, icon_file AS iconFile FROM emerald_ex_move_categories WHERE dataset_id = ?',
+        ['emerald-ex-1.0.4'],
+    );
+    const categoryIcons = new Map(categoryRows.map((row) => [row.categoryId, row.iconFile]));
+    const expectedMoves: Move[] = moveSource.moves.map((move) => ({
+        ...move,
+        categoryIconFile: categoryIcons.get(move.categoryId) ?? null,
+    }));
     const evolutionSource = JSON.parse(
         await readFile(
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_evolutions.json', import.meta.url),
@@ -170,7 +179,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     } of machines) {
                         deepStrictEqual(
                             move,
-                            moveSource.moves.find((entry) => entry.moveId === move.moveId),
+                            expectedMoves.find((entry) => entry.moveId === move.moveId),
                         );
                     }
                 }
@@ -328,6 +337,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                 deepStrictEqual((await get<ApiResponse<object>>('moves/33/category')).data, {
                     categoryId: move.categoryId,
                     name: move.category,
+                    iconFile: move.categoryIconFile,
                 });
                 deepStrictEqual((await get<ApiResponse<object>>('moves/33/type')).data, {
                     typeId: move.typeId,
@@ -349,7 +359,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     all.push(...result.data);
                 }
                 strictEqual(all.length, 935);
-                deepStrictEqual(all, moveSource.moves);
+                deepStrictEqual(all, expectedMoves);
                 strictEqual(new Set(all.map((entry) => entry.moveId)).size, 935);
                 const types = (await get<ApiResponse<SpeciesType[]>>('types')).data;
                 strictEqual(types.length, 19);

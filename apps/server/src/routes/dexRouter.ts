@@ -172,7 +172,13 @@ export function createDexRouter(repository: DexRepository): Router {
                 res.json({ data: { name: move.name } });
                 break;
             case 'category':
-                res.json({ data: { categoryId: move.categoryId, name: move.category } });
+                res.json({
+                    data: {
+                        categoryId: move.categoryId,
+                        name: move.category,
+                        iconFile: move.categoryIconFile,
+                    },
+                });
                 break;
             case 'pp':
                 res.json({ data: { pp: move.pp } });

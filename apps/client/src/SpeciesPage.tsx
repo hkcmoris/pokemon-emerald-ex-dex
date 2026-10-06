@@ -109,7 +109,10 @@ function MoveTable({
                                 </div>
                             </th>
                             <td className="align-top text-xs">
-                                <MoveCategory category={move.category} />
+                                <MoveCategory
+                                    category={move.category}
+                                    iconFile={move.categoryIconFile}
+                                />
                             </td>
                             <td
                                 className="text-right align-top tabular-nums"

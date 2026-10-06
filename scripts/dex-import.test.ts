@@ -87,10 +87,15 @@ void test('schema, import and query examples stay within the dex table namespace
         '004_api_query_examples.sql',
         '005_species_sprites.sql',
         '006_import_sprites_1.0.4.sql',
+        '007_move_category_icons.sql',
+        '008_seed_move_category_icons.sql',
     ]) {
         const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
         strictEqual(/^\s*(?:(?:CREATE|ALTER|DROP) DATABASE|USE\s)/im.test(sql), false, file);
-        for (const match of sql.matchAll(/\b(?:REFERENCES|FROM|JOIN|INSERT INTO) (\w+)/g)) {
+        for (const match of sql.matchAll(
+            /\b(?:REFERENCES|FROM|JOIN|INSERT INTO|UPDATE|ALTER TABLE) (\w+(?:\.\w+)?)/g,
+        )) {
+            if (match[1] === 'information_schema.COLUMNS') continue;
             strictEqual(tables.has(match[1]), true, `${file}: ${match[1]}`);
         }
     }

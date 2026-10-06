@@ -1,6 +1,10 @@
 -- Expected counts for the supplied Emerald EX 1.0.4 exports.
 SET @dataset_id = 'emerald-ex-1.0.4';
 
+-- Icon filenames are editable; NULL deliberately displays a category label only.
+SELECT category_id, name, icon_file FROM emerald_ex_move_categories
+WHERE dataset_id = @dataset_id ORDER BY category_id;
+
 SELECT 'species' AS entity, COUNT(*) AS actual, 1523 AS expected FROM emerald_ex_species WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'stats', COUNT(*), 1523 FROM emerald_ex_species_stats WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'types', COUNT(*), 19 FROM emerald_ex_types WHERE dataset_id = @dataset_id
