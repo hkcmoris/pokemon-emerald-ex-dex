@@ -31,16 +31,17 @@ void test('mobile Pokémon rows retain long names, species identity, and both ty
     match(markup, />Normal</);
     match(markup, />Flying</);
     match(markup, /standard front sprite unavailable/);
-    doesNotMatch(markup, /pokemon-card-stat/);
+    match(markup, /<strong>520<\/strong><span>BST<\/span>/);
 });
 
 void test('mobile rows show the stat relevant to the selected comparison order', () => {
-    const total = mobileMarkup('total');
-    match(total, /<strong>520<\/strong><span>BST<\/span>/);
-    doesNotMatch(total, /<span>Speed<\/span>/);
+    for (const sort of ['id', 'name', 'total'] as const) {
+        const markup = mobileMarkup(sort);
+        match(markup, /<strong>520<\/strong><span>BST<\/span>/);
+        doesNotMatch(markup, /<span>Speed<\/span>/);
+    }
 
     const speed = mobileMarkup('speed');
     match(speed, /<strong>55<\/strong><span>Speed<\/span>/);
     doesNotMatch(speed, /<span>BST<\/span>/);
-    doesNotMatch(mobileMarkup('id'), /pokemon-card-stat/);
 });

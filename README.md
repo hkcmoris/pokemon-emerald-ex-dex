@@ -24,7 +24,7 @@ separate form selector navigates actual form IDs and keeps the appearance prefer
 The four forms without exported sprites show placeholders. Compact base-stat bars
 sit above abilities on phones.
 On mobile, the Emerald theme puts search above sprite-led Pokémon rows, with the
-current comparison value shown for total/speed sorting. Desktop retains the dense
+base stat total (BST) on the right; sorting by speed shows Speed instead. Desktop retains the dense
 base-stat table. The HeroUI v3 filter sheet offers one type at a time and a sort
 order while retaining the visible results during updates. Remove the selected type
 chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.
@@ -235,6 +235,10 @@ The interface uses HeroUI v3 Button and Drawer primitives for accessible control
 keyboard handling, focus management, and scroll locking. Emerald theme variables
 live in `apps/client/src/style.css`. DM Sans is bundled locally; its OFL license is
 included in `apps/client/src/fonts/OFL.txt`.
+
+Species headers and mobile Pokémon cards use a Mica-inspired opaque surface with
+broad primary/secondary type tints, a soft sheen, and subtle inset edge highlights.
+Type colors supply the tint; text tones adapt to the light and dark themes.
 
 Species detail headings receive focus after navigation for screen readers, without
 a visible outline. Interactive controls retain their keyboard focus indicators.

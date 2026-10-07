@@ -40,14 +40,12 @@ export function PokemonResults({ entries, datasetId, sort }: PokemonResultsProps
                                 <span className="pokemon-card-name">{entry.name}</span>
                                 <TypeBadges types={entry.types} iconFiles={entry.typeIconFiles} />
                             </span>
-                            {(sort === 'total' || sort === 'speed') && (
-                                <span className="pokemon-card-stat">
-                                    <strong>
-                                        {sort === 'total' ? entry.baseStatTotal : entry.stats.speed}
-                                    </strong>
-                                    <span>{sort === 'total' ? 'BST' : t('Speed', 'Rychlost')}</span>
-                                </span>
-                            )}
+                            <span className="pokemon-card-stat">
+                                <strong>
+                                    {sort === 'speed' ? entry.stats.speed : entry.baseStatTotal}
+                                </strong>
+                                <span>{sort === 'speed' ? t('Speed', 'Rychlost') : 'BST'}</span>
+                            </span>
                             <svg
                                 className="pokemon-card-chevron"
                                 viewBox="0 0 24 24"
