@@ -10,7 +10,9 @@ results with linked species detail pages. Duplicate names remain separate entrie
 species/form ID. Stats are base stats, not calculated battle stats.
 
 Click a species name to see all its imported data: base stats and types, level-up moves,
-the full evolution family, related forms and form-change rules, and compatible TMs/HMs. The evolution
+the full evolution family, related forms and form-change rules, and compatible TMs/HMs.
+Move descriptions stay visible. On phones, move tables use stacked rows with labeled
+stats so no horizontal scrolling is needed; additional ROM fields remain expandable. The evolution
 line includes every stage and branch, with the viewed species highlighted. Each stage
 links to its detail page and preserves every alternative evolution method.
 Forms have their own section with sprites, friendly labels and transition summaries.
@@ -21,8 +23,10 @@ unchanged in SQL and the API. Existing databases need `011_forms.sql`, followed 
 The list shows each species' standard front sprite. Detail pages pair a crisp sprite
 with the species name and labeled types. Standard/Shiny changes the appearance; a
 separate form selector navigates actual form IDs and keeps the appearance preference.
-The four forms without exported sprites show placeholders. Compact base-stat bars
-sit above abilities on phones.
+The four forms without exported sprites show placeholders. Base stats use two columns
+with compact labels and highlight every tied highest stat. Beside the total, Physical
+or Special icons compare Attack with Sp. Attack; equal values show both icons. The
+scale explanation remains available under Species data. Stats sit above abilities on phones.
 On mobile, the Emerald theme puts search above sprite-led Pokémon rows, with the
 base stat total (BST) on the right; sorting by speed shows Speed instead. Desktop retains the dense
 base-stat table. The HeroUI v3 filter sheet offers one type at a time and a sort
@@ -236,8 +240,9 @@ keyboard handling, focus management, and scroll locking. Emerald theme variables
 live in `apps/client/src/style.css`. DM Sans is bundled locally; its OFL license is
 included in `apps/client/src/fonts/OFL.txt`.
 
-Species headers and mobile Pokémon cards use a Mica-inspired opaque surface with
-broad primary/secondary type tints, a soft sheen, and subtle inset edge highlights.
+Species headers, mobile Pokémon cards, and move rows use a Mica-inspired opaque
+surface with broad type tints, a soft sheen, and subtle inset edge highlights. Move
+rows use the move’s own type, including level-up moves and TM/HM compatibility.
 Type colors supply the tint; text tones adapt to the light and dark themes.
 
 Species detail headings receive focus after navigation for screen readers, without

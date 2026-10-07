@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { apiUrl } from './apiUrl.js';
 
-function CategoryIcon({ file }: { file: string }) {
+export function MoveCategoryIcon({ file }: { file: string }) {
     const [failed, setFailed] = useState(false);
     if (failed) return null;
     return (
@@ -24,7 +24,7 @@ export function MoveCategory({
 }) {
     return (
         <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-            {iconFile && <CategoryIcon key={iconFile} file={iconFile} />}
+            {iconFile && <MoveCategoryIcon key={iconFile} file={iconFile} />}
             <span>{category}</span>
         </span>
     );

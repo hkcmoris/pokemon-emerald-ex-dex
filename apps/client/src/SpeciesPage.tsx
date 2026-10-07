@@ -10,12 +10,13 @@ import { formDisplayName } from './forms.js';
 import { DexFooter } from './DexFooter.js';
 import { statLabels } from './dex.js';
 import { TypeBadges } from './TypeBadges.js';
-import { MoveCategory } from './MoveCategory.js';
+import { MoveCategory, MoveCategoryIcon } from './MoveCategory.js';
 import { SpeciesDetailHeader } from './SpeciesDetailHeader.js';
 import { DexHeader } from './DexHeader.js';
 import { DexNavigation } from './DexNavigation.js';
 import { speciesHref } from './navigation.js';
 import { useLanguage } from './language.js';
+import { typeSurfaceStyle } from './theme.js';
 
 type SpeciesMove = LearnsetEntry | SpeciesMachine;
 
@@ -28,205 +29,271 @@ function MoveTable({
 }) {
     const { t } = useLanguage();
     return (
-        <div className="overflow-x-auto">
-            <table className="move-table w-full text-sm">
-                <caption className="sr-only">
-                    {acquisition === 'Level'
-                        ? t('Level-up moves', 'Útoky získané postupem na vyšší úroveň')
-                        : t('Compatible machines', 'Kompatibilní TM / HM')}
-                    {'. '}
-                    {t(
-                        'Expand a move name for its description and full data.',
-                        'Rozbalte název útoku pro zobrazení popisu a všech údajů.',
-                    )}
-                </caption>
-                <thead>
-                    <tr>
-                        <th scope="col">
-                            {acquisition === 'Level'
-                                ? t('Level', 'Úroveň')
-                                : t('Machine', 'TM / HM')}
-                        </th>
-                        <th scope="col">{t('Move / Type', 'Útok / typ')}</th>
-                        <th scope="col">{t('Category', 'Kategorie')}</th>
-                        <th scope="col" className="text-right">
-                            {t('Power', 'Síla')}
-                        </th>
-                        <th scope="col" className="text-right">
-                            {t('Accuracy', 'Přesnost')}
-                        </th>
-                        <th scope="col" className="text-right">
-                            PP
-                        </th>
-                        <th scope="col" className="text-right">
-                            {t('Priority', 'Priorita')}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {entries.map((move) => (
-                        <tr key={'machine' in move ? move.machine : move.entryOrder}>
-                            <td className="align-top font-mono text-xs tabular-nums">
-                                {'machine' in move ? move.machine : move.level}
-                            </td>
-                            <th scope="row" className="text-left align-top">
-                                <details className="move-details">
-                                    <summary>{move.name}</summary>
-                                    <div className="move-description">
-                                        <p>
-                                            {move.description ||
-                                                t('No description recorded.', 'Popis není uveden.')}
-                                        </p>
-                                        <dl className="rom-fields mt-3">
-                                            <div>
-                                                <dt>{t('Move ID', 'ID útoku')}</dt>
-                                                <dd>{move.moveId}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>{t('Type ID', 'ID typu')}</dt>
-                                                <dd>{move.typeId}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>{t('Category ID', 'ID kategorie')}</dt>
-                                                <dd>{move.categoryId}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>{t('Effect ID', 'ID účinku')}</dt>
-                                                <dd>{move.effectId}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>{t('Target ID', 'ID cíle')}</dt>
-                                                <dd>{move.targetId}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>
-                                                    {t(
-                                                        'Raw power / accuracy',
-                                                        'Síla / přesnost v ROM',
-                                                    )}
-                                                </dt>
-                                                <dd>
-                                                    {move.power} / {move.accuracy}
-                                                </dd>
-                                            </div>
-                                            {'machine' in move ? (
-                                                <div>
-                                                    <dt>
-                                                        {t(
-                                                            'Machine kind / number',
-                                                            'Druh / číslo TM nebo HM',
-                                                        )}
-                                                    </dt>
-                                                    <dd>
-                                                        {move.kind} / {move.number}
-                                                    </dd>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    <dt>
-                                                        {t(
-                                                            'Learnset entry order',
-                                                            'Pořadí v seznamu útoků',
-                                                        )}
-                                                    </dt>
-                                                    <dd>{move.entryOrder}</dd>
-                                                </div>
-                                            )}
-                                        </dl>
+        <table className="move-table w-full text-sm" role="table">
+            <caption className="sr-only">
+                {acquisition === 'Level'
+                    ? t('Level-up moves', 'Útoky získané postupem na vyšší úroveň')
+                    : t('Compatible machines', 'Kompatibilní TM / HM')}
+                {'. '}
+                {t(
+                    'Move descriptions are shown below their names. Expand additional data for ROM fields.',
+                    'Popisy útoků jsou zobrazené pod názvy. Rozbalením dalších údajů zobrazíte hodnoty z ROM.',
+                )}
+            </caption>
+            <thead role="rowgroup">
+                <tr role="row">
+                    <th scope="col" role="columnheader">
+                        {acquisition === 'Level' ? t('Level', 'Úroveň') : t('Machine', 'TM / HM')}
+                    </th>
+                    <th scope="col" role="columnheader">
+                        {t('Move / Type', 'Útok / typ')}
+                    </th>
+                    <th scope="col" role="columnheader">
+                        {t('Category', 'Kategorie')}
+                    </th>
+                    <th scope="col" role="columnheader" className="text-right">
+                        {t('Power', 'Síla')}
+                    </th>
+                    <th scope="col" role="columnheader" className="text-right">
+                        {t('Accuracy', 'Přesnost')}
+                    </th>
+                    <th scope="col" role="columnheader" className="text-right">
+                        PP
+                    </th>
+                    <th scope="col" role="columnheader" className="text-right">
+                        {t('Priority', 'Priorita')}
+                    </th>
+                </tr>
+            </thead>
+            <tbody role="rowgroup">
+                {entries.map((move) => (
+                    <tr
+                        key={'machine' in move ? move.machine : move.entryOrder}
+                        role="row"
+                        className="move-row type-surface"
+                        style={typeSurfaceStyle([move.type])}
+                    >
+                        <td
+                            role="cell"
+                            className="move-acquisition align-top font-mono text-xs tabular-nums"
+                        >
+                            <span className="move-cell-label" aria-hidden="true">
+                                {acquisition === 'Level'
+                                    ? t('Level', 'Úroveň')
+                                    : t('Machine', 'TM / HM')}
+                            </span>
+                            {'machine' in move ? move.machine : move.level}
+                        </td>
+                        <th scope="row" role="rowheader" className="move-main text-left align-top">
+                            <div className="move-heading">
+                                <span className="move-name">{move.name}</span>
+                                <TypeBadges types={[move.type]} iconFiles={[move.typeIconFile]} />
+                            </div>
+                            <p className="move-description">
+                                {move.description ||
+                                    t('No description recorded.', 'Popis není uveden.')}
+                            </p>
+                            <details className="move-details">
+                                <summary>{t('Additional data', 'Další údaje')}</summary>
+                                <dl className="rom-fields mt-3">
+                                    <div>
+                                        <dt>{t('Move ID', 'ID útoku')}</dt>
+                                        <dd>{move.moveId}</dd>
                                     </div>
-                                </details>
-                                <div className="mt-2">
-                                    <TypeBadges
-                                        types={[move.type]}
-                                        iconFiles={[move.typeIconFile]}
-                                    />
-                                </div>
-                            </th>
-                            <td className="align-top text-xs">
-                                <MoveCategory
-                                    category={move.category}
-                                    iconFile={move.categoryIconFile}
-                                />
-                            </td>
-                            <td
-                                className="text-right align-top tabular-nums"
-                                title={
-                                    move.power === 0
-                                        ? t(
-                                              'No fixed base power (ROM value 0)',
-                                              'Bez pevné základní síly (hodnota v ROM je 0)',
-                                          )
-                                        : undefined
-                                }
-                            >
-                                {move.power || '—'}
-                            </td>
-                            <td
-                                className="text-right align-top tabular-nums"
-                                title={
-                                    move.accuracy === 0
-                                        ? t(
-                                              'No normal percentage accuracy check (ROM value 0)',
-                                              'Bez běžné procentní kontroly přesnosti (hodnota v ROM je 0)',
-                                          )
-                                        : undefined
-                                }
-                            >
-                                {move.accuracy ? `${move.accuracy}%` : '—'}
-                            </td>
-                            <td className="text-right align-top tabular-nums">{move.pp}</td>
-                            <td className="text-right align-top tabular-nums">
-                                {move.priority > 0 ? `+${move.priority}` : move.priority}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                                    <div>
+                                        <dt>{t('Type ID', 'ID typu')}</dt>
+                                        <dd>{move.typeId}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>{t('Category ID', 'ID kategorie')}</dt>
+                                        <dd>{move.categoryId}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>{t('Effect ID', 'ID účinku')}</dt>
+                                        <dd>{move.effectId}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>{t('Target ID', 'ID cíle')}</dt>
+                                        <dd>{move.targetId}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>
+                                            {t('Raw power / accuracy', 'Síla / přesnost v ROM')}
+                                        </dt>
+                                        <dd>
+                                            {move.power} / {move.accuracy}
+                                        </dd>
+                                    </div>
+                                    {'machine' in move ? (
+                                        <div>
+                                            <dt>
+                                                {t(
+                                                    'Machine kind / number',
+                                                    'Druh / číslo TM nebo HM',
+                                                )}
+                                            </dt>
+                                            <dd>
+                                                {move.kind} / {move.number}
+                                            </dd>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <dt>
+                                                {t(
+                                                    'Learnset entry order',
+                                                    'Pořadí v seznamu útoků',
+                                                )}
+                                            </dt>
+                                            <dd>{move.entryOrder}</dd>
+                                        </div>
+                                    )}
+                                </dl>
+                            </details>
+                        </th>
+                        <td role="cell" className="move-category align-top text-xs">
+                            <MoveCategory
+                                category={move.category}
+                                iconFile={move.categoryIconFile}
+                            />
+                        </td>
+                        <td
+                            role="cell"
+                            className="move-metric text-right align-top tabular-nums"
+                            title={
+                                move.power === 0
+                                    ? t(
+                                          'No fixed base power (ROM value 0)',
+                                          'Bez pevné základní síly (hodnota v ROM je 0)',
+                                      )
+                                    : undefined
+                            }
+                        >
+                            <span className="move-cell-label" aria-hidden="true">
+                                {t('Power', 'Síla')}
+                            </span>
+                            {move.power || '—'}
+                        </td>
+                        <td
+                            role="cell"
+                            className="move-metric text-right align-top tabular-nums"
+                            title={
+                                move.accuracy === 0
+                                    ? t(
+                                          'No normal percentage accuracy check (ROM value 0)',
+                                          'Bez běžné procentní kontroly přesnosti (hodnota v ROM je 0)',
+                                      )
+                                    : undefined
+                            }
+                        >
+                            <span className="move-cell-label" aria-hidden="true">
+                                {t('Accuracy', 'Přesnost')}
+                            </span>
+                            {move.accuracy ? `${move.accuracy}%` : '—'}
+                        </td>
+                        <td role="cell" className="move-metric text-right align-top tabular-nums">
+                            <span className="move-cell-label" aria-hidden="true">
+                                PP
+                            </span>
+                            {move.pp}
+                        </td>
+                        <td role="cell" className="move-metric text-right align-top tabular-nums">
+                            <span className="move-cell-label" aria-hidden="true">
+                                {t('Priority', 'Priorita')}
+                            </span>
+                            {move.priority > 0 ? `+${move.priority}` : move.priority}
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
     );
 }
 
-function StatsPanel({ entry, version }: { entry: Pokemon; version: string }) {
+export function StatsPanel({ entry, version }: { entry: Pokemon; version: string }) {
     const { t } = useLanguage();
+    const highestStat = Math.max(...statLabels.map(({ key }) => entry.stats[key]));
+    const attackDifference = entry.stats.attack - entry.stats.spAttack;
+    const offenseLabel =
+        attackDifference > 0
+            ? t('Attack is higher than Sp. Attack', 'Útok je vyšší než speciální útok')
+            : attackDifference < 0
+              ? t('Sp. Attack is higher than Attack', 'Speciální útok je vyšší než útok')
+              : t('Attack and Sp. Attack are equal', 'Útok a speciální útok jsou stejné');
     return (
         <aside className="detail-panel" aria-labelledby="stats-title">
-            <div className="stat-total flex items-center justify-between gap-3 border-b pb-4">
+            <div className="stat-total flex items-center justify-between gap-3 border-b pb-3">
                 <h2 id="stats-title" className="text-lg font-semibold">
                     {t('Base stats', 'Základní statistiky')}
                 </h2>
-                <div className="text-right">
-                    <span className="text-2xl font-semibold tabular-nums">
-                        {entry.baseStatTotal}
+                <div className="stat-summary">
+                    <span
+                        className="stat-offense"
+                        role="img"
+                        aria-label={offenseLabel}
+                        title={offenseLabel}
+                    >
+                        {attackDifference >= 0 && <MoveCategoryIcon file="physical.png" />}
+                        {attackDifference <= 0 && <MoveCategoryIcon file="special.png" />}
                     </span>
-                    <span className="ml-2 text-xs text-stone-600">{t('total', 'celkem')}</span>
+                    <div className="stat-total-value">
+                        <span className="stat-total-number font-semibold tabular-nums">
+                            {entry.baseStatTotal}
+                        </span>
+                        <span className="stat-total-label">{t('total', 'celkem')}</span>
+                    </div>
                 </div>
             </div>
-            <dl className="stat-list mt-4 grid gap-3">
-                {statLabels.map(({ key, label, labelCs }) => (
-                    <div key={key} className="stat-row">
-                        <dt>{t(label, labelCs)}</dt>
-                        <dd className="stat-measure">
-                            <span className="font-mono font-semibold tabular-nums">
-                                {entry.stats[key]}
-                            </span>
-                            <div className="stat-track" aria-hidden="true">
-                                <div
-                                    className="stat-fill"
-                                    style={{ width: `${(entry.stats[key] / 255) * 100}%` }}
-                                />
-                            </div>
-                        </dd>
-                    </div>
-                ))}
+            <dl className="stat-list">
+                {statLabels.map(({ key, label, labelCs }) => {
+                    const isHighest = entry.stats[key] === highestStat;
+                    const special = key === 'spAttack' || key === 'spDefense';
+                    return (
+                        <div key={key} className="stat-row" data-highest={isHighest}>
+                            <dt>
+                                {special ? (
+                                    <abbr
+                                        title={t(
+                                            key === 'spAttack'
+                                                ? 'Special Attack'
+                                                : 'Special Defense',
+                                            labelCs,
+                                        )}
+                                    >
+                                        {t(label, key === 'spAttack' ? 'Sp. útok' : 'Sp. obrana')}
+                                    </abbr>
+                                ) : (
+                                    t(label, labelCs)
+                                )}
+                            </dt>
+                            <dd className="stat-measure">
+                                <span className="stat-value font-mono tabular-nums">
+                                    {entry.stats[key]}
+                                    {isHighest && (
+                                        <span className="sr-only">
+                                            {' '}
+                                            {t('Highest stat', 'Nejvyšší statistika')}
+                                        </span>
+                                    )}
+                                </span>
+                                <div className="stat-track" aria-hidden="true">
+                                    <div
+                                        className="stat-fill"
+                                        style={{ width: `${(entry.stats[key] / 255) * 100}%` }}
+                                    />
+                                </div>
+                            </dd>
+                        </div>
+                    );
+                })}
             </dl>
-            <p className="mt-4 text-xs leading-relaxed text-stone-600">
-                {t(
-                    `Emerald EX ${version} base stats. Bars use a 0–255 scale. These are not calculated battle stats.`,
-                    `Základní statistiky v Emerald EX ${version}. Pruhy používají stupnici 0–255. Nejde o vypočtené bojové statistiky.`,
-                )}
-            </p>
-            <details className="rule-details mt-4 border-t border-stone-300 pt-4">
+            <details className="rule-details mt-3 border-t border-stone-300 pt-3">
                 <summary>{t('Species data', 'Údaje o druhu')}</summary>
+                <p className="mt-3 text-xs leading-relaxed text-stone-600">
+                    {t(
+                        `Emerald EX ${version} base stats. Bars use a 0–255 scale. These are not calculated battle stats.`,
+                        `Základní statistiky v Emerald EX ${version}. Pruhy používají stupnici 0–255. Nejde o vypočtené bojové statistiky.`,
+                    )}
+                </p>
                 <dl className="rom-fields mt-3">
                     <div>
                         <dt>{t('Species / form ID', 'ID druhu / formy')}</dt>
