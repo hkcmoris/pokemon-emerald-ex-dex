@@ -29,7 +29,8 @@ export function SpeciesDetailHeader({
 }) {
     const { t } = useLanguage();
     const name = formDisplayName(entry.name, entry.formInfo);
-    const showShiny = shiny && Boolean(entry.sprites?.shinyFront);
+    const hasShiny = Boolean(entry.sprites?.shinyFront);
+    const showShiny = shiny && hasShiny;
     const sprite = (showShiny ? entry.sprites?.shinyFront : entry.sprites?.front) ?? null;
     const forms = entry.forms?.members ?? [];
 
@@ -49,42 +50,42 @@ export function SpeciesDetailHeader({
                 </h1>
                 <TypeBadges types={entry.types} iconFiles={entry.typeIconFiles} />
             </div>
-            <div className="species-detail-portrait">
-                <SpeciesSprite
-                    datasetId={datasetId}
-                    file={sprite}
-                    name={name}
-                    size={128}
-                    shiny={showShiny}
-                    loading="eager"
-                />
-            </div>
-            <div className="species-detail-controls">
-                <div className="filter-label">
-                    <span id="appearance-label">{t('Appearance', 'Vzhled')}</span>
-                    <div
-                        className="appearance-toggle"
-                        role="group"
-                        aria-labelledby="appearance-label"
-                    >
-                        <button
-                            type="button"
-                            aria-pressed={!showShiny}
-                            onClick={() => onShinyChange(false)}
-                        >
-                            {t('Standard', 'Běžný')}
-                        </button>
-                        <button
-                            type="button"
-                            aria-pressed={showShiny}
-                            disabled={!entry.sprites?.shinyFront}
-                            onClick={() => onShinyChange(true)}
-                        >
-                            <span aria-hidden="true">✦</span> Shiny
-                        </button>
-                    </div>
+            <div className="species-detail-visual">
+                <div className="species-detail-portrait">
+                    <SpeciesSprite
+                        datasetId={datasetId}
+                        file={sprite}
+                        name={name}
+                        size={128}
+                        shiny={showShiny}
+                        loading="eager"
+                    />
                 </div>
-                {forms.length > 1 && (
+                <div
+                    className="appearance-toggle"
+                    role="group"
+                    aria-label={t('Appearance', 'Vzhled')}
+                >
+                    <button
+                        type="button"
+                        aria-pressed={!showShiny}
+                        disabled={!hasShiny}
+                        onClick={() => onShinyChange(!showShiny)}
+                    >
+                        {t('Standard', 'Běžný')}
+                    </button>
+                    <button
+                        type="button"
+                        aria-pressed={showShiny}
+                        disabled={!hasShiny}
+                        onClick={() => onShinyChange(!showShiny)}
+                    >
+                        <span aria-hidden="true">✦</span> Shiny
+                    </button>
+                </div>
+            </div>
+            {forms.length > 1 && (
+                <div className="species-detail-controls">
                     <label className="filter-label">
                         {t('Form', 'Forma')}
                         <select
@@ -100,8 +101,8 @@ export function SpeciesDetailHeader({
                             ))}
                         </select>
                     </label>
-                )}
-            </div>
+                </div>
+            )}
             {!sprite && (
                 <p className="species-sprite-note empty-note">
                     {entry.sprites?.missingReason ??
