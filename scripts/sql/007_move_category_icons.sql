@@ -1,7 +1,7 @@
 -- Add icon filenames to the existing category catalog in the selected database.
 -- Repeatable on MySQL / MariaDB; existing filenames and other tables are untouched.
 -- Run this schema upgrade separately from the data seed (008).
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 SET @emerald_ex_icon_schema_sql = (
     SELECT IF(COUNT(*) = 0,

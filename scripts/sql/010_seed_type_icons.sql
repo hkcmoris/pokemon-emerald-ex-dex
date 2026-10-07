@@ -1,7 +1,7 @@
 -- Initial filenames from assets/types/. Run 009 for an existing database, or 001 + 002 for a fresh setup.
 -- Repeatable: fills NULL filenames only, preserving custom filenames and other datasets.
 -- Electric uses Lightning; Dark uses Darkness. No Mystery icon was supplied (leave NULL).
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 START TRANSACTION;
 
 UPDATE emerald_ex_types

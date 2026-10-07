@@ -1,6 +1,6 @@
 -- Add sprite references to an existing dex in the selected shared database.
 -- Repeatable; does not replace species or change other projects' tables.
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS emerald_ex_species_sprites (
     dataset_id VARCHAR(64) NOT NULL,

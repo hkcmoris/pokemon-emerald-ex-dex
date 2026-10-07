@@ -2,7 +2,7 @@
 -- Shared database: touches only emerald_ex_ tables in the database selected by the client.
 -- Replaces only dataset emerald-ex-1.0.4. Use a batch client that stops on the first error.
 -- Run 001_schema.sql first. No DDL, TRUNCATE, or disabled foreign keys in the data transaction.
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 SET @dex_previous_sql_mode = @@SESSION.sql_mode;
 SET SESSION sql_mode = 'STRICT_ALL_TABLES,NO_BACKSLASH_ESCAPES,NO_ENGINE_SUBSTITUTION';
 START TRANSACTION;

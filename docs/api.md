@@ -24,8 +24,21 @@ Use `.env.local` at the repository root for development. The backend loads it be
 The API only issues SELECT queries. Its production database account needs SELECT on
 the 24 dex tables. Apply schema/import scripts separately with an administrative
 account. The backend uses a pool of at most five connections and checks that the
-configured dataset exists before listening. Connections and queries have timeouts;
-the pool closes when the process receives SIGINT or SIGTERM.
+configured dataset exists before listening. Connection establishment and pool
+acquisition each have a five-second timeout; statement execution uses the database
+server's configured limits. The pool closes when the process receives SIGINT or SIGTERM.
+
+The MariaDB Node.js connector supports both MariaDB and MySQL. Keep its
+`queryTimeout` option unset: it uses MariaDB-specific statement timeout support,
+so setting it causes MySQL connections to fail with `ER_TIMEOUT_NOT_SUPPORTED`.
+The pool then reports `ER_GET_CONNECTION_TIMEOUT`, and the API never starts
+listening on `PORT`. This is a driver-option compatibility issue; changing
+database credentials or increasing the pool acquisition timeout does not fix it.
+See [connector timeout options](https://mariadb.com/docs/connectors/mariadb-connector-nodejs/connector-nodejs-promise-api).
+
+The connection requests JSON columns as text with `jsonStrings: true`, so the
+repository parses items, evolution conditions and form details consistently on
+both servers. `autoJsonMap: false` alone does not disable native MySQL JSON parsing.
 
 ## Endpoints
 

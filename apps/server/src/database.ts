@@ -8,7 +8,8 @@ export interface Database {
     query<T>(sql: string, parameters: readonly SqlParameter[]): Promise<T[]>;
 }
 
-export function databaseConfig(): PoolConfig {
+// The connector's types omit its supported jsonStrings option.
+export function databaseConfig(): PoolConfig & { jsonStrings: boolean } {
     const port = Number(getOptionalEnv('DB_PORT', '3306'));
     if (!Number.isInteger(port) || port < 1 || port > 65535) {
         throw new Error('DB_PORT must be an integer between 1 and 65535');
@@ -23,10 +24,9 @@ export function databaseConfig(): PoolConfig {
         connectionLimit: 5,
         connectTimeout: 5000,
         acquireTimeout: 5000,
-        queryTimeout: 5000,
         charset: 'utf8mb4',
         bigIntAsNumber: true,
-        autoJsonMap: false,
+        jsonStrings: true,
     };
 }
 

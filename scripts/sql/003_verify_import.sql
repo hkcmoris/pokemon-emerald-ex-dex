@@ -1,4 +1,6 @@
 -- Expected counts for the supplied Emerald EX 1.0.4 exports.
+-- Match the table collation before assigning user variables (including on MySQL 8).
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 SET @dataset_id = 'emerald-ex-1.0.4';
 
 -- Icon filenames are editable; NULL deliberately displays a category label only.

@@ -1,6 +1,7 @@
 -- Illustrative SELECTs for the SQL-backed /api/v1 endpoints.
 -- In the API, bind parameters with a database driver; never concatenate request values.
 -- Each route resolves a configured dataset as well as the URL's internal ROM ID.
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 SET @dataset_id = 'emerald-ex-1.0.4';
 SET @species_id = 1;
 SET @move_id = 33;

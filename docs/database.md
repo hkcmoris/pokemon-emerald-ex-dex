@@ -30,6 +30,44 @@ the database still enforces the restoration/FK semantics.
 5. `scripts/sql/003_verify_import.sql` — counts and representative records.
 6. `scripts/sql/004_api_query_examples.sql` — example queries for the API.
 
+### MySQL error 1267: illegal mix of collations
+
+The dex tables use `utf8mb4_unicode_ci`. MySQL 8 commonly gives connections the
+`utf8mb4_0900_ai_ci` collation instead. A string user variable such as `@dataset_id`
+inherits the collation of its assigned value; comparing it with a table column of
+another collation can produce `ERROR 1267 (HY000)` in verification or example queries.
+See [MySQL user-variable collations](https://dev.mysql.com/doc/refman/8.0/en/user-variables.html).
+
+Every script from `001` through `016` explicitly sets the connection collation:
+
+```sql
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+For an older checkout, add this statement before the first SQL statement in `003`
+and `004`, and replace every plain `SET NAMES utf8mb4;` in the other scripts with it.
+A plain `SET NAMES utf8mb4;` resets the connection to the character set's default
+collation, even if you set the collation earlier. A separate CLI invocation or
+control-panel import also starts a new session, so each file needs its own setting.
+See [MySQL SET NAMES](https://dev.mysql.com/doc/refman/8.0/en/set-names.html).
+
+If `@dataset_id` was already assigned in an interactive session, assign it again
+after changing the connection collation:
+
+```sql
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET @dataset_id = 'emerald-ex-1.0.4';
+SELECT @@collation_connection, COLLATION(@dataset_id);
+```
+
+Both reported collations should be `utf8mb4_unicode_ci`. Rerun the corrected `003`
+and any failed scripts. If `001` and `002` succeeded, keep the imported database;
+no table conversion, database recreation, or full `002` re-import is needed for
+this session mismatch. Changing the database's default collation alone does not
+fix existing connections or variables. For a fresh setup, finish with the icon
+seeds `008` and `010` as listed above; the full `001`/`002` files already include
+the schema and data supplied by the incremental upgrade scripts.
+
 The import files are generated from the seven local exports in `docs/` and the battle
 sprite manifest in `assets/pokemon_emerald_ex_1.0.4_battle_sprites/`:
 
@@ -343,8 +381,14 @@ schema with a full import and repeat import: invalid type slots, move accuracy,
 learnset/evolution levels, machine kind/number, and internal evolution flags were
 all rejected. phpMyAdmin sql-parser 5.11.1 reported zero errors for the revised schema
 (the previous named table-level checks produced 14 parser errors). This parser
-result predates the forms cross-column constraint described above. MySQL execution
-has not been verified on a live MySQL instance.
+result predates the forms cross-column constraint described above.
+
+On 2026-10-07, the original verification script reproduced error 1267 on an isolated
+MySQL 8.4.6 instance using the default `utf8mb4_0900_ai_ci` connection collation.
+With explicit `utf8mb4_unicode_ci` session headers, scripts `001` through `016`
+passed, each in a fresh connection. All 27 actual/expected counts in `003` matched
+after the incremental imports. This verified the collation fix and script execution;
+the additional preservation and constraint checks above were performed on MariaDB.
 
 The sprite schema/full import and repeated incremental upgrades were also verified
 on an isolated MariaDB 12.0.2 instance. It retained an unrelated project's table and

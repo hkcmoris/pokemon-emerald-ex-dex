@@ -1,5 +1,5 @@
 import { deepStrictEqual, strictEqual, throws } from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
@@ -110,6 +110,27 @@ void test('SQL string literals preserve Unicode, quotes and backslashes under NO
     strictEqual(sqlLiteral(false), '0');
     throws(() => sqlLiteral(Number.NaN), /safe integers/);
     throws(() => sqlLiteral('bad\0string'), /NUL/);
+});
+
+void test('SQL sessions select and preserve the schema collation before executing queries', async () => {
+    const files = await readdir(new URL('sql/', import.meta.url));
+    for (const file of files.filter(
+        (name) => /^\d{3}_.*\.sql$/.test(name) && !name.startsWith('000_'),
+    )) {
+        const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
+        const firstStatement = sql
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .find((line) => line !== '' && !line.startsWith('--'));
+        strictEqual(firstStatement, 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;', file);
+        for (const match of sql.matchAll(/^\s*SET\s+NAMES\b[^;]*;/gim)) {
+            strictEqual(
+                /^SET\s+NAMES\s+utf8mb4\s+COLLATE\s+utf8mb4_unicode_ci;$/i.test(match[0].trim()),
+                true,
+                `${file}: ${match[0].trim()}`,
+            );
+        }
+    }
 });
 
 void test('schema, import and query examples stay within the dex table namespace', async () => {

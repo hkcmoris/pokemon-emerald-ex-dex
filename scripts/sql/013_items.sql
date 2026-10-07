@@ -1,5 +1,5 @@
 -- Relational ROM items; select your existing shared database first.
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS emerald_ex_item_pockets (
     dataset_id VARCHAR(64) NOT NULL,

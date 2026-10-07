@@ -1,6 +1,6 @@
 -- Add type icon filenames in the selected shared database. MySQL / MariaDB.
 -- Repeatable: existing filenames and other tables are untouched. Run separately from 010.
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 SET @emerald_ex_type_icon_schema_sql = (
     SELECT IF(COUNT(*) = 0,

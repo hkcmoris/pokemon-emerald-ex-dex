@@ -1,7 +1,7 @@
 -- Initial filenames for the supplied icons. Run 007 first for an existing database,
 -- or 001 + 002 for a fresh database. Select your database in the SQL client.
 -- Repeatable: does not replace an already configured filename or affect other datasets.
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 START TRANSACTION;
 
 UPDATE emerald_ex_move_categories SET icon_file = 'physical.png'
