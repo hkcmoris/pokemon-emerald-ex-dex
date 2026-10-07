@@ -42,8 +42,7 @@ export function SpeciesDetailHeader({
         >
             <div className="species-detail-heading">
                 <p className="eyebrow">
-                    {t('Species / form', 'Druh / forma')} #
-                    {String(entry.speciesId).padStart(4, '0')}
+                    #{String(entry.speciesId).padStart(4, '0')}
                 </p>
                 <h1 id="species-title" ref={headingRef} tabIndex={-1}>
                     {name}

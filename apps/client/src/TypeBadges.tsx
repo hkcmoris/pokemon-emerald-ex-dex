@@ -5,14 +5,14 @@ import { apiUrl } from './apiUrl.js';
 function TypeBadge({ name, file }: { name: string; file: string | null }) {
     const [failed, setFailed] = useState(false);
     return (
-        <span className="type-badge" data-type={name}>
+        <span className="type-badge mt-0.5" data-type={name}>
             {file && !failed && (
                 <img
                     src={apiUrl(`icons/types/${encodeURIComponent(file)}`)}
                     alt=""
                     width={24}
                     height={24}
-                    className="h-6 w-6 shrink-0 object-contain"
+                    className="h-6 w-6 -mt-3 shrink-0 object-contain"
                     loading="lazy"
                     decoding="async"
                     onError={() => setFailed(true)}
