@@ -650,6 +650,10 @@ tbody tr:hover {
     letter-spacing: -0.05em;
     overflow-wrap: anywhere;
 }
+/* Preserve the heading's programmatic navigation focus without drawing a control outline. */
+.species-detail-heading h1:focus {
+    outline: none;
+}
 .species-detail-portrait {
     position: relative;
     display: flex;

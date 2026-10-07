@@ -236,6 +236,9 @@ keyboard handling, focus management, and scroll locking. Emerald theme variables
 live in `apps/client/src/style.css`. DM Sans is bundled locally; its OFL license is
 included in `apps/client/src/fonts/OFL.txt`.
 
+Species detail headings receive focus after navigation for screen readers, without
+a visible outline. Interactive controls retain their keyboard focus indicators.
+
 - [HeroUI v3 kit copy](https://www.figma.com/design/AVTCKXvpIEiaXA0aa75Qme/HeroUI-Figma-Kit-V3--Community---Copy-)
 - [Emerald mobile design draft](https://www.figma.com/design/4YSDZFFh72vPI68B0aScks?node-id=5-2)
 
