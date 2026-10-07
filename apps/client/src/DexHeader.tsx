@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Button } from '@heroui/react';
 
 import { readTheme, saveTheme } from './theme.js';
+import { useLanguage } from './language.js';
 
 export function ThemeToggle() {
+    const { t } = useLanguage();
     const [theme, setTheme] = useState(readTheme);
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     return (
@@ -11,7 +13,11 @@ export function ThemeToggle() {
             isIconOnly
             variant="tertiary"
             className="theme-toggle"
-            aria-label={`Use ${nextTheme} theme`}
+            aria-label={
+                nextTheme === 'light'
+                    ? t('Use light theme', 'Použít světlý motiv')
+                    : t('Use dark theme', 'Použít tmavý motiv')
+            }
             onPress={() => {
                 saveTheme(nextTheme);
                 setTheme(nextTheme);
@@ -46,6 +52,7 @@ export function DexHeader({
     backHref?: string;
     backLabel?: string;
 }) {
+    const { language, setLanguage, t } = useLanguage();
     return (
         <header className="dex-header">
             <div className="dex-header-inner">
@@ -72,13 +79,30 @@ export function DexHeader({
                 </a>
                 <div className="dex-header-actions">
                     <span className="version-tag">v{version}</span>
+                    <label className="language-control">
+                        <span className="sr-only">{t('Interface language', 'Jazyk rozhraní')}</span>
+                        <select
+                            className="language-select"
+                            value={language}
+                            onChange={(event) =>
+                                setLanguage(event.target.value === 'cs' ? 'cs' : 'en')
+                            }
+                        >
+                            <option value="en" lang="en">
+                                English
+                            </option>
+                            <option value="cs" lang="cs">
+                                Čeština
+                            </option>
+                        </select>
+                    </label>
                     <ThemeToggle />
                 </div>
             </div>
             {backHref && (
                 <div className="dex-back-row">
                     <a className="back-link" href={backHref}>
-                        ← {backLabel ?? 'Back to Pokédex'}
+                        ← {backLabel ?? t('Back to Pokédex', 'Zpět na Pokédex')}
                     </a>
                 </div>
             )}

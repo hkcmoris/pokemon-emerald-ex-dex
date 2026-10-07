@@ -1,3 +1,5 @@
+import { useLanguage } from './language.js';
+
 export type DexSection = 'pokemon' | 'items' | 'abilities';
 
 export function DexSectionIcon({ section }: { section: DexSection }) {
@@ -28,13 +30,14 @@ export function DexSectionIcon({ section }: { section: DexSection }) {
 }
 
 export function DexNavigation({ active }: { active: DexSection }) {
+    const { t } = useLanguage();
     const sections: readonly { id: DexSection; label: string; href: string }[] = [
         { id: 'pokemon', label: 'Pokémon', href: '#/' },
-        { id: 'items', label: 'Items', href: '#/items' },
-        { id: 'abilities', label: 'Abilities', href: '#/abilities' },
+        { id: 'items', label: t('Items', 'Předměty'), href: '#/items' },
+        { id: 'abilities', label: t('Abilities', 'Schopnosti'), href: '#/abilities' },
     ];
     return (
-        <nav className="dex-navigation" aria-label="Dex sections">
+        <nav className="dex-navigation" aria-label={t('Dex sections', 'Sekce Pokédexu')}>
             {sections.map(({ id, label, href }) => (
                 <a key={id} href={href} aria-current={active === id ? 'page' : undefined}>
                     <DexSectionIcon section={id} />

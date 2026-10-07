@@ -3,6 +3,7 @@ import { speciesHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { TypeBadges } from './TypeBadges.js';
 import { typeSurfaceStyle } from './theme.js';
+import { useLanguage } from './language.js';
 
 interface PokemonResultsProps {
     entries: readonly Pokemon[];
@@ -11,9 +12,13 @@ interface PokemonResultsProps {
 }
 
 export function PokemonResults({ entries, datasetId, sort }: PokemonResultsProps) {
+    const { t } = useLanguage();
     return (
         <>
-            <ul className="pokemon-mobile-list" aria-label="Pokémon results">
+            <ul
+                className="pokemon-mobile-list"
+                aria-label={t('Pokémon results', 'Nalezení Pokémoni')}
+            >
                 {entries.map((entry) => (
                     <li key={entry.speciesId}>
                         <a
@@ -40,7 +45,7 @@ export function PokemonResults({ entries, datasetId, sort }: PokemonResultsProps
                                     <strong>
                                         {sort === 'total' ? entry.baseStatTotal : entry.stats.speed}
                                     </strong>
-                                    <span>{sort === 'total' ? 'BST' : 'Speed'}</span>
+                                    <span>{sort === 'total' ? 'BST' : t('Speed', 'Rychlost')}</span>
                                 </span>
                             )}
                             <svg
@@ -62,19 +67,22 @@ export function PokemonResults({ entries, datasetId, sort }: PokemonResultsProps
             <div className="pokemon-desktop-table overflow-x-auto">
                 <table className="w-full text-sm">
                     <caption className="sr-only">
-                        Pokémon types and base stats. Select a name to view details.
+                        {t(
+                            'Pokémon types and base stats. Select a name to view details.',
+                            'Typy a základní statistiky Pokémonů. Kliknutím na název zobrazíte podrobnosti.',
+                        )}
                     </caption>
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
-                            <th scope="col">Pokémon / Types</th>
-                            {statLabels.map(({ key, label, short }) => (
+                            <th scope="col">{t('Pokémon / Types', 'Pokémon / Typy')}</th>
+                            {statLabels.map(({ key, label, labelCs, short }) => (
                                 <th scope="col" className="text-right" key={key}>
-                                    <abbr title={label}>{short}</abbr>
+                                    <abbr title={t(label, labelCs)}>{short}</abbr>
                                 </th>
                             ))}
                             <th scope="col" className="text-right">
-                                Total
+                                {t('Total', 'Celkem')}
                             </th>
                         </tr>
                     </thead>

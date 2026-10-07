@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { FormsSection } from './FormsSection.js';
 import { formDisplayName } from './forms.js';
 import { SpeciesPage } from './SpeciesPage.js';
+import { LanguageProvider } from './language.js';
 
 const mega: FormChange = {
     items: [{ role: 'megaStone', itemId: 300, name: 'Gengarite', iconFile: '0300_Gengarite.png' }],
@@ -93,6 +94,33 @@ void test('form cards retain raw names while displaying labels, sprites and navi
         for (const member of forms.members) match(html, new RegExp(member.sprite ?? 'missing'));
     }
     strictEqual(forms.members[1].name, 'Gengar');
+});
+
+void test('Czech form UI keeps database form labels, methods, item names and summaries unchanged', () => {
+    const html = renderToStaticMarkup(
+        createElement(
+            LanguageProvider,
+            { initialLanguage: 'cs' },
+            createElement(FormsSection, {
+                forms,
+                changes: [],
+                speciesId: 914,
+                datasetId: 'emerald-ex-1.0.4',
+            }),
+        ),
+    );
+    match(html, /<h2 id="forms-title">Formy<\/h2>/);
+    match(html, /Aktuální forma/);
+    match(html, /Pravidla změn formy/);
+    match(html, /<dt>Pouze v boji<\/dt><dd>Ano<\/dd>/);
+    match(html, />Base<\/span>/);
+    match(html, />Mega Gengar<\/span>/);
+    match(html, />Gigantamax Gengar<\/span>/);
+    match(html, /<dd>mega evolution item<\/dd>/);
+    match(html, /Mega Evolve using Gengarite/);
+    match(html, /Gigantamax when Dynamax is activated/);
+    match(html, /alt="Ikona předmětu Gengarite"/);
+    match(html, />Gengarite<\/span>/);
 });
 
 void test('display names distinguish Mega X/Y and regional forms and safely fall back without a label', () => {

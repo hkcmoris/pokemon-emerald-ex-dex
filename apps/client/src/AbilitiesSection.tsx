@@ -1,20 +1,24 @@
 import type { SpeciesAbilitySlot } from '@pokemon-emerald-ex-dex/shared';
 
 import { abilityHref } from './navigation.js';
+import { useLanguage } from './language.js';
 
 export function AbilitiesSection({ slots }: { slots: readonly SpeciesAbilitySlot[] }) {
+    const { t } = useLanguage();
     return (
         <section className="species-section" aria-labelledby="abilities-title">
             <div className="section-heading">
-                <p className="eyebrow">Species traits</p>
-                <h2 id="abilities-title">Abilities</h2>
+                <p className="eyebrow">{t('Species traits', 'Vlastnosti druhu')}</p>
+                <h2 id="abilities-title">{t('Abilities', 'Schopnosti')}</h2>
             </div>
             <div className="p-5 sm:p-6">
                 <ul className="item-catalog">
                     {slots.map(({ slot, kind, ability }) => (
                         <li key={slot} className="evolution-node">
                             <p className="eyebrow">
-                                {kind === 'hidden' ? 'Hidden ability' : `Normal ability ${slot}`}
+                                {kind === 'hidden'
+                                    ? t('Hidden ability', 'Skrytá schopnost')
+                                    : t(`Normal ability ${slot}`, `Běžná schopnost ${slot}`)}
                             </p>
                             {ability ? (
                                 <>
@@ -32,12 +36,16 @@ export function AbilitiesSection({ slots }: { slots: readonly SpeciesAbilitySlot
                                     </p>
                                 </>
                             ) : (
-                                <p className="empty-note mt-2">None</p>
+                                <p className="empty-note mt-2">{t('None', 'Žádná')}</p>
                             )}
                         </li>
                     ))}
                 </ul>
-                {slots.length === 0 && <p className="empty-note">No ability data recorded.</p>}
+                {slots.length === 0 && (
+                    <p className="empty-note">
+                        {t('No ability data recorded.', 'Nejsou zaznamenány žádné schopnosti.')}
+                    </p>
+                )}
             </div>
         </section>
     );

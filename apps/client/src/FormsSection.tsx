@@ -4,6 +4,7 @@ import { formDisplayName, formKindLabel } from './forms.js';
 import { speciesHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { RuleItems } from './ItemIcon.js';
+import { useLanguage } from './language.js';
 
 export function FormsSection({
     forms,
@@ -16,6 +17,7 @@ export function FormsSection({
     speciesId: number;
     datasetId: string | undefined;
 }) {
+    const { t } = useLanguage();
     if (!forms && changes.length === 0) return null;
     const rules = forms?.changes ?? changes;
     const names = new Map(
@@ -24,8 +26,10 @@ export function FormsSection({
     return (
         <section className="species-section" aria-labelledby="forms-title">
             <div className="section-heading">
-                <p className="eyebrow">Species forms</p>
-                <h2 id="forms-title">{forms ? 'Forms' : 'Form changes'}</h2>
+                <p className="eyebrow">{t('Species forms', 'Formy druhu')}</p>
+                <h2 id="forms-title">
+                    {forms ? t('Forms', 'Formy') : t('Form changes', 'Změny formy')}
+                </h2>
             </div>
             {forms && (
                 <ul className="form-members p-5 sm:p-6">
@@ -62,7 +66,9 @@ export function FormsSection({
                                         {member.formLabel ?? formKindLabel(member.formKind)}
                                     </span>
                                     {current && (
-                                        <span className="current-stage-label">Current form</span>
+                                        <span className="current-stage-label">
+                                            {t('Current form', 'Aktuální forma')}
+                                        </span>
                                     )}
                                 </a>
                                 {summaries.length > 0 && (
@@ -89,7 +95,8 @@ export function FormsSection({
             {rules.length > 0 && (
                 <details className="form-change-rules">
                     <summary>
-                        Form-change rules <span className="count-label">{rules.length}</span>
+                        {t('Form-change rules', 'Pravidla změn formy')}{' '}
+                        <span className="count-label">{rules.length}</span>
                     </summary>
                     <ul className="evolution-rules mt-5">
                         {rules.map((rule) => (
@@ -104,7 +111,7 @@ export function FormsSection({
                                     </a>
                                     {' → '}
                                     {rule.restorePreviousForm
-                                        ? 'Previously saved form'
+                                        ? t('Previously saved form', 'Dříve uložená forma')
                                         : rule.targetSpeciesId !== null && (
                                               <a
                                                   className="species-link"
@@ -120,29 +127,39 @@ export function FormsSection({
                                 <RuleItems items={rule.items} />
                                 <dl className="rom-fields mt-3">
                                     <div>
-                                        <dt>Method</dt>
+                                        <dt>{t('Method', 'Metoda')}</dt>
                                         <dd>{rule.method.replaceAll('_', ' ')}</dd>
                                     </div>
                                     <div>
-                                        <dt>Form kind</dt>
+                                        <dt>{t('Form kind', 'Druh formy')}</dt>
                                         <dd>{formKindLabel(rule.formKind)}</dd>
                                     </div>
                                     <div>
-                                        <dt>Battle only</dt>
-                                        <dd>{rule.battleOnly ? 'Yes' : 'No'}</dd>
+                                        <dt>{t('Battle only', 'Pouze v boji')}</dt>
+                                        <dd>{rule.battleOnly ? t('Yes', 'Ano') : t('No', 'Ne')}</dd>
                                     </div>
                                     <div>
-                                        <dt>Method ID / rule order</dt>
+                                        <dt>
+                                            {t(
+                                                'Method ID / rule order',
+                                                'ID metody / pořadí pravidla',
+                                            )}
+                                        </dt>
                                         <dd>
                                             {rule.methodId} / {rule.changeOrder}
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt>Raw target species ID</dt>
+                                        <dt>
+                                            {t(
+                                                'Raw target species ID',
+                                                'Původní ID cílového druhu',
+                                            )}
+                                        </dt>
                                         <dd>{rule.rawTargetSpeciesId}</dd>
                                     </div>
                                     <div>
-                                        <dt>Raw parameters</dt>
+                                        <dt>{t('Raw parameters', 'Původní parametry')}</dt>
                                         <dd>
                                             {rule.rawParams.param1} / {rule.rawParams.param2} /{' '}
                                             {rule.rawParams.param3}

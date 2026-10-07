@@ -30,6 +30,15 @@ order while retaining the visible results during updates. Remove the selected ty
 chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.
 Labeled bottom navigation links Pokémon, Items, and Abilities. A theme control switches
 between dark emerald and light mineral surfaces and remembers the choice locally.
+The header language selector switches the interface between English and Čeština and
+remembers the selection in the browser. Without a saved choice, the interface uses the
+first supported language from the browser's preferred languages, including regional
+variants such as `cs-CZ` and `en-US`. Czech is the fallback when no supported preference
+is available. A saved choice always takes priority. It translates navigation, controls,
+field labels, and status messages only. Pokémon, move, item, ability, type and form names,
+as well as all database descriptions and other database text, retain their original
+wording. Switching languages preserves the current page and filters and requires no
+database migration.
 Expand move names for descriptions and full move data, or evolution rules for their
 conditions and ROM identifiers. Move categories show Physical, Special, and Status
 icons alongside their labels in both level-up and TM/HM tables. Category icon filenames

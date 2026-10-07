@@ -5,6 +5,7 @@ import { formDisplayName } from './forms.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { TypeBadges } from './TypeBadges.js';
 import { typeSurfaceStyle } from './theme.js';
+import { useLanguage } from './language.js';
 
 type HeaderEntry = Pick<
     SpeciesDetails,
@@ -26,6 +27,7 @@ export function SpeciesDetailHeader({
     onShinyChange: (shiny: boolean) => void;
     onFormChange: (speciesId: number) => void;
 }) {
+    const { t } = useLanguage();
     const name = formDisplayName(entry.name, entry.formInfo);
     const showShiny = shiny && Boolean(entry.sprites?.shinyFront);
     const sprite = (showShiny ? entry.sprites?.shinyFront : entry.sprites?.front) ?? null;
@@ -39,7 +41,8 @@ export function SpeciesDetailHeader({
         >
             <div className="species-detail-heading">
                 <p className="eyebrow">
-                    Species / form #{String(entry.speciesId).padStart(4, '0')}
+                    {t('Species / form', 'Druh / forma')} #
+                    {String(entry.speciesId).padStart(4, '0')}
                 </p>
                 <h1 id="species-title" ref={headingRef} tabIndex={-1}>
                     {name}
@@ -58,7 +61,7 @@ export function SpeciesDetailHeader({
             </div>
             <div className="species-detail-controls">
                 <div className="filter-label">
-                    <span id="appearance-label">Appearance</span>
+                    <span id="appearance-label">{t('Appearance', 'Vzhled')}</span>
                     <div
                         className="appearance-toggle"
                         role="group"
@@ -69,7 +72,7 @@ export function SpeciesDetailHeader({
                             aria-pressed={!showShiny}
                             onClick={() => onShinyChange(false)}
                         >
-                            Standard
+                            {t('Standard', 'Běžný')}
                         </button>
                         <button
                             type="button"
@@ -83,7 +86,7 @@ export function SpeciesDetailHeader({
                 </div>
                 {forms.length > 1 && (
                     <label className="filter-label">
-                        Form
+                        {t('Form', 'Forma')}
                         <select
                             className="filter-input form-selector"
                             value={entry.speciesId}
@@ -101,7 +104,11 @@ export function SpeciesDetailHeader({
             </div>
             {!sprite && (
                 <p className="species-sprite-note empty-note">
-                    {entry.sprites?.missingReason ?? 'No sprite has been imported for this form.'}
+                    {entry.sprites?.missingReason ??
+                        t(
+                            'No sprite has been imported for this form.',
+                            'Pro tuto formu nebyl importován žádný obrázek.',
+                        )}
                 </p>
             )}
         </section>

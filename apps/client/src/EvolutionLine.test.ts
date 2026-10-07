@@ -6,6 +6,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { EvolutionLine } from './EvolutionLine.js';
+import { LanguageProvider } from './language.js';
 
 function species(speciesId: number, name: string): Pokemon {
     return {
@@ -134,4 +135,32 @@ void test('evolution panels show item icons and links for both use-item and held
         { role: 'heldItem', itemId: 465, name: 'King’s Rock', iconFile: '0465_King_s_Rock.png' },
     ];
     match(render(pikachu, [link]).html, /href="#\/items\/465"/);
+});
+
+void test('Czech evolution UI preserves species, items, methods and database summaries', () => {
+    const pikachu = species(25, 'Pikachu');
+    const raichu = species(26, 'Raichu');
+    const link = {
+        ...edge(1, pikachu, raichu, 'Use Thunder Stone.'),
+        level: null,
+        items: [{ role: 'item', itemId: 213, name: 'Thunder Stone', iconFile: null }],
+    };
+    const html = renderToStaticMarkup(
+        createElement(
+            LanguageProvider,
+            { initialLanguage: 'cs' },
+            createElement(EvolutionLine, { entry: pikachu, links: [link], datasetId: undefined }),
+        ),
+    );
+    match(html, /aria-label="Celá vývojová řada"/);
+    match(html, /Aktuální stupeň/);
+    match(html, /Podrobnosti pravidla/);
+    match(html, /Bez požadavku na úroveň/);
+    match(html, />level up<\/dd>/);
+    match(html, /Use Thunder Stone\./);
+    match(html, />Pikachu<\/span>/);
+    match(html, />Raichu<\/span>/);
+    match(html, />Thunder Stone<\/span>/);
+    match(html, /Ikona Thunder Stone není k dispozici/);
+    match(html, /Přední obrázek Pikachu \(běžná varianta\) není k dispozici/);
 });

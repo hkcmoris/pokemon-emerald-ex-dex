@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { App } from './App.js';
+import { LanguageProvider } from './language.js';
 import { applyTheme, readTheme } from './theme.js';
 import './style.css';
 
@@ -15,7 +16,9 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <QueryClientProvider client={queryClient}>
-            <App />
+            <LanguageProvider>
+                <App />
+            </LanguageProvider>
         </QueryClientProvider>
     </StrictMode>,
 );

@@ -3,19 +3,21 @@ import type { RuleItem } from '@pokemon-emerald-ex-dex/shared';
 
 import { apiUrl } from './apiUrl.js';
 import { itemHref } from './navigation.js';
+import { useLanguage } from './language.js';
 
 export function itemIconUrl(file: string | null): string | null {
     return file ? apiUrl(`icons/items/${encodeURIComponent(file)}`) : null;
 }
 
 function IconImage({ src, name }: { src: string | null; name: string }) {
+    const { t } = useLanguage();
     const [failed, setFailed] = useState(false);
     return (
         <span className="item-icon">
             {src && !failed ? (
                 <img
                     src={src}
-                    alt={`${name} item icon`}
+                    alt={t(`${name} item icon`, `Ikona předmětu ${name}`)}
                     width={24}
                     height={24}
                     loading="lazy"
@@ -23,7 +25,10 @@ function IconImage({ src, name }: { src: string | null; name: string }) {
                     onError={() => setFailed(true)}
                 />
             ) : (
-                <span role="img" aria-label={`${name} icon unavailable`}>
+                <span
+                    role="img"
+                    aria-label={t(`${name} icon unavailable`, `Ikona ${name} není k dispozici`)}
+                >
                     —
                 </span>
             )}
@@ -37,9 +42,10 @@ export function ItemIcon({ file, name }: { file: string | null; name: string }) 
 }
 
 export function RuleItems({ items }: { items: readonly RuleItem[] }) {
+    const { t } = useLanguage();
     if (items.length === 0) return null;
     return (
-        <ul className="rule-items" aria-label="Required items">
+        <ul className="rule-items" aria-label={t('Required items', 'Potřebné předměty')}>
             {items.map((item) => (
                 <li key={`${item.role}/${item.itemId}`}>
                     <a

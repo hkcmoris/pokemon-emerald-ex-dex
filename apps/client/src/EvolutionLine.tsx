@@ -3,6 +3,7 @@ import type { SpeciesEvolution } from '@pokemon-emerald-ex-dex/shared';
 import { speciesHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { RuleItems } from './ItemIcon.js';
+import { useLanguage } from './language.js';
 
 interface EvolutionStage {
     speciesId: number;
@@ -67,38 +68,41 @@ function evolutionStages(
 }
 
 export function EvolutionRuleDetails({ link }: { link: SpeciesEvolution }) {
+    const { t } = useLanguage();
     return (
         <details className="rule-details mt-3">
-            <summary>Rule details</summary>
+            <summary>{t('Rule details', 'Podrobnosti pravidla')}</summary>
             <dl className="rom-fields mt-3">
                 <div>
-                    <dt>Method</dt>
+                    <dt>{t('Method', 'Metoda')}</dt>
                     <dd>{link.method.replaceAll('_', ' ')}</dd>
                 </div>
                 <div>
-                    <dt>Trigger</dt>
+                    <dt>{t('Trigger', 'Spouštěč')}</dt>
                     <dd>{link.trigger.replaceAll('_', ' ')}</dd>
                 </div>
                 <div>
-                    <dt>Level</dt>
-                    <dd>{link.level ?? 'No level requirement'}</dd>
+                    <dt>{t('Level', 'Úroveň')}</dt>
+                    <dd>{link.level ?? t('No level requirement', 'Bez požadavku na úroveň')}</dd>
                 </div>
                 <div>
-                    <dt>ROM method ID</dt>
+                    <dt>{t('ROM method ID', 'ID metody v ROM')}</dt>
                     <dd>{link.methodId}</dd>
                 </div>
                 <div>
-                    <dt>Raw parameter</dt>
+                    <dt>{t('Raw parameter', 'Původní parametr')}</dt>
                     <dd>{link.rawParam}</dd>
                 </div>
                 <div>
-                    <dt>Rule order</dt>
+                    <dt>{t('Rule order', 'Pořadí pravidla')}</dt>
                     <dd>{link.edgeOrder}</dd>
                 </div>
             </dl>
             {Object.keys(link.conditions).length > 0 && (
                 <div className="mt-3">
-                    <p className="text-xs font-semibold">Full conditions</p>
+                    <p className="text-xs font-semibold">
+                        {t('Full conditions', 'Úplné podmínky')}
+                    </p>
                     <pre className="condition-data mt-2">
                         {JSON.stringify(link.conditions, null, 2)}
                     </pre>
@@ -112,7 +116,7 @@ export function EvolutionLine({
     entry,
     links,
     datasetId,
-    currentLabel = 'Current stage',
+    currentLabel,
     currentPageSpeciesId = entry.speciesId,
 }: {
     entry: EvolutionEntry;
@@ -121,16 +125,22 @@ export function EvolutionLine({
     currentLabel?: string;
     currentPageSpeciesId?: number;
 }) {
+    const { t } = useLanguage();
     const stages = evolutionStages(entry, links);
     return (
         <div className="evolution-family">
-            <ol className="evolution-stages" aria-label="Full evolution line">
+            <ol
+                className="evolution-stages"
+                aria-label={t('Full evolution line', 'Celá vývojová řada')}
+            >
                 {stages.map((stage, index) => (
                     <li
                         key={stage[0].speciesId}
                         className={`evolution-stage${stage.length > 1 ? ' evolution-stage-branched' : ''}`}
                     >
-                        <p className="eyebrow mb-3">Stage {index + 1}</p>
+                        <p className="eyebrow mb-3">
+                            {t('Stage', 'Stupeň')} {index + 1}
+                        </p>
                         <ul className="evolution-branches">
                             {stage.map((node) => {
                                 const current = node.speciesId === entry.speciesId;
@@ -159,7 +169,8 @@ export function EvolutionLine({
                                             </span>
                                             {current && (
                                                 <span className="current-stage-label">
-                                                    {currentLabel}
+                                                    {currentLabel ??
+                                                        t('Current stage', 'Aktuální stupeň')}
                                                 </span>
                                             )}
                                         </a>
@@ -168,7 +179,7 @@ export function EvolutionLine({
                                                 {node.incoming.map((link) => (
                                                     <li key={link.edgeOrder}>
                                                         <p className="text-xs text-stone-600">
-                                                            From {link.fromName}
+                                                            {t('From', 'Z')} {link.fromName}
                                                         </p>
                                                         <p className="mt-1 text-sm leading-relaxed">
                                                             {link.summary}
@@ -187,7 +198,12 @@ export function EvolutionLine({
                 ))}
             </ol>
             {links.length === 0 && (
-                <p className="empty-note mt-4">No evolution recorded for this species.</p>
+                <p className="empty-note mt-4">
+                    {t(
+                        'No evolution recorded for this species.',
+                        'Pro tento druh není zaznamenán žádný vývoj.',
+                    )}
+                </p>
             )}
         </div>
     );

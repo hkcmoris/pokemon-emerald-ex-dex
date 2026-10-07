@@ -6,49 +6,60 @@ import { ApiRequestError, fetchAbility, fetchAbilities } from './api.js';
 import { DexFooter } from './DexFooter.js';
 import { DexHeader } from './DexHeader.js';
 import { DexNavigation } from './DexNavigation.js';
+import { useLanguage } from './language.js';
 import { abilityHref } from './navigation.js';
 
-const flagLabels: Readonly<Record<keyof AbilityFlags, string>> = {
-    cantBeCopied: 'Cannot be copied',
-    cantBeSwapped: 'Cannot be swapped',
-    cantBeTraced: 'Cannot be traced',
-    cantBeSuppressed: 'Cannot be suppressed',
-    cantBeOverwritten: 'Cannot be overwritten',
-    breakable: 'Breakable',
-    failsOnImposter: 'Fails on Imposter',
+const flagLabels: Readonly<Record<keyof AbilityFlags, readonly [string, string]>> = {
+    cantBeCopied: ['Cannot be copied', 'Nelze zkopírovat'],
+    cantBeSwapped: ['Cannot be swapped', 'Nelze vyměnit'],
+    cantBeTraced: ['Cannot be traced', 'Nelze převzít pomocí Trace'],
+    cantBeSuppressed: ['Cannot be suppressed', 'Nelze potlačit'],
+    cantBeOverwritten: ['Cannot be overwritten', 'Nelze přepsat'],
+    breakable: ['Breakable', 'Lze prolomit'],
+    failsOnImposter: ['Fails on Imposter', 'Selže při Imposter'],
 };
 
 export function AbilityDetails({ ability }: { ability: Ability }) {
+    const { t } = useLanguage();
     return (
-        <section className="species-section" aria-label="Ability details">
+        <section
+            className="species-section"
+            aria-label={t('Ability details', 'Podrobnosti schopnosti')}
+        >
             <div className="section-heading">
-                <p className="eyebrow">ROM ability #{String(ability.abilityId).padStart(3, '0')}</p>
+                <p className="eyebrow">
+                    {t('ROM ability', 'Schopnost v ROM')} #
+                    {String(ability.abilityId).padStart(3, '0')}
+                </p>
                 <h2>{ability.name}</h2>
             </div>
             <div className="p-5 sm:p-6">
                 <p className="text-sm leading-relaxed">
-                    {ability.description || 'No description recorded.'}
+                    {ability.description || t('No description recorded.', 'Popis není uveden.')}
                 </p>
                 {ability.abilityId === 0 && (
                     <p className="empty-note mt-3">
-                        Engine “None” entry. Empty species slots are recorded separately.
+                        {t(
+                            'Engine “None” entry. Empty species slots are recorded separately.',
+                            'Záznam „None“ herního enginu. Prázdné sloty druhů jsou vedeny samostatně.',
+                        )}
                     </p>
                 )}
                 <details className="rule-details mt-5">
-                    <summary>ROM mechanics</summary>
+                    <summary>{t('ROM mechanics', 'Mechaniky ROM')}</summary>
                     <dl className="rom-fields mt-3">
                         <div>
-                            <dt>Ability ID</dt>
+                            <dt>{t('Ability ID', 'ID schopnosti')}</dt>
                             <dd>{ability.abilityId}</dd>
                         </div>
                         <div>
-                            <dt>AI rating</dt>
+                            <dt>{t('AI rating', 'Hodnocení AI')}</dt>
                             <dd>{ability.aiRating}</dd>
                         </div>
                         {(Object.keys(flagLabels) as (keyof AbilityFlags)[]).map((key) => (
                             <div key={key}>
-                                <dt>{flagLabels[key]}</dt>
-                                <dd>{ability.flags[key] ? 'Yes' : 'No'}</dd>
+                                <dt>{t(...flagLabels[key])}</dt>
+                                <dd>{ability.flags[key] ? t('Yes', 'Ano') : t('No', 'Ne')}</dd>
                             </div>
                         ))}
                     </dl>
@@ -65,6 +76,7 @@ export function AbilitiesPage({
     abilityId: number | undefined;
     version: string;
 }) {
+    const { t, locale } = useLanguage();
     const [q, setQ] = useState('');
     const [page, setPage] = useState(1);
     const abilities = useQuery({
@@ -85,28 +97,33 @@ export function AbilitiesPage({
             <DexHeader
                 version={version}
                 {...(abilityId !== undefined
-                    ? { backHref: '#/abilities', backLabel: 'All abilities' }
+                    ? {
+                          backHref: '#/abilities',
+                          backLabel: t('All abilities', 'Všechny schopnosti'),
+                      }
                     : {})}
             />
             <main className="dex-browse-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
                 <div className="catalog-heading">
                     <div>
-                        <p className="eyebrow">Battle instincts</p>
+                        <p className="eyebrow">{t('Battle instincts', 'Bojové instinkty')}</p>
                         <h1>
                             {detail.data?.name ??
-                                (abilityId === undefined ? 'Abilities' : 'Ability details')}
+                                (abilityId === undefined
+                                    ? t('Abilities', 'Schopnosti')
+                                    : t('Ability details', 'Podrobnosti schopnosti'))}
                         </h1>
                     </div>
                 </div>
                 {abilityId === undefined && (
                     <div className="mb-5 grid gap-3 sm:grid-cols-1">
                         <label className="filter-label">
-                            Find an ability
+                            {t('Find an ability', 'Najít schopnost')}
                             <input
                                 className="filter-input"
                                 type="search"
                                 maxLength={100}
-                                placeholder="Name or ability ID"
+                                placeholder={t('Name or ability ID', 'Název nebo ID schopnosti')}
                                 value={q}
                                 onChange={(event) => {
                                     setQ(event.target.value);
@@ -119,7 +136,9 @@ export function AbilitiesPage({
                 {failed ? (
                     <section className="species-section p-6" role="alert">
                         <h2 className="text-xl font-semibold">
-                            {notFound ? 'Ability not found' : 'Couldn’t load abilities'}
+                            {notFound
+                                ? t('Ability not found', 'Schopnost nebyla nalezena')
+                                : t('Couldn’t load abilities', 'Schopnosti se nepodařilo načíst')}
                         </h2>
                         {!notFound && (
                             <button
@@ -128,18 +147,21 @@ export function AbilitiesPage({
                                     void active.refetch();
                                 }}
                             >
-                                Try again
+                                {t('Try again', 'Zkusit znovu')}
                             </button>
                         )}
                     </section>
                 ) : active.isPending ? (
-                    <p role="status">Loading abilities…</p>
+                    <p role="status">{t('Loading abilities…', 'Načítání schopností…')}</p>
                 ) : abilityId !== undefined && detail.data ? (
                     <AbilityDetails ability={detail.data} />
                 ) : (
                     <>
                         <p className="mb-4 text-sm text-stone-600" role="status">
-                            {abilities.data?.meta.total.toLocaleString('en-US')} matching abilities
+                            {t(
+                                `${abilities.data?.meta.total.toLocaleString(locale)} matching abilities`,
+                                `Nalezené schopnosti: ${abilities.data?.meta.total.toLocaleString(locale)}`,
+                            )}
                         </p>
                         <ul className="item-catalog">
                             {abilities.data?.data.map((ability) => (
@@ -160,7 +182,9 @@ export function AbilitiesPage({
                             ))}
                         </ul>
                         {abilities.data?.data.length === 0 && (
-                            <p className="empty-note">No matching abilities.</p>
+                            <p className="empty-note">
+                                {t('No matching abilities.', 'Žádné odpovídající schopnosti.')}
+                            </p>
                         )}
                         <div className="mt-5 flex items-center justify-between gap-3">
                             <button
@@ -168,17 +192,18 @@ export function AbilitiesPage({
                                 disabled={page === 1}
                                 onClick={() => setPage(page - 1)}
                             >
-                                Previous
+                                {t('Previous', 'Předchozí')}
                             </button>
                             <p className="text-xs text-stone-600">
-                                Page {page} of {Math.max(1, abilities.data?.meta.totalPages ?? 1)}
+                                {t('Page', 'Strana')} {page} {t('of', 'z')}{' '}
+                                {Math.max(1, abilities.data?.meta.totalPages ?? 1)}
                             </p>
                             <button
                                 className="page-button"
                                 disabled={page >= (abilities.data?.meta.totalPages ?? 0)}
                                 onClick={() => setPage(page + 1)}
                             >
-                                Next
+                                {t('Next', 'Další')}
                             </button>
                         </div>
                     </>

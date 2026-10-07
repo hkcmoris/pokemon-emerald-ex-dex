@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { apiUrl } from './apiUrl.js';
+import { useLanguage } from './language.js';
 
 export function spriteUrl(datasetId: string | undefined, file: string | null): string | null {
     if (!datasetId || !file) return null;
@@ -20,6 +21,7 @@ function SpriteImage({
     size: 64 | 128;
     loading: 'lazy' | 'eager';
 }) {
+    const { t } = useLanguage();
     const [failed, setFailed] = useState(false);
     return (
         <span className="species-sprite" style={{ width: size, height: size }}>
@@ -34,7 +36,11 @@ function SpriteImage({
                     onError={() => setFailed(true)}
                 />
             ) : (
-                <span className="sprite-placeholder" role="img" aria-label={`${alt} unavailable`}>
+                <span
+                    className="sprite-placeholder"
+                    role="img"
+                    aria-label={t(`${alt} unavailable`, `${alt} není k dispozici`)}
+                >
                     —
                 </span>
             )}
@@ -57,12 +63,16 @@ export function SpeciesSprite({
     size?: 64 | 128;
     loading?: 'lazy' | 'eager';
 }) {
+    const { t } = useLanguage();
     const src = spriteUrl(datasetId, file);
     return (
         <SpriteImage
             key={src}
             src={src}
-            alt={`${name} ${shiny ? 'shiny' : 'standard'} front sprite`}
+            alt={t(
+                `${name} ${shiny ? 'shiny' : 'standard'} front sprite`,
+                `Přední obrázek ${name} (${shiny ? 'shiny' : 'běžná varianta'})`,
+            )}
             size={size}
             loading={loading}
         />
