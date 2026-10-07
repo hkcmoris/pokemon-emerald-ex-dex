@@ -1,0 +1,123 @@
+import { statLabels, type DexSort, type Pokemon } from './dex.js';
+import { speciesHref } from './navigation.js';
+import { SpeciesSprite } from './SpeciesSprite.js';
+import { TypeBadges } from './TypeBadges.js';
+import { typeSurfaceStyle } from './theme.js';
+
+interface PokemonResultsProps {
+    entries: readonly Pokemon[];
+    datasetId: string | undefined;
+    sort: DexSort;
+}
+
+export function PokemonResults({ entries, datasetId, sort }: PokemonResultsProps) {
+    return (
+        <>
+            <ul className="pokemon-mobile-list" aria-label="Pokémon results">
+                {entries.map((entry) => (
+                    <li key={entry.speciesId}>
+                        <a
+                            className="pokemon-card type-surface"
+                            href={speciesHref(entry.speciesId)}
+                            style={typeSurfaceStyle(entry.types)}
+                        >
+                            <span className="pokemon-card-sprite">
+                                <SpeciesSprite
+                                    datasetId={datasetId}
+                                    file={entry.sprites?.front ?? null}
+                                    name={entry.name}
+                                />
+                            </span>
+                            <span className="pokemon-card-info">
+                                <span className="pokemon-card-id">
+                                    #{String(entry.speciesId).padStart(4, '0')}
+                                </span>
+                                <span className="pokemon-card-name">{entry.name}</span>
+                                <TypeBadges types={entry.types} iconFiles={entry.typeIconFiles} />
+                            </span>
+                            {(sort === 'total' || sort === 'speed') && (
+                                <span className="pokemon-card-stat">
+                                    <strong>
+                                        {sort === 'total' ? entry.baseStatTotal : entry.stats.speed}
+                                    </strong>
+                                    <span>{sort === 'total' ? 'BST' : 'Speed'}</span>
+                                </span>
+                            )}
+                            <svg
+                                className="pokemon-card-chevron"
+                                viewBox="0 0 24 24"
+                                width="16"
+                                height="16"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                aria-hidden="true"
+                            >
+                                <path d="m9 6 6 6-6 6" />
+                            </svg>
+                        </a>
+                    </li>
+                ))}
+            </ul>
+            <div className="pokemon-desktop-table overflow-x-auto">
+                <table className="w-full text-sm">
+                    <caption className="sr-only">
+                        Pokémon types and base stats. Select a name to view details.
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Pokémon / Types</th>
+                            {statLabels.map(({ key, label, short }) => (
+                                <th scope="col" className="text-right" key={key}>
+                                    <abbr title={label}>{short}</abbr>
+                                </th>
+                            ))}
+                            <th scope="col" className="text-right">
+                                Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {entries.map((entry) => (
+                            <tr key={entry.speciesId}>
+                                <td className="font-mono text-xs text-stone-500">
+                                    {String(entry.speciesId).padStart(4, '0')}
+                                </td>
+                                <th scope="row" className="text-left">
+                                    <div className="flex items-center gap-3">
+                                        <SpeciesSprite
+                                            datasetId={datasetId}
+                                            file={entry.sprites?.front ?? null}
+                                            name={entry.name}
+                                        />
+                                        <div>
+                                            <a
+                                                className="pokemon-name"
+                                                href={speciesHref(entry.speciesId)}
+                                            >
+                                                {entry.name}
+                                            </a>
+                                            <TypeBadges
+                                                types={entry.types}
+                                                iconFiles={entry.typeIconFiles}
+                                            />
+                                        </div>
+                                    </div>
+                                </th>
+                                {statLabels.map(({ key }) => (
+                                    <td className="text-right tabular-nums" key={key}>
+                                        {entry.stats[key]}
+                                    </td>
+                                ))}
+                                <td className="text-right font-semibold tabular-nums">
+                                    {entry.baseStatTotal}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </>
+    );
+}

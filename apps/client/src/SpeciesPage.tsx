@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { LearnsetEntry, Pokemon, SpeciesMachine } from '@pokemon-emerald-ex-dex/shared';
 
@@ -10,8 +10,11 @@ import { formDisplayName } from './forms.js';
 import { DexFooter } from './DexFooter.js';
 import { statLabels } from './dex.js';
 import { TypeBadges } from './TypeBadges.js';
-import { SpeciesSprite } from './SpeciesSprite.js';
 import { MoveCategory } from './MoveCategory.js';
+import { SpeciesDetailHeader } from './SpeciesDetailHeader.js';
+import { DexHeader } from './DexHeader.js';
+import { DexNavigation } from './DexNavigation.js';
+import { speciesHref } from './navigation.js';
 
 type SpeciesMove = LearnsetEntry | SpeciesMachine;
 
@@ -150,51 +153,60 @@ function MoveTable({
 function StatsPanel({ entry, version }: { entry: Pokemon; version: string }) {
     return (
         <aside className="detail-panel" aria-labelledby="stats-title">
-            <p className="eyebrow">Base stats</p>
-            <div className="stat-total mt-5 flex items-end justify-between border-b pb-5">
-                <h2 id="stats-title" className="text-sm font-medium">
-                    Base stat total
+            <div className="stat-total flex items-center justify-between gap-3 border-b pb-4">
+                <h2 id="stats-title" className="text-lg font-semibold">
+                    Base stats
                 </h2>
-                <span className="text-5xl tracking-tight tabular-nums">{entry.baseStatTotal}</span>
-            </div>
-            <dl className="mt-6 grid gap-4">
-                {statLabels.map(({ key, label }) => (
-                    <div key={key}>
-                        <div className="mb-1.5 flex justify-between text-sm">
-                            <dt>{label}</dt>
-                            <dd className="font-semibold tabular-nums">{entry.stats[key]}</dd>
-                        </div>
-                        <div className="stat-track" aria-hidden="true">
-                            <div
-                                className="stat-fill"
-                                style={{ width: `${(entry.stats[key] / 255) * 100}%` }}
-                            />
-                        </div>
-                    </div>
-                ))}
-            </dl>
-            <p className="mt-7 text-xs leading-relaxed text-stone-600">
-                Emerald EX {version} base stats. Bars use a 0–255 scale. These are not calculated
-                battle stats.
-            </p>
-            <dl className="rom-fields mt-6 border-t border-stone-300 pt-5">
-                <div>
-                    <dt>Species / form ID</dt>
-                    <dd>{entry.speciesId}</dd>
+                <div className="text-right">
+                    <span className="text-2xl font-semibold tabular-nums">
+                        {entry.baseStatTotal}
+                    </span>
+                    <span className="ml-2 text-xs text-stone-600">total</span>
                 </div>
-                {entry.types.map((type, index) => (
-                    <div key={type}>
-                        <dt>{index === 0 ? 'Primary' : 'Secondary'} type</dt>
-                        <dd className="flex items-center gap-2">
-                            <TypeBadges
-                                types={[type]}
-                                iconFiles={[entry.typeIconFiles[index] ?? null]}
-                            />
-                            <span>ID {entry.typeIds[index]}</span>
+            </div>
+            <dl className="stat-list mt-4 grid gap-3">
+                {statLabels.map(({ key, label }) => (
+                    <div key={key} className="stat-row">
+                        <dt>{label}</dt>
+                        <dd className="stat-measure">
+                            <span className="font-mono font-semibold tabular-nums">
+                                {entry.stats[key]}
+                            </span>
+                            <div className="stat-track" aria-hidden="true">
+                                <div
+                                    className="stat-fill"
+                                    style={{ width: `${(entry.stats[key] / 255) * 100}%` }}
+                                />
+                            </div>
                         </dd>
                     </div>
                 ))}
             </dl>
+            <p className="mt-4 text-xs leading-relaxed text-stone-600">
+                Emerald EX {version} base stats. Bars use a 0–255 scale. These are not calculated
+                battle stats.
+            </p>
+            <details className="rule-details mt-4 border-t border-stone-300 pt-4">
+                <summary>Species data</summary>
+                <dl className="rom-fields mt-3">
+                    <div>
+                        <dt>Species / form ID</dt>
+                        <dd>{entry.speciesId}</dd>
+                    </div>
+                    {entry.types.map((type, index) => (
+                        <div key={type}>
+                            <dt>{index === 0 ? 'Primary' : 'Secondary'} type</dt>
+                            <dd className="flex items-center gap-2">
+                                <TypeBadges
+                                    types={[type]}
+                                    iconFiles={[entry.typeIconFiles[index] ?? null]}
+                                />
+                                <span>ID {entry.typeIds[index]}</span>
+                            </dd>
+                        </div>
+                    ))}
+                </dl>
+            </details>
         </aside>
     );
 }
@@ -209,6 +221,7 @@ export function SpeciesPage({
     datasetId: string | undefined;
 }) {
     const heading = useRef<HTMLHeadingElement>(null);
+    const [shiny, setShiny] = useState(false);
     const details = useQuery({
         queryKey: ['species-details', speciesId],
         queryFn: ({ signal }) => fetchSpeciesDetails(speciesId, signal),
@@ -217,7 +230,7 @@ export function SpeciesPage({
     });
     useEffect(() => {
         if (details.isSuccess) heading.current?.focus();
-    }, [details.isSuccess]);
+    }, [details.isSuccess, speciesId]);
     const entry = details.data;
     const evolutionBase = entry?.forms?.members.find(
         (member) => member.speciesId === entry.evolutionBaseSpeciesId,
@@ -228,80 +241,25 @@ export function SpeciesPage({
 
     return (
         <div className="min-h-screen">
-            <header className="dex-header">
-                <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-                    <div className="flex items-center justify-between gap-4">
-                        <a href="#/" className="back-link">
-                            ← Back to dex
-                        </a>
-                        <span className="version-tag">EX / {version}</span>
-                    </div>
-                    <div className="mt-8 grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto]">
-                        <div>
-                            <p className="eyebrow">
-                                Species / form {String(speciesId).padStart(4, '0')}
-                            </p>
-                            <h1
-                                ref={heading}
-                                tabIndex={-1}
-                                className="mt-3 text-4xl font-semibold tracking-tight sm:text-6xl"
-                            >
-                                {(entry
-                                    ? formDisplayName(entry.name, entry.formInfo)
-                                    : undefined) ??
-                                    (missing ? 'Species not found' : 'Species details')}
-                            </h1>
-                            {entry && (
-                                <div className="mt-5">
-                                    <TypeBadges
-                                        types={entry.types}
-                                        iconFiles={entry.typeIconFiles}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                        {entry && (
-                            <div>
-                                <div className="species-portraits">
-                                    <figure>
-                                        <SpeciesSprite
-                                            datasetId={datasetId}
-                                            file={entry.sprites?.front ?? null}
-                                            name={formDisplayName(entry.name, entry.formInfo)}
-                                            size={128}
-                                            loading="eager"
-                                        />
-                                        <figcaption>Standard</figcaption>
-                                    </figure>
-                                    <figure>
-                                        <SpeciesSprite
-                                            datasetId={datasetId}
-                                            file={entry.sprites?.shinyFront ?? null}
-                                            name={formDisplayName(entry.name, entry.formInfo)}
-                                            size={128}
-                                            shiny
-                                            loading="eager"
-                                        />
-                                        <figcaption>Shiny</figcaption>
-                                    </figure>
-                                </div>
-                                {(!entry.sprites?.front || !entry.sprites.shinyFront) && (
-                                    <p className="mt-3 max-w-xs text-xs text-emerald-100/80">
-                                        {entry.sprites?.missingReason ??
-                                            'Sprites have not been imported for this species.'}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </header>
-            <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
-                <nav className="dex-navigation mb-5" aria-label="Dex sections">
-                    <a href="#/">Pokémon</a>
-                    <a href="#/items">Items</a>
-                    <a href="#/abilities">Abilities</a>
-                </nav>
+            <DexHeader version={version} backHref="#/" backLabel="All Pokémon" />
+            <main className="detail-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
+                <DexNavigation active="pokemon" />
+                {entry ? (
+                    <SpeciesDetailHeader
+                        entry={entry}
+                        datasetId={datasetId}
+                        headingRef={heading}
+                        shiny={shiny}
+                        onShinyChange={setShiny}
+                        onFormChange={(id) => {
+                            window.location.hash = speciesHref(id);
+                        }}
+                    />
+                ) : (
+                    <h1 className="mb-5 text-2xl font-semibold">
+                        {missing ? 'Species not found' : 'Species details'}
+                    </h1>
+                )}
                 {details.isPending ? (
                     <div className="dex-list px-6 py-16 text-center" role="status">
                         Loading species details…
@@ -329,7 +287,7 @@ export function SpeciesPage({
                     </div>
                 ) : (
                     entry && (
-                        <div className="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+                        <div className="detail-content grid items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
                             <StatsPanel entry={entry} version={version} />
                             <div className="min-w-0 space-y-6">
                                 <AbilitiesSection slots={entry.abilities} />

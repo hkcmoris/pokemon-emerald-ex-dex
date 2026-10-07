@@ -4,6 +4,8 @@ import type { Item } from '@pokemon-emerald-ex-dex/shared';
 
 import { ApiRequestError, fetchItem, fetchItemPockets, fetchItems } from './api.js';
 import { DexFooter } from './DexFooter.js';
+import { DexHeader } from './DexHeader.js';
+import { DexNavigation } from './DexNavigation.js';
 import { ItemIcon } from './ItemIcon.js';
 import { itemHref } from './navigation.js';
 
@@ -77,30 +79,19 @@ export function ItemsPage({ itemId, version }: { itemId: number | undefined; ver
     const notFound = detail.error instanceof ApiRequestError && detail.error.status === 404;
     return (
         <div className="min-h-screen">
-            <header className="dex-header">
-                <div className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
-                    <div className="flex items-center justify-between gap-3">
-                        <a
-                            className="text-sm text-emerald-100"
-                            href={itemId === undefined ? '#/' : '#/items'}
-                        >
-                            ← {itemId === undefined ? 'Back to dex' : 'All items'}
-                        </a>
-                        <span className="version-tag">EX / {version}</span>
+            <DexHeader
+                version={version}
+                {...(itemId !== undefined ? { backHref: '#/items', backLabel: 'All items' } : {})}
+            />
+            <main className="dex-browse-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
+                <div className="catalog-heading">
+                    <div>
+                        <p className="eyebrow">Trainer essentials</p>
+                        <h1>
+                            {detail.data?.name ?? (itemId === undefined ? 'Items' : 'Item details')}
+                        </h1>
                     </div>
-                    <h1 className="mt-4 text-2xl font-semibold tracking-tight sm:text-4xl">
-                        {detail.data?.name ?? (itemId === undefined ? 'Items' : 'Item details')}
-                    </h1>
                 </div>
-            </header>
-            <main className="mx-auto max-w-7xl px-3 py-3 sm:px-8 sm:py-8">
-                <nav className="dex-navigation mb-5" aria-label="Dex sections">
-                    <a href="#/">Pokémon</a>
-                    <a href="#/items" aria-current={itemId === undefined ? 'page' : undefined}>
-                        Items
-                    </a>
-                    <a href="#/abilities">Abilities</a>
-                </nav>
                 {itemId === undefined && (
                     <div className="mb-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_210px]">
                         <label className="filter-label">
@@ -211,6 +202,7 @@ export function ItemsPage({ itemId, version }: { itemId: number | undefined; ver
                 )}
                 <DexFooter context="items" />
             </main>
+            <DexNavigation active="items" />
         </div>
     );
 }

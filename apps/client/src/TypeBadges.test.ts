@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import { TypeBadges } from './TypeBadges.js';
 
-void test('type icons follow SQL filenames and slot order, retaining accessible names and missing-icon labels', () => {
+void test('types retain visible names beside decorative SQL-backed icons and without an icon', () => {
     const markup = renderToStaticMarkup(
         createElement(TypeBadges, {
             types: ['Electric', 'Dark', 'Mystery'],
@@ -13,9 +13,10 @@ void test('type icons follow SQL filenames and slot order, retaining accessible 
         }),
     );
     match(markup, /src="\/api\/icons\/types\/new%20lightning%20%26%20v2.png"/);
-    match(markup, /alt="Electric" title="Electric"/);
+    match(markup, /alt=""/);
     match(markup, /src="\/api\/icons\/types\/48px-Darkness.png"/);
-    match(markup, /alt="Dark" title="Dark"/);
-    doesNotMatch(markup, />Electric<|>Dark</);
-    match(markup, /data-type="Mystery">Mystery<\/span>/);
+    match(markup, />Electric<\/span>/);
+    match(markup, />Dark<\/span>/);
+    match(markup, /data-type="Mystery"><span class="type-badge-label">Mystery<\/span>/);
+    doesNotMatch(markup, /alt="Electric"|alt="Dark"|alt="Mystery"/);
 });

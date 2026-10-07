@@ -4,6 +4,8 @@ import type { Ability, AbilityFlags } from '@pokemon-emerald-ex-dex/shared';
 
 import { ApiRequestError, fetchAbility, fetchAbilities } from './api.js';
 import { DexFooter } from './DexFooter.js';
+import { DexHeader } from './DexHeader.js';
+import { DexNavigation } from './DexNavigation.js';
 import { abilityHref } from './navigation.js';
 
 const flagLabels: Readonly<Record<keyof AbilityFlags, string>> = {
@@ -80,34 +82,22 @@ export function AbilitiesPage({
     const notFound = detail.error instanceof ApiRequestError && detail.error.status === 404;
     return (
         <div className="min-h-screen">
-            <header className="dex-header">
-                <div className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
-                    <div className="flex items-center justify-between gap-3">
-                        <a
-                            className="text-sm text-emerald-100"
-                            href={abilityId === undefined ? '#/' : '#/abilities'}
-                        >
-                            ← {abilityId === undefined ? 'Back to dex' : 'All abilities'}
-                        </a>
-                        <span className="version-tag">EX / {version}</span>
+            <DexHeader
+                version={version}
+                {...(abilityId !== undefined
+                    ? { backHref: '#/abilities', backLabel: 'All abilities' }
+                    : {})}
+            />
+            <main className="dex-browse-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
+                <div className="catalog-heading">
+                    <div>
+                        <p className="eyebrow">Battle instincts</p>
+                        <h1>
+                            {detail.data?.name ??
+                                (abilityId === undefined ? 'Abilities' : 'Ability details')}
+                        </h1>
                     </div>
-                    <h1 className="mt-4 text-2xl font-semibold tracking-tight sm:text-4xl">
-                        {detail.data?.name ??
-                            (abilityId === undefined ? 'Abilities' : 'Ability details')}
-                    </h1>
                 </div>
-            </header>
-            <main className="mx-auto max-w-7xl px-3 py-3 sm:px-8 sm:py-8">
-                <nav className="dex-navigation mb-5" aria-label="Dex sections">
-                    <a href="#/">Pokémon</a>
-                    <a
-                        href="#/abilities"
-                        aria-current={abilityId === undefined ? 'page' : undefined}
-                    >
-                        Abilities
-                    </a>
-                    <a href="#/items">Items</a>
-                </nav>
                 {abilityId === undefined && (
                     <div className="mb-5 grid gap-3 sm:grid-cols-1">
                         <label className="filter-label">
@@ -195,6 +185,7 @@ export function AbilitiesPage({
                 )}
                 <DexFooter context="abilities" />
             </main>
+            <DexNavigation active="abilities" />
         </div>
     );
 }

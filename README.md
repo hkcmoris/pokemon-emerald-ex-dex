@@ -18,10 +18,18 @@ Mega, Gigantamax, Primal and Ultra Burst forms display their base species' norma
 evolution family without treating form changes as evolution edges. ROM names remain
 unchanged in SQL and the API. Existing databases need `011_forms.sql`, followed by
 `012_import_forms_1.0.4.sql`; see [the forms upgrade](docs/database.md#upgrade-an-already-imported-database-with-forms).
-The list shows each species' standard front sprite; detail pages show standard and
-shiny front sprites. The four forms without exported sprites show placeholders.
-On mobile, a compact header and side-by-side type/sort filters leave room for the
-initial species rows without scrolling.
+The list shows each species' standard front sprite. Detail pages pair a crisp sprite
+with the species name and labeled types. Standard/Shiny changes the appearance; a
+separate form selector navigates actual form IDs and keeps the appearance preference.
+The four forms without exported sprites show placeholders. Compact base-stat bars
+sit above abilities on phones.
+On mobile, the Emerald theme puts search above sprite-led Pokémon rows, with the
+current comparison value shown for total/speed sorting. Desktop retains the dense
+base-stat table. The HeroUI v3 filter sheet offers one type at a time and a sort
+order while retaining the visible results during updates. Remove the selected type
+chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.
+Labeled bottom navigation links Pokémon, Items, and Abilities. A theme control switches
+between dark emerald and light mineral surfaces and remembers the choice locally.
 Expand move names for descriptions and full move data, or evolution rules for their
 conditions and ROM identifiers. Move categories show Physical, Special, and Status
 icons alongside their labels in both level-up and TM/HM tables. Category icon filenames
@@ -29,8 +37,8 @@ come from `emerald_ex_move_categories.icon_file`; the API serves the PNGs from
 `assets/move-categories/`. Import `007_move_category_icons.sql`, then
 `008_seed_move_category_icons.sql` to upgrade an existing database. See
 [how to replace category icons](docs/database.md#update-move-category-icons).
-Types display SQL-backed icons on species and move tables, with type names available
-as accessible labels and hover titles. Missing icons retain text labels. Import
+Types display SQL-backed icons with visible type names in browsing, filtering,
+species details, and move tables. Missing icons retain text labels. Import
 `009_type_icons.sql`, then `010_seed_type_icons.sql` for an existing database and
 deploy `assets/types/` alongside the backend. See
 [how to replace type icons](docs/database.md#update-type-icons).
@@ -211,3 +219,17 @@ descriptions and mechanics. For an existing database, import
 `scripts/sql/015_abilities.sql`, then `016_import_abilities_1.0.4.sql` before deploying
 updated client/PHP files. See [database preparation](docs/database.md) and
 [Webzdarma deployment](docs/webzdarma.md).
+
+## Emerald UI design
+
+The interface uses HeroUI v3 Button and Drawer primitives for accessible controls,
+keyboard handling, focus management, and scroll locking. Emerald theme variables
+live in `apps/client/src/style.css`. DM Sans is bundled locally; its OFL license is
+included in `apps/client/src/fonts/OFL.txt`.
+
+- [HeroUI v3 kit copy](https://www.figma.com/design/AVTCKXvpIEiaXA0aa75Qme/HeroUI-Figma-Kit-V3--Community---Copy-)
+- [Emerald mobile design draft](https://www.figma.com/design/4YSDZFFh72vPI68B0aScks?node-id=5-2)
+
+The React implementation is verified. The Figma draft uses editable custom components;
+linking its controls to the supplied kit and completing supplementary light-mode and
+long-name layout fixes are pending because the Figma Starter MCP call limit was reached.

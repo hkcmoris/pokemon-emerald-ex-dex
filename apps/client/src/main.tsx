@@ -3,7 +3,10 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { App } from './App.js';
+import { applyTheme, readTheme } from './theme.js';
 import './style.css';
+
+applyTheme(readTheme());
 
 const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: false } },
