@@ -34,6 +34,11 @@ final class DexRepository
         FROM emerald_ex_items AS i JOIN emerald_ex_item_pockets AS p
             ON p.dataset_id = i.dataset_id AND p.pocket_id = i.pocket_id';
 
+    private const ABILITY_FIELDS = 'a.ability_id AS abilityId, a.name, a.description, a.ai_rating AS aiRating,
+        a.cant_be_copied AS cantBeCopied, a.cant_be_swapped AS cantBeSwapped,
+        a.cant_be_traced AS cantBeTraced, a.cant_be_suppressed AS cantBeSuppressed,
+        a.cant_be_overwritten AS cantBeOverwritten, a.breakable, a.fails_on_imposter AS failsOnImposter';
+
     private const SORT_SQL = [
         'id' => 's.species_id ASC',
         'name' => 's.name ASC, s.species_id ASC',
@@ -42,6 +47,7 @@ final class DexRepository
     ];
 
     private const NUMERIC_FIELDS = [
+        'abilityId', 'aiRating',
         'speciesId', 'speciesFormCount', 'total', 'hp', 'attack', 'defense', 'spAttack',
         'spDefense', 'speed', 'baseStatTotal', 'typeId', 'slot', 'frontFrameCount',
         'moveId', 'categoryId', 'power', 'accuracy', 'pp', 'priority', 'effectId', 'targetId',
@@ -138,7 +144,7 @@ final class DexRepository
         }
         $formInfo = $this->getFormInfo($id);
         $evolutionBase = $this->getEvolutionBaseSpeciesId($id);
-        return [...$species, 'learnset' => $this->getLearnset($id),
+        return [...$species, 'abilities' => $this->getSpeciesAbilities($id), 'learnset' => $this->getLearnset($id),
             'machines' => $this->getMachineMoves($id), 'evolutionLinks' => $this->getEvolutionLinks([$id], false),
             'formInfo' => $formInfo, 'forms' => $this->getFormGroup($formInfo),
             'formChanges' => $this->getFormChanges([$id], false),
@@ -370,6 +376,46 @@ final class DexRepository
             $row['notConsumed'] = (bool) $row['notConsumed'];
         }
         return $rows;
+    }
+
+    private static function parseAbility(array $row): array
+    {
+        $flags = [];
+        foreach (['cantBeCopied', 'cantBeSwapped', 'cantBeTraced', 'cantBeSuppressed', 'cantBeOverwritten', 'breakable', 'failsOnImposter'] as $key) {
+            $flags[$key] = (bool) $row[$key];
+        }
+        return ['abilityId' => $row['abilityId'], 'name' => $row['name'], 'description' => $row['description'],
+            'aiRating' => $row['aiRating'], 'flags' => $flags];
+    }
+
+    public function getAbility(int $id): ?array
+    {
+        $row = $this->query('SELECT ' . self::ABILITY_FIELDS . ' FROM emerald_ex_abilities AS a WHERE a.dataset_id = ? AND a.ability_id = ?', [$this->datasetId, $id])[0] ?? null;
+        return $row === null ? null : self::parseAbility($row);
+    }
+
+    public function listAbilities(string $q, int $page, int $pageSize): array
+    {
+        $where = 'WHERE a.dataset_id = ?';
+        $parameters = [$this->datasetId];
+        if ($q !== '') {
+            $where .= " AND (LOWER(a.name) LIKE ? ESCAPE '!' OR a.ability_id = ?)";
+            $id = preg_match('/^#?\d+$/D', $q) ? (float) ltrim($q, '#') : -1;
+            array_push($parameters, self::searchPattern($q), $id <= 65535 ? (int) $id : -1);
+        }
+        $total = $this->query('SELECT COUNT(*) AS total FROM emerald_ex_abilities AS a ' . $where, $parameters)[0]['total'];
+        $rows = $this->query('SELECT ' . self::ABILITY_FIELDS . ' FROM emerald_ex_abilities AS a ' . $where . ' ORDER BY a.ability_id LIMIT ? OFFSET ?', [...$parameters, $pageSize, ($page - 1) * $pageSize]);
+        return self::pageResponse(array_map(self::parseAbility(...), $rows), $total, $page, $pageSize);
+    }
+
+    public function getSpeciesAbilities(int $id): array
+    {
+        $rows = $this->query('SELECT sa.slot, sa.kind, ' . self::ABILITY_FIELDS . '
+            FROM emerald_ex_species_abilities AS sa LEFT JOIN emerald_ex_abilities AS a
+                ON a.dataset_id = sa.dataset_id AND a.ability_id = sa.ability_id
+            WHERE sa.dataset_id = ? AND sa.species_id = ? ORDER BY sa.slot', [$this->datasetId, $id]);
+        return array_map(static fn(array $row): array => ['slot' => $row['slot'], 'kind' => $row['kind'],
+            'ability' => $row['abilityId'] === null ? null : self::parseAbility($row)], $rows);
     }
 
     public function getItemPockets(): array

@@ -10,6 +10,7 @@ export const sourceKinds = [
     'battle_sprites',
     'forms',
     'items',
+    'abilities',
 ] as const;
 export type SourceKind = (typeof sourceKinds)[number];
 export const sourceFileNames: Record<SourceKind, string> = {
@@ -20,6 +21,7 @@ export const sourceFileNames: Record<SourceKind, string> = {
     battle_sprites: 'pokemon_emerald_ex_1.0.4_battle_sprites/sprite_manifest.json',
     forms: 'pokemon_emerald_ex_1.0.4_forms.json',
     items: 'pokemon_emerald_ex_1.0.4_items.json',
+    abilities: 'pokemon_emerald_ex_1.0.4_abilities.json',
 };
 
 export function sourceFilePath(kind: SourceKind): string {
@@ -120,6 +122,7 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
     spritesSql: string;
     formsSql: string;
     itemsSql: string;
+    abilitiesSql: string;
     counts: Record<string, number>;
     datasetId: string;
 } {
@@ -211,6 +214,7 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
         'tm_hm_compatibility',
         'battle_sprites',
         'forms',
+        'abilities',
     ] as const) {
         const entries = records(documents[kind].species);
         const names = indexNames(entries, 'speciesId');
@@ -811,6 +815,110 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
         ),
     );
 
+    const abilityDocument = documents.abilities;
+    const abilityMetadata = record(abilityDocument.metadata);
+    const abilityEntries = records(abilityDocument.abilities);
+    const abilityNames = indexNames(abilityEntries, 'abilityId');
+    assert(
+        abilityMetadata.abilityCount === 311 &&
+            abilityEntries.length === 311 &&
+            [...abilityNames.keys()].every((id) => id <= 310),
+        'Ability count/IDs mismatch',
+    );
+    assert(
+        abilityMetadata.speciesFormCount === 1523 && speciesNames.size === 1523,
+        'Ability species count mismatch',
+    );
+    const flagFields = [
+        ['cantBeCopied', 'cant_be_copied'],
+        ['cantBeSwapped', 'cant_be_swapped'],
+        ['cantBeTraced', 'cant_be_traced'],
+        ['cantBeSuppressed', 'cant_be_suppressed'],
+        ['cantBeOverwritten', 'cant_be_overwritten'],
+        ['breakable', 'breakable'],
+        ['failsOnImposter', 'fails_on_imposter'],
+    ] as const;
+    const abilitiesById = new Map(abilityEntries.map((entry) => [integer(entry.abilityId), entry]));
+    const abilityRows = abilityEntries.map((entry) => {
+        const flags = record(entry.flags);
+        assert(Object.keys(flags).length === flagFields.length, 'Ability flags mismatch');
+        return [
+            integer(entry.abilityId),
+            text(entry.name),
+            text(entry.description),
+            integer(entry.aiRating, -128, 127),
+            ...flagFields.map(([key]) => boolean(flags[key])),
+        ];
+    });
+    const usedAbilities = new Set<number>();
+    const slotRows = records(abilityDocument.species).flatMap((species) => {
+        const id = integer(species.speciesId, 1);
+        const slots = records(species.slots);
+        assert(
+            slots.length === 3 && new Set(slots.map((slot) => slot.slot)).size === 3,
+            `Ability slots mismatch: ${id}`,
+        );
+        return slots.map((slot) => {
+            const position = integer(slot.slot, 1, 3);
+            assert(
+                slot.kind === (position === 3 ? 'hidden' : 'normal'),
+                `Ability slot kind mismatch: ${id}`,
+            );
+            const alias = species[['ability1', 'ability2', 'hiddenAbility'][position - 1]];
+            const value = slot.ability;
+            assert((alias === null) === (value === null), `Ability slot alias mismatch: ${id}`);
+            let abilityId: number | null = null;
+            if (value !== null) {
+                const ability = record(value);
+                const aliasAbility = record(alias);
+                abilityId = integer(ability.abilityId, 1, 310);
+                const definition = abilitiesById.get(abilityId);
+                assert(definition !== undefined, `Unknown species ability: ${abilityId}`);
+                for (const key of ['abilityId', 'name', 'description']) {
+                    assert(
+                        ability[key] === definition[key] && aliasAbility[key] === ability[key],
+                        `Ability slot/definition mismatch: ${id}/${position}/${key}`,
+                    );
+                }
+                usedAbilities.add(abilityId);
+            }
+            return [id, position, text(slot.kind), abilityId];
+        });
+    });
+    assert(
+        usedAbilities.size === 310 && abilityMetadata.distinctAbilitiesUsedBySpecies === 310,
+        'Distinct species ability count mismatch',
+    );
+    for (const change of changes) {
+        for (const value of Object.values(record(change.details))) {
+            if (
+                typeof value === 'object' &&
+                value !== null &&
+                !Array.isArray(value) &&
+                Object.hasOwn(value, 'abilityId')
+            ) {
+                assert(
+                    abilityNames.has(integer(record(value).abilityId, 1)),
+                    'Unknown form change ability',
+                );
+            }
+        }
+    }
+    const abilityTables = [
+        add(
+            'abilities',
+            [
+                'ability_id',
+                'name',
+                'description',
+                'ai_rating',
+                ...flagFields.map(([, column]) => column),
+            ],
+            abilityRows,
+        ),
+        add('species_abilities', ['species_id', 'slot', 'kind', 'ability_id'], slotRows),
+    ];
+
     const counts = Object.fromEntries(tables.map((table) => [table.name, table.rows.length]));
     assert(
         counts[`${tablePrefix}learnset_entries`] === record(learnsets.metadata).levelUpEntryCount,
@@ -926,11 +1034,35 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
         'SET SESSION sql_mode = @dex_previous_sql_mode;',
         '',
     ];
+    const abilitiesLines = [
+        '-- Generated by npm run db:generate-import. Run 015_abilities.sql first in your existing database.',
+        '-- Imports ability definitions and all three slots per species. Other dex data is preserved.',
+        'SET NAMES utf8mb4;',
+        'SET @dex_previous_sql_mode = @@SESSION.sql_mode;',
+        "SET SESSION sql_mode = 'STRICT_ALL_TABLES,NO_BACKSLASH_ESCAPES,NO_ENGINE_SUBSTITUTION';",
+        'START TRANSACTION;',
+        `SELECT dataset_id FROM ${tablePrefix}datasets WHERE dataset_id = ${sqlLiteral(datasetId)} FOR UPDATE;`,
+        ...[...abilityTables]
+            .reverse()
+            .map(
+                (table) => `DELETE FROM ${table.name} WHERE dataset_id = ${sqlLiteral(datasetId)};`,
+            ),
+        `DELETE FROM ${sourceTable.name} WHERE dataset_id = ${sqlLiteral(datasetId)} AND source_kind = 'abilities';`,
+        ...insertStatements({
+            ...sourceTable,
+            rows: sourceTable.rows.filter((row) => row[1] === 'abilities'),
+        }),
+        ...abilityTables.flatMap(insertStatements),
+        '\nCOMMIT;',
+        'SET SESSION sql_mode = @dex_previous_sql_mode;',
+        '',
+    ];
     return {
         sql: lines.join('\n'),
         spritesSql: spritesLines.join('\n'),
         formsSql: formsLines.join('\n'),
         itemsSql: itemsLines.join('\n'),
+        abilitiesSql: abilitiesLines.join('\n'),
         counts,
         datasetId,
     };

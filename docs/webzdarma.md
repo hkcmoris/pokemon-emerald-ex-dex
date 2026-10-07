@@ -188,7 +188,6 @@ For later updates, rebuild and upload the generated contents. Keep the remote
 `api/private/config.local.php`; it is excluded from generated bundles, so a normal
 overwrite upload preserves it. Confirm FileZilla finishes all transfers.
 
-
 ## Item catalog release
 
 Select your existing production database in phpMyAdmin. Forms upgrades `011`/`012`
@@ -208,3 +207,19 @@ Check `/pokemon-emerald-ex-dex/api/v1/items/300` for Gengarite and its DB filena
 appears in the separate form panel. Editing `emerald_ex_items.icon_file` changes the
 icon without rebuilding the frontend; allow for the one-day image cache if replacing
 bytes under the same filename.
+
+## Deploy the abilities update
+
+Before uploading this release, select the existing shared production database in
+phpMyAdmin and import `scripts/sql/015_abilities.sql`, then
+`scripts/sql/016_import_abilities_1.0.4.sql`. Use the same order in the local database.
+The scripts add ability data without replacing other dex data. Grant SELECT on the
+new tables if the API account uses individual table grants. Do not run the full
+replacement import `002` for this upgrade.
+
+Run `npm run build:webzdarma`, upload the contents of `dist/webzdarma/` into
+`/pokemon-emerald-ex-dex/`, and preserve `api/private/config.local.php`. Both the
+client assets and PHP API files must be updated. Verify
+`/pokemon-emerald-ex-dex/api/v1/abilities/23` and
+`/pokemon-emerald-ex-dex/api/v1/species/914/abilities`, then open Mega Gengar's
+Abilities section and the `#/abilities` catalog.

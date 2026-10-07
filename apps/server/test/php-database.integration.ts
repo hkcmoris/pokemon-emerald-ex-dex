@@ -46,13 +46,18 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
     );
     t.after(php.close);
     async function compare(path: string, status = 200): Promise<void> {
+        async function read(url: string, backend: string): Promise<unknown> {
+            const response = await fetch(url);
+            strictEqual(response.status, status, `${backend}: ${path}`);
+            // Consume each body immediately; PHP's development server closes its
+            // connection after a response, including large form/species lists.
+            return response.json();
+        }
         const [a, b] = await Promise.all([
-            fetch(`${node.url}/api/v1/${path}`),
-            fetch(`${php.url}/v1/${path}`),
+            read(`${node.url}/api/v1/${path}`, 'Node'),
+            read(`${php.url}/v1/${path}`, 'PHP'),
         ]);
-        strictEqual(a.status, status, `Node: ${path}`);
-        strictEqual(b.status, status, `PHP: ${path}`);
-        deepStrictEqual(await b.json(), await a.json(), path);
+        deepStrictEqual(b, a, path);
     }
     await t.test('dataset, type icons, and every paginated species and move match', async () => {
         await compare('dataset');
@@ -60,6 +65,37 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
         for (let page = 1; page <= 7; page++) await compare(`species?page=${page}&pageSize=250`);
         for (let page = 1; page <= 5; page++) await compare(`moves?page=${page}&pageSize=250`);
     });
+    await t.test(
+        'abilities, empty and duplicate species slots, and query validation match',
+        async () => {
+            for (let page = 1; page <= 2; page++)
+                await compare(`abilities?page=${page}&pageSize=250`);
+            for (const id of [0, 23, 26, 59, 65, 310]) await compare(`abilities/${id}`);
+            for (const id of [1, 94, 914, 1496, 351, 1431, 1523])
+                await compare(`species/${id}/abilities`);
+            for (const query of [
+                'q=%230023',
+                'q=shadow',
+                'q=%25',
+                'q=_',
+                'q=%21',
+                'page=65535',
+                'q=' + '9'.repeat(100),
+            ])
+                await compare(`abilities?${query}`);
+            await compare('abilities/65535', 404);
+            await compare('abilities/1/unknown', 404);
+            for (const path of [
+                'abilities/-1',
+                'abilities/65536',
+                'abilities?pageSize=251',
+                'abilities?q=a&q=b',
+                'abilities?unknown=1',
+                'species/0/abilities',
+            ])
+                await compare(path, 400);
+        },
+    );
     await t.test(
         'item metadata, pockets, search, and database-driven rule icons match',
         async () => {

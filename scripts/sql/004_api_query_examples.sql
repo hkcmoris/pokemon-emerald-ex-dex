@@ -135,3 +135,11 @@ WHERE i.dataset_id = @dataset_id AND i.item_id = 300;
 SELECT r.edge_order, r.role, i.item_id, i.name, i.icon_file
 FROM emerald_ex_evolution_items r JOIN emerald_ex_items i ON i.dataset_id = r.dataset_id AND i.item_id = r.item_id
 WHERE r.dataset_id = @dataset_id AND i.item_id = 213;
+
+-- GET /api/v1/species/914/abilities (empty slots are retained).
+SELECT sa.slot, sa.kind, a.ability_id, a.name, a.description, a.ai_rating,
+       a.cant_be_copied, a.cant_be_swapped, a.cant_be_traced, a.cant_be_suppressed,
+       a.cant_be_overwritten, a.breakable, a.fails_on_imposter
+FROM emerald_ex_species_abilities sa LEFT JOIN emerald_ex_abilities a
+ON a.dataset_id = sa.dataset_id AND a.ability_id = sa.ability_id
+WHERE sa.dataset_id = @dataset_id AND sa.species_id = 914 ORDER BY sa.slot;

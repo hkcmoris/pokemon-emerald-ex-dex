@@ -20,7 +20,8 @@ for (const kind of sourceKinds) {
         contents: await readFile(new URL(sourceFilePath(kind), root), 'utf8'),
     };
 }
-const { sql, spritesSql, formsSql, itemsSql, counts, datasetId } = buildDexImport(sources);
+const { sql, spritesSql, formsSql, itemsSql, abilitiesSql, counts, datasetId } =
+    buildDexImport(sources);
 const manifest = JSON.parse(sources.battle_sprites.contents) as {
     species: { files: Record<string, string> }[];
 };
@@ -40,5 +41,6 @@ await writeFile(output, sql, 'utf8');
 await writeFile(new URL('scripts/sql/006_import_sprites_1.0.4.sql', root), spritesSql, 'utf8');
 await writeFile(new URL('scripts/sql/012_import_forms_1.0.4.sql', root), formsSql, 'utf8');
 await writeFile(new URL('scripts/sql/014_import_items_1.0.4.sql', root), itemsSql, 'utf8');
+await writeFile(new URL('scripts/sql/016_import_abilities_1.0.4.sql', root), abilitiesSql, 'utf8');
 console.log(`Prepared ${datasetId}: ${fileURLToPath(output)}`);
 console.table(counts);

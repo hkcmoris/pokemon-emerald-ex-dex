@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 
 import type {
+    Ability,
+    SpeciesAbilitySlot,
     ApiResponse,
     DexDataset,
     Evolution,
@@ -197,6 +199,86 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                 ]);
             },
         );
+        await t.test(
+            'ability definitions and all species slots match the ROM, preserving nulls and duplicates',
+            async () => {
+                const abilitiesSource = JSON.parse(
+                    await readFile(
+                        new URL(
+                            '../../../docs/pokemon_emerald_ex_1.0.4_abilities.json',
+                            import.meta.url,
+                        ),
+                        'utf8',
+                    ),
+                ) as {
+                    abilities: Ability[];
+                    species: {
+                        speciesId: number;
+                        slots: {
+                            slot: number;
+                            kind: string;
+                            ability: { abilityId: number } | null;
+                        }[];
+                    }[];
+                };
+                const definitions = new Map(
+                    abilitiesSource.abilities.map((ability) => [ability.abilityId, ability]),
+                );
+                const first = await get<PageResponse<Ability>>('abilities?pageSize=250');
+                const second = await get<PageResponse<Ability>>('abilities?pageSize=250&page=2');
+                strictEqual(first.meta.total, 311);
+                deepStrictEqual([...first.data, ...second.data], abilitiesSource.abilities);
+                const slots = await pool.query<
+                    { speciesId: number; slot: number; kind: string; abilityId: number | null }[]
+                >(
+                    'SELECT species_id AS speciesId, slot, kind, ability_id AS abilityId FROM emerald_ex_species_abilities WHERE dataset_id = ? ORDER BY species_id, slot',
+                    ['emerald-ex-1.0.4'],
+                );
+                deepStrictEqual(
+                    [...slots],
+                    abilitiesSource.species.flatMap((species) =>
+                        species.slots.map((slot) => ({
+                            speciesId: species.speciesId,
+                            slot: slot.slot,
+                            kind: slot.kind,
+                            abilityId: slot.ability?.abilityId ?? null,
+                        })),
+                    ),
+                );
+                for (const id of [1, 94, 914, 1496, 351, 1431, 1523]) {
+                    const source = abilitiesSource.species.find(
+                        (species) => species.speciesId === id,
+                    )!;
+                    const expectedSlots = source.slots.map((slot) => ({
+                        ...slot,
+                        ability:
+                            slot.ability === null ? null : definitions.get(slot.ability.abilityId),
+                    }));
+                    const actual = (
+                        await get<ApiResponse<SpeciesAbilitySlot[]>>(`species/${id}/abilities`)
+                    ).data;
+                    deepStrictEqual(actual, expectedSlots);
+                    deepStrictEqual(
+                        (await get<ApiResponse<SpeciesDetails>>(`species/${id}/details`)).data
+                            .abilities,
+                        actual,
+                    );
+                }
+                deepStrictEqual(
+                    (await get<ApiResponse<Ability>>('abilities/0')).data,
+                    definitions.get(0),
+                );
+                deepStrictEqual((await get<PageResponse<Ability>>('abilities?q=%230023')).data, [
+                    definitions.get(23),
+                ]);
+                strictEqual((await get<PageResponse<Ability>>('abilities?q=%25')).meta.total, 0);
+                strictEqual(
+                    (await get<PageResponse<Ability>>('abilities?page=65535')).data.length,
+                    0,
+                );
+            },
+        );
+
         await t.test('type catalog and species slots retain SQL icon filenames', async () => {
             deepStrictEqual(
                 (await get<ApiResponse<PokemonType[]>>('types')).data,
@@ -240,6 +322,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                         formInfo: _info,
                         forms: _forms,
                         formChanges: _changes,
+                        abilities: _abilities,
                         ...core
                     } = details;
                     deepStrictEqual(
@@ -814,7 +897,9 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     ['form_groups', 209],
                     ['species_forms', 700],
                     ['form_changes', 1600],
-                    ['sources', 7],
+                    ['sources', 8],
+                    ['abilities', 311],
+                    ['species_abilities', 4569],
                 ] as const) {
                     strictEqual(
                         Number(
@@ -857,6 +942,9 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                 strictEqual(await other.getSpeciesDetails(1), undefined);
                 strictEqual(await other.getSpeciesForms(94), null);
                 strictEqual(await other.getMove(33), undefined);
+                strictEqual(await other.getAbility(23), undefined);
+                deepStrictEqual(await other.getSpeciesAbilities(914), []);
+                strictEqual((await other.listAbilities('', 1, 40)).meta.total, 0);
                 deepStrictEqual(await other.getLearnset(1), []);
                 deepStrictEqual(await other.getEvolutions(1), []);
                 deepStrictEqual(await other.getMachines(1), []);

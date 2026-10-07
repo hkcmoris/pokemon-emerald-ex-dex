@@ -50,3 +50,13 @@ if (imagePath('/icons/types/48px-Fire.png', $argv[1]) === null) {
 }
 if (imagePath('/icons/items/0300_Gengarite.png', $argv[1]) === null) { throw new RuntimeException('Missing known item icon'); }
 echo "PHP validation passed\n";
+
+validateEndpoint('/v1/abilities/0', []);
+validateEndpoint('/v1/species/914/abilities', []);
+validateEndpoint('/v1/abilities', requestQuery('q=%230023&page=2&pageSize=40'));
+foreach (['q=a&q=b', 'pageSize=251', 'extra=1', 'q=' . str_repeat('a', 101)] as $query) {
+    expectError(static fn() => validateEndpoint('/v1/abilities', requestQuery($query)), 400);
+}
+expectError(static fn() => validateEndpoint('/v1/abilities/-1', []), 400);
+expectError(static fn() => validateEndpoint('/v1/abilities/65536', []), 400);
+expectError(static fn() => validateEndpoint('/v1/abilities/1/unknown', []), 404);

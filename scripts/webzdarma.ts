@@ -49,6 +49,7 @@ export async function prepareWebzdarmaUpload(projectRoot: string): Promise<strin
             'Keep config.local.php on the server during future uploads.\n' +
             'If forms have not yet been imported, select the existing database and import scripts/sql/011_forms.sql, then scripts/sql/012_import_forms_1.0.4.sql with an administrator. Do not run the full replacement import for an upgrade.\n' +
             'Before deploying the items release, import scripts/sql/013_items.sql, then scripts/sql/014_import_items_1.0.4.sql. Forms migrations 011/012 are prerequisites. Preserve config.local.php.\n' +
+            'Before deploying the abilities release, import scripts/sql/015_abilities.sql, then scripts/sql/016_import_abilities_1.0.4.sql with an administrator. Other dex data is preserved.\n' +
             'Check /pokemon-emerald-ex-dex/api/health, then /pokemon-emerald-ex-dex/api/v1/dataset.\n',
         'utf8',
     );

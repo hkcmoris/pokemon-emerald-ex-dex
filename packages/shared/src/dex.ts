@@ -129,6 +129,7 @@ export interface SpeciesEvolution extends Evolution {
 }
 
 export interface SpeciesDetails extends Pokemon {
+    abilities: SpeciesAbilitySlot[];
     learnset: LearnsetEntry[];
     machines: SpeciesMachine[];
     evolutionLinks: SpeciesEvolution[];
@@ -214,4 +215,28 @@ export interface SpeciesFormGroup {
     baseName: string;
     members: FormGroupMember[];
     changes: FormChange[];
+}
+
+export interface AbilityFlags {
+    cantBeCopied: boolean;
+    cantBeSwapped: boolean;
+    cantBeTraced: boolean;
+    cantBeSuppressed: boolean;
+    cantBeOverwritten: boolean;
+    breakable: boolean;
+    failsOnImposter: boolean;
+}
+
+export interface Ability {
+    abilityId: number;
+    name: string;
+    description: string;
+    aiRating: number;
+    flags: AbilityFlags;
+}
+
+export interface SpeciesAbilitySlot {
+    slot: 1 | 2 | 3;
+    kind: 'normal' | 'hidden';
+    ability: Ability | null;
 }

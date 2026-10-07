@@ -1,4 +1,7 @@
 import type {
+    Ability,
+    AbilityFlags,
+    SpeciesAbilitySlot,
     BaseStats,
     DexDataset,
     LearnsetEntry,
@@ -66,6 +69,30 @@ const itemSelect = `SELECT i.item_id AS itemId, i.name, i.plural_name AS pluralN
 type ItemRow = Omit<Item, 'rom' | 'notConsumed'> & { rom: string; notConsumed: number };
 function parseItem(row: ItemRow): Item {
     return { ...row, notConsumed: Boolean(row.notConsumed), rom: parseConditions(row.rom) };
+}
+
+const abilityFields = `a.ability_id AS abilityId, a.name, a.description, a.ai_rating AS aiRating,
+    a.cant_be_copied AS cantBeCopied, a.cant_be_swapped AS cantBeSwapped,
+    a.cant_be_traced AS cantBeTraced, a.cant_be_suppressed AS cantBeSuppressed,
+    a.cant_be_overwritten AS cantBeOverwritten, a.breakable, a.fails_on_imposter AS failsOnImposter`;
+type AbilityRow = Omit<Ability, 'flags'> & { [K in keyof AbilityFlags]: number };
+function parseAbility(row: AbilityRow): Ability {
+    const { abilityId, name, description, aiRating, ...flags } = row;
+    return {
+        abilityId,
+        name,
+        description,
+        aiRating,
+        flags: {
+            cantBeCopied: Boolean(flags.cantBeCopied),
+            cantBeSwapped: Boolean(flags.cantBeSwapped),
+            cantBeTraced: Boolean(flags.cantBeTraced),
+            cantBeSuppressed: Boolean(flags.cantBeSuppressed),
+            cantBeOverwritten: Boolean(flags.cantBeOverwritten),
+            breakable: Boolean(flags.breakable),
+            failsOnImposter: Boolean(flags.failsOnImposter),
+        },
+    };
 }
 
 const sortSql = {
@@ -167,7 +194,7 @@ export class DexRepository {
             this.getFormInfo(id),
             this.getEvolutionBaseSpeciesId(id),
         ]);
-        const [learnset, machines, evolutionLinks, forms, formChanges, evolutionFamily] =
+        const [learnset, machines, evolutionLinks, forms, formChanges, evolutionFamily, abilities] =
             await Promise.all([
                 this.getLearnset(id),
                 this.getMachineMoves(id),
@@ -175,9 +202,11 @@ export class DexRepository {
                 this.getFormGroup(formInfo),
                 this.getFormChanges([id], false),
                 this.getEvolutionFamily(evolutionBaseSpeciesId),
+                this.getSpeciesAbilities(id),
             ]);
         return {
             ...species,
+            abilities,
             learnset,
             machines,
             evolutionLinks,
@@ -422,6 +451,50 @@ export class DexRepository {
             [...parameters, pageSize, (page - 1) * pageSize],
         );
         return pageResponse(rows.map(parseItem), counts[0].total, page, pageSize);
+    }
+
+    async getAbility(id: number): Promise<Ability | undefined> {
+        const rows = await this.database.query<AbilityRow>(
+            `SELECT ${abilityFields} FROM emerald_ex_abilities AS a WHERE a.dataset_id = ? AND a.ability_id = ?`,
+            [this.datasetId, id],
+        );
+        return rows[0] ? parseAbility(rows[0]) : undefined;
+    }
+
+    async listAbilities(q: string, page: number, pageSize: number): Promise<PageResponse<Ability>> {
+        const conditions = ['a.dataset_id = ?'];
+        const parameters: SqlParameter[] = [this.datasetId];
+        if (q) {
+            const id = /^#?\d+$/.test(q) ? Number(q.replace(/^#/, '')) : -1;
+            conditions.push("(LOWER(a.name) LIKE ? ESCAPE '!' OR a.ability_id = ?)");
+            parameters.push(searchPattern(q), id <= 65535 ? id : -1);
+        }
+        const where = `WHERE ${conditions.join(' AND ')}`;
+        const counts = await this.database.query<{ total: number }>(
+            `SELECT COUNT(*) AS total FROM emerald_ex_abilities AS a ${where}`,
+            parameters,
+        );
+        const rows = await this.database.query<AbilityRow>(
+            `SELECT ${abilityFields} FROM emerald_ex_abilities AS a ${where} ORDER BY a.ability_id LIMIT ? OFFSET ?`,
+            [...parameters, pageSize, (page - 1) * pageSize],
+        );
+        return pageResponse(rows.map(parseAbility), counts[0].total, page, pageSize);
+    }
+
+    async getSpeciesAbilities(id: number): Promise<SpeciesAbilitySlot[]> {
+        const rows = await this.database.query<
+            (AbilityRow | { abilityId: null }) & Pick<SpeciesAbilitySlot, 'slot' | 'kind'>
+        >(
+            `SELECT sa.slot, sa.kind, ${abilityFields} FROM emerald_ex_species_abilities AS sa
+             LEFT JOIN emerald_ex_abilities AS a ON a.dataset_id = sa.dataset_id AND a.ability_id = sa.ability_id
+             WHERE sa.dataset_id = ? AND sa.species_id = ? ORDER BY sa.slot`,
+            [this.datasetId, id],
+        );
+        return rows.map(({ slot, kind, ...row }) => ({
+            slot,
+            kind,
+            ability: row.abilityId === null ? null : parseAbility(row),
+        }));
     }
 
     getLearnset(id: number): Promise<LearnsetEntry[]> {

@@ -1,9 +1,15 @@
 export type DexRoute =
     | { kind: 'dex' }
     | { kind: 'species'; id: number }
+    | { kind: 'abilities' }
+    | { kind: 'ability'; id: number }
     | { kind: 'items' }
     | { kind: 'item'; id: number }
     | { kind: 'not-found' };
+
+export function abilityHref(id: number): string {
+    return `#/abilities/${id}`;
+}
 
 export function itemHref(id: number): string {
     return `#/items/${id}`;
@@ -15,6 +21,14 @@ export function speciesHref(id: number): string {
 
 export function parseRoute(hash: string): DexRoute {
     if (hash === '' || hash === '#' || hash === '#/') return { kind: 'dex' };
+    if (hash === '#/abilities') return { kind: 'abilities' };
+    const ability = /^#\/abilities\/(\d+)$/.exec(hash);
+    if (ability) {
+        const id = Number(ability[1]);
+        return Number.isInteger(id) && id >= 0 && id <= 65535
+            ? { kind: 'ability', id }
+            : { kind: 'not-found' };
+    }
     if (hash === '#/items') return { kind: 'items' };
     const item = /^#\/items\/(\d+)$/.exec(hash);
     if (item) {

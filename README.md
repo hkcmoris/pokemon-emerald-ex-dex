@@ -199,9 +199,15 @@ docs/             Project notes and architecture decisions
 
 Important project-specific decisions, limitations, or deployment notes go here.
 
-
 The SQL-backed item catalog includes all 828 ROM items and native icons, searchable
 by name/ID and pocket at `#/items`. Evolution and form panels show linked item sprites
 from editable database filenames. Existing databases upgrade with
 `scripts/sql/013_items.sql` followed by `014_import_items_1.0.4.sql` after the forms
 migrations; see [database setup](docs/database.md) and [Webzdarma deployment](docs/webzdarma.md).
+
+The dex also includes a searchable ability catalog at `#/abilities`. Species
+pages display both normal slots and the hidden slot, with links to ROM ability
+descriptions and mechanics. For an existing database, import
+`scripts/sql/015_abilities.sql`, then `016_import_abilities_1.0.4.sql` before deploying
+updated client/PHP files. See [database preparation](docs/database.md) and
+[Webzdarma deployment](docs/webzdarma.md).

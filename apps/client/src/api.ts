@@ -1,4 +1,5 @@
 import type {
+    Ability,
     ApiResponse,
     DexDataset,
     PageResponse,
@@ -84,6 +85,21 @@ export function fetchItems(
 ): Promise<PageResponse<Item>> {
     return get<PageResponse<Item>>(
         `items?${new URLSearchParams({ q, pocket, page: String(page), pageSize: '40' })}`,
+        signal,
+    );
+}
+
+export async function fetchAbility(id: number, signal?: AbortSignal): Promise<Ability> {
+    return (await get<ApiResponse<Ability>>(`abilities/${id}`, signal)).data;
+}
+
+export function fetchAbilities(
+    q: string,
+    page: number,
+    signal?: AbortSignal,
+): Promise<PageResponse<Ability>> {
+    return get<PageResponse<Ability>>(
+        `abilities?${new URLSearchParams({ q, page: String(page), pageSize: '40' })}`,
         signal,
     );
 }

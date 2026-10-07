@@ -22,7 +22,7 @@ Use `.env.local` at the repository root for development. The backend loads it be
 | `DEV_API_TARGET` | Vite dev/preview proxy target | `http://127.0.0.1:3000` |
 
 The API only issues SELECT queries. Its production database account needs SELECT on
-the 22 dex tables. Apply schema/import scripts separately with an administrative
+the 24 dex tables. Apply schema/import scripts separately with an administrative
 account. The backend uses a pool of at most five connections and checks that the
 configured dataset exists before listening. Connections and queries have timeouts;
 the pool closes when the process receives SIGINT or SIGTERM.
@@ -313,7 +313,6 @@ restoration targets. PHP/Node parity checks compare `/forms`, embedded details a
 inherited evolution families. Client tests cover labels, sprites, navigation,
 ungrouped species, restoration and separate Evolution/Forms sections.
 
-
 ## Items and evolution item icons
 
 Both Node and PHP 8.4 expose the same SQL-backed resources:
@@ -337,3 +336,22 @@ Pikachu → Raichu includes Thunder Stone #213, while Gengar's Mega form include
 Gengarite #300 in its separate Forms section. The item catalog opens at `#/items`
 and an individual item at `#/items/:id`. Missing filenames/images retain the name
 and link with an accessible placeholder.
+
+## Abilities
+
+Node and PHP 8.4 expose identical SQL-backed responses:
+
+- `GET /api/v1/abilities?q=shadow&page=1&pageSize=40`: ability definitions in ROM ID order, using the existing `data`/`meta` pagination envelope. Name substrings and numeric IDs (optionally `#` prefixed) are accepted; `%`, `_` and `!` are literal search characters. Page size is limited to 250.
+- `GET /api/v1/abilities/:id`: `{ data: { abilityId, name, description, aiRating, flags } }`. IDs 0–65535 are accepted; missing definitions return 404. `aiRating` is signed. `flags` contains seven booleans: `cantBeCopied`, `cantBeSwapped`, `cantBeTraced`, `cantBeSuppressed`, `cantBeOverwritten`, `breakable` and `failsOnImposter`.
+- `GET /api/v1/species/:id/abilities`: `{ data: [{ slot, kind, ability }, ...] }`, ordered by slot 1, 2, 3. Slots 1/2 are `normal`; slot 3 is `hidden`. Each non-null `ability` is the full definition above.
+
+`/species/:id/details` embeds the same `abilities` array, avoiding additional
+requests on the species page. Species list responses remain unchanged. Slots
+belong to the exact species/form being viewed, without inheriting abilities from
+its base form. Empty slots are `ability: null`; ability ID 0 is an engine “None”
+definition available in the catalog, never an assigned species ability. Repeated
+IDs remain separate slots: Mega Gengar has Shadow Tag #23 in all three slots.
+
+The frontend offers `#/abilities` and `#/abilities/:id`. Species pages link each
+assigned normal/hidden ability to its description and expandable ROM mechanics.
+Descriptions and flags come from the export; no additional mechanics are inferred.

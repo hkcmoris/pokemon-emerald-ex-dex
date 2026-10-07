@@ -108,6 +108,7 @@ export function createDexRouter(repository: DexRepository): Router {
                     'details',
                     'sprites',
                     'forms',
+                    'abilities',
                 ].includes(resource))
         ) {
             throw new HttpError(404, 'not_found', 'Endpoint not found');
@@ -141,6 +142,9 @@ export function createDexRouter(repository: DexRepository): Router {
             case 'evolution':
                 res.json({ data: await repository.getEvolutions(id) });
                 break;
+            case 'abilities':
+                res.json({ data: await repository.getSpeciesAbilities(id) });
+                break;
             case 'forms':
                 res.json({ data: await repository.getSpeciesForms(id) });
                 break;
@@ -156,6 +160,21 @@ export function createDexRouter(repository: DexRepository): Router {
         checkQueryKeys(req.query, ['q', 'page', 'pageSize']);
         const { page, pageSize } = pagination(req.query);
         res.json(await repository.listMoves(stringQuery(req.query.q, 'q', 100), page, pageSize));
+    });
+
+    router.get('/abilities', async (req, res) => {
+        checkQueryKeys(req.query, ['q', 'page', 'pageSize']);
+        const { page, pageSize } = pagination(req.query);
+        res.json(
+            await repository.listAbilities(stringQuery(req.query.q, 'q', 100), page, pageSize),
+        );
+    });
+
+    router.get('/abilities/:id', async (req, res) => {
+        const id = integer(req.params.id, 'ability ID', 0, 65535);
+        const ability = await repository.getAbility(id);
+        if (!ability) throw new HttpError(404, 'not_found', 'Ability not found');
+        res.json({ data: ability });
     });
 
     router.get('/item-pockets', async (_req, res) => {

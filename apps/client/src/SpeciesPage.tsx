@@ -4,6 +4,7 @@ import type { LearnsetEntry, Pokemon, SpeciesMachine } from '@pokemon-emerald-ex
 
 import { ApiRequestError, fetchSpeciesDetails } from './api.js';
 import { EvolutionLine } from './EvolutionLine.js';
+import { AbilitiesSection } from './AbilitiesSection.js';
 import { FormsSection } from './FormsSection.js';
 import { formDisplayName } from './forms.js';
 import { DexFooter } from './DexFooter.js';
@@ -299,6 +300,7 @@ export function SpeciesPage({
                 <nav className="dex-navigation mb-5" aria-label="Dex sections">
                     <a href="#/">Pokémon</a>
                     <a href="#/items">Items</a>
+                    <a href="#/abilities">Abilities</a>
                 </nav>
                 {details.isPending ? (
                     <div className="dex-list px-6 py-16 text-center" role="status">
@@ -330,6 +332,7 @@ export function SpeciesPage({
                         <div className="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
                             <StatsPanel entry={entry} version={version} />
                             <div className="min-w-0 space-y-6">
+                                <AbilitiesSection slots={entry.abilities} />
                                 <section
                                     className="species-section"
                                     aria-labelledby="evolution-title"

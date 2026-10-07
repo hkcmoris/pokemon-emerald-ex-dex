@@ -72,7 +72,7 @@ function validateEndpoint(string $path, array $query): void
     if ($path === '/v1/dataset' || $path === '/v1/types' || $path === '/v1/item-pockets') {
         return;
     }
-    if ($path === '/v1/species' || $path === '/v1/moves' || $path === '/v1/items') {
+    if ($path === '/v1/species' || $path === '/v1/moves' || $path === '/v1/items' || $path === '/v1/abilities') {
         queryKeys($query, $path === '/v1/species' ? ['q', 'type', 'sort', 'page', 'pageSize'] : ($path === '/v1/items' ? ['q', 'pocket', 'page', 'pageSize'] : ['q', 'page', 'pageSize']));
         stringQuery($query['q'] ?? null, 'q', 100);
         pagination($query);
@@ -85,14 +85,14 @@ function validateEndpoint(string $path, array $query): void
         }
         return;
     }
-    if (preg_match('~^/v1/items/([^/]+)$~D', $path, $parts)) {
-        integerParameter($parts[1], 'item ID', 0, 65535);
+    if (preg_match('~^/v1/(items|abilities)/([^/]+)$~D', $path, $parts)) {
+        integerParameter($parts[2], $parts[1] === 'items' ? 'item ID' : 'ability ID', 0, 65535);
         return;
     }
     if (preg_match('~^/v1/(species|moves)/([^/]+)(?:/([^/]+))?$~D', $path, $parts)) {
         $species = $parts[1] === 'species';
         integerParameter($parts[2], $species ? 'species ID' : 'move ID', $species ? 1 : 0, 65535);
-        $allowed = $species ? ['name', 'stats', 'types', 'learnset', 'evolution', 'machines', 'details', 'sprites', 'forms']
+        $allowed = $species ? ['name', 'stats', 'types', 'learnset', 'evolution', 'machines', 'details', 'sprites', 'forms', 'abilities']
             : ['name', 'category', 'pp', 'damage', 'power', 'type'];
         if (isset($parts[3]) && !in_array($parts[3], $allowed, true)) {
             throw new HttpError(404, 'not_found', 'Endpoint not found');
@@ -121,6 +121,15 @@ function dispatch(DexRepository $repository, string $path, array $query): array
             'type' => stringQuery($query['type'] ?? null, 'type', 32),
             'sort' => $query['sort'] ?? 'id', ...pagination($query),
         ]);
+    }
+    if ($path === '/v1/abilities') {
+        $page = pagination($query);
+        return $repository->listAbilities(stringQuery($query['q'] ?? null, 'q', 100), $page['page'], $page['pageSize']);
+    }
+    if (preg_match('~^/v1/abilities/([^/]+)$~D', $path, $parts)) {
+        $ability = $repository->getAbility((int) $parts[1]);
+        if ($ability === null) { throw new HttpError(404, 'not_found', 'Ability not found'); }
+        return ['data' => $ability];
     }
     if ($path === '/v1/item-pockets') { return ['data' => $repository->getItemPockets()]; }
     if ($path === '/v1/items') {
@@ -152,6 +161,7 @@ function dispatch(DexRepository $repository, string $path, array $query): array
             'evolution' => $repository->getEvolutions($id),
             'machines' => $repository->getMachines($id),
             'sprites' => $species['sprites'],
+            'abilities' => $repository->getSpeciesAbilities($id),
             'forms' => $repository->getSpeciesForms($id),
             default => $species,
         };

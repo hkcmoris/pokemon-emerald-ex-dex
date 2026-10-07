@@ -24,8 +24,19 @@ for (const kind of sourceKinds) {
 }
 
 void test('all exports produce a complete relational import, including move zero and form markers', async () => {
-    const { sql, spritesSql, formsSql, itemsSql, counts, datasetId } = buildDexImport(sources);
+    const { sql, spritesSql, formsSql, itemsSql, abilitiesSql, counts, datasetId } =
+        buildDexImport(sources);
     strictEqual(datasetId, 'emerald-ex-1.0.4');
+    strictEqual(
+        abilitiesSql,
+        await readFile(new URL('sql/016_import_abilities_1.0.4.sql', import.meta.url), 'utf8'),
+    );
+    deepStrictEqual(
+        [...abilitiesSql.matchAll(/DELETE FROM (\w+)/g)].map((match) => match[1]),
+        ['emerald_ex_species_abilities', 'emerald_ex_abilities', 'emerald_ex_sources'],
+    );
+    strictEqual(abilitiesSql.includes("('emerald-ex-1.0.4', 914, 3, 'hidden', 23)"), true);
+    strictEqual(abilitiesSql.includes("('emerald-ex-1.0.4', 94, 2, 'normal', NULL)"), true);
     strictEqual(
         itemsSql,
         await readFile(new URL('sql/014_import_items_1.0.4.sql', import.meta.url), 'utf8'),
@@ -37,7 +48,7 @@ void test('all exports produce a complete relational import, including move zero
     strictEqual(itemsSql.includes('icon_file = VALUES(icon_file)'), false);
     deepStrictEqual(counts, {
         emerald_ex_datasets: 1,
-        emerald_ex_sources: 7,
+        emerald_ex_sources: 8,
         emerald_ex_types: 19,
         emerald_ex_move_categories: 3,
         emerald_ex_evolution_methods: 48,
@@ -58,6 +69,8 @@ void test('all exports produce a complete relational import, including move zero
         emerald_ex_items: 828,
         emerald_ex_evolution_items: 125,
         emerald_ex_form_change_items: 1167,
+        emerald_ex_abilities: 311,
+        emerald_ex_species_abilities: 4569,
     });
     strictEqual(sql.includes("('emerald-ex-1.0.4', 0, '-', ''"), true);
     strictEqual(sql.includes('65534'), true);
@@ -104,7 +117,7 @@ void test('schema, import and query examples stay within the dex table namespace
     const tables = new Set(
         [...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map((match) => match[1]),
     );
-    strictEqual(tables.size, 22);
+    strictEqual(tables.size, 24);
     strictEqual(
         [...tables].every((name) => name.startsWith('emerald_ex_')),
         true,
@@ -129,6 +142,8 @@ void test('schema, import and query examples stay within the dex table namespace
         '012_import_forms_1.0.4.sql',
         '013_items.sql',
         '014_import_items_1.0.4.sql',
+        '015_abilities.sql',
+        '016_import_abilities_1.0.4.sql',
     ]) {
         const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
         strictEqual(/^\s*(?:(?:CREATE|ALTER|DROP) DATABASE|USE\s)/im.test(sql), false, file);
@@ -435,4 +450,95 @@ void test('all 828 item icon files exist and have native 24x24 PNG headers', asy
         data.items.map((item) => item.icon.slice('icons/'.length)),
         24,
     );
+});
+
+void test('ability imports reject malformed definitions, slots, aliases and metadata', () => {
+    const original = JSON.parse(sources.abilities.contents) as {
+        metadata: {
+            abilityCount: number;
+            speciesFormCount: number;
+            distinctAbilitiesUsedBySpecies: number;
+        };
+        abilities: { abilityId: number; aiRating: number; flags: Record<string, unknown> }[];
+        species: {
+            speciesId: number;
+            name: string;
+            ability1: { abilityId: number; name: string };
+            slots: {
+                slot: number;
+                kind: string;
+                ability: { abilityId: number; name: string } | null;
+            }[];
+        }[];
+    };
+    const mutations: ((source: typeof original) => void)[] = [
+        (source) => {
+            source.metadata.abilityCount = 310;
+        },
+        (source) => {
+            source.metadata.speciesFormCount = 1522;
+        },
+        (source) => {
+            source.metadata.distinctAbilitiesUsedBySpecies = 309;
+        },
+        (source) => {
+            source.abilities.pop();
+        },
+        (source) => {
+            source.abilities[1].abilityId = 0;
+        },
+        (source) => {
+            source.abilities[1].aiRating = -129;
+        },
+        (source) => {
+            source.abilities[1].flags.breakable = 1;
+        },
+        (source) => {
+            source.species[0].name = 'Wrong name';
+        },
+        (source) => {
+            source.species[0].slots.pop();
+        },
+        (source) => {
+            source.species[0].slots[1].slot = 1;
+        },
+        (source) => {
+            source.species[0].slots[2].kind = 'normal';
+        },
+        (source) => {
+            source.species[0].slots[0].ability!.abilityId = 0;
+        },
+        (source) => {
+            source.species[0].slots[0].ability!.abilityId = 311;
+        },
+        (source) => {
+            source.species[0].slots[0].ability!.name = 'Wrong ability';
+        },
+        (source) => {
+            source.species[0].ability1.abilityId = 1;
+        },
+        (source) => {
+            source.species[0].slots[1].ability = source.species[0].ability1;
+        },
+    ];
+    for (const mutate of mutations) {
+        const altered = structuredClone(original);
+        mutate(altered);
+        throws(() =>
+            buildDexImport({
+                ...sources,
+                abilities: { ...sources.abilities, contents: JSON.stringify(altered) },
+            }),
+        );
+    }
+});
+
+void test('ability upgrade schema matches the fresh schema', async () => {
+    const schema = (
+        await readFile(new URL('sql/001_schema.sql', import.meta.url), 'utf8')
+    ).replaceAll('\r\n', '\n');
+    const upgrade = (
+        await readFile(new URL('sql/015_abilities.sql', import.meta.url), 'utf8')
+    ).replaceAll('\r\n', '\n');
+    strictEqual(schema.includes(upgrade.slice(upgrade.indexOf('CREATE TABLE'))), true);
 });

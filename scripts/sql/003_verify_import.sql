@@ -18,7 +18,12 @@ UNION ALL SELECT 'machines', COUNT(*), 58 FROM emerald_ex_machines WHERE dataset
 UNION ALL SELECT 'species_machines', COUNT(*), 32358 FROM emerald_ex_species_machines WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'normal_evolutions', COUNT(*), 618 FROM emerald_ex_evolutions WHERE dataset_id = @dataset_id AND internal_only = 0
 UNION ALL SELECT 'form_markers', COUNT(*), 26 FROM emerald_ex_evolutions WHERE dataset_id = @dataset_id AND internal_only = 1
-UNION ALL SELECT 'sources', COUNT(*), 7 FROM emerald_ex_sources WHERE dataset_id = @dataset_id
+UNION ALL SELECT 'sources', COUNT(*), 8 FROM emerald_ex_sources WHERE dataset_id = @dataset_id
+UNION ALL SELECT 'abilities', COUNT(*), 311 FROM emerald_ex_abilities WHERE dataset_id = @dataset_id
+UNION ALL SELECT 'ability_slots', COUNT(*), 4569 FROM emerald_ex_species_abilities WHERE dataset_id = @dataset_id
+UNION ALL SELECT 'empty_ability_slots', COUNT(*), 1160 FROM emerald_ex_species_abilities WHERE dataset_id = @dataset_id AND ability_id IS NULL
+UNION ALL SELECT 'assigned_ability_slots', COUNT(*), 3409 FROM emerald_ex_species_abilities WHERE dataset_id = @dataset_id AND ability_id IS NOT NULL
+UNION ALL SELECT 'distinct_species_abilities', COUNT(DISTINCT ability_id), 310 FROM emerald_ex_species_abilities WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'items', COUNT(*), 828 FROM emerald_ex_items WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'item_pockets', COUNT(*), 5 FROM emerald_ex_item_pockets WHERE dataset_id = @dataset_id
 UNION ALL SELECT 'evolution_items', COUNT(*), 125 FROM emerald_ex_evolution_items WHERE dataset_id = @dataset_id
@@ -62,3 +67,8 @@ WHERE g.dataset_id = @dataset_id AND g.base_species_id = 94 ORDER BY f.species_i
 SELECT r.edge_order, r.role, i.item_id, i.name, i.icon_file
 FROM emerald_ex_evolution_items r JOIN emerald_ex_items i ON i.dataset_id = r.dataset_id AND i.item_id = r.item_id
 WHERE r.dataset_id = @dataset_id AND i.item_id IN (213, 465, 796);
+
+-- Three slots per species, including explicit empty slots. Should return no rows.
+SELECT s.species_id FROM emerald_ex_species s LEFT JOIN emerald_ex_species_abilities sa
+ON sa.dataset_id = s.dataset_id AND sa.species_id = s.species_id
+WHERE s.dataset_id = @dataset_id GROUP BY s.species_id HAVING COUNT(sa.slot) <> 3;

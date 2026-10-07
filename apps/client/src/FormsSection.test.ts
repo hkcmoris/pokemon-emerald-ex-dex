@@ -169,6 +169,7 @@ function detail(speciesId: number): SpeciesDetails {
         sprites: null,
         stats: { hp: 50, attack: 50, defense: 50, spAttack: 50, spDefense: 50, speed: 50 },
         baseStatTotal: 300,
+        abilities: [],
         learnset: [],
         machines: [],
         evolutionLinks: [],

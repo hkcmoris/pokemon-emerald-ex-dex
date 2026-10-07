@@ -99,6 +99,7 @@ export function ItemsPage({ itemId, version }: { itemId: number | undefined; ver
                     <a href="#/items" aria-current={itemId === undefined ? 'page' : undefined}>
                         Items
                     </a>
+                    <a href="#/abilities">Abilities</a>
                 </nav>
                 {itemId === undefined && (
                     <div className="mb-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_210px]">

@@ -7,6 +7,7 @@ import { DexFooter } from './DexFooter.js';
 import { TypeBadges } from './TypeBadges.js';
 import { SpeciesPage } from './SpeciesPage.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
+import { AbilitiesPage } from './AbilitiesPage.js';
 import { ItemsPage } from './ItemsPage.js';
 import {
     navigationSnapshot,
@@ -60,6 +61,15 @@ export function App() {
         setPage(0);
     }
 
+    if (route.kind === 'abilities' || route.kind === 'ability') {
+        return (
+            <AbilitiesPage
+                key={route.kind === 'ability' ? route.id : 'abilities'}
+                abilityId={route.kind === 'ability' ? route.id : undefined}
+                version={dexMetadata?.version ?? '…'}
+            />
+        );
+    }
     if (route.kind === 'items' || route.kind === 'item') {
         return (
             <ItemsPage
@@ -125,6 +135,7 @@ export function App() {
                         Pokémon
                     </a>
                     <a href="#/items">Items</a>
+                    <a href="#/abilities">Abilities</a>
                 </nav>
                 <div className="mb-3 grid grid-cols-2 items-end gap-2 sm:mb-7 sm:grid-cols-[minmax(0,1fr)_180px_210px] sm:gap-4">
                     <label className="filter-label col-span-2 sm:col-span-1">
