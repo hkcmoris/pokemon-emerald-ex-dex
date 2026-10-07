@@ -1,6 +1,6 @@
 {
     "name": "@pokemon-emerald-ex-dex/server",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "private": true,
     "type": "module",
     "main": "./dist/index.js",
@@ -14,7 +14,7 @@
         "typecheck": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
-        "@pokemon-emerald-ex-dex/shared": "0.1.0",
+        "@pokemon-emerald-ex-dex/shared": "1.0.0",
         "dotenv": "18.0.4",
         "express": "5.2.1",
         "mariadb": "3.5.4",
