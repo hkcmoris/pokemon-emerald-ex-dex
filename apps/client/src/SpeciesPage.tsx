@@ -10,7 +10,8 @@ import { formDisplayName } from './forms.js';
 import { DexFooter } from './DexFooter.js';
 import { statLabels } from './dex.js';
 import { TypeBadges } from './TypeBadges.js';
-import { MoveCategory, MoveCategoryIcon } from './MoveCategory.js';
+import { MoveCategory } from './MoveCategory.js';
+import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { SpeciesDetailHeader } from './SpeciesDetailHeader.js';
 import { DexHeader } from './DexHeader.js';
 import { DexNavigation } from './DexNavigation.js';
@@ -212,13 +213,6 @@ function MoveTable({
 export function StatsPanel({ entry, version }: { entry: Pokemon; version: string }) {
     const { t } = useLanguage();
     const highestStat = Math.max(...statLabels.map(({ key }) => entry.stats[key]));
-    const attackDifference = entry.stats.attack - entry.stats.spAttack;
-    const offenseLabel =
-        attackDifference > 0
-            ? t('Attack is higher than Sp. Attack', 'Útok je vyšší než speciální útok')
-            : attackDifference < 0
-              ? t('Sp. Attack is higher than Attack', 'Speciální útok je vyšší než útok')
-              : t('Attack and Sp. Attack are equal', 'Útok a speciální útok jsou stejné');
     return (
         <aside className="detail-panel" aria-labelledby="stats-title">
             <div className="stat-total flex items-center justify-between gap-3 border-b pb-3">
@@ -226,15 +220,7 @@ export function StatsPanel({ entry, version }: { entry: Pokemon; version: string
                     {t('Base stats', 'Základní statistiky')}
                 </h2>
                 <div className="stat-summary">
-                    <span
-                        className="stat-offense"
-                        role="img"
-                        aria-label={offenseLabel}
-                        title={offenseLabel}
-                    >
-                        {attackDifference >= 0 && <MoveCategoryIcon file="physical.png" />}
-                        {attackDifference <= 0 && <MoveCategoryIcon file="special.png" />}
-                    </span>
+                    <OffensiveStatIndicator stats={entry.stats} />
                     <div className="stat-total-value">
                         <span className="stat-total-number font-semibold tabular-nums">
                             {entry.baseStatTotal}

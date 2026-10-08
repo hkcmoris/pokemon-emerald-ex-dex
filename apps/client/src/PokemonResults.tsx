@@ -1,6 +1,7 @@
 import { statLabels, type DexSort, type Pokemon } from './dex.js';
 import { speciesHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
+import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { TypeBadges } from './TypeBadges.js';
 import { typeSurfaceStyle } from './theme.js';
 import { useLanguage } from './language.js';
@@ -41,6 +42,7 @@ export function PokemonResults({ entries, datasetId, sort }: PokemonResultsProps
                                 <TypeBadges types={entry.types} iconFiles={entry.typeIconFiles} />
                             </span>
                             <span className="pokemon-card-stat">
+                                <OffensiveStatIndicator stats={entry.stats} />
                                 <strong>
                                     {sort === 'speed' ? entry.stats.speed : entry.baseStatTotal}
                                 </strong>

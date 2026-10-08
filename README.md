@@ -28,7 +28,8 @@ with compact labels and highlight every tied highest stat. Beside the total, Phy
 or Special icons compare Attack with Sp. Attack; equal values show both icons. The
 scale explanation remains available under Species data. Stats sit above abilities on phones.
 On mobile, the Emerald theme puts search above sprite-led Pokémon rows, with the
-base stat total (BST) on the right; sorting by speed shows Speed instead. Desktop retains the dense
+base stat total (BST) on the right and the Physical/Special indicator above it; sorting
+by speed shows Speed instead. Desktop retains the dense
 base-stat table. The HeroUI v3 filter sheet offers one type at a time and a sort
 order while retaining the visible results during updates. Remove the selected type
 chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.

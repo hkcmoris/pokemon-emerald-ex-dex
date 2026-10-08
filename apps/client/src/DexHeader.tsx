@@ -54,7 +54,7 @@ export function DexHeader({
 }) {
     const { language, setLanguage, t } = useLanguage();
     return (
-        <header className="dex-header">
+        <header className="dex-header sticky top-0 z-10">
             <div className="dex-header-inner">
                 <a className="dex-brand" href="#/" aria-label="Emerald EX Pokédex">
                     <span className="dex-brand-mark" aria-hidden="true">

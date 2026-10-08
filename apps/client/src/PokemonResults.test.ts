@@ -1,4 +1,4 @@
-import { doesNotMatch, match } from 'node:assert/strict';
+import { deepStrictEqual, doesNotMatch, match } from 'node:assert/strict';
 import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -17,9 +17,9 @@ const species: Pokemon = {
     sprites: null,
 };
 
-function mobileMarkup(sort: DexSort): string {
+function mobileMarkup(sort: DexSort, entry: Pokemon = species): string {
     return renderToStaticMarkup(
-        createElement(PokemonResults, { entries: [species], datasetId: undefined, sort }),
+        createElement(PokemonResults, { entries: [entry], datasetId: undefined, sort }),
     ).split('</ul>')[0];
 }
 
@@ -44,4 +44,27 @@ void test('mobile rows show the stat relevant to the selected comparison order',
     const speed = mobileMarkup('speed');
     match(speed, /<strong>55<\/strong><span>Speed<\/span>/);
     doesNotMatch(speed, /<span>BST<\/span>/);
+});
+
+void test('mobile rows put the matching offensive category before the comparison value', () => {
+    for (const [spAttack, expected] of [
+        [85, ['physical.png']],
+        [120, ['special.png']],
+        [100, ['physical.png', 'special.png']],
+    ] as const) {
+        const markup = mobileMarkup('id', {
+            ...species,
+            stats: { ...species.stats, spAttack },
+        });
+        const indicator =
+            markup.match(/class="pokemon-card-stat">([\s\S]*?)<strong>520<\/strong>/)?.[1] ?? '';
+        match(indicator, /class="stat-offense" role="img" aria-label="[^"]+"/);
+        deepStrictEqual(
+            Array.from(
+                indicator.matchAll(/<img[^>]*src="[^"]*move-categories\/([^"]+)"/g),
+                ([, file]) => file,
+            ),
+            [...expected],
+        );
+    }
 });

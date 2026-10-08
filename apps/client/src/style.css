@@ -117,7 +117,7 @@ button:disabled {
 /* The information surfaces stay opaque; glass is reserved for floating controls. */
 .dex-header {
     color: var(--dex-text);
-    border-bottom: 1px solid color-mix(in srgb, var(--dex-border) 70%, transparent);
+    background: linear-gradient(var(--dex-surface) 60%, transparent 100%);
 }
 .dex-header-inner,
 .dex-back-row {
@@ -574,7 +574,7 @@ tbody tr:hover {
     --badge-color: #8e9bec;
     --badge-accent: #9b9f4b;
 }
-    /* 
+/* 
     Steel: '#8e8f7e',
     Fairy: '#d7869d', */
 
@@ -794,6 +794,20 @@ tbody tr:hover {
 }
 .detail-panel {
     padding: var(--space-6);
+
+    background:
+        linear-gradient(135deg, rgb(255 255 255 / 4%), transparent 45%, rgb(0 0 0 / 4%)),
+        radial-gradient(
+            ellipse at 0% 0%,
+            color-mix(in srgb, var(--dex-accent) 18%, transparent),
+            transparent 78%
+        ),
+        radial-gradient(
+            ellipse at 100% 100%,
+            color-mix(in srgb, var(--dex-border) 28%, transparent),
+            transparent 78%
+        ),
+        var(--dex-surface-raised);
 }
 .stat-total {
     border-color: var(--dex-border);
@@ -879,6 +893,19 @@ tbody tr:hover {
 .section-heading {
     border-bottom: 1px solid var(--dex-border);
     padding: 1.15rem 1.5rem;
+    background:
+        linear-gradient(135deg, rgb(255 255 255 / 4%), transparent 45%, rgb(0 0 0 / 4%)),
+        radial-gradient(
+            ellipse at 0% 0%,
+            color-mix(in srgb, var(--dex-accent) 18%, transparent),
+            transparent 78%
+        ),
+        radial-gradient(
+            ellipse at 100% 100%,
+            color-mix(in srgb, var(--dex-border) 28%, transparent),
+            transparent 78%
+        ),
+        var(--dex-surface);
 }
 .section-heading h2 {
     margin-top: 0.3rem;
@@ -965,7 +992,18 @@ tbody tr:hover {
     overflow-wrap: anywhere;
     border: 1px solid var(--dex-border);
     border-radius: 12px;
-    background: var(--dex-surface-soft);
+    background:
+        radial-gradient(
+            ellipse at 0% 0%,
+            color-mix(in srgb, var(--dex-accent) 12%, transparent),
+            transparent 78%
+        ),
+        radial-gradient(
+            ellipse at 100% 100%,
+            color-mix(in srgb, var(--dex-border) 28%, transparent),
+            transparent 78%
+        ),
+        var(--dex-surface-raised);
 }
 .evolution-node-current {
     border-color: var(--dex-accent);
@@ -1380,6 +1418,7 @@ tbody tr:hover {
     }
     .pokemon-card-stat {
         display: grid;
+        justify-items: end;
         flex-shrink: 0;
         gap: 0.3rem;
         text-align: right;
