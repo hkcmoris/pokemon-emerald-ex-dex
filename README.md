@@ -46,10 +46,14 @@ remembers the selection in the browser. Without a saved choice, the interface us
 first supported language from the browser's preferred languages, including regional
 variants such as `cs-CZ` and `en-US`. Czech is the fallback when no supported preference
 is available. A saved choice always takes priority. It translates navigation, controls,
-field labels, and status messages only. Pokémon, move, item, ability, type and form names,
-as well as all database descriptions and other database text, retain their original
-wording. Switching languages preserves the current page and filters and requires no
-database migration.
+field labels, status messages, and type names. Czech type labels appear in the list,
+filters, species details, and move tables, including icon tooltips and accessible names.
+Type translations are maintained in `apps/client/src/typeNames.ts`; unknown types fall
+back to their original names. Database/API values, filter values, and type colours keep
+using the original English names. Pokémon, move, item, ability and form names, as well
+as all database descriptions and other database text, retain their original wording.
+Switching languages preserves the current page and filters and requires no database
+migration.
 Expand move names for descriptions and full move data, or evolution rules for their
 conditions and ROM identifiers. Move categories show Physical, Special, and Status
 icons alongside their labels in both level-up and TM/HM tables. Category icon filenames

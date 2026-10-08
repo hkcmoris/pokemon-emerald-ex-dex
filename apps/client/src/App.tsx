@@ -14,11 +14,12 @@ import { PokemonFilterSheet, getSortOptions } from './PokemonFilterSheet.js';
 import { PokemonResults } from './PokemonResults.js';
 import { navigationSnapshot, parseRoute, subscribeToNavigation } from './navigation.js';
 import { useLanguage } from './language.js';
+import { typeDisplayName } from './typeNames.js';
 
 const pageSize = 40;
 
 export function App() {
-    const { t, locale } = useLanguage();
+    const { t, locale, language } = useLanguage();
     const hash = useSyncExternalStore(subscribeToNavigation, navigationSnapshot, () => '');
     const route = parseRoute(hash);
     useEffect(() => {
@@ -48,6 +49,7 @@ export function App() {
     const failed = catalog.isError || species.isError;
     const loading = catalog.isPending || species.isPending;
     const selectedType = pokemonTypes.find((entry) => entry.name === type);
+    const selectedTypeName = typeDisplayName(type, language);
     const sortLabel = getSortOptions(t).find((option) => option.value === sort)?.label;
 
     function resetFilters() {
@@ -176,7 +178,10 @@ export function App() {
                     <div className="dex-active-filters">
                         <button
                             className="active-filter-chip"
-                            aria-label={t(`Remove ${type} filter`, `Odstranit filtr ${type}`)}
+                            aria-label={t(
+                                `Remove ${selectedTypeName} filter`,
+                                `Odstranit filtr ${selectedTypeName}`,
+                            )}
                             onClick={() => changeType('')}
                         >
                             <TypeBadges types={[type]} iconFiles={[selectedType.iconFile]} />

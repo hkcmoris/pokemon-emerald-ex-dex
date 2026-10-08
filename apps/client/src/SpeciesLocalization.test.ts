@@ -101,13 +101,12 @@ function renderSpecies(language: 'en' | 'cs'): string {
     }
 }
 
-void test('Czech species UI preserves game names and imported descriptions', () => {
+void test('Czech species UI translates types and preserves other game names and imported descriptions', () => {
     const html = renderSpecies('cs');
     for (const label of ['Základní statistiky', 'Vzhled', 'Běžná schopnost 1', 'Naučené útoky'])
         match(html, new RegExp(label));
     for (const data of [
         entry.name,
-        entry.types[0],
         entry.abilities[0].ability!.name,
         entry.abilities[0].ability!.description,
         entry.learnset[0].name,
@@ -119,6 +118,9 @@ void test('Czech species UI preserves game names and imported descriptions', () 
         'Hidden Machines',
     ])
         match(html, new RegExp(data));
+    match(html, /data-type="Electric"/);
+    match(html, /class="type-badge-label">Elektrický<\/span>/);
+    doesNotMatch(html, /class="type-badge-label">Electric<\/span>/);
     doesNotMatch(html, /Base stats|Normal ability 1|Moves learned/);
 });
 
@@ -173,5 +175,20 @@ for (const { language, labels } of [
                 match(content, /id="machines-title"/);
             }
         }
+    });
+}
+
+for (const { language, typeName } of [
+    { language: 'en', typeName: 'Electric' },
+    { language: 'cs', typeName: 'Elektrický' },
+] as const) {
+    void test(`species header, data, and learned moves show localized type names (${language})`, () => {
+        const html = renderSpecies(language);
+        const labels = Array.from(
+            html.matchAll(/class="type-badge-label">([^<]+)<\/span>/g),
+            ([, label]) => label,
+        );
+        deepStrictEqual(labels, [typeName, typeName, typeName]);
+        strictEqual(Array.from(html.matchAll(/data-type="Electric"/g)).length, 3);
     });
 }

@@ -123,7 +123,7 @@ for (const count of [0, 1, 2, 5]) {
             const markup = renderHeader({ entry: countEntry }, language);
             if (count > 1) {
                 const label = language === 'en' ? 'Forms' : count < 5 ? 'Formy' : 'Forem';
-                match(markup, new RegExp(`<span>${count} ${label}</span>`));
+                match(markup, new RegExp(`<span\\b[^>]*>${count} ${label}</span>`));
             } else {
                 doesNotMatch(markup, /Forms|Formy|Forem/);
             }

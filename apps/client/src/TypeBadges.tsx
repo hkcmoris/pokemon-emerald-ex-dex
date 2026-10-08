@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
 import { apiUrl } from './apiUrl.js';
+import { useLanguage } from './language.js';
+import { typeDisplayName } from './typeNames.js';
 
 function TypeBadge({
     name,
@@ -11,18 +13,20 @@ function TypeBadge({
     file: string | null;
     iconOnly: boolean;
 }) {
+    const { language } = useLanguage();
+    const label = typeDisplayName(name, language);
     const [failed, setFailed] = useState(false);
     const showIcon = Boolean(file) && !failed;
     return (
         <span
             className={iconOnly ? 'type-icon inline-flex items-center' : 'type-badge mt-0.5'}
             data-type={name}
-            title={iconOnly ? name : undefined}
+            title={iconOnly ? label : undefined}
         >
             {file && showIcon && (
                 <img
                     src={apiUrl(`icons/types/${encodeURIComponent(file)}`)}
-                    alt={iconOnly ? name : ''}
+                    alt={iconOnly ? label : ''}
                     width={24}
                     height={24}
                     className={
@@ -35,7 +39,7 @@ function TypeBadge({
                     onError={() => setFailed(true)}
                 />
             )}
-            {(!iconOnly || !showIcon) && <span className="type-badge-label">{name}</span>}
+            {(!iconOnly || !showIcon) && <span className="type-badge-label">{label}</span>}
         </span>
     );
 }
