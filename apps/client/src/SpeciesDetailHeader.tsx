@@ -18,14 +18,12 @@ export function SpeciesDetailHeader({
     headingRef,
     shiny,
     onShinyChange,
-    onFormChange,
 }: {
     entry: HeaderEntry;
     datasetId: string | undefined;
     headingRef?: Ref<HTMLHeadingElement>;
     shiny: boolean;
     onShinyChange: (shiny: boolean) => void;
-    onFormChange: (speciesId: number) => void;
 }) {
     const { t } = useLanguage();
     const name = formDisplayName(entry.name, entry.formInfo);
@@ -46,6 +44,11 @@ export function SpeciesDetailHeader({
                     {name}
                 </h1>
                 <TypeBadges types={entry.types} iconFiles={entry.typeIconFiles} />
+                {forms.length > 1 && (
+                    <span className="mt-3 block text-xs text-muted">
+                        {forms.length} {t('Forms', forms.length < 5 ? 'Formy' : 'Forem')}
+                    </span>
+                )}
             </div>
             <div className="species-detail-visual">
                 <div className="species-detail-portrait">
@@ -81,25 +84,6 @@ export function SpeciesDetailHeader({
                     </button>
                 </div>
             </div>
-            {forms.length > 1 && (
-                <div className="species-detail-controls">
-                    <label className="filter-label">
-                        {t('Form', 'Forma')}
-                        <select
-                            className="filter-input form-selector"
-                            value={entry.speciesId}
-                            onChange={(event) => onFormChange(Number(event.target.value))}
-                        >
-                            {forms.map((form) => (
-                                <option key={form.speciesId} value={form.speciesId}>
-                                    {formDisplayName(form.name, form)} · #
-                                    {String(form.speciesId).padStart(4, '0')}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                </div>
-            )}
             {!sprite && (
                 <p className="species-sprite-note empty-note">
                     {entry.sprites?.missingReason ??

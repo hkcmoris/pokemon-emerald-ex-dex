@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { createElement, type ComponentProps } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
+import { LanguageProvider } from './language.js';
 import { SpeciesDetailHeader } from './SpeciesDetailHeader.js';
 
 const entry: ComponentProps<typeof SpeciesDetailHeader>['entry'] = {
@@ -43,20 +44,26 @@ const entry: ComponentProps<typeof SpeciesDetailHeader>['entry'] = {
     },
 };
 
-function renderHeader(overrides: Partial<ComponentProps<typeof SpeciesDetailHeader>> = {}): string {
+function renderHeader(
+    overrides: Partial<ComponentProps<typeof SpeciesDetailHeader>> = {},
+    language: 'en' | 'cs' = 'en',
+): string {
     return renderToStaticMarkup(
-        createElement(SpeciesDetailHeader, {
-            entry,
-            datasetId: 'emerald-ex-1.0.4',
-            shiny: true,
-            onShinyChange: () => {},
-            onFormChange: () => {},
-            ...overrides,
-        }),
+        createElement(
+            LanguageProvider,
+            { initialLanguage: language },
+            createElement(SpeciesDetailHeader, {
+                entry,
+                datasetId: 'emerald-ex-1.0.4',
+                shiny: true,
+                onShinyChange: () => {},
+                ...overrides,
+            }),
+        ),
     );
 }
 
-void test('appearance selection renders one matching sprite and distinct IDs for identically named forms', () => {
+void test('appearance selection renders one matching sprite and retains the displayed form identity', () => {
     const markup = renderHeader();
     match(markup, /alt="Zen Darmanitan shiny front sprite"/);
     doesNotMatch(markup, /alt="Zen Darmanitan standard front sprite"/);
@@ -66,13 +73,14 @@ void test('appearance selection renders one matching sprite and distinct IDs for
         markup,
         /<button type="button" aria-pressed="true"><span aria-hidden="true">✦<\/span> Shiny/,
     );
-    match(markup, /<option value="1092">Zen Darmanitan · #1092<\/option>/);
-    match(markup, /<option value="1093" selected="">Zen Darmanitan · #1093<\/option>/);
+
+    match(markup, /<p class="eyebrow">#1093<\/p>/);
+    match(markup, />Zen Darmanitan<\/h1>/);
+    doesNotMatch(markup, /<select|<option/);
 
     const standard = renderHeader({ shiny: false });
     match(standard, /alt="Zen Darmanitan standard front sprite"/);
     match(standard, /<button type="button" aria-pressed="true">Standard<\/button>/);
-    match(standard, /<option value="1093" selected="">/);
 });
 
 void test('missing sprites retain the full form name and a disabled shiny control without a broken sprite request', () => {
@@ -91,3 +99,35 @@ void test('missing sprites retain the full form name and a disabled shiny contro
     match(markup, /No sprite has been imported for this form/);
     doesNotMatch(markup, /\/api\/sprites\/|<select/);
 });
+
+for (const count of [0, 1, 2, 5]) {
+    void test(`header form counter handles ${count} forms in English and Czech`, () => {
+        const countEntry: ComponentProps<typeof SpeciesDetailHeader>['entry'] = {
+            ...entry,
+            forms: {
+                formGroupId: 115,
+                baseSpeciesId: 555,
+                baseName: 'Darmanitan',
+                members: Array.from({ length: count }, (_, index) => ({
+                    speciesId: 1092 + index,
+                    name: 'Darmanitan',
+                    formLabel: 'Zen',
+                    formKind: 'alternate',
+                    isBaseForm: false,
+                    sprite: null,
+                })),
+                changes: [],
+            },
+        };
+        for (const language of ['en', 'cs'] as const) {
+            const markup = renderHeader({ entry: countEntry }, language);
+            if (count > 1) {
+                const label = language === 'en' ? 'Forms' : count < 5 ? 'Formy' : 'Forem';
+                match(markup, new RegExp(`<span>${count} ${label}</span>`));
+            } else {
+                doesNotMatch(markup, /Forms|Formy|Forem/);
+            }
+            doesNotMatch(markup, /<select|<option/);
+        }
+    });
+}

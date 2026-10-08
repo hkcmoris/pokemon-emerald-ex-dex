@@ -1,4 +1,4 @@
-import { doesNotMatch, match } from 'node:assert/strict';
+import { deepStrictEqual, doesNotMatch, match, strictEqual } from 'node:assert/strict';
 import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -77,14 +77,14 @@ const entry: SpeciesDetails = {
     formChanges: [],
 };
 
-void test('Czech species UI preserves game names and imported descriptions', () => {
+function renderSpecies(language: 'en' | 'cs'): string {
     const client = new QueryClient();
     client.setQueryData(['species-details', 25], entry);
     try {
-        const html = renderToStaticMarkup(
+        return renderToStaticMarkup(
             createElement(
                 LanguageProvider,
-                { initialLanguage: 'cs' },
+                { initialLanguage: language },
                 createElement(
                     QueryClientProvider,
                     { client },
@@ -96,25 +96,82 @@ void test('Czech species UI preserves game names and imported descriptions', () 
                 ),
             ),
         );
-
-        for (const label of ['Základní statistiky', 'Vzhled', 'Běžná schopnost 1', 'Naučené útoky'])
-            match(html, new RegExp(label));
-        for (const data of [
-            entry.name,
-            entry.types[0],
-            entry.abilities[0].ability!.name,
-            entry.abilities[0].ability!.description,
-            entry.learnset[0].name,
-            entry.learnset[0].description,
-            entry.learnset[0].category,
-            entry.sprites!.missingReason!,
-            'Shiny',
-            'Technical Machines',
-            'Hidden Machines',
-        ])
-            match(html, new RegExp(data));
-        doesNotMatch(html, /Base stats|Normal ability 1|Moves learned/);
     } finally {
         client.clear();
     }
+}
+
+void test('Czech species UI preserves game names and imported descriptions', () => {
+    const html = renderSpecies('cs');
+    for (const label of ['Základní statistiky', 'Vzhled', 'Běžná schopnost 1', 'Naučené útoky'])
+        match(html, new RegExp(label));
+    for (const data of [
+        entry.name,
+        entry.types[0],
+        entry.abilities[0].ability!.name,
+        entry.abilities[0].ability!.description,
+        entry.learnset[0].name,
+        entry.learnset[0].description,
+        entry.learnset[0].category,
+        entry.sprites!.missingReason!,
+        'Shiny',
+        'Technical Machines',
+        'Hidden Machines',
+    ])
+        match(html, new RegExp(data));
+    doesNotMatch(html, /Base stats|Normal ability 1|Moves learned/);
 });
+
+for (const { language, labels } of [
+    { language: 'en', labels: ['Stats', 'Abilities', 'Evolutions', 'Moves'] },
+    { language: 'cs', labels: ['Statistiky', 'Schopnosti', 'Evoluce', 'Útoky'] },
+] as const) {
+    void test(`species tabs localize labels and keep inactive content in its own panel (${language})`, () => {
+        const html = renderSpecies(language);
+        const tabs = Array.from(
+            html.matchAll(/<div([^>]*data-slot="tabs-tab"[^>]*)>([\s\S]*?)<\/div>/g),
+        );
+        deepStrictEqual(
+            tabs.map(([, attributes, content]) => [
+                attributes.match(/data-key="([^"]+)"/)?.[1],
+                content.replace(/<[^>]*>/g, '').trim(),
+            ]),
+            ['stats', 'abilities', 'evolutions', 'moves'].map((key, index) => [key, labels[index]]),
+        );
+        deepStrictEqual(
+            tabs.map(([, attributes]) => attributes.includes('aria-selected="true"')),
+            [true, false, false, false],
+        );
+
+        const panels = Array.from(html.matchAll(/<div([^>]*data-slot="tabs-panel"[^>]*)>/g));
+        strictEqual(panels.length, 4);
+        const sectionTitles = [
+            'stats-title',
+            'abilities-title',
+            'evolution-title',
+            'learnset-title',
+        ];
+        for (const [index, panel] of panels.entries()) {
+            const attributes = panel[1];
+            if (index === 0) {
+                match(attributes, /role="tabpanel"/);
+                doesNotMatch(attributes, /\sinert=|\sdata-inert=/);
+            } else {
+                match(attributes, /\sinert=""/);
+                match(attributes, /data-inert="true"/);
+            }
+            const content = html.slice(panel.index + panel[0].length, panels[index + 1]?.index);
+            for (const [sectionIndex, title] of sectionTitles.entries()) {
+                const heading = new RegExp(`id="${title}"`);
+                if (sectionIndex === index) match(content, heading);
+                else doesNotMatch(content, heading);
+            }
+            if (index === 0) match(content, />320<\/span>/);
+            if (index === 1) match(content, /Static/);
+            if (index === 3) {
+                match(content, /Thunder Shock/);
+                match(content, /id="machines-title"/);
+            }
+        }
+    });
+}

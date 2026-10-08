@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Tabs } from '@heroui/react';
 import type { LearnsetEntry, Pokemon, SpeciesMachine } from '@pokemon-emerald-ex-dex/shared';
 
 import { ApiRequestError, fetchSpeciesDetails } from './api.js';
@@ -15,7 +16,6 @@ import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { SpeciesDetailHeader } from './SpeciesDetailHeader.js';
 import { DexHeader } from './DexHeader.js';
 import { DexNavigation } from './DexNavigation.js';
-import { speciesHref } from './navigation.js';
 import { useLanguage } from './language.js';
 import { typeSurfaceStyle } from './theme.js';
 
@@ -41,28 +41,13 @@ function MoveTable({
                     'Popisy útoků jsou zobrazené pod názvy. Rozbalením dalších údajů zobrazíte hodnoty z ROM.',
                 )}
             </caption>
-            <thead role="rowgroup">
+            <thead className="sr-only" role="rowgroup">
                 <tr role="row">
                     <th scope="col" role="columnheader">
-                        {acquisition === 'Level' ? t('Level', 'Úroveň') : t('Machine', 'TM / HM')}
+                        {t('Move', 'Útok')}
                     </th>
                     <th scope="col" role="columnheader">
-                        {t('Move / Type', 'Útok / typ')}
-                    </th>
-                    <th scope="col" role="columnheader">
-                        {t('Category', 'Kategorie')}
-                    </th>
-                    <th scope="col" role="columnheader" className="text-right">
-                        {t('Power', 'Síla')}
-                    </th>
-                    <th scope="col" role="columnheader" className="text-right">
-                        {t('Accuracy', 'Přesnost')}
-                    </th>
-                    <th scope="col" role="columnheader" className="text-right">
-                        PP
-                    </th>
-                    <th scope="col" role="columnheader" className="text-right">
-                        {t('Priority', 'Priorita')}
+                        {t('Stats', 'Statistiky')}
                     </th>
                 </tr>
             </thead>
@@ -74,22 +59,28 @@ function MoveTable({
                         className="move-row type-surface"
                         style={typeSurfaceStyle([move.type])}
                     >
-                        <td
-                            role="cell"
-                            className="move-acquisition align-top font-mono text-xs tabular-nums"
-                        >
-                            <span className="move-cell-label" aria-hidden="true">
-                                {acquisition === 'Level'
-                                    ? t('Level', 'Úroveň')
-                                    : t('Machine', 'TM / HM')}
-                            </span>
-                            {'machine' in move ? move.machine : move.level}
-                        </td>
                         <th scope="row" role="rowheader" className="move-main text-left align-top">
                             <div className="move-heading">
-                                <span className="move-name">{move.name}</span>
-                                <TypeBadges types={[move.type]} iconFiles={[move.typeIconFile]} />
+                                <TypeBadges
+                                    types={[move.type]}
+                                    iconFiles={[move.typeIconFile]}
+                                    iconOnly
+                                />
+                                <span className="move-title">
+                                    <span className="move-name">{move.name}</span>{' '}
+                                    <MoveCategory
+                                        category={move.category}
+                                        iconFile={move.categoryIconFile}
+                                        iconOnly
+                                    />
+                                </span>
                             </div>
+                            <p className="move-acquisition">
+                                {acquisition === 'Level'
+                                    ? t('Level', 'Úroveň')
+                                    : t('Machine', 'TM / HM')}{' '}
+                                <span>{'machine' in move ? move.machine : move.level}</span>
+                            </p>
                             <p className="move-description">
                                 {move.description ||
                                     t('No description recorded.', 'Popis není uveden.')}
@@ -151,57 +142,47 @@ function MoveTable({
                                 </dl>
                             </details>
                         </th>
-                        <td role="cell" className="move-category align-top text-xs">
-                            <MoveCategory
-                                category={move.category}
-                                iconFile={move.categoryIconFile}
-                            />
-                        </td>
-                        <td
-                            role="cell"
-                            className="move-metric text-right align-top tabular-nums"
-                            title={
-                                move.power === 0
-                                    ? t(
-                                          'No fixed base power (ROM value 0)',
-                                          'Bez pevné základní síly (hodnota v ROM je 0)',
-                                      )
-                                    : undefined
-                            }
-                        >
-                            <span className="move-cell-label" aria-hidden="true">
-                                {t('Power', 'Síla')}
-                            </span>
-                            {move.power || '—'}
-                        </td>
-                        <td
-                            role="cell"
-                            className="move-metric text-right align-top tabular-nums"
-                            title={
-                                move.accuracy === 0
-                                    ? t(
-                                          'No normal percentage accuracy check (ROM value 0)',
-                                          'Bez běžné procentní kontroly přesnosti (hodnota v ROM je 0)',
-                                      )
-                                    : undefined
-                            }
-                        >
-                            <span className="move-cell-label" aria-hidden="true">
-                                {t('Accuracy', 'Přesnost')}
-                            </span>
-                            {move.accuracy ? `${move.accuracy}%` : '—'}
-                        </td>
-                        <td role="cell" className="move-metric text-right align-top tabular-nums">
-                            <span className="move-cell-label" aria-hidden="true">
-                                PP
-                            </span>
-                            {move.pp}
-                        </td>
-                        <td role="cell" className="move-metric text-right align-top tabular-nums">
-                            <span className="move-cell-label" aria-hidden="true">
-                                {t('Priority', 'Priorita')}
-                            </span>
-                            {move.priority > 0 ? `+${move.priority}` : move.priority}
+                        <td role="cell" className="move-stats align-top tabular-nums">
+                            <dl>
+                                <div
+                                    className="move-power"
+                                    title={
+                                        move.power === 0
+                                            ? t(
+                                                  'No fixed base power (ROM value 0)',
+                                                  'Bez pevné základní síly (hodnota v ROM je 0)',
+                                              )
+                                            : undefined
+                                    }
+                                >
+                                    <dt>{t('Power', 'Síla')}</dt>
+                                    <dd>{move.power || '—'}</dd>
+                                </div>
+                                <div
+                                    className="move-metric"
+                                    title={
+                                        move.accuracy === 0
+                                            ? t(
+                                                  'No normal percentage accuracy check (ROM value 0)',
+                                                  'Bez běžné procentní kontroly přesnosti (hodnota v ROM je 0)',
+                                              )
+                                            : undefined
+                                    }
+                                >
+                                    <dt>{t('Accuracy', 'Přesnost')}</dt>
+                                    <dd>{move.accuracy ? `${move.accuracy}%` : '—'}</dd>
+                                </div>
+                                <div className="move-metric">
+                                    <dt>PP</dt>
+                                    <dd>{move.pp}</dd>
+                                </div>
+                                <div className="move-metric">
+                                    <dt>{t('Priority', 'Priorita')}</dt>
+                                    <dd>
+                                        {move.priority > 0 ? `+${move.priority}` : move.priority}
+                                    </dd>
+                                </div>
+                            </dl>
                         </td>
                     </tr>
                 ))}
@@ -319,6 +300,7 @@ export function SpeciesPage({
     const { t } = useLanguage();
     const heading = useRef<HTMLHeadingElement>(null);
     const [shiny, setShiny] = useState(false);
+    const [selectedTab, setSelectedTab] = useState('stats');
     const details = useQuery({
         queryKey: ['species-details', speciesId],
         queryFn: ({ signal }) => fetchSpeciesDetails(speciesId, signal),
@@ -352,9 +334,6 @@ export function SpeciesPage({
                         headingRef={heading}
                         shiny={shiny}
                         onShinyChange={setShiny}
-                        onFormChange={(id) => {
-                            window.location.hash = speciesHref(id);
-                        }}
                     />
                 ) : (
                     <h1 className="mb-5 text-2xl font-semibold">
@@ -398,147 +377,188 @@ export function SpeciesPage({
                     </div>
                 ) : (
                     entry && (
-                        <div className="detail-content grid items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-                            <StatsPanel entry={entry} version={version} />
-                            <div className="min-w-0 space-y-6">
+                        <Tabs
+                            className="species-tabs"
+                            selectedKey={selectedTab}
+                            onSelectionChange={(key) => setSelectedTab(String(key))}
+                        >
+                            <Tabs.List
+                                className="species-tab-list"
+                                aria-label={t('Species details', 'Detail druhu')}
+                            >
+                                <Tabs.Tab id="stats" className="species-tab">
+                                    {t('Stats', 'Statistiky')}
+                                </Tabs.Tab>
+                                <Tabs.Tab id="abilities" className="species-tab">
+                                    {t('Abilities', 'Schopnosti')}
+                                </Tabs.Tab>
+                                <Tabs.Tab id="evolutions" className="species-tab">
+                                    {t('Evolutions', 'Evoluce')}
+                                </Tabs.Tab>
+                                <Tabs.Tab id="moves" className="species-tab">
+                                    {t('Moves', 'Útoky')}
+                                </Tabs.Tab>
+                            </Tabs.List>
+                            <Tabs.Panel id="stats" className="species-tab-panel" shouldForceMount>
+                                <StatsPanel entry={entry} version={version} />
+                            </Tabs.Panel>
+                            <Tabs.Panel
+                                id="abilities"
+                                className="species-tab-panel"
+                                shouldForceMount
+                            >
                                 <AbilitiesSection slots={entry.abilities} />
-                                <section
-                                    className="species-section"
-                                    aria-labelledby="evolution-title"
-                                >
-                                    <div className="section-heading">
-                                        <p className="eyebrow">
-                                            {t('Species relationships', 'Vztahy mezi druhy')}
-                                        </p>
-                                        <h2 id="evolution-title">{t('Evolution', 'Evoluce')}</h2>
-                                    </div>
-                                    <div className="p-5 sm:p-6">
-                                        {entry.evolutionBaseSpeciesId !== speciesId && (
-                                            <p className="empty-note mb-5">
+                            </Tabs.Panel>
+                            <Tabs.Panel
+                                id="evolutions"
+                                className="species-tab-panel"
+                                shouldForceMount
+                            >
+                                <div className="space-y-6">
+                                    <section
+                                        className="species-section"
+                                        aria-labelledby="evolution-title"
+                                    >
+                                        <div className="section-heading">
+                                            <p className="eyebrow">
+                                                {t('Species relationships', 'Vztahy mezi druhy')}
+                                            </p>
+                                            <h2 id="evolution-title">
+                                                {t('Evolution', 'Evoluce')}
+                                            </h2>
+                                        </div>
+                                        <div className="p-5 sm:p-6">
+                                            {entry.evolutionBaseSpeciesId !== speciesId && (
+                                                <p className="empty-note mb-5">
+                                                    {t(
+                                                        `Evolution family of ${entry.forms?.baseName ?? entry.name}. This species' forms are listed separately below.`,
+                                                        `Evoluční řada pro ${entry.forms?.baseName ?? entry.name}. Formy tohoto druhu jsou uvedeny samostatně níže.`,
+                                                    )}
+                                                </p>
+                                            )}
+                                            <EvolutionLine
+                                                entry={{
+                                                    speciesId: entry.evolutionBaseSpeciesId,
+                                                    name:
+                                                        entry.evolutionBaseSpeciesId === speciesId
+                                                            ? formDisplayName(
+                                                                  entry.name,
+                                                                  entry.formInfo,
+                                                              )
+                                                            : (evolutionBase?.name ?? entry.name),
+                                                    sprites: evolutionBase
+                                                        ? { front: evolutionBase.sprite }
+                                                        : entry.sprites,
+                                                }}
+                                                links={entry.evolutionFamily}
+                                                datasetId={datasetId}
+                                                currentPageSpeciesId={speciesId}
+                                                currentLabel={
+                                                    entry.evolutionBaseSpeciesId === speciesId
+                                                        ? t('Current stage', 'Aktuální stadium')
+                                                        : t('Base species', 'Základní druh')
+                                                }
+                                            />
+                                        </div>
+                                    </section>
+                                    <FormsSection
+                                        forms={entry.forms}
+                                        changes={entry.formChanges}
+                                        speciesId={speciesId}
+                                        datasetId={datasetId}
+                                    />
+                                </div>
+                            </Tabs.Panel>
+                            <Tabs.Panel id="moves" className="species-tab-panel" shouldForceMount>
+                                <div className="space-y-6">
+                                    <section
+                                        className="species-section"
+                                        aria-labelledby="learnset-title"
+                                    >
+                                        <div className="section-heading">
+                                            <p className="eyebrow">
                                                 {t(
-                                                    `Evolution family of ${entry.forms?.baseName ?? entry.name}. This species' forms are listed separately below.`,
-                                                    `Evoluční řada pro ${entry.forms?.baseName ?? entry.name}. Formy tohoto druhu jsou uvedeny samostatně níže.`,
+                                                    'Level-up learnset',
+                                                    'Útoky získané postupem na vyšší úroveň',
+                                                )}
+                                            </p>
+                                            <h2 id="learnset-title">
+                                                {t('Moves learned', 'Naučené útoky')}{' '}
+                                                <span className="count-label">
+                                                    {entry.learnset.length}
+                                                </span>
+                                            </h2>
+                                        </div>
+                                        {entry.learnset.length ? (
+                                            <MoveTable
+                                                entries={entry.learnset}
+                                                acquisition="Level"
+                                            />
+                                        ) : (
+                                            <p className="empty-note p-6">
+                                                {t(
+                                                    'No level-up moves recorded.',
+                                                    'Nejsou zaznamenány žádné útoky získané postupem na vyšší úroveň.',
                                                 )}
                                             </p>
                                         )}
-                                        <EvolutionLine
-                                            entry={{
-                                                speciesId: entry.evolutionBaseSpeciesId,
-                                                name:
-                                                    entry.evolutionBaseSpeciesId === speciesId
-                                                        ? formDisplayName(
-                                                              entry.name,
-                                                              entry.formInfo,
-                                                          )
-                                                        : (evolutionBase?.name ?? entry.name),
-                                                sprites: evolutionBase
-                                                    ? { front: evolutionBase.sprite }
-                                                    : entry.sprites,
-                                            }}
-                                            links={entry.evolutionFamily}
-                                            datasetId={datasetId}
-                                            currentPageSpeciesId={speciesId}
-                                            currentLabel={
-                                                entry.evolutionBaseSpeciesId === speciesId
-                                                    ? t('Current stage', 'Aktuální stadium')
-                                                    : t('Base species', 'Základní druh')
-                                            }
-                                        />
-                                    </div>
-                                </section>
-                                <FormsSection
-                                    forms={entry.forms}
-                                    changes={entry.formChanges}
-                                    speciesId={speciesId}
-                                    datasetId={datasetId}
-                                />
-                                <section
-                                    className="species-section"
-                                    aria-labelledby="learnset-title"
-                                >
-                                    <div className="section-heading">
-                                        <p className="eyebrow">
-                                            {t(
-                                                'Level-up learnset',
-                                                'Útoky získané postupem na vyšší úroveň',
-                                            )}
-                                        </p>
-                                        <h2 id="learnset-title">
-                                            {t('Moves learned', 'Naučené útoky')}{' '}
-                                            <span className="count-label">
-                                                {entry.learnset.length}
-                                            </span>
-                                        </h2>
-                                        <p className="mt-2 text-xs text-stone-600">
-                                            {t(
-                                                'Expand a move name for its description and complete move data.',
-                                                'Rozbalte název útoku pro zobrazení popisu a všech údajů.',
-                                            )}
-                                        </p>
-                                    </div>
-                                    {entry.learnset.length ? (
-                                        <MoveTable entries={entry.learnset} acquisition="Level" />
-                                    ) : (
-                                        <p className="empty-note p-6">
-                                            {t(
-                                                'No level-up moves recorded.',
-                                                'Nejsou zaznamenány žádné útoky získané postupem na vyšší úroveň.',
-                                            )}
-                                        </p>
-                                    )}
-                                </section>
-                                <section
-                                    className="species-section"
-                                    aria-labelledby="machines-title"
-                                >
-                                    <div className="section-heading">
-                                        <p className="eyebrow">
-                                            {t('TM / HM compatibility', 'Kompatibilita s TM / HM')}
-                                        </p>
-                                        <h2 id="machines-title">
-                                            {t('Machine moves', 'Útoky z TM / HM')}{' '}
-                                            <span className="count-label">
-                                                {entry.machines.length}
-                                            </span>
-                                        </h2>
-                                    </div>
-                                    <h3 className="machine-heading">
-                                        Technical Machines{' '}
-                                        <span className="count-label">{tms.length}</span>
-                                    </h3>
-                                    {tms.length ? (
-                                        <MoveTable entries={tms} acquisition="Machine" />
-                                    ) : (
-                                        <p className="empty-note p-6">
-                                            {t(
-                                                'No compatible TMs recorded.',
-                                                'Nejsou zaznamenány žádné kompatibilní TM.',
-                                            )}
-                                        </p>
-                                    )}
-                                    <h3 className="machine-heading">
-                                        Hidden Machines{' '}
-                                        <span className="count-label">{hms.length}</span>
-                                    </h3>
-                                    {hms.length ? (
-                                        <MoveTable entries={hms} acquisition="Machine" />
-                                    ) : (
-                                        <p className="empty-note p-6">
-                                            {t(
-                                                'No compatible HMs recorded.',
-                                                'Nejsou zaznamenány žádné kompatibilní HM.',
-                                            )}
-                                        </p>
-                                    )}
-                                </section>
-                                <p className="text-xs leading-relaxed text-stone-600">
-                                    {t(
-                                        'Move power is base power, not calculated battle damage. A dash means no fixed base power or no normal percentage accuracy check (ROM value 0). Learnset order and level 0 are preserved.',
-                                        'Síla útoku je základní hodnota, nikoli vypočtené poškození v boji. Pomlčka znamená, že útok nemá pevnou základní sílu nebo běžnou procentní kontrolu přesnosti (hodnota v ROM je 0). Pořadí útoků i úroveň 0 jsou zachovány.',
-                                    )}
-                                </p>
-                            </div>
-                        </div>
+                                    </section>
+                                    <section
+                                        className="species-section"
+                                        aria-labelledby="machines-title"
+                                    >
+                                        <div className="section-heading">
+                                            <p className="eyebrow">
+                                                {t(
+                                                    'TM / HM compatibility',
+                                                    'Kompatibilita s TM / HM',
+                                                )}
+                                            </p>
+                                            <h2 id="machines-title">
+                                                {t('Machine moves', 'Útoky z TM / HM')}{' '}
+                                                <span className="count-label">
+                                                    {entry.machines.length}
+                                                </span>
+                                            </h2>
+                                        </div>
+                                        <h3 className="machine-heading">
+                                            Technical Machines{' '}
+                                            <span className="count-label">{tms.length}</span>
+                                        </h3>
+                                        {tms.length ? (
+                                            <MoveTable entries={tms} acquisition="Machine" />
+                                        ) : (
+                                            <p className="empty-note p-6">
+                                                {t(
+                                                    'No compatible TMs recorded.',
+                                                    'Nejsou zaznamenány žádné kompatibilní TM.',
+                                                )}
+                                            </p>
+                                        )}
+                                        <h3 className="machine-heading">
+                                            Hidden Machines{' '}
+                                            <span className="count-label">{hms.length}</span>
+                                        </h3>
+                                        {hms.length ? (
+                                            <MoveTable entries={hms} acquisition="Machine" />
+                                        ) : (
+                                            <p className="empty-note p-6">
+                                                {t(
+                                                    'No compatible HMs recorded.',
+                                                    'Nejsou zaznamenány žádné kompatibilní HM.',
+                                                )}
+                                            </p>
+                                        )}
+                                    </section>
+                                    <p className="text-xs leading-relaxed text-stone-600">
+                                        {t(
+                                            'Move power is base power, not calculated battle damage. A dash means no fixed base power or no normal percentage accuracy check (ROM value 0). Learnset order and level 0 are preserved.',
+                                            'Síla útoku je základní hodnota, nikoli vypočtené poškození v boji. Pomlčka znamená, že útok nemá pevnou základní sílu nebo běžnou procentní kontrolu přesnosti (hodnota v ROM je 0). Pořadí útoků i úroveň 0 jsou zachovány.',
+                                        )}
+                                    </p>
+                                </div>
+                            </Tabs.Panel>
+                        </Tabs>
                     )
                 )}
                 <DexFooter />

@@ -2,23 +2,40 @@ import { useState } from 'react';
 
 import { apiUrl } from './apiUrl.js';
 
-function TypeBadge({ name, file }: { name: string; file: string | null }) {
+function TypeBadge({
+    name,
+    file,
+    iconOnly,
+}: {
+    name: string;
+    file: string | null;
+    iconOnly: boolean;
+}) {
     const [failed, setFailed] = useState(false);
+    const showIcon = Boolean(file) && !failed;
     return (
-        <span className="type-badge mt-0.5" data-type={name}>
-            {file && !failed && (
+        <span
+            className={iconOnly ? 'type-icon inline-flex items-center' : 'type-badge mt-0.5'}
+            data-type={name}
+            title={iconOnly ? name : undefined}
+        >
+            {file && showIcon && (
                 <img
                     src={apiUrl(`icons/types/${encodeURIComponent(file)}`)}
-                    alt=""
+                    alt={iconOnly ? name : ''}
                     width={24}
                     height={24}
-                    className="h-6 w-6 -mt-3 shrink-0 object-contain"
+                    className={
+                        iconOnly
+                            ? 'h-6 w-6 shrink-0 object-contain'
+                            : 'h-6 w-6 -mt-3 shrink-0 object-contain'
+                    }
                     loading="lazy"
                     decoding="async"
                     onError={() => setFailed(true)}
                 />
             )}
-            <span className="type-badge-label">{name}</span>
+            {(!iconOnly || !showIcon) && <span className="type-badge-label">{name}</span>}
         </span>
     );
 }
@@ -26,15 +43,30 @@ function TypeBadge({ name, file }: { name: string; file: string | null }) {
 export function TypeBadges({
     types,
     iconFiles,
+    iconOnly = false,
 }: {
     types: readonly string[];
     iconFiles: readonly (string | null)[];
+    iconOnly?: boolean;
 }) {
     return (
-        <span className="type-badges flex flex-wrap gap-1.5">
+        <span
+            className={
+                iconOnly
+                    ? 'type-icons inline-flex flex-wrap items-center gap-1.5'
+                    : 'type-badges flex flex-wrap gap-1.5'
+            }
+        >
             {types.map((type, index) => {
                 const file = iconFiles[index] ?? null;
-                return <TypeBadge key={`${type}:${file ?? ''}`} name={type} file={file} />;
+                return (
+                    <TypeBadge
+                        key={`${type}:${file ?? ''}`}
+                        name={type}
+                        file={file}
+                        iconOnly={iconOnly}
+                    />
+                );
             })}
         </span>
     );

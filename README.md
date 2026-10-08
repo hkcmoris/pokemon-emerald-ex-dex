@@ -11,8 +11,13 @@ species/form ID. Stats are base stats, not calculated battle stats.
 
 Click a species name to see all its imported data: base stats and types, level-up moves,
 the full evolution family, related forms and form-change rules, and compatible TMs/HMs.
-Move descriptions stay visible. On phones, move tables use stacked rows with labeled
-stats so no horizontal scrolling is needed; additional ROM fields remain expandable. The evolution
+Details are grouped into Stats, Abilities, Evolutions, and Moves tabs. Stats opens by
+default; Evolutions contains both the evolution family and forms. Tabs support keyboard
+navigation and retain the selected section when following form or evolution links.
+Move descriptions stay visible. Move rows put the type icon before the name and the
+category icon after it. Power is prominent on the right, with smaller accuracy, PP,
+and priority values below. Rows fit without horizontal scrolling; additional ROM
+fields remain available through a muted disclosure below the description. The evolution
 line includes every stage and branch, with the viewed species highlighted. Each stage
 links to its detail page and preserves every alternative evolution method.
 Forms have their own section with sprites, friendly labels and transition summaries.
@@ -21,12 +26,13 @@ evolution family without treating form changes as evolution edges. ROM names rem
 unchanged in SQL and the API. Existing databases need `011_forms.sql`, followed by
 `012_import_forms_1.0.4.sql`; see [the forms upgrade](docs/database.md#upgrade-an-already-imported-database-with-forms).
 The list shows each species' standard front sprite. Detail pages pair a crisp sprite
-with the species name and labeled types. Standard/Shiny changes the appearance; a
-separate form selector navigates actual form IDs and keeps the appearance preference.
+with the species name, labeled types, and a counter when multiple forms exist.
+Standard/Shiny changes the appearance. Form cards in the Evolutions tab navigate
+actual form IDs while keeping the appearance preference.
 The four forms without exported sprites show placeholders. Base stats use two columns
 with compact labels and highlight every tied highest stat. Beside the total, Physical
 or Special icons compare Attack with Sp. Attack; equal values show both icons. The
-scale explanation remains available under Species data. Stats sit above abilities on phones.
+scale explanation remains available under Species data in the Stats tab.
 On mobile, the Emerald theme puts search above sprite-led Pokémon rows, with the
 base stat total (BST) on the right and the Physical/Special indicator above it; sorting
 by speed shows Speed instead. Desktop retains the dense

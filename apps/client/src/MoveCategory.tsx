@@ -2,13 +2,13 @@ import { useState } from 'react';
 
 import { apiUrl } from './apiUrl.js';
 
-export function MoveCategoryIcon({ file }: { file: string }) {
+export function MoveCategoryIcon({ file, label }: { file: string; label?: string }) {
     const [failed, setFailed] = useState(false);
-    if (failed) return null;
+    if (failed) return label ? <span>{label}</span> : null;
     return (
         <img
             src={apiUrl(`icons/move-categories/${encodeURIComponent(file)}`)}
-            alt=""
+            alt={label ?? ''}
             className="h-6 w-7 shrink-0 object-contain"
             onError={() => setFailed(true)}
         />
@@ -18,14 +18,29 @@ export function MoveCategoryIcon({ file }: { file: string }) {
 export function MoveCategory({
     category,
     iconFile,
+    iconOnly = false,
 }: {
     category: string;
     iconFile: string | null;
+    iconOnly?: boolean;
 }) {
     return (
-        <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-            {iconFile && <MoveCategoryIcon key={iconFile} file={iconFile} />}
-            <span>{category}</span>
+        <span
+            className={
+                iconOnly
+                    ? 'move-category-icon inline-flex items-center whitespace-nowrap'
+                    : 'inline-flex items-center gap-1.5 whitespace-nowrap'
+            }
+            title={iconOnly ? category : undefined}
+        >
+            {iconFile && (
+                <MoveCategoryIcon
+                    key={iconFile}
+                    file={iconFile}
+                    label={iconOnly ? category : undefined}
+                />
+            )}
+            {(!iconOnly || !iconFile) && <span>{category}</span>}
         </span>
     );
 }
