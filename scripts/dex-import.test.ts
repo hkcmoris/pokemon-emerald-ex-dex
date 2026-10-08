@@ -165,6 +165,7 @@ void test('schema, import and query examples stay within the dex table namespace
         '014_import_items_1.0.4.sql',
         '015_abilities.sql',
         '016_import_abilities_1.0.4.sql',
+        '017_move_category_svg_icons.sql',
     ]) {
         const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
         strictEqual(/^\s*(?:(?:CREATE|ALTER|DROP) DATABASE|USE\s)/im.test(sql), false, file);
@@ -305,6 +306,67 @@ void test('the forms migration matches the fresh schema and preserves opaque mec
     ])
         strictEqual(formsSql.includes(name), true, name);
     strictEqual(formsSql.includes('"heldItem":null,"requiredAbility":null'), true);
+});
+
+void test('category icon SQL seeds SVGs and upgrades only the exact original PNG defaults', async () => {
+    const seed = await readFile(
+        new URL('sql/008_seed_move_category_icons.sql', import.meta.url),
+        'utf8',
+    );
+    const seededIcons = [
+        ...seed.matchAll(
+            /^UPDATE emerald_ex_move_categories SET icon_file = '([^']+)'\r?\nWHERE dataset_id = '([^']+)' AND category_id = (\d+) AND name = '([^']+)' AND icon_file IS NULL;$/gm,
+        ),
+    ].map((match) => ({ file: match[1], dataset: match[2], id: Number(match[3]), name: match[4] }));
+    deepStrictEqual(seededIcons, [
+        { file: 'physical.svg', dataset: 'emerald-ex-1.0.4', id: 0, name: 'Physical' },
+        { file: 'special.svg', dataset: 'emerald-ex-1.0.4', id: 1, name: 'Special' },
+        { file: 'status.png', dataset: 'emerald-ex-1.0.4', id: 2, name: 'Status' },
+    ]);
+    strictEqual([...seed.matchAll(/^UPDATE /gm)].length, seededIcons.length);
+    for (const icon of seededIcons) {
+        const bytes = await readFile(
+            new URL(`../assets/move-categories/${icon.file}`, import.meta.url),
+        );
+        strictEqual(bytes.length > 0, true, icon.file);
+    }
+
+    const upgrade = await readFile(
+        new URL('sql/017_move_category_svg_icons.sql', import.meta.url),
+        'utf8',
+    );
+    const upgradedIcons = [
+        ...upgrade.matchAll(
+            /^UPDATE emerald_ex_move_categories SET icon_file = '([^']+)'\r?\nWHERE dataset_id = '([^']+)' AND category_id = (\d+) AND BINARY name = '([^']+)' AND BINARY icon_file = '([^']+)';$/gm,
+        ),
+    ].map((match) => ({
+        file: match[1],
+        dataset: match[2],
+        id: Number(match[3]),
+        name: match[4],
+        previousFile: match[5],
+    }));
+    deepStrictEqual(upgradedIcons, [
+        {
+            file: 'physical.svg',
+            dataset: 'emerald-ex-1.0.4',
+            id: 0,
+            name: 'Physical',
+            previousFile: 'physical.png',
+        },
+        {
+            file: 'special.svg',
+            dataset: 'emerald-ex-1.0.4',
+            id: 1,
+            name: 'Special',
+            previousFile: 'special.png',
+        },
+    ]);
+    strictEqual([...upgrade.matchAll(/^UPDATE /gm)].length, upgradedIcons.length);
+    strictEqual(
+        /\b(?:INSERT|DELETE|REPLACE|ALTER|DROP|TRUNCATE)\b/i.test(upgrade.replace(/^--.*$/gm, '')),
+        false,
+    );
 });
 
 void test('the type icon seed maps all supplied PNGs, including Electric/Lightning and Dark/Darkness', async () => {

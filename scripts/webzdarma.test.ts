@@ -33,6 +33,10 @@ void test('Webzdarma upload includes protected PHP config templates and images, 
     ]) {
         await mkdir(join(root, 'assets', folder), { recursive: true });
         await writeFile(join(root, 'assets', folder, 'sprite.png'), 'png');
+        await writeFile(
+            join(root, 'assets', folder, 'sprite.svg'),
+            '<svg xmlns="http://www.w3.org/2000/svg"/>',
+        );
         await writeFile(join(root, 'assets', folder, 'sprite_manifest.json'), '{}');
         await writeFile(join(root, 'assets', folder, 'secret'), 'excluded');
     }
@@ -59,6 +63,13 @@ void test('Webzdarma upload includes protected PHP config templates and images, 
         await readdir(join(output, 'assets/pokemon_emerald_ex_1.0.4_battle_sprites/front')),
         ['sprite.png'],
     );
+    deepStrictEqual((await readdir(join(output, 'assets/move-categories'))).sort(), [
+        'sprite.png',
+        'sprite.svg',
+    ]);
+    for (const folder of ['types', 'items']) {
+        deepStrictEqual(await readdir(join(output, 'assets', folder)), ['sprite.png']);
+    }
     strictEqual(
         (await readFile(join(output, 'api/private/.htaccess'), 'utf8')).includes(
             'RewriteRule ^ - [F,L]',

@@ -184,8 +184,12 @@ function dispatch(DexRepository $repository, string $path, array $query): array
 
 function imagePath(string $path, string $assetRoot): ?string
 {
+    $extensions = ['png'];
     if (preg_match('~^/icons/(types|move-categories|items)/([^/]+)$~D', $path, $parts)) {
         $relative = $parts[1] . '/' . $parts[2];
+        if ($parts[1] === 'move-categories') {
+            $extensions[] = 'svg';
+        }
         $name = $parts[2];
     } elseif (preg_match('~^/sprites/emerald-ex-1\.0\.4/(front|shiny_front|front_frame2|shiny_front_frame2|back|shiny_back)/([^/]+)$~D', $path, $parts)) {
         $relative = 'pokemon_emerald_ex_1.0.4_battle_sprites/' . $parts[1] . '/' . $parts[2];
@@ -193,7 +197,7 @@ function imagePath(string $path, string $assetRoot): ?string
     } else {
         return null;
     }
-    if (str_starts_with($name, '.') || preg_match('~[\\\\\x00-\x1f\x7f]~', $name) || !preg_match('/\.png$/iD', $name)) {
+    if (str_starts_with($name, '.') || preg_match('~[\\\\\x00-\x1f\x7f]~', $name) || !in_array(strtolower(pathinfo($name, PATHINFO_EXTENSION)), $extensions, true)) {
         return null;
     }
     $root = realpath($assetRoot);

@@ -10,6 +10,12 @@ export function OffensiveStatIndicator({
 }) {
     const { t } = useLanguage();
     const attackDifference = stats.attack - stats.spAttack;
+    const file =
+        attackDifference > 0
+            ? 'physical.svg'
+            : attackDifference < 0
+              ? 'special.svg'
+              : 'physical-special.svg';
     const label =
         attackDifference > 0
             ? t('Attack is higher than Sp. Attack', 'Útok je vyšší než speciální útok')
@@ -18,8 +24,7 @@ export function OffensiveStatIndicator({
               : t('Attack and Sp. Attack are equal', 'Útok a speciální útok jsou stejné');
     return (
         <span className="stat-offense" role="img" aria-label={label} title={label}>
-            {attackDifference >= 0 && <MoveCategoryIcon file="physical.png" />}
-            {attackDifference <= 0 && <MoveCategoryIcon file="special.png" />}
+            <MoveCategoryIcon key={file} file={file} />
         </span>
     );
 }

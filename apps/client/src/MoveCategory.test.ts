@@ -23,12 +23,12 @@ void test('icon-only categories keep their accessible name and tooltip without a
     const markup = renderToStaticMarkup(
         createElement(MoveCategory, {
             category: 'Physical',
-            iconFile: 'physical.png',
+            iconFile: 'physical.svg',
             iconOnly: true,
         }),
     );
     match(markup, /class="move-category-icon [^"]*" title="Physical"/);
-    match(markup, /src="\/api\/icons\/move-categories\/physical\.png" alt="Physical"/);
+    match(markup, /src="\/api\/icons\/move-categories\/physical\.svg" alt="Physical"/);
     doesNotMatch(markup, /<span>Physical<\/span>/);
 });
 

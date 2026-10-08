@@ -31,7 +31,7 @@ Standard/Shiny changes the appearance. Form cards in the Evolutions tab navigate
 actual form IDs while keeping the appearance preference.
 The four forms without exported sprites show placeholders. Base stats use two columns
 with compact labels and highlight every tied highest stat. Beside the total, Physical
-or Special icons compare Attack with Sp. Attack; equal values show both icons. The
+or Special SVG icons compare Attack with Sp. Attack; equal values show one combined icon. The
 scale explanation remains available under Species data in the Stats tab.
 On mobile, the Emerald theme puts search above sprite-led Pokémon rows, with the
 base stat total (BST) on the right and the Physical/Special indicator above it; sorting
@@ -57,9 +57,12 @@ migration.
 Expand move names for descriptions and full move data, or evolution rules for their
 conditions and ROM identifiers. Move categories show Physical, Special, and Status
 icons alongside their labels in both level-up and TM/HM tables. Category icon filenames
-come from `emerald_ex_move_categories.icon_file`; the API serves the PNGs from
-`assets/move-categories/`. Import `007_move_category_icons.sql`, then
-`008_seed_move_category_icons.sql` to upgrade an existing database. See
+come from `emerald_ex_move_categories.icon_file`; the API serves PNGs and SVGs from
+`assets/move-categories/`. Physical and Special default to SVGs; Status remains PNG.
+For a database already using category icons, deploy the updated API/assets, then
+import `017_move_category_svg_icons.sql` to replace only the original
+Physical/Special PNG defaults. Custom filenames and
+hidden icons remain unchanged. See
 [how to replace category icons](docs/database.md#update-move-category-icons).
 Types display SQL-backed icons with visible type names in browsing, filtering,
 species details, and move tables. Missing icons retain text labels. Import

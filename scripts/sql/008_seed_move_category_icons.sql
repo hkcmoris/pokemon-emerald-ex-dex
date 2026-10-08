@@ -4,9 +4,9 @@
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 START TRANSACTION;
 
-UPDATE emerald_ex_move_categories SET icon_file = 'physical.png'
+UPDATE emerald_ex_move_categories SET icon_file = 'physical.svg'
 WHERE dataset_id = 'emerald-ex-1.0.4' AND category_id = 0 AND name = 'Physical' AND icon_file IS NULL;
-UPDATE emerald_ex_move_categories SET icon_file = 'special.png'
+UPDATE emerald_ex_move_categories SET icon_file = 'special.svg'
 WHERE dataset_id = 'emerald-ex-1.0.4' AND category_id = 1 AND name = 'Special' AND icon_file IS NULL;
 UPDATE emerald_ex_move_categories SET icon_file = 'status.png'
 WHERE dataset_id = 'emerald-ex-1.0.4' AND category_id = 2 AND name = 'Status' AND icon_file IS NULL;

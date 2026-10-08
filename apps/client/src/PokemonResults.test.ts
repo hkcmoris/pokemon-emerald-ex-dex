@@ -48,9 +48,9 @@ void test('mobile rows show the stat relevant to the selected comparison order',
 
 void test('mobile rows put the matching offensive category before the comparison value', () => {
     for (const [spAttack, expected] of [
-        [85, ['physical.png']],
-        [120, ['special.png']],
-        [100, ['physical.png', 'special.png']],
+        [85, ['physical.svg']],
+        [120, ['special.svg']],
+        [100, ['physical-special.svg']],
     ] as const) {
         const markup = mobileMarkup('id', {
             ...species,

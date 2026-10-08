@@ -40,7 +40,7 @@ expectError(static fn() => validateEndpoint('/v1/items/-1', []), 400);
 expectError(static fn() => validateEndpoint('/v1/items/1/unknown', []), 404);
 expectError(static fn() => validateEndpoint('/v1/species/1/private', []), 404);
 expectError(static fn() => validateEndpoint('/v1/species/1/details/extra', []), 404);
-foreach (['/icons/types/../config.png', '/icons/types/.secret.png', '/icons/types/a\\b.png', '/icons/types/a.png/extra', '/sprites/emerald-ex-1.0.4/private/a.png'] as $path) {
+foreach (['/icons/types/../config.png', '/icons/types/.secret.png', '/icons/types/a\\b.png', '/icons/types/a.png/extra', '/sprites/emerald-ex-1.0.4/private/a.png', '/icons/move-categories/../physical.svg', '/icons/move-categories/.hidden.svg', '/icons/move-categories/a\\b.svg', '/icons/move-categories/physical.svg/extra', '/icons/move-categories/physical.svg.php', '/icons/types/physical.svg', '/icons/items/physical.svg'] as $path) {
     if (imagePath($path, $argv[1]) !== null) {
         throw new RuntimeException('Unsafe image path accepted');
     }
@@ -49,6 +49,11 @@ if (imagePath('/icons/types/48px-Fire.png', $argv[1]) === null) {
     throw new RuntimeException('Missing known type icon');
 }
 if (imagePath('/icons/items/0300_Gengarite.png', $argv[1]) === null) { throw new RuntimeException('Missing known item icon'); }
+foreach (['physical.png', 'special.png', 'status.png', 'physical.svg', 'special.svg', 'physical-special.svg'] as $file) {
+    if (imagePath('/icons/move-categories/' . $file, $argv[1]) === null) {
+        throw new RuntimeException('Missing known category icon: ' . $file);
+    }
+}
 echo "PHP validation passed\n";
 
 validateEndpoint('/v1/abilities/0', []);

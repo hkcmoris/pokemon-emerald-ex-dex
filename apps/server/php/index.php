@@ -54,7 +54,8 @@ try {
         if ($file === null) {
             throw new HttpError(404, 'not_found', 'Image not found');
         }
-        header('Content-Type: image/png');
+        $mime = strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'svg' ? 'image/svg+xml' : 'image/png';
+        header('Content-Type: ' . $mime);
         header('Content-Length: ' . filesize($file));
         header('Cache-Control: public, max-age=86400');
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') {

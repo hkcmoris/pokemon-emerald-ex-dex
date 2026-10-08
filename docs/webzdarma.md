@@ -36,7 +36,7 @@ dist/webzdarma/
         └── config.example.php
 ```
 
-The bundle includes all 7,992 sprite PNGs, category/type PNGs, and the protected
+The bundle includes all 7,992 sprite PNGs, category PNGs/SVGs, type PNGs, and the protected
 configuration template. It excludes JSON imports, the sprite manifest, SQL
 scripts, `.env` files, `config.local.php`, tests, Node modules, and source maps.
 Each build replaces the generated upload folder. Configure production credentials
@@ -91,6 +91,16 @@ has not yet received the previous sprite/category/type upgrades, import
 `009_type_icons.sql`, and `010_seed_type_icons.sql` in that order. Do not reimport
 the original data just to change the backend. No database creation is needed.
 
+For the category SVG update on a database already using category icons, first
+rebuild and upload the current bundle, including the updated PHP API and
+`assets/move-categories/` with `physical.svg`, `special.svg`, and `physical-special.svg`.
+Then import `scripts/sql/017_move_category_svg_icons.sql` in phpMyAdmin. Use the
+same deployment-before-import order locally. It updates only the original
+Physical/Special PNG defaults; NULL and custom icon filenames remain unchanged.
+Do not rerun `008` for this upgrade. The combined SVG is
+used only for species with equal Attack and Sp. Attack, not as a fourth move category.
+See [category icon upgrade details](database.md#update-move-category-icons).
+
 ## Integrate with the main site's .htaccess
 
 The website root has its own `.htaccess`, one directory above the dex. The
@@ -139,6 +149,9 @@ PHP preview tests do not validate Apache configuration.
   heading, separate Forms section, sprites, links and Gengarite summary.
 * `https://devground.cz/pokemon-emerald-ex-dex/api/icons/types/48px-Fire.png`
   displays the fire type icon.
+* `/pokemon-emerald-ex-dex/api/icons/move-categories/physical.svg`, `special.svg`,
+  and `physical-special.svg` under that same category route display the new SVGs.
+  Check a species with equal Attack and Sp. Attack for a single combined indicator.
 * `https://devground.cz/pokemon-emerald-ex-dex/api/private/config.local.php`
   must return HTTP **403**, confirming that configuration is protected.
 * Open `https://devground.cz/pokemon-emerald-ex-dex/` and a species detail page
@@ -198,8 +211,9 @@ SELECT access to the four new prefixed item tables.
 
 Run `npm run build:webzdarma`, then upload the contents of `dist/webzdarma/` into
 `/pokemon-emerald-ex-dex/`, including `assets/items/`, the rebuilt client assets and
-updated PHP API files. Preserve `api/private/config.local.php`. The bundle includes
-only PNG assets and excludes item JSON exports and ROM source files.
+updated PHP API files. Preserve `api/private/config.local.php`. Item assets remain
+PNG-only; the bundle also includes category SVGs. It excludes item JSON exports
+and ROM source files.
 
 Check `/pokemon-emerald-ex-dex/api/v1/items/300` for Gengarite and its DB filename,
 `/pokemon-emerald-ex-dex/api/icons/items/0300_Gengarite.png` for the icon, then the

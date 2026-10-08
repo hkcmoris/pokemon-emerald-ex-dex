@@ -38,7 +38,7 @@ inherits the collation of its assigned value; comparing it with a table column o
 another collation can produce `ERROR 1267 (HY000)` in verification or example queries.
 See [MySQL user-variable collations](https://dev.mysql.com/doc/refman/8.0/en/user-variables.html).
 
-Every script from `001` through `016` explicitly sets the connection collation:
+Every script from `001` through `017` explicitly sets the connection collation:
 
 ```sql
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -125,26 +125,42 @@ if ($LASTEXITCODE -ne 0) { throw 'Sprite import failed' }
 
 ### Update move category icons
 
-For an existing database, select it in your administrative SQL client and import
-`scripts/sql/007_move_category_icons.sql`, then
-`scripts/sql/008_seed_move_category_icons.sql`. Run this in local development and
-production before deploying the updated API. The schema upgrade adds the nullable
+For an existing database without category icon support, select it in your
+administrative SQL client and import `scripts/sql/007_move_category_icons.sql`.
+Deploy the SVG-capable API and `assets/move-categories/`, then import
+`scripts/sql/008_seed_move_category_icons.sql`. Use this order in local development
+and production so the API can serve the new filenames. The schema upgrade adds the nullable
 `icon_file` column to `emerald_ex_move_categories`; the seed assigns the supplied
 three filenames only where a filename is NULL. Both scripts are repeatable and
 preserve existing non-NULL filenames and other datasets. The API account stays
 read-only; it needs no additional table grants. Fresh setups use the execution
-order above (the updated schema already includes the column).
+order above (the updated schema already includes the column). The current seed uses
+`physical.svg`, `special.svg`, and `status.png`.
+
+For a database that already has category icons, deploy the updated API and
+`assets/move-categories/` with all three SVGs alongside the client, then import
+`scripts/sql/017_move_category_svg_icons.sql`. Use this order in local development
+and production. This repeatable transaction replaces only the exact `physical.png`
+and `special.png` defaults on Physical (0) and Special (1) in `emerald-ex-1.0.4`.
+NULL values (deliberately hidden icons), custom filenames (including differently
+cased names), Status and other datasets remain unchanged. Do not rerun `008` for
+this upgrade, because it fills NULL values. No full data re-import is needed;
+fresh setups still use `001`, `002`, and `008`.
+
+`physical-special.svg` is used only by the client when a species has equal Attack
+and Sp. Attack. It is one combined indicator, not a fourth move category or a SQL
+category filename.
 
 To replace an icon later:
 
-1. Upload a PNG with a new filename to the backend's `assets/move-categories/`
+1. Upload a PNG or SVG with a new filename to the backend's `assets/move-categories/`
    directory, at its repository-relative location. Use a filename without folder
-   separators, for example `physical-v2.png`.
+   separators, for example `physical-v2.svg`.
 2. Update the category in the same database using an administrative account:
 
    ```sql
    UPDATE emerald_ex_move_categories
-   SET icon_file = 'physical-v2.png'
+   SET icon_file = 'physical-v2.svg'
    WHERE dataset_id = 'emerald-ex-1.0.4' AND category_id = 0;
    ```
 

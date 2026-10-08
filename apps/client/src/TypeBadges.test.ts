@@ -66,7 +66,7 @@ void test('Czech type badges translate every imported type and preserve canonica
             'Normální',
             'Bojový',
             'Létající',
-            'Jedovatý',
+            'Jedový',
             'Zemní',
             'Kamenný',
             'Hmyzí',

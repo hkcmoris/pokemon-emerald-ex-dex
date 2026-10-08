@@ -8,8 +8,9 @@ export const categoryIconAssetRoot = fileURLToPath(
 export const typeIconAssetRoot = fileURLToPath(new URL('../../../assets/types/', import.meta.url));
 export const itemIconAssetRoot = fileURLToPath(new URL('../../../assets/items/', import.meta.url));
 
-function createPngIconRouter(assetRoot: string): Router {
+function createIconRouter(assetRoot: string, allowSvg = false): Router {
     const router = express.Router();
+    const iconPath = allowSvg ? /^\/[^/\\]+\.(png|svg)$/ : /^\/[^/\\]+\.png$/;
     router.use((req, _res, next) => {
         let path: string;
         try {
@@ -18,7 +19,7 @@ function createPngIconRouter(assetRoot: string): Router {
             next('router');
             return;
         }
-        if (!/^\/[^/\\]+\.png$/.test(path)) {
+        if (!iconPath.test(path)) {
             next('router');
             return;
         }
@@ -36,13 +37,13 @@ function createPngIconRouter(assetRoot: string): Router {
 }
 
 export function createCategoryIconRouter(): Router {
-    return createPngIconRouter(categoryIconAssetRoot);
+    return createIconRouter(categoryIconAssetRoot, true);
 }
 
 export function createTypeIconRouter(): Router {
-    return createPngIconRouter(typeIconAssetRoot);
+    return createIconRouter(typeIconAssetRoot);
 }
 
 export function createItemIconRouter(): Router {
-    return createPngIconRouter(itemIconAssetRoot);
+    return createIconRouter(itemIconAssetRoot);
 }

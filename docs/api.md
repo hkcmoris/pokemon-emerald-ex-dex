@@ -211,12 +211,16 @@ subresource returns this filename as `iconFile`. NULL means no category icon.
 The frontend uses this filename directly, with no built-in mapping or bundled
 fallback. Missing images leave the category's accessible text label visible.
 
-Category PNGs are served at `/api/icons/move-categories/:filename` from the backend's
-`assets/move-categories/` directory. Only PNG filenames directly inside that
+Category PNGs and SVGs are served at `/api/icons/move-categories/:filename` from the
+backend's `assets/move-categories/` directory. Only PNG/SVG filenames directly inside that
 directory are served, with a one-day cache and ETag/Last-Modified validation. Files
 are read from disk when requested, so uploading a new filename and changing SQL
 does not require an application rebuild or restart. See the
 [icon update instructions](database.md#update-move-category-icons).
+The default Physical and Special icons are `physical.svg` and `special.svg`; Status
+remains `status.png`. The client uses `physical-special.svg` for equal Attack and
+Sp. Attack only; move records retain the three existing categories and their
+SQL-configured filenames.
 
 Type filenames come from `emerald_ex_types.icon_file`. Species list and detail
 records expose `typeIconFiles` in the same primary/secondary slot order as `types`
@@ -287,11 +291,15 @@ location alongside the backend (including a compiled `apps/server/dist` deployme
 The existing `/api/*` reverse-proxy rule also forwards sprite requests. No client-side
 JSON manifest or database credentials are needed.
 
-For this category icon update, import `007_move_category_icons.sql` and
-`008_seed_move_category_icons.sql` with an administrative account before deploying
-the API. Deploy `assets/move-categories/` alongside the backend at its
+For an existing database with category icons, first deploy the SVG-capable API and
+`assets/move-categories/` (including all three SVGs) alongside the backend at its
 repository-relative location, including when running compiled `apps/server/dist`
-files. The existing `/api/*` proxy also forwards category image requests.
+files. Then import `017_move_category_svg_icons.sql` with an administrative account
+to replace only the original Physical/Special PNG filenames with SVGs; NULL and
+custom filenames are preserved. Databases without the icon column need
+`007_move_category_icons.sql` before API deployment, then the current
+`008_seed_move_category_icons.sql` seed after the API/assets are available.
+The existing `/api/*` proxy also forwards category image requests.
 
 For type icons, import `009_type_icons.sql` and `010_seed_type_icons.sql` before
 deploying the API and include `assets/types/` alongside the backend at its
@@ -313,7 +321,7 @@ rules in both directions, excluding internal markers. Sprite references are comp
 against the manifest for every species; unit tests check PNG serving, unknown paths,
 filename encoding, image alternatives and missing-sprite placeholders.
 Move category filenames are compared with SQL across move lists, subresources and
-full machine records. Category image tests check PNG bytes and path restrictions;
+full machine records. Category image tests check PNG/SVG responses and path restrictions;
 client tests check replacement filenames and retained text labels. Browser checks
 also cover NULL references, missing files and updates without a rebuild/restart.
 Type tests compare catalog/slot/move filenames with SQL and verify that all supplied

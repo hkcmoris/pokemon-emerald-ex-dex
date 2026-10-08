@@ -45,19 +45,19 @@ for (const { attack, spAttack, label, files } of [
         attack: 100,
         spAttack: 80,
         label: 'Attack is higher than Sp. Attack',
-        files: ['physical.png'],
+        files: ['physical.svg'],
     },
     {
         attack: 80,
         spAttack: 100,
         label: 'Sp. Attack is higher than Attack',
-        files: ['special.png'],
+        files: ['special.svg'],
     },
     {
         attack: 90,
         spAttack: 90,
         label: 'Attack and Sp. Attack are equal',
-        files: ['physical.png', 'special.png'],
+        files: ['physical-special.svg'],
     },
 ]) {
     void test(`offensive category communicates ${label.toLowerCase()}`, () => {
