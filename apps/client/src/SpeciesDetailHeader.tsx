@@ -41,9 +41,7 @@ export function SpeciesDetailHeader({
             aria-labelledby="species-title"
         >
             <div className="species-detail-heading">
-                <p className="eyebrow">
-                    #{String(entry.speciesId).padStart(4, '0')}
-                </p>
+                <p className="eyebrow">#{String(entry.speciesId).padStart(4, '0')}</p>
                 <h1 id="species-title" ref={headingRef} tabIndex={-1}>
                     {name}
                 </h1>
