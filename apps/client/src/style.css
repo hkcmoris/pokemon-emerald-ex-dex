@@ -412,6 +412,16 @@ button:disabled {
     border-radius: var(--radius-card);
     background: var(--dex-surface);
 }
+.dex-results.dex-list {
+    overflow: clip;
+}
+.dex-pagination {
+    position: sticky;
+    z-index: 10;
+    bottom: 0;
+    border-color: var(--dex-border);
+    background: var(--dex-surface);
+}
 th,
 td {
     padding: 0.85rem 0.75rem;
@@ -1444,6 +1454,7 @@ tbody tr:hover {
         color: var(--dex-muted);
     }
     .dex-pagination {
+        bottom: calc(88px + env(safe-area-inset-bottom));
         margin-top: 1.2rem;
         border-top: 1px solid var(--dex-border);
         padding-top: 1rem;

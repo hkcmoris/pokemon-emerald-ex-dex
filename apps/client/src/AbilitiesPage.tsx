@@ -186,7 +186,7 @@ export function AbilitiesPage({
                                 {t('No matching abilities.', 'Žádné odpovídající schopnosti.')}
                             </p>
                         )}
-                        <div className="mt-5 flex items-center justify-between gap-3">
+                        <div className="dex-pagination mt-5 flex flex-wrap items-center justify-between gap-3 border-t p-4">
                             <button
                                 className="page-button"
                                 disabled={page === 1}

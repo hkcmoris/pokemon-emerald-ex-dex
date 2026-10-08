@@ -41,6 +41,8 @@ order while retaining the visible results during updates. Remove the selected ty
 chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.
 Labeled bottom navigation links Pokémon, Items, and Abilities. A theme control switches
 between dark emerald and light mineral surfaces and remembers the choice locally.
+Pagination stays visible at the bottom of the viewport while browsing Pokémon, Items,
+and Abilities, with space above the bottom navigation on mobile.
 The header language selector switches the interface between English and Čeština and
 remembers the selection in the browser. Without a saved choice, the interface uses the
 first supported language from the browser's preferred languages, including regional
