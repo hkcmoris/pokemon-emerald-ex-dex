@@ -16,7 +16,7 @@ final class DexRepository
         JOIN emerald_ex_species_stats AS st
             ON st.dataset_id = s.dataset_id AND st.species_id = s.species_id';
 
-    private const MOVE_FIELDS = 'm.move_id AS moveId, m.name, m.description,
+    private const MOVE_FIELDS = 'm.move_id AS moveId, m.name, m.description, m.description_cs AS descriptionCs,
         m.type_id AS typeId, t.name AS type, t.icon_file AS typeIconFile,
         m.category_id AS categoryId, c.name AS category, c.icon_file AS categoryIconFile,
         m.power, m.accuracy, m.pp, m.priority, m.effect_id AS effectId, m.target_id AS targetId';

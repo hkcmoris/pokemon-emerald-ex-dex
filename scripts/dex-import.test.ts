@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
 import {
-    buildDexImport,
+    buildDexImport as buildDexImportWithTranslations,
     sourceKinds,
     sourceFileNames,
     sourceFilePath,
@@ -13,6 +13,7 @@ import {
     type SourceKind,
 } from './dex-import.js';
 import { validateSpriteFiles } from './sprite-files.js';
+import { buildMoveDescriptionImport } from './move-descriptions.js';
 
 const sources = {} as Record<SourceKind, SourceFile>;
 for (const kind of sourceKinds) {
@@ -22,6 +23,15 @@ for (const kind of sourceKinds) {
         contents: await readFile(new URL(`../${sourceFilePath(kind)}`, import.meta.url), 'utf8'),
     };
 }
+
+const moveDescriptions = buildMoveDescriptionImport(
+    JSON.parse(sources.learnsets.contents),
+    JSON.parse(
+        await readFile(new URL('../docs/translations/moves.cs.json', import.meta.url), 'utf8'),
+    ),
+).descriptions;
+const buildDexImport = (files: Record<SourceKind, SourceFile>) =>
+    buildDexImportWithTranslations(files, moveDescriptions);
 
 void test('all exports produce a complete relational import, including move zero and form markers', async () => {
     const { sql, spritesSql, formsSql, itemsSql, abilitiesSql, counts, datasetId } =
@@ -166,6 +176,8 @@ void test('schema, import and query examples stay within the dex table namespace
         '015_abilities.sql',
         '016_import_abilities_1.0.4.sql',
         '017_move_category_svg_icons.sql',
+        '018_move_descriptions_cs.sql',
+        '019_seed_move_descriptions_cs_1.0.4.sql',
     ]) {
         const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
         strictEqual(/^\s*(?:(?:CREATE|ALTER|DROP) DATABASE|USE\s)/im.test(sql), false, file);

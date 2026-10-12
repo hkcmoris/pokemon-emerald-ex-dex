@@ -10,6 +10,7 @@ import {
     type SourceKind,
 } from './dex-import.js';
 import { validateSpriteFiles } from './sprite-files.js';
+import { buildMoveDescriptionImport } from './move-descriptions.js';
 
 const root = new URL('../', import.meta.url);
 const sources = {} as Record<SourceKind, SourceFile>;
@@ -20,8 +21,14 @@ for (const kind of sourceKinds) {
         contents: await readFile(new URL(sourceFilePath(kind), root), 'utf8'),
     };
 }
-const { sql, spritesSql, formsSql, itemsSql, abilitiesSql, counts, datasetId } =
-    buildDexImport(sources);
+const moveDescriptions = buildMoveDescriptionImport(
+    JSON.parse(sources.learnsets.contents),
+    JSON.parse(await readFile(new URL('docs/translations/moves.cs.json', root), 'utf8')),
+);
+const { sql, spritesSql, formsSql, itemsSql, abilitiesSql, counts, datasetId } = buildDexImport(
+    sources,
+    moveDescriptions.descriptions,
+);
 const manifest = JSON.parse(sources.battle_sprites.contents) as {
     species: { files: Record<string, string> }[];
 };
@@ -42,5 +49,10 @@ await writeFile(new URL('scripts/sql/006_import_sprites_1.0.4.sql', root), sprit
 await writeFile(new URL('scripts/sql/012_import_forms_1.0.4.sql', root), formsSql, 'utf8');
 await writeFile(new URL('scripts/sql/014_import_items_1.0.4.sql', root), itemsSql, 'utf8');
 await writeFile(new URL('scripts/sql/016_import_abilities_1.0.4.sql', root), abilitiesSql, 'utf8');
+await writeFile(
+    new URL('scripts/sql/019_seed_move_descriptions_cs_1.0.4.sql', root),
+    moveDescriptions.sql,
+    'utf8',
+);
 console.log(`Prepared ${datasetId}: ${fileURLToPath(output)}`);
 console.table(counts);

@@ -38,7 +38,7 @@ inherits the collation of its assigned value; comparing it with a table column o
 another collation can produce `ERROR 1267 (HY000)` in verification or example queries.
 See [MySQL user-variable collations](https://dev.mysql.com/doc/refman/8.0/en/user-variables.html).
 
-Every script from `001` through `017` explicitly sets the connection collation:
+Every script from `001` through `019` explicitly sets the connection collation:
 
 ```sql
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -506,3 +506,40 @@ kinds, definition references, repeated aliases/names/descriptions, metadata coun
 and explicit ability IDs in form-change details. SQL stores queryable fields and
 slots relationally. Definition 0 is preserved, but empty species slots use a NULL
 FK rather than ID 0. Duplicate assigned IDs are intentional and preserved.
+
+## Czech move descriptions
+
+English ROM text remains in `emerald_ex_moves.description`. The nullable
+`description_cs TEXT` column stores the Czech translation. The API returns both
+`description` and `descriptionCs`; the frontend chooses the current language and
+falls back to English when Czech is null or empty.
+
+For an existing database, select its schema and run with an administrative account:
+
+1. `scripts/sql/018_move_descriptions_cs.sql` adds the column if missing.
+2. `scripts/sql/019_seed_move_descriptions_cs_1.0.4.sql` fills Czech descriptions.
+3. Deploy the updated Node or PHP backend and frontend. The backend requires the
+   new column, so apply the schema migration before deployment.
+
+Both scripts are repeatable. The seed updates only `description_cs` for the
+935 known moves in dataset `emerald-ex-1.0.4`. It compares each English description
+byte for byte before assigning Czech; a changed source gets null and uses English
+fallback. Names, English descriptions, mechanics and other datasets are preserved.
+DDL runs separately from the transactional seed. Use a client that stops on errors.
+
+Fresh installations use the updated `001_schema.sql` and
+`002_import_emerald_ex_1.0.4.sql`; the full import includes Czech descriptions and
+retains them when regenerated and rerun. Existing schemas still need `018`
+before rerunning `002`, because `CREATE TABLE IF NOT EXISTS` does not add columns.
+
+Maintain translations in `docs/translations/moves.cs.json`, keyed by move ID with
+the exact English `sourceDescription` alongside `descriptionCs`. The catalogue
+covers 847 nonempty source records: 842 translated descriptions and five literal
+`---` placeholders. The other 88 moves have no source description and keep null
+Czech text. These are project translations of the supplied ROM text.
+
+Run `npm run db:generate-import` after editing the catalogue. Generation rejects
+missing, duplicate or unknown IDs, stale English text, blank Czech translations,
+wrong dataset/language and inconsistent translations of identical source text.
+It regenerates both the full import and `019`; apply `019` to update translations
+without reimporting other dex data.

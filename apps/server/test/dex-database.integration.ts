@@ -103,13 +103,23 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_learnsets.json', import.meta.url),
             'utf8',
         ),
-    ) as { moves: Omit<Move, 'categoryIconFile' | 'typeIconFile'>[] };
+    ) as { moves: Omit<Move, 'categoryIconFile' | 'typeIconFile' | 'descriptionCs'>[] };
     const categoryRows = await pool.execute<{ categoryId: number; iconFile: string | null }[]>(
         'SELECT category_id AS categoryId, icon_file AS iconFile FROM emerald_ex_move_categories WHERE dataset_id = ?',
         ['emerald-ex-1.0.4'],
     );
     const categoryIcons = new Map(categoryRows.map((row) => [row.categoryId, row.iconFile]));
+    const translations = JSON.parse(
+        await readFile(
+            new URL('../../../docs/translations/moves.cs.json', import.meta.url),
+            'utf8',
+        ),
+    ) as { moves: { moveId: number; descriptionCs: string }[] };
+    const descriptionsCs = new Map(
+        translations.moves.map((move) => [move.moveId, move.descriptionCs]),
+    );
     const expectedMoves: Move[] = moveSource.moves.map((move) => ({
+        descriptionCs: descriptionsCs.get(move.moveId) ?? null,
         ...move,
         typeIconFile: typeIcons.get(move.typeId) ?? null,
         categoryIconFile: categoryIcons.get(move.categoryId) ?? null,
