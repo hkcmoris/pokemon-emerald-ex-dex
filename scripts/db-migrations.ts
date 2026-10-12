@@ -86,6 +86,11 @@ const migrations: readonly Migration[] = [
             (state.columns.get('emerald_ex_items')?.has('description_cs') ?? false),
     },
     { file: '021_seed_ability_item_descriptions_cs_1.0.4.sql', isPresent: () => false },
+    {
+        file: '022_my_pokemon.sql',
+        isPresent: (state) =>
+            hasTables(state, 'collection_users', 'collection_sessions', 'collections'),
+    },
 ];
 
 export type MigrationConnection = Pick<

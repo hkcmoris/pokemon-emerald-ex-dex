@@ -28,6 +28,7 @@ const migrationFiles = [
     '019_seed_move_descriptions_cs_1.0.4.sql',
     '020_ability_item_descriptions_cs.sql',
     '021_seed_ability_item_descriptions_cs_1.0.4.sql',
+    '022_my_pokemon.sql',
 ];
 
 const moveDescriptionMigrations = [
@@ -373,6 +374,7 @@ void test('existing tables without source markers still receive their data impor
         '019_seed_move_descriptions_cs_1.0.4.sql',
         '020_ability_item_descriptions_cs.sql',
         '021_seed_ability_item_descriptions_cs_1.0.4.sql',
+        '022_my_pokemon.sql',
     ];
 
     deepStrictEqual(await database.run(), missingImports);

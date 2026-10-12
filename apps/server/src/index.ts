@@ -5,6 +5,8 @@ import { getOptionalEnv } from './config/env.js';
 import { logger } from './logger.js';
 import { createDatabasePool, poolDatabase } from './database.js';
 import { DexRepository } from './dexRepository.js';
+import { CollectionRepository } from './collectionRepository.js';
+import { createGoogleVerifier } from './googleIdentity.js';
 
 const port = Number(getOptionalEnv('PORT', '3000'));
 const pool = createDatabasePool();
@@ -20,7 +22,17 @@ try {
     await pool.end();
     throw error;
 }
-const app = createApp(repository);
+const googleClientId = getOptionalEnv('GOOGLE_CLIENT_ID', '');
+const app = createApp(repository, {
+    store: new CollectionRepository(pool),
+    verifyIdentity: createGoogleVerifier(googleClientId),
+    googleClientId,
+    allowedOrigins: getOptionalEnv('COLLECTION_ALLOWED_ORIGINS', '')
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+    secureCookies: getOptionalEnv('COLLECTION_COOKIE_SECURE', 'true') !== 'false',
+});
 
 const server = app.listen(port, () => {
     logger.info({ port }, 'Server listening');

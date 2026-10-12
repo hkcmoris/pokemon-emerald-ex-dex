@@ -216,6 +216,7 @@ button:disabled {
     padding: 0.35rem 0.8rem;
     color: var(--dex-muted);
     font-size: 0.75rem;
+    white-space: nowrap;
     transition:
         color 150ms,
         background 150ms;
@@ -1288,10 +1289,47 @@ tbody tr:hover {
     background-blend-mode: soft-light, normal, normal;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
     body {
         padding-bottom: calc(88px + env(safe-area-inset-bottom));
     }
+    .dex-navigation {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        justify-content: space-around;
+        gap: 0.2rem;
+        transform: none;
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 20px 20px 0 0;
+        padding: 0.6rem 0.5rem calc(0.65rem + env(safe-area-inset-bottom));
+        box-shadow:
+            0 -8px 30px rgb(0 0 0 / 12%),
+            inset 0 1px 0 rgb(255 255 255 / 5%);
+    }
+    .dex-navigation a {
+        min-height: 49px;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+        gap: 0.3rem;
+        border-radius: 12px;
+        padding: 0.4rem 0.25rem;
+        font-size: clamp(0.58rem, 2.65vw, 0.65rem);
+    }
+    .dex-navigation svg {
+        width: 21px;
+        height: 21px;
+    }
+    .dex-pagination {
+        bottom: calc(88px + env(safe-area-inset-bottom));
+    }
+}
+@media (max-width: 767px) {
     .dex-header-inner {
         min-height: 65px;
         padding: 0.8rem 1rem;
@@ -1310,37 +1348,6 @@ tbody tr:hover {
     .dex-back-row {
         padding-inline: 1rem;
         padding-bottom: 0.85rem;
-    }
-    .dex-navigation {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        justify-content: space-around;
-        gap: 0.75rem;
-        transform: none;
-        border-right: 0;
-        border-bottom: 0;
-        border-left: 0;
-        border-radius: 20px 20px 0 0;
-        padding: 0.6rem 1rem calc(0.65rem + env(safe-area-inset-bottom));
-        box-shadow:
-            0 -8px 30px rgb(0 0 0 / 12%),
-            inset 0 1px 0 rgb(255 255 255 / 5%);
-    }
-    .dex-navigation a {
-        min-height: 49px;
-        flex: 1;
-        flex-direction: column;
-        gap: 0.3rem;
-        border-radius: 12px;
-        padding: 0.4rem 0.5rem;
-        font-size: 0.65rem;
-    }
-    .dex-navigation svg {
-        width: 21px;
-        height: 21px;
     }
     .dex-browse-main {
         padding: 1.15rem var(--space-4);
@@ -1468,7 +1475,6 @@ tbody tr:hover {
         color: var(--dex-muted);
     }
     .dex-pagination {
-        bottom: calc(88px + env(safe-area-inset-bottom));
         margin-top: 1.2rem;
         border-top: 1px solid var(--dex-border);
         padding-top: 1rem;

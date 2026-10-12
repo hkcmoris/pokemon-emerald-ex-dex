@@ -23,6 +23,8 @@ void test(
             'index.php',
             'private/Api.php',
             'private/DexRepository.php',
+            'private/Collection.php',
+            'private/GoogleIdentity.php',
             'private/config.example.php',
             'dev-router.php',
         ]) {

@@ -7,7 +7,7 @@ The client fetches data from the SQL-backed `/api/v1` API.
 It includes all 1,523 species/form entries, search by name or exact internal species ID
 (including `#0001`), type filtering, sorting by ID/name/base stat total/speed, and paginated
 results with linked species detail pages. Duplicate names remain separate entries keyed by ROM
-species/form ID. Stats are base stats, not calculated battle stats.
+species/form ID. Dex stats are base stats, not calculated battle stats.
 
 Click a species name to see all its imported data: base stats and types, level-up moves,
 the full evolution family, related forms and form-change rules, and compatible TMs/HMs.
@@ -39,7 +39,7 @@ by speed shows Speed instead. Desktop retains the dense
 base-stat table. The HeroUI v3 filter sheet offers one type at a time and a sort
 order while retaining the visible results during updates. Remove the selected type
 chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.
-Labeled bottom navigation links Pokémon, Items, and Abilities. A theme control switches
+Labeled bottom navigation links Pokémon, Items, Abilities, and My Pokémon. A theme control switches
 between dark emerald and light mineral surfaces and remembers the choice locally.
 Pagination stays visible at the bottom of the viewport while browsing Pokémon, Items,
 and Abilities, with space above the bottom navigation on mobile.
@@ -86,6 +86,56 @@ Related species link to their own pages. Detail URLs
 such as `#/species/1` can be bookmarked; returning to the list preserves its filters
 during the session. JSON exports in `docs/` are import inputs and test fixtures;
 neither the client nor the server reads them at runtime.
+
+## My Pokémon
+
+Open **My Pokémon** at `#/my-pokemon` to maintain separate named playthroughs, each
+with its own collection and an ordered party of up to six Pokémon. The active party
+opens first. Add Pokémon from a species detail page or search within the collection.
+Only species/form and level are required; nicknames, current moves, and battle stats
+are optional. Multiple owned Pokémon of the same species remain separate individuals.
+Removing a party member keeps it in the collection. Removed Pokémon, playthroughs,
+and stat observations can be restored.
+
+Levels, moves, and evolutions are recorded manually. Increasing a level saves it
+immediately and offers a skippable recap; select learned moves explicitly. Unrecorded
+moves mean unknown, not an empty moveset. Recording an evolution or form change
+preserves the Pokémon's identity, existing moves, and previous stat observations.
+Partial stat observations retain their measurement time, level, and species/form.
+Corrections update the original observation. Optional estimates interpolate only
+between unambiguous recorded values within the same continuous form period; they
+never cross an evolution/form change or predict future levels.
+
+Party cards show upcoming level-up moves and an expandable comparison of full future
+evolution paths. Guidance covers level-up and TM/HM data only; tutors and move
+reminders are excluded. Separate highlights show moves to learn before leaving a
+stage and new level-up moves gained by evolving. Shared moves stay in the timing
+comparison, while TM/HM alternatives remain visible beside level-up differences.
+For example, Torchic's level-46 Flamethrower is highlighted with the evolved forms'
+TM35 alternative. Delaying evolution can pass the learning levels of newly unlocked
+moves. The comparison does not claim permanent loss. Entries
+whose learning level has passed are not presented as future opportunities. Raw
+level-zero entries are conditional special entries to verify in the game. Evolution
+conditions use recorded moves, party members, and measured stats where available;
+unknown requirements still need checking in the game.
+
+Guest use starts without registration. Collections are saved in browser storage.
+In production builds, a service worker makes the app reopen offline after a successful
+first visit; previously loaded collection reference data remains available, while
+uncached dex searches and guidance need a connection. Google sign-in is optional and
+only authenticates the player: collection data is stored in **this app's MySQL
+database**, not on Google. Sign in once on each device to connect it. Guest
+playthroughs upload automatically as separate runs, even when names match. Compatible
+offline changes merge automatically; conflicting values, removals, or party lineups
+show both alternatives for an explicit choice. Pending edits sync while the app is
+open and connected, and signing out keeps account data separate from guest data.
+
+Google sign-in still needs deployment configuration: apply
+`scripts/sql/022_my_pokemon.sql`, create a Google OAuth Web client, and configure its
+public client ID, allowed origins, and secure production cookies. No live client ID
+is included. Local collections work without it. Follow
+[Google sign-in and sync setup](docs/my-pokemon-sync.md) for Node and PHP/Webzdarma;
+the [feature brief](docs/features/my-pokemon.md) records the accepted behavior.
 
 ## SQL database preparation
 

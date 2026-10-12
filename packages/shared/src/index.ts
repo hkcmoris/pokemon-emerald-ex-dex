@@ -1,6 +1,8 @@
 export function add(a: number, b: number): number {
     return a + b;
 }
+export * from './collection.js';
+export * from './collectionGuidance.js';
 export type {
     Ability,
     AbilityFlags,

@@ -15,6 +15,7 @@ header('X-Content-Type-Options: nosniff');
 
 require_once __DIR__ . '/private/Api.php';
 require_once __DIR__ . '/private/DexRepository.php';
+require_once __DIR__ . '/private/Collection.php';
 
 function jsonResponse(array $body, int $status = 200): never
 {
@@ -32,10 +33,6 @@ try {
     if (PHP_VERSION_ID < 80400) {
         throw new HttpError(503, 'runtime_unavailable', 'The dex API requires PHP 8.4 or newer');
     }
-    if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) {
-        header('Allow: GET, HEAD');
-        throw new HttpError(405, 'method_not_allowed', 'Only GET and HEAD requests are supported');
-    }
     $uri = $_SERVER['REQUEST_URI'] ?? '/';
     if (preg_match('/%(?![a-f0-9]{2})/i', $uri)) {
         throw new HttpError(400, 'invalid_parameter', 'Invalid URL encoding');
@@ -46,6 +43,11 @@ try {
         throw new HttpError(404, 'not_found', 'Endpoint not found');
     }
     $path = rawurldecode(substr($requestPath, strlen($base)));
+    $isCollection = $path === '/v1/collection' || str_starts_with($path, '/v1/collection/');
+    if (!$isCollection && !in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) {
+        header('Allow: GET, HEAD');
+        throw new HttpError(405, 'method_not_allowed', 'Only GET and HEAD requests are supported');
+    }
     if ($path === '/health') {
         jsonResponse(['ok' => true]);
     }
@@ -64,10 +66,7 @@ try {
         exit;
     }
     $query = requestQuery($_SERVER['QUERY_STRING'] ?? '');
-    if (!extension_loaded('pdo_mysql') || !extension_loaded('mbstring')) {
-        throw new HttpError(503, 'runtime_unavailable', 'The dex API requires pdo_mysql and mbstring');
-    }
-    validateEndpoint($path, $query);
+    if (!$isCollection) { validateEndpoint($path, $query); }
 
     // Local environment variables are useful for testing; hosting uses the protected PHP config.
     $configFile = __DIR__ . '/private/config.local.php';
@@ -76,9 +75,15 @@ try {
         throw new RuntimeException('Invalid database configuration');
     }
     $settings = [];
-    foreach (['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DEX_DATASET_ID'] as $key) {
+    foreach (['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DEX_DATASET_ID', 'GOOGLE_CLIENT_ID', 'COLLECTION_ALLOWED_ORIGINS', 'COLLECTION_COOKIE_SECURE'] as $key) {
         $value = getenv($key);
         $settings[$key] = $value === false ? ($config[$key] ?? '') : $value;
+    }
+    if ($isCollection && ($path === '/v1/collection/config' || ($path === '/v1/collection/session' && EmeraldEx\collectionCookie('emerald_collection_session') === '' && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)))) {
+        jsonResponse(EmeraldEx\dispatchCollection(null, $path, $settings));
+    }
+    if (!extension_loaded('pdo_mysql') || !extension_loaded('mbstring')) {
+        throw new HttpError(503, 'runtime_unavailable', 'The dex API requires pdo_mysql and mbstring');
     }
     foreach (['DB_HOST', 'DB_NAME', 'DB_USER'] as $key) {
         if (!is_string($settings[$key]) || $settings[$key] === '') {
@@ -100,6 +105,10 @@ try {
     } catch (PDOException $error) {
         error_log('Emerald EX database connection failed: ' . $error->getCode());
         throw new HttpError(503, 'database_unavailable', 'The dex database connection is unavailable');
+    }
+    if ($isCollection) {
+        $body = EmeraldEx\dispatchCollection($pdo, $path, $settings);
+        jsonResponse($body, http_response_code() ?: 200);
     }
     $repository = new DexRepository($pdo, $settings['DEX_DATASET_ID'] ?: 'emerald-ex-1.0.4');
     jsonResponse(dispatch($repository, $path, $query));

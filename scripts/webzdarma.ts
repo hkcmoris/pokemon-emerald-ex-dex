@@ -6,6 +6,8 @@ const phpFiles = [
     '.htaccess',
     'private/Api.php',
     'private/DexRepository.php',
+    'private/Collection.php',
+    'private/GoogleIdentity.php',
     'private/.htaccess',
     'private/config.example.php',
 ] as const;
@@ -49,6 +51,7 @@ export async function prepareWebzdarmaUpload(projectRoot: string): Promise<strin
             'Include the hidden .htaccess files. Enable PHP 8.4 in the hosting panel.\n' +
             'On the server, copy api/private/config.example.php to config.local.php and fill in the production database credentials.\n' +
             'Keep config.local.php on the server during future uploads.\n' +
+            'Before enabling My Pokemon sync, import scripts/sql/022_my_pokemon.sql and configure GOOGLE_CLIENT_ID, COLLECTION_ALLOWED_ORIGINS, and secure cookies. See docs/my-pokemon-sync.md. Collection data stays in this MySQL database.\n' +
             'If forms have not yet been imported, select the existing database and import scripts/sql/011_forms.sql, then scripts/sql/012_import_forms_1.0.4.sql with an administrator. Do not run the full replacement import for an upgrade.\n' +
             'Before deploying the items release, import scripts/sql/013_items.sql, then scripts/sql/014_import_items_1.0.4.sql. Forms migrations 011/012 are prerequisites. Preserve config.local.php.\n' +
             'Before deploying the abilities release, import scripts/sql/015_abilities.sql, then scripts/sql/016_import_abilities_1.0.4.sql with an administrator. Other dex data is preserved.\n' +

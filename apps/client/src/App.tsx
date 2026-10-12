@@ -10,6 +10,7 @@ import { TypeBadges } from './TypeBadges.js';
 import { SpeciesPage } from './SpeciesPage.js';
 import { AbilitiesPage } from './AbilitiesPage.js';
 import { ItemsPage } from './ItemsPage.js';
+import { MyPokemonPage } from './MyPokemonPage.js';
 import { PokemonFilterSheet, getSortOptions } from './PokemonFilterSheet.js';
 import { PokemonResults } from './PokemonResults.js';
 import { navigationSnapshot, parseRoute, subscribeToNavigation } from './navigation.js';
@@ -64,6 +65,15 @@ export function App() {
         setPage(0);
     }
 
+    if (route.kind === 'my-pokemon') {
+        return (
+            <MyPokemonPage
+                version={dexMetadata?.version ?? '1.0.4'}
+                datasetId={dexMetadata?.datasetId ?? 'emerald-ex-1.0.4'}
+                addSpeciesId={route.addSpeciesId}
+            />
+        );
+    }
     if (route.kind === 'abilities' || route.kind === 'ability') {
         return (
             <AbilitiesPage

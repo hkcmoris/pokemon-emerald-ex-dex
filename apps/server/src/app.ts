@@ -8,8 +8,12 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { createApiRouter } from './routes/apiRouter.js';
 import { createSpriteRouter } from './sprites.js';
 import { createCategoryIconRouter, createTypeIconRouter, createItemIconRouter } from './icons.js';
+import { createCollectionRouter, type CollectionService } from './routes/collectionRouter.js';
 
-export function createApp(repository?: DexRepository): Express {
+export function createApp(
+    repository?: DexRepository,
+    collectionService?: CollectionService,
+): Express {
     const app = express();
 
     app.use(
@@ -18,6 +22,7 @@ export function createApp(repository?: DexRepository): Express {
         }),
     );
 
+    app.use('/api/v1/collection', createCollectionRouter(collectionService));
     app.use(express.json());
 
     app.use('/api/sprites/emerald-ex-1.0.4', createSpriteRouter());

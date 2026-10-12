@@ -1,5 +1,6 @@
 export type DexRoute =
     | { kind: 'dex' }
+    | { kind: 'my-pokemon'; addSpeciesId?: number }
     | { kind: 'species'; id: number }
     | { kind: 'abilities' }
     | { kind: 'ability'; id: number }
@@ -21,6 +22,14 @@ export function speciesHref(id: number): string {
 
 export function parseRoute(hash: string): DexRoute {
     if (hash === '' || hash === '#' || hash === '#/') return { kind: 'dex' };
+    if (hash === '#/my-pokemon') return { kind: 'my-pokemon' };
+    const collection = /^#\/my-pokemon\?add=(\d+)$/.exec(hash);
+    if (collection) {
+        const id = Number(collection[1]);
+        return Number.isInteger(id) && id >= 1 && id <= 65535
+            ? { kind: 'my-pokemon', addSpeciesId: id }
+            : { kind: 'not-found' };
+    }
     if (hash === '#/abilities') return { kind: 'abilities' };
     const ability = /^#\/abilities\/(\d+)$/.exec(hash);
     if (ability) {

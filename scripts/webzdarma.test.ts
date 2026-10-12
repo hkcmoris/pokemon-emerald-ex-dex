@@ -56,7 +56,9 @@ void test('Webzdarma upload includes protected PHP config templates and images, 
     deepStrictEqual((await readdir(join(output, 'api/private'))).sort(), [
         '.htaccess',
         'Api.php',
+        'Collection.php',
         'DexRepository.php',
+        'GoogleIdentity.php',
         'config.example.php',
     ]);
     deepStrictEqual(
