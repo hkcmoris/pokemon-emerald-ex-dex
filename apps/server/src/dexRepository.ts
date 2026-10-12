@@ -48,7 +48,7 @@ const speciesSelect = `SELECT s.species_id AS speciesId, s.name,
     JOIN emerald_ex_species_stats AS st
         ON st.dataset_id = s.dataset_id AND st.species_id = s.species_id`;
 
-const moveFields = `m.move_id AS moveId, m.name, m.description,
+const moveFields = `m.move_id AS moveId, m.name, m.description, m.description_cs AS descriptionCs,
     m.type_id AS typeId, t.name AS type, t.icon_file AS typeIconFile,
     m.category_id AS categoryId, c.name AS category,
     c.icon_file AS categoryIconFile,

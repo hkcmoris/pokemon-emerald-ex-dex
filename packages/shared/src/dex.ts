@@ -73,6 +73,7 @@ export interface Move {
     moveId: number;
     name: string;
     description: string;
+    descriptionCs: string | null;
     typeId: number;
     type: string;
     typeIconFile: string | null;

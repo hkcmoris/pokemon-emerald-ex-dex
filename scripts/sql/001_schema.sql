@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS emerald_ex_moves (
     move_id SMALLINT UNSIGNED NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
+    description_cs TEXT NULL,
     type_id SMALLINT UNSIGNED NOT NULL,
     category_id SMALLINT UNSIGNED NOT NULL,
     power SMALLINT UNSIGNED NOT NULL,

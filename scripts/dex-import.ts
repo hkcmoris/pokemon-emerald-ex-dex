@@ -117,7 +117,10 @@ export function sqlLiteral(value: SqlValue): string {
     return `'${text(value).replaceAll("'", "''")}'`;
 }
 
-export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
+export function buildDexImport(
+    sources: Record<SourceKind, SourceFile>,
+    moveDescriptions: ReadonlyMap<number, string>,
+): {
     sql: string;
     spritesSql: string;
     formsSql: string;
@@ -342,6 +345,7 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
             'move_id',
             'name',
             'description',
+            'description_cs',
             'type_id',
             'category_id',
             'power',
@@ -361,6 +365,7 @@ export function buildDexImport(sources: Record<SourceKind, SourceFile>): {
                 integer(entry.moveId),
                 text(entry.name),
                 text(entry.description),
+                moveDescriptions.get(integer(entry.moveId)) ?? null,
                 typeId,
                 integer(entry.categoryId),
                 integer(entry.power),

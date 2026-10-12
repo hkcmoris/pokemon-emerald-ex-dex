@@ -82,7 +82,7 @@ function MoveTable({
                                 <span>{'machine' in move ? move.machine : move.level}</span>
                             </p>
                             <p className="move-description">
-                                {move.description ||
+                                {t(move.description, move.descriptionCs || move.description) ||
                                     t('No description recorded.', 'Popis není uveden.')}
                             </p>
                             <details className="move-details">

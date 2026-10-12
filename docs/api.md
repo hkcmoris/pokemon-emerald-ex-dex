@@ -376,3 +376,20 @@ IDs remain separate slots: Mega Gengar has Shadow Tag #23 in all three slots.
 The frontend offers `#/abilities` and `#/abilities/:id`. Species pages link each
 assigned normal/hidden ability to its description and expandable ROM mechanics.
 Descriptions and flags come from the export; no additional mechanics are inferred.
+
+### Localized move descriptions
+
+Full move records returned by both Node and PHP include the original English
+`description: string` and the additive `descriptionCs: string | null`. This
+applies to move lists, move details, species learnsets and move records nested in
+species details (including compatible TM/HM moves). The lightweight machine
+catalog remains unchanged.
+
+The API returns both languages independently of the frontend preference. Czech UI
+uses `descriptionCs` when nonempty and otherwise displays `description`; English
+UI always displays `description`. Missing descriptions use the localized empty
+message. Move names and mechanics retain the original values.
+
+Apply schema migration `018_move_descriptions_cs.sql` before deploying the
+backend and seed `019_seed_move_descriptions_cs_1.0.4.sql` to populate translations.
+See [Czech move descriptions](database.md#czech-move-descriptions).

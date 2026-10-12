@@ -52,6 +52,7 @@ const entry: SpeciesDetails = {
             moveId: 84,
             name: 'Thunder Shock',
             description: 'An electric shock that may paralyze the foe.',
+            descriptionCs: 'Elektrický výboj, který může cíl ochromit.',
             typeId: 13,
             type: 'Electric',
             typeIconFile: null,
@@ -77,9 +78,9 @@ const entry: SpeciesDetails = {
     formChanges: [],
 };
 
-function renderSpecies(language: 'en' | 'cs'): string {
+function renderSpecies(language: 'en' | 'cs', details: SpeciesDetails = entry): string {
     const client = new QueryClient();
-    client.setQueryData(['species-details', 25], entry);
+    client.setQueryData(['species-details', 25], details);
     try {
         return renderToStaticMarkup(
             createElement(
@@ -101,7 +102,7 @@ function renderSpecies(language: 'en' | 'cs'): string {
     }
 }
 
-void test('Czech species UI translates types and preserves other game names and imported descriptions', () => {
+void test('Czech species UI translates types and move descriptions while preserving game names', () => {
     const html = renderSpecies('cs');
     for (const label of ['Základní statistiky', 'Vzhled', 'Běžná schopnost 1', 'Naučené útoky'])
         match(html, new RegExp(label));
@@ -110,7 +111,7 @@ void test('Czech species UI translates types and preserves other game names and 
         entry.abilities[0].ability!.name,
         entry.abilities[0].ability!.description,
         entry.learnset[0].name,
-        entry.learnset[0].description,
+        entry.learnset[0].descriptionCs!,
         entry.learnset[0].category,
         entry.sprites!.missingReason!,
         'Shiny',
@@ -192,3 +193,41 @@ for (const { language, typeName } of [
         strictEqual(Array.from(html.matchAll(/data-type="Electric"/g)).length, 3);
     });
 }
+
+for (const language of ['en', 'cs'] as const) {
+    void test(`move descriptions follow language in both level-up and machine tables (${language})`, () => {
+        const move = entry.learnset[0];
+        const details: SpeciesDetails = {
+            ...entry,
+            machines: [{ ...move, machine: 'TM01', kind: 'TM', number: 1 }],
+        };
+        const html = renderSpecies(language, details);
+        const descriptions = Array.from(
+            html.matchAll(/<p class="move-description">([^<]*)<\/p>/g),
+            ([, description]) => description,
+        );
+        deepStrictEqual(descriptions, [
+            language === 'cs' ? move.descriptionCs : move.description,
+            language === 'cs' ? move.descriptionCs : move.description,
+        ]);
+    });
+}
+
+for (const descriptionCs of [null, '']) {
+    void test(`Czech move descriptions fall back to English for ${String(descriptionCs)}`, () => {
+        const html = renderSpecies('cs', {
+            ...entry,
+            learnset: [{ ...entry.learnset[0], descriptionCs }],
+        });
+        match(html, /An electric shock that may paralyze the foe\./);
+    });
+}
+
+void test('moves without either description use the localized empty message', () => {
+    const details: SpeciesDetails = {
+        ...entry,
+        learnset: [{ ...entry.learnset[0], description: '', descriptionCs: null }],
+    };
+    match(renderSpecies('cs', details), /Popis není uveden\./);
+    match(renderSpecies('en', details), /No description recorded\./);
+});

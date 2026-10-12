@@ -1,0 +1,4241 @@
+{
+    "datasetId": "emerald-ex-1.0.4",
+    "language": "cs",
+    "moves": [
+        {
+            "moveId": 1,
+            "sourceDescription": "Pounds the foe with forelegs or tail.",
+            "descriptionCs": "Udeří soupeře předními končetinami nebo ocasem."
+        },
+        {
+            "moveId": 2,
+            "sourceDescription": "A chopping attack with a high critical-hit ratio.",
+            "descriptionCs": "Sekavý útok s vysokou šancí na kritický zásah."
+        },
+        {
+            "moveId": 3,
+            "sourceDescription": "Repeatedly slaps the foe 2 to 5 times.",
+            "descriptionCs": "Dá soupeři 2 až 5 pohlavků."
+        },
+        {
+            "moveId": 4,
+            "sourceDescription": "Repeatedly punches the foe 2 to 5 times.",
+            "descriptionCs": "Udeří soupeře pěstmi 2 až 5krát."
+        },
+        {
+            "moveId": 5,
+            "sourceDescription": "A strong punch thrown with incredible power.",
+            "descriptionCs": "Zasadí neuvěřitelně silný úder pěstí."
+        },
+        {
+            "moveId": 6,
+            "sourceDescription": "Throws coins at the foe. Money is recovered after.",
+            "descriptionCs": "Hází po soupeři mince. Po boji získá peníze."
+        },
+        {
+            "moveId": 7,
+            "sourceDescription": "A fiery punch that may burn the foe.",
+            "descriptionCs": "Ohnivý úder pěstí, který může soupeře popálit."
+        },
+        {
+            "moveId": 8,
+            "sourceDescription": "An icy punch that may freeze the foe.",
+            "descriptionCs": "Ledový úder pěstí, který může soupeře zmrazit."
+        },
+        {
+            "moveId": 9,
+            "sourceDescription": "An electrified punch that may paralyze the foe.",
+            "descriptionCs": "Elektrický úder pěstí, který může soupeře ochromit."
+        },
+        {
+            "moveId": 10,
+            "sourceDescription": "Scratches the foe with sharp claws.",
+            "descriptionCs": "Poškrábe soupeře ostrými drápy."
+        },
+        {
+            "moveId": 11,
+            "sourceDescription": "Grips the foe with large and powerful pincers.",
+            "descriptionCs": "Sevře soupeře velkými a silnými klepety."
+        },
+        {
+            "moveId": 12,
+            "sourceDescription": "A powerful pincer attack that may cause fainting.",
+            "descriptionCs": "Silný útok klepety, který může soupeře vyřadit z boje."
+        },
+        {
+            "moveId": 13,
+            "sourceDescription": "A 2-turn move that strikes the foe on the 2nd turn.",
+            "descriptionCs": "Útok na 2 kola, který zasáhne soupeře ve druhém kole."
+        },
+        {
+            "moveId": 14,
+            "sourceDescription": "A fighting dance that sharply raises Attack.",
+            "descriptionCs": "Bojovým tancem výrazně zvýší svůj útok."
+        },
+        {
+            "moveId": 15,
+            "sourceDescription": "Cuts the foe with sharp scythes, claws, etc.",
+            "descriptionCs": "Sekne soupeře ostrými kosami, drápy a podobně."
+        },
+        {
+            "moveId": 16,
+            "sourceDescription": "Strikes the foe with a gust of wind whipped up by wings.",
+            "descriptionCs": "Zasáhne soupeře poryvem větru vyvolaným křídly."
+        },
+        {
+            "moveId": 17,
+            "sourceDescription": "Strikes the foe with wings spread wide.",
+            "descriptionCs": "Udeří soupeře doširoka roztaženými křídly."
+        },
+        {
+            "moveId": 18,
+            "sourceDescription": "Blows away the foe with wind and ends the battle.",
+            "descriptionCs": "Odfoukne soupeře větrem a ukončí boj."
+        },
+        {
+            "moveId": 19,
+            "sourceDescription": "Flies up on the first turn, then strikes the next turn.",
+            "descriptionCs": "V prvním kole vzlétne a v dalším zaútočí."
+        },
+        {
+            "moveId": 20,
+            "sourceDescription": "Binds and squeezes the foe for 4 or 5 turns.",
+            "descriptionCs": "Svazuje a svírá soupeře po dobu 4 nebo 5 kol."
+        },
+        {
+            "moveId": 21,
+            "sourceDescription": "Slams the foe with a long tail, vine, etc.",
+            "descriptionCs": "Udeří soupeře dlouhým ocasem, liánou a podobně."
+        },
+        {
+            "moveId": 22,
+            "sourceDescription": "Strikes the foe with slender, whiplike vines.",
+            "descriptionCs": "Švihne soupeře tenkými liánami podobnými bičům."
+        },
+        {
+            "moveId": 23,
+            "sourceDescription": "Stomps the enemy with a big foot. May cause flinching.",
+            "descriptionCs": "Dupne na soupeře velkým chodidlem. Soupeř pak v tomto kole nemusí zaútočit."
+        },
+        {
+            "moveId": 24,
+            "sourceDescription": "A double-kicking attack that strikes the foe twice.",
+            "descriptionCs": "Dvojitým kopem zasáhne soupeře dvakrát."
+        },
+        {
+            "moveId": 25,
+            "sourceDescription": "An extremely powerful kick with intense force.",
+            "descriptionCs": "Zasadí mimořádně silný kop."
+        },
+        {
+            "moveId": 26,
+            "sourceDescription": "A strong jumping kick. May miss and hurt the kicker.",
+            "descriptionCs": "Silný kop z výskoku. Při minutí se útočník může zranit."
+        },
+        {
+            "moveId": 27,
+            "sourceDescription": "A fast kick delivered from a rapid spin.",
+            "descriptionCs": "Zasadí rychlý kop z prudké otočky."
+        },
+        {
+            "moveId": 28,
+            "sourceDescription": "Reduces the foe’s accuracy by hurling sand in its face.",
+            "descriptionCs": "Hodí soupeři písek do obličeje a sníží jeho přesnost."
+        },
+        {
+            "moveId": 29,
+            "sourceDescription": "A ramming attack that may cause flinching.",
+            "descriptionCs": "Úder hlavou, po kterém soupeř v tomto kole nemusí zaútočit."
+        },
+        {
+            "moveId": 30,
+            "sourceDescription": "Jabs the foe with sharp horns.",
+            "descriptionCs": "Bodne soupeře ostrými rohy."
+        },
+        {
+            "moveId": 31,
+            "sourceDescription": "Jabs the foe 2 to 5 times with sharp horns, etc.",
+            "descriptionCs": "Bodne soupeře ostrými rohy a podobně 2 až 5krát."
+        },
+        {
+            "moveId": 32,
+            "sourceDescription": "A one-hit KO attack that uses a horn like a drill.",
+            "descriptionCs": "Použije roh jako vrták a vyřadí soupeře jediným zásahem."
+        },
+        {
+            "moveId": 33,
+            "sourceDescription": "Charges the foe with a full- body tackle.",
+            "descriptionCs": "Narazí do soupeře celým tělem."
+        },
+        {
+            "moveId": 34,
+            "sourceDescription": "A full-body slam that may cause paralysis.",
+            "descriptionCs": "Úder celým tělem, který může soupeře ochromit."
+        },
+        {
+            "moveId": 35,
+            "sourceDescription": "Wraps and squeezes the foe 4 or 5 times with vines, etc.",
+            "descriptionCs": "Omotá a sevře soupeře liánami a podobně 4 nebo 5krát."
+        },
+        {
+            "moveId": 36,
+            "sourceDescription": "A reckless charge attack that also hurts the user.",
+            "descriptionCs": "Bezhlavě vrazí do soupeře a zraní i sebe."
+        },
+        {
+            "moveId": 37,
+            "sourceDescription": "A rampage of 2 to 3 turns that confuses the user.",
+            "descriptionCs": "Zuří 2 až 3 kola a poté se zmate."
+        },
+        {
+            "moveId": 38,
+            "sourceDescription": "A life-risking tackle that also hurts the user.",
+            "descriptionCs": "Riskantně narazí do soupeře a zraní i sebe."
+        },
+        {
+            "moveId": 39,
+            "sourceDescription": "Wags the tail to lower the foe’s Defense.",
+            "descriptionCs": "Vrtěním ocasu sníží soupeřovu obranu."
+        },
+        {
+            "moveId": 40,
+            "sourceDescription": "A toxic attack with barbs, etc., that may poison.",
+            "descriptionCs": "Zaútočí jedovatými ostny a podobně. Může soupeře otrávit."
+        },
+        {
+            "moveId": 41,
+            "sourceDescription": "Stingers on the forelegs jab the foe twice.",
+            "descriptionCs": "Dvakrát bodne soupeře žihadly na předních končetinách."
+        },
+        {
+            "moveId": 42,
+            "sourceDescription": "Sharp pins are fired to strike 2 to 5 times.",
+            "descriptionCs": "Vystřelí ostré jehly, které zasáhnou 2 až 5krát."
+        },
+        {
+            "moveId": 43,
+            "sourceDescription": "Frightens the foe with a leer to lower Defense.",
+            "descriptionCs": "Vyděsí soupeře pohledem a sníží jeho obranu."
+        },
+        {
+            "moveId": 44,
+            "sourceDescription": "Bites with vicious fangs. May cause flinching.",
+            "descriptionCs": "Kousne soupeře ostrými tesáky. Soupeř pak v tomto kole nemusí zaútočit."
+        },
+        {
+            "moveId": 45,
+            "sourceDescription": "Growls cutely to reduce the foe’s Attack.",
+            "descriptionCs": "Roztomile zavrčí a sníží soupeřův útok."
+        },
+        {
+            "moveId": 46,
+            "sourceDescription": "Makes the foe flee to end the battle.",
+            "descriptionCs": "Přiměje soupeře utéct a ukončí boj."
+        },
+        {
+            "moveId": 47,
+            "sourceDescription": "A soothing song lulls the foe into a deep slumber.",
+            "descriptionCs": "Ukolébá soupeře uklidňující písní do hlubokého spánku."
+        },
+        {
+            "moveId": 48,
+            "sourceDescription": "Emits bizarre sound waves that may confuse the foe.",
+            "descriptionCs": "Vydá podivné zvukové vlny, které mohou soupeře zmást."
+        },
+        {
+            "moveId": 49,
+            "sourceDescription": "Launches shock waves that always inflict 20 HP damage.",
+            "descriptionCs": "Vyšle rázové vlny, které vždy způsobí poškození 20 HP."
+        },
+        {
+            "moveId": 50,
+            "sourceDescription": "Psychically disables one of the foe’s moves.",
+            "descriptionCs": "Psychickou silou zablokuje jeden ze soupeřových útoků."
+        },
+        {
+            "moveId": 51,
+            "sourceDescription": "Sprays a hide-melting acid. May lower Sp. Def.",
+            "descriptionCs": "Vystříkne kyselinu, která rozpouští kůži. Může snížit speciální obranu."
+        },
+        {
+            "moveId": 52,
+            "sourceDescription": "A weak fire attack that may inflict a burn.",
+            "descriptionCs": "Slabý ohnivý útok, který může soupeře popálit."
+        },
+        {
+            "moveId": 53,
+            "sourceDescription": "A powerful fire attack that may inflict a burn.",
+            "descriptionCs": "Silný ohnivý útok, který může soupeře popálit."
+        },
+        {
+            "moveId": 54,
+            "sourceDescription": "Creates a mist that stops reduction of abilities.",
+            "descriptionCs": "Vytvoří mlhu, která brání snižování statistik."
+        },
+        {
+            "moveId": 55,
+            "sourceDescription": "Squirts water to attack the foe.",
+            "descriptionCs": "Zaútočí na soupeře proudem vody."
+        },
+        {
+            "moveId": 56,
+            "sourceDescription": "Blasts water at high power to strike the foe.",
+            "descriptionCs": "Zasáhne soupeře mohutným proudem vody."
+        },
+        {
+            "moveId": 57,
+            "sourceDescription": "Creates a huge wave, then crashes it down on the foe.",
+            "descriptionCs": "Vytvoří obrovskou vlnu a nechá ji dopadnout na soupeře."
+        },
+        {
+            "moveId": 58,
+            "sourceDescription": "Blasts the foe with an icy beam that may freeze it.",
+            "descriptionCs": "Zasáhne soupeře ledovým paprskem, který ho může zmrazit."
+        },
+        {
+            "moveId": 59,
+            "sourceDescription": "Hits the foe with an icy storm that may freeze it.",
+            "descriptionCs": "Zasáhne soupeře ledovou bouří, která ho může zmrazit."
+        },
+        {
+            "moveId": 60,
+            "sourceDescription": "Fires a peculiar ray that may confuse the foe.",
+            "descriptionCs": "Vystřelí zvláštní paprsek, který může soupeře zmást."
+        },
+        {
+            "moveId": 61,
+            "sourceDescription": "Forcefully sprays bubbles that may lower Speed.",
+            "descriptionCs": "Prudce vystříkne bubliny, které mohou snížit rychlost."
+        },
+        {
+            "moveId": 62,
+            "sourceDescription": "Fires a rainbow-colored beam that may lower Attack.",
+            "descriptionCs": "Vystřelí duhový paprsek, který může snížit útok."
+        },
+        {
+            "moveId": 63,
+            "sourceDescription": "Powerful, but leaves the user immobile the next turn.",
+            "descriptionCs": "Silný útok, po kterém útočník v dalším kole nemůže jednat."
+        },
+        {
+            "moveId": 64,
+            "sourceDescription": "Attacks the foe with a jabbing beak, etc.",
+            "descriptionCs": "Bodne soupeře zobákem a podobně."
+        },
+        {
+            "moveId": 65,
+            "sourceDescription": "A corkscrewing attack with the beak acting as a drill.",
+            "descriptionCs": "Zaútočí spirálovitým pohybem zobáku jako vrtákem."
+        },
+        {
+            "moveId": 66,
+            "sourceDescription": "A reckless body slam that also hurts the user.",
+            "descriptionCs": "Bezhlavě udeří soupeře celým tělem a zraní i sebe."
+        },
+        {
+            "moveId": 67,
+            "sourceDescription": "A kick that inflicts more damage on heavier foes.",
+            "descriptionCs": "Kop, který způsobí větší poškození těžším soupeřům."
+        },
+        {
+            "moveId": 68,
+            "sourceDescription": "Retaliates any physical hit with double the power.",
+            "descriptionCs": "Vrátí každý fyzický zásah s dvojnásobnou silou."
+        },
+        {
+            "moveId": 69,
+            "sourceDescription": "Inflicts damage identical to the user’s level.",
+            "descriptionCs": "Způsobí poškození rovné úrovni útočníka."
+        },
+        {
+            "moveId": 70,
+            "sourceDescription": "Builds enormous power, then slams the foe.",
+            "descriptionCs": "Nahromadí obrovskou sílu a udeří soupeře."
+        },
+        {
+            "moveId": 71,
+            "sourceDescription": "An attack that absorbs half the damage inflicted.",
+            "descriptionCs": "Obnoví si HP ve výši poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 72,
+            "sourceDescription": "An attack that absorbs half the damage inflicted.",
+            "descriptionCs": "Obnoví si HP ve výši poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 73,
+            "sourceDescription": "Plants a seed on the foe to steal HP on every turn.",
+            "descriptionCs": "Zasadí do soupeře semínko, které mu každé kolo krade HP."
+        },
+        {
+            "moveId": 74,
+            "sourceDescription": "Forces the body to grow and heightens Sp. Atk.",
+            "descriptionCs": "Nechá své tělo vyrůst a zvýší svůj speciální útok."
+        },
+        {
+            "moveId": 75,
+            "sourceDescription": "Cuts the enemy with leaves. High critical-hit ratio.",
+            "descriptionCs": "Seká soupeře listy. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 76,
+            "sourceDescription": "Absorbs light in one turn, then attacks next turn.",
+            "descriptionCs": "V prvním kole vstřebá světlo a v dalším zaútočí."
+        },
+        {
+            "moveId": 77,
+            "sourceDescription": "Scatters a toxic powder that may poison the foe.",
+            "descriptionCs": "Rozptýlí jedovatý prášek, který může soupeře otrávit."
+        },
+        {
+            "moveId": 78,
+            "sourceDescription": "Scatters a powder that may paralyze the foe.",
+            "descriptionCs": "Rozptýlí prášek, který může soupeře ochromit."
+        },
+        {
+            "moveId": 79,
+            "sourceDescription": "Scatters a powder that may cause the foe to sleep.",
+            "descriptionCs": "Rozptýlí prášek, který může soupeře uspat."
+        },
+        {
+            "moveId": 80,
+            "sourceDescription": "A rampage of 2 to 3 turns that confuses the user.",
+            "descriptionCs": "Zuří 2 až 3 kola a poté se zmate."
+        },
+        {
+            "moveId": 81,
+            "sourceDescription": "Binds the foe with string to reduce its Speed.",
+            "descriptionCs": "Svazuje soupeře vláknem a sníží jeho rychlost."
+        },
+        {
+            "moveId": 82,
+            "sourceDescription": "Launches shock waves that always inflict 40 HP damage.",
+            "descriptionCs": "Vyšle rázové vlny, které vždy způsobí poškození 40 HP."
+        },
+        {
+            "moveId": 83,
+            "sourceDescription": "Traps the foe in a ring of fire for 4 or 5 turns.",
+            "descriptionCs": "Uvězní soupeře v ohnivém kruhu na 4 nebo 5 kol."
+        },
+        {
+            "moveId": 84,
+            "sourceDescription": "An electrical attack that may paralyze the foe.",
+            "descriptionCs": "Elektrický útok, který může soupeře ochromit."
+        },
+        {
+            "moveId": 85,
+            "sourceDescription": "A strong electrical attack that may paralyze the foe.",
+            "descriptionCs": "Silný elektrický útok, který může soupeře ochromit."
+        },
+        {
+            "moveId": 86,
+            "sourceDescription": "A weak jolt of electricity that paralyzes the foe.",
+            "descriptionCs": "Slabým elektrickým výbojem ochromí soupeře."
+        },
+        {
+            "moveId": 87,
+            "sourceDescription": "A lightning attack that may cause paralysis.",
+            "descriptionCs": "Útok bleskem, který může soupeře ochromit."
+        },
+        {
+            "moveId": 88,
+            "sourceDescription": "Throws small rocks to strike the foe.",
+            "descriptionCs": "Hází na soupeře malé kameny."
+        },
+        {
+            "moveId": 89,
+            "sourceDescription": "A powerful quake, but has no effect on flying foes.",
+            "descriptionCs": "Silné zemětřesení, které nemá vliv na létající soupeře."
+        },
+        {
+            "moveId": 90,
+            "sourceDescription": "A one-hit KO move that drops the foe in a fissure.",
+            "descriptionCs": "Svrhne soupeře do pukliny a vyřadí ho jediným zásahem."
+        },
+        {
+            "moveId": 91,
+            "sourceDescription": "Digs underground the first turn and strikes next turn.",
+            "descriptionCs": "V prvním kole se zahrabe pod zem a v dalším zaútočí."
+        },
+        {
+            "moveId": 92,
+            "sourceDescription": "Poisons the foe with an intensifying toxin.",
+            "descriptionCs": "Otráví soupeře jedem, jehož účinek se postupně zesiluje."
+        },
+        {
+            "moveId": 93,
+            "sourceDescription": "A psychic attack that may cause confusion.",
+            "descriptionCs": "Psychický útok, který může soupeře zmást."
+        },
+        {
+            "moveId": 94,
+            "sourceDescription": "A powerful psychic attack that may lower Sp. Def.",
+            "descriptionCs": "Silný psychický útok, který může snížit speciální obranu."
+        },
+        {
+            "moveId": 95,
+            "sourceDescription": "A hypnotizing move that may induce sleep.",
+            "descriptionCs": "Hypnotický útok, který může soupeře uspat."
+        },
+        {
+            "moveId": 96,
+            "sourceDescription": "Meditates in a peaceful fashion to raise Attack.",
+            "descriptionCs": "Poklidnou meditací zvýší svůj útok."
+        },
+        {
+            "moveId": 97,
+            "sourceDescription": "Relaxes the body to sharply boost Speed.",
+            "descriptionCs": "Uvolní své tělo a výrazně zvýší svou rychlost."
+        },
+        {
+            "moveId": 98,
+            "sourceDescription": "An extremely fast attack that always strikes first.",
+            "descriptionCs": "Mimořádně rychlý útok, který vždy zasáhne jako první."
+        },
+        {
+            "moveId": 99,
+            "sourceDescription": "Raises the user’s Attack every time it is hit.",
+            "descriptionCs": "Zvýší útočníkův útok pokaždé, když ho soupeř zasáhne."
+        },
+        {
+            "moveId": 100,
+            "sourceDescription": "A psychic move for fleeing from battle instantly.",
+            "descriptionCs": "Psychický útok pro okamžitý útěk z boje."
+        },
+        {
+            "moveId": 101,
+            "sourceDescription": "Inflicts damage identical to the user’s level.",
+            "descriptionCs": "Způsobí poškození rovné úrovni útočníka."
+        },
+        {
+            "moveId": 102,
+            "sourceDescription": "Copies a move used by the foe during one battle.",
+            "descriptionCs": "Zkopíruje soupeřův útok na dobu jednoho boje."
+        },
+        {
+            "moveId": 103,
+            "sourceDescription": "Emits a screech to sharply reduce the foe’s Defense.",
+            "descriptionCs": "Pronikavým skřekem výrazně sníží soupeřovu obranu."
+        },
+        {
+            "moveId": 104,
+            "sourceDescription": "Creates illusory copies to raise evasiveness.",
+            "descriptionCs": "Vytvoří své iluzorní kopie a zvýší své vyhýbání."
+        },
+        {
+            "moveId": 105,
+            "sourceDescription": "Recovers up to half the user’s maximum HP.",
+            "descriptionCs": "Obnoví si až polovinu maximálních HP."
+        },
+        {
+            "moveId": 106,
+            "sourceDescription": "Stiffens the body’s  muscles to raise Defense.",
+            "descriptionCs": "Zpevní svaly svého těla a zvýší svou obranu."
+        },
+        {
+            "moveId": 107,
+            "sourceDescription": "Minimizes the user’s size to raise evasiveness.",
+            "descriptionCs": "Zmenší své tělo a zvýší své vyhýbání."
+        },
+        {
+            "moveId": 108,
+            "sourceDescription": "Lowers the foe’s accuracy using smoke, ink, etc.",
+            "descriptionCs": "Sníží soupeřovu přesnost kouřem, inkoustem a podobně."
+        },
+        {
+            "moveId": 109,
+            "sourceDescription": "A sinister ray that confuses the foe.",
+            "descriptionCs": "Zlověstným paprskem zmate soupeře."
+        },
+        {
+            "moveId": 110,
+            "sourceDescription": "Withdraws the body into its hard shell to raise Defense.",
+            "descriptionCs": "Stáhne se do tvrdé ulity a zvýší svou obranu."
+        },
+        {
+            "moveId": 111,
+            "sourceDescription": "Curls up to conceal weak spots and raise Defense.",
+            "descriptionCs": "Stočí se do klubíčka, zakryje slabá místa a zvýší svou obranu."
+        },
+        {
+            "moveId": 112,
+            "sourceDescription": "Creates a barrier that sharply raises Defense.",
+            "descriptionCs": "Vytvoří bariéru, která výrazně zvýší jeho obranu."
+        },
+        {
+            "moveId": 113,
+            "sourceDescription": "Creates a wall of light that lowers Sp. Atk damage.",
+            "descriptionCs": "Vytvoří světelnou stěnu, která sníží poškození speciálními útoky."
+        },
+        {
+            "moveId": 114,
+            "sourceDescription": "Creates a black haze that eliminates all stat changes.",
+            "descriptionCs": "Vytvoří černou mlhu, která zruší všechny změny statistik."
+        },
+        {
+            "moveId": 115,
+            "sourceDescription": "Creates a wall of light that weakens physical attacks.",
+            "descriptionCs": "Vytvoří světelnou stěnu, která zeslabí fyzické útoky."
+        },
+        {
+            "moveId": 116,
+            "sourceDescription": "Focuses power to raise the critical-hit ratio.",
+            "descriptionCs": "Soustředí svou sílu a zvýší šanci na kritický zásah."
+        },
+        {
+            "moveId": 117,
+            "sourceDescription": "Endures attack for 2 turns to retaliate double.",
+            "descriptionCs": "Po 2 kola snáší útoky a poté vrátí dvojnásobné poškození."
+        },
+        {
+            "moveId": 118,
+            "sourceDescription": "Waggles a finger to use any Pokémon move at random.",
+            "descriptionCs": "Zamává prstem a náhodně použije libovolný pokémoní útok."
+        },
+        {
+            "moveId": 119,
+            "sourceDescription": "Counters the foe’s attack with the same move.",
+            "descriptionCs": "Odpoví na soupeřův útok stejným útokem."
+        },
+        {
+            "moveId": 120,
+            "sourceDescription": "Inflicts severe damage but makes the user faint.",
+            "descriptionCs": "Způsobí velké poškození, ale vyřadí útočníka z boje."
+        },
+        {
+            "moveId": 121,
+            "sourceDescription": "An egg is forcibly hurled at the foe.",
+            "descriptionCs": "Prudce hodí po soupeři vejce."
+        },
+        {
+            "moveId": 122,
+            "sourceDescription": "Licks with a long tongue to injure. May also paralyze.",
+            "descriptionCs": "Zraní soupeře olíznutím dlouhým jazykem. Může ho také ochromit."
+        },
+        {
+            "moveId": 123,
+            "sourceDescription": "An exhaust-gas attack that may also poison.",
+            "descriptionCs": "Zaútočí výfukovými plyny, které mohou soupeře také otrávit."
+        },
+        {
+            "moveId": 124,
+            "sourceDescription": "Sludge is hurled to inflict damage. May also poison.",
+            "descriptionCs": "Hodí po soupeři kal a zraní ho. Může ho také otrávit."
+        },
+        {
+            "moveId": 125,
+            "sourceDescription": "Clubs the foe with a bone. May cause flinching.",
+            "descriptionCs": "Udeří soupeře kostí. Soupeř pak v tomto kole nemusí zaútočit."
+        },
+        {
+            "moveId": 126,
+            "sourceDescription": "Incinerates everything it strikes. May cause a burn.",
+            "descriptionCs": "Spálí vše, co zasáhne. Může způsobit popálení."
+        },
+        {
+            "moveId": 127,
+            "sourceDescription": "Charges the foe with speed to climb waterfalls.",
+            "descriptionCs": "Vyrazí proti soupeři rychlostí, kterou používá ke zdolávání vodopádů."
+        },
+        {
+            "moveId": 128,
+            "sourceDescription": "Traps and squeezes the foe for 4 or 5 turns.",
+            "descriptionCs": "Uvězní a svírá soupeře po dobu 4 nebo 5 kol."
+        },
+        {
+            "moveId": 129,
+            "sourceDescription": "Sprays star-shaped rays that never miss.",
+            "descriptionCs": "Vystřelí paprsky ve tvaru hvězd, které nikdy neminou."
+        },
+        {
+            "moveId": 130,
+            "sourceDescription": "Tucks in the head, then attacks on the next turn.",
+            "descriptionCs": "Zatáhne hlavu a v dalším kole zaútočí."
+        },
+        {
+            "moveId": 131,
+            "sourceDescription": "Launches sharp spikes that strike 2 to 5 times.",
+            "descriptionCs": "Vystřelí ostré ostny, které zasáhnou 2 až 5krát."
+        },
+        {
+            "moveId": 132,
+            "sourceDescription": "Constricts to inflict pain. May lower Speed.",
+            "descriptionCs": "Bolestivě sevře soupeře. Může snížit jeho rychlost."
+        },
+        {
+            "moveId": 133,
+            "sourceDescription": "Forgets about something and sharply raises Sp. Def.",
+            "descriptionCs": "Na něco zapomene a výrazně zvýší svou speciální obranu."
+        },
+        {
+            "moveId": 134,
+            "sourceDescription": "Distracts the foe. May lower accuracy.",
+            "descriptionCs": "Rozptýlí soupeře. Může snížit jeho přesnost."
+        },
+        {
+            "moveId": 135,
+            "sourceDescription": "Recovers up to half the user’s maximum HP.",
+            "descriptionCs": "Obnoví si až polovinu maximálních HP."
+        },
+        {
+            "moveId": 136,
+            "sourceDescription": "A jumping knee kick. If it misses, the user is hurt.",
+            "descriptionCs": "Úder kolenem z výskoku. Při minutí se útočník zraní."
+        },
+        {
+            "moveId": 137,
+            "sourceDescription": "Intimidates and frightens the foe into paralysis.",
+            "descriptionCs": "Zastraší a vyděsí soupeře tak, že ho ochromí."
+        },
+        {
+            "moveId": 138,
+            "sourceDescription": "Takes one half the damage inflicted on a sleeping foe.",
+            "descriptionCs": "Obnoví si HP ve výši poloviny poškození způsobeného spícímu soupeři."
+        },
+        {
+            "moveId": 139,
+            "sourceDescription": "Envelops the foe in a toxic gas that may poison.",
+            "descriptionCs": "Zahalí soupeře jedovatým plynem, který ho může otrávit."
+        },
+        {
+            "moveId": 140,
+            "sourceDescription": "Hurls round objects at the foe 2 to 5 times.",
+            "descriptionCs": "Hodí po soupeři kulaté předměty 2 až 5krát."
+        },
+        {
+            "moveId": 141,
+            "sourceDescription": "An attack that steals half the damage inflicted.",
+            "descriptionCs": "Ukradne HP ve výši poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 142,
+            "sourceDescription": "Demands a kiss with a scary face that induces sleep.",
+            "descriptionCs": "S děsivým výrazem vynutí polibek, který soupeře uspí."
+        },
+        {
+            "moveId": 143,
+            "sourceDescription": "Searches out weak spots, then strikes the next turn.",
+            "descriptionCs": "Vyhledá slabá místa a v dalším kole zaútočí."
+        },
+        {
+            "moveId": 144,
+            "sourceDescription": "Alters the user’s cells to become a copy of the foe.",
+            "descriptionCs": "Změní své buňky a promění se v kopii soupeře."
+        },
+        {
+            "moveId": 145,
+            "sourceDescription": "An attack using bubbles. May lower the foe’s Speed.",
+            "descriptionCs": "Zaútočí bublinami. Může snížit soupeřovu rychlost."
+        },
+        {
+            "moveId": 146,
+            "sourceDescription": "A rhythmic punch that may confuse the foe.",
+            "descriptionCs": "Rytmický úder pěstí, který může soupeře zmást."
+        },
+        {
+            "moveId": 147,
+            "sourceDescription": "Scatters a cloud of spores that always induce sleep.",
+            "descriptionCs": "Rozptýlí oblak výtrusů, které vždy uspí soupeře."
+        },
+        {
+            "moveId": 148,
+            "sourceDescription": "Looses a powerful blast of light that cuts accuracy.",
+            "descriptionCs": "Vypustí silný záblesk světla, který sníží přesnost."
+        },
+        {
+            "moveId": 149,
+            "sourceDescription": "Attacks with a psychic wave of varying intensity.",
+            "descriptionCs": "Zaútočí psychickou vlnou s proměnlivou intenzitou."
+        },
+        {
+            "moveId": 150,
+            "sourceDescription": "It’s just a splash... Has no effect whatsoever.",
+            "descriptionCs": "Jen se plácá... Nemá vůbec žádný účinek."
+        },
+        {
+            "moveId": 151,
+            "sourceDescription": "Liquifies the user’s body to sharply raise Defense.",
+            "descriptionCs": "Zkapalní své tělo a výrazně zvýší svou obranu."
+        },
+        {
+            "moveId": 152,
+            "sourceDescription": "Hammers with a pincer. Has a high critical-hit ratio.",
+            "descriptionCs": "Udeří klepetem. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 153,
+            "sourceDescription": "Inflicts severe damage but makes the user faint.",
+            "descriptionCs": "Způsobí velké poškození, ale vyřadí útočníka z boje."
+        },
+        {
+            "moveId": 154,
+            "sourceDescription": "Rakes the foe with sharp claws, etc., 2 to 5 times.",
+            "descriptionCs": "Poškrábe soupeře ostrými drápy a podobně 2 až 5krát."
+        },
+        {
+            "moveId": 155,
+            "sourceDescription": "Throws a bone boomerang that strikes twice.",
+            "descriptionCs": "Hodí kostěný bumerang, který zasáhne dvakrát."
+        },
+        {
+            "moveId": 156,
+            "sourceDescription": "The user sleeps for 2 turns, restoring HP and status.",
+            "descriptionCs": "Útočník spí 2 kola, obnoví si HP a vyléčí stavové potíže."
+        },
+        {
+            "moveId": 157,
+            "sourceDescription": "Large boulders are hurled. May cause flinching.",
+            "descriptionCs": "Hází velké balvany. Soupeř pak v tomto kole nemusí zaútočit."
+        },
+        {
+            "moveId": 158,
+            "sourceDescription": "Attacks with sharp fangs. May cause flinching.",
+            "descriptionCs": "Zaútočí ostrými tesáky. Soupeř pak v tomto kole nemusí zaútočit."
+        },
+        {
+            "moveId": 159,
+            "sourceDescription": "Reduces the polygon count and raises Attack.",
+            "descriptionCs": "Sníží počet svých polygonů a zvýší svůj útok."
+        },
+        {
+            "moveId": 160,
+            "sourceDescription": "Changes the user’s type into a known move’s type.",
+            "descriptionCs": "Změní svůj typ na typ jednoho z útoků, které zná."
+        },
+        {
+            "moveId": 161,
+            "sourceDescription": "Fires three types of beams at the same time.",
+            "descriptionCs": "Vystřelí současně tři druhy paprsků."
+        },
+        {
+            "moveId": 162,
+            "sourceDescription": "Attacks with sharp fangs and cuts half the foe’s HP.",
+            "descriptionCs": "Zaútočí ostrými tesáky a ubere soupeři polovinu HP."
+        },
+        {
+            "moveId": 163,
+            "sourceDescription": "Slashes with claws, etc. Has a high critical-hit ratio.",
+            "descriptionCs": "Sekne drápy a podobně. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 164,
+            "sourceDescription": "Creates a decoy using 1/4 of the user’s maximum HP.",
+            "descriptionCs": "Za cenu 1/4 svých maximálních HP vytvoří návnadu."
+        },
+        {
+            "moveId": 165,
+            "sourceDescription": "Used only if all PP are gone. Also hurts the user a little.",
+            "descriptionCs": "Lze použít jen po vyčerpání všech PP. Mírně zraní i útočníka."
+        },
+        {
+            "moveId": 166,
+            "sourceDescription": "Copies the foe’s last move permanently.",
+            "descriptionCs": "Natrvalo zkopíruje poslední soupeřův útok."
+        },
+        {
+            "moveId": 167,
+            "sourceDescription": "Kicks the foe 3 times in a row with rising intensity.",
+            "descriptionCs": "Kopne soupeře 3krát za sebou s rostoucí silou."
+        },
+        {
+            "moveId": 168,
+            "sourceDescription": "While attacking, it may steal the foe’s held item.",
+            "descriptionCs": "Při útoku může ukrást soupeři držený předmět."
+        },
+        {
+            "moveId": 169,
+            "sourceDescription": "Ensnares the foe to stop it from fleeing or switching.",
+            "descriptionCs": "Chytí soupeře do sítě a zabrání mu utéct nebo se vystřídat."
+        },
+        {
+            "moveId": 170,
+            "sourceDescription": "Senses the foe’s action to ensure the next move’s hit.",
+            "descriptionCs": "Vyčte soupeřův záměr a zajistí zásah dalším útokem."
+        },
+        {
+            "moveId": 171,
+            "sourceDescription": "Inflicts 1/4 damage on a sleeping foe every turn.",
+            "descriptionCs": "Každé kolo ubere spícímu soupeři 1/4 HP."
+        },
+        {
+            "moveId": 172,
+            "sourceDescription": "A fiery charge attack that may inflict a burn.",
+            "descriptionCs": "Ohnivý náraz, který může soupeře popálit."
+        },
+        {
+            "moveId": 173,
+            "sourceDescription": "A loud attack that can be used only while asleep.",
+            "descriptionCs": "Hlasitý útok, který lze použít pouze ve spánku."
+        },
+        {
+            "moveId": 174,
+            "sourceDescription": "A move that functions differently for GHOSTS.",
+            "descriptionCs": "Útok, který u pokémonů duchového typu funguje jinak."
+        },
+        {
+            "moveId": 175,
+            "sourceDescription": "Inflicts more damage when the user’s HP is down.",
+            "descriptionCs": "Způsobí větší poškození, když má útočník málo HP."
+        },
+        {
+            "moveId": 176,
+            "sourceDescription": "Makes the user resistant to the last attack’s type.",
+            "descriptionCs": "Změní útočníka tak, aby odolával typu posledního útoku."
+        },
+        {
+            "moveId": 177,
+            "sourceDescription": "Launches a vacuumed blast. High critical-hit ratio.",
+            "descriptionCs": "Vyšle vakuový výboj. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 178,
+            "sourceDescription": "Spores cling to the foe, sharply reducing Speed.",
+            "descriptionCs": "Výtrusy se zachytí na soupeři a výrazně sníží jeho rychlost."
+        },
+        {
+            "moveId": 179,
+            "sourceDescription": "Inflicts more damage when the user’s HP is down.",
+            "descriptionCs": "Způsobí větší poškození, když má útočník málo HP."
+        },
+        {
+            "moveId": 180,
+            "sourceDescription": "Spitefully cuts the PP of the foe’s last move.",
+            "descriptionCs": "Zlomyslně sníží PP posledního soupeřova útoku."
+        },
+        {
+            "moveId": 181,
+            "sourceDescription": "Blasts the foe with a snowy gust. May cause freezing.",
+            "descriptionCs": "Zasáhne soupeře sněhovým poryvem. Může ho zmrazit."
+        },
+        {
+            "moveId": 182,
+            "sourceDescription": "Evades attack, but may fail if used in succession.",
+            "descriptionCs": "Vyhne se útoku, ale při opakovaném použití může selhat."
+        },
+        {
+            "moveId": 183,
+            "sourceDescription": "A punch is thrown at wicked speed to strike first.",
+            "descriptionCs": "Zasadí úder pěstí tak rychle, že zasáhne jako první."
+        },
+        {
+            "moveId": 184,
+            "sourceDescription": "Frightens with a scary face to sharply reduce Speed.",
+            "descriptionCs": "Vyděsí soupeře děsivým výrazem a výrazně sníží jeho rychlost."
+        },
+        {
+            "moveId": 185,
+            "sourceDescription": "An attack that hits foes using moves like Protect.",
+            "descriptionCs": "Zasáhne i soupeře, který používá útoky jako Protect."
+        },
+        {
+            "moveId": 186,
+            "sourceDescription": "Demands a kiss with a cute look. May cause confusion.",
+            "descriptionCs": "S roztomilým výrazem si vynutí polibek. Může soupeře zmást."
+        },
+        {
+            "moveId": 187,
+            "sourceDescription": "Maximizes Attack while sacrificing HP.",
+            "descriptionCs": "Obětuje HP a zvýší svůj útok na maximum."
+        },
+        {
+            "moveId": 188,
+            "sourceDescription": "Sludge is hurled to inflict damage. May also poison.",
+            "descriptionCs": "Hodí po soupeři kal a zraní ho. Může ho také otrávit."
+        },
+        {
+            "moveId": 189,
+            "sourceDescription": "Hurls mud in the foe’s face to reduce its accuracy.",
+            "descriptionCs": "Hodí soupeři do obličeje bláto a sníží jeho přesnost."
+        },
+        {
+            "moveId": 190,
+            "sourceDescription": "Fires a lump of ink to damage and cut accuracy.",
+            "descriptionCs": "Vystřelí hroudu inkoustu, která zraní soupeře a sníží jeho přesnost."
+        },
+        {
+            "moveId": 191,
+            "sourceDescription": "Sets spikes that hurt a  foe switching in.",
+            "descriptionCs": "Nastraží ostny, které zraní soupeře při střídání do boje."
+        },
+        {
+            "moveId": 192,
+            "sourceDescription": "Powerful and sure to cause paralysis, but inaccurate.",
+            "descriptionCs": "Silný, ale nepřesný útok, který zaručeně ochromí soupeře."
+        },
+        {
+            "moveId": 193,
+            "sourceDescription": "Negates the foe’s efforts to heighten evasiveness.",
+            "descriptionCs": "Zruší soupeřovo zvýšené vyhýbání."
+        },
+        {
+            "moveId": 194,
+            "sourceDescription": "If the user faints, the foe is also made to faint.",
+            "descriptionCs": "Když je útočník vyřazen z boje, vyřadí i soupeře."
+        },
+        {
+            "moveId": 195,
+            "sourceDescription": "Any Pokémon hearing this song faints in 3 turns.",
+            "descriptionCs": "Každý pokémon, který uslyší tuto píseň, je za 3 kola vyřazen z boje."
+        },
+        {
+            "moveId": 196,
+            "sourceDescription": "A chilling attack that lowers the foe’s Speed.",
+            "descriptionCs": "Mrazivý útok, který sníží soupeřovu rychlost."
+        },
+        {
+            "moveId": 197,
+            "sourceDescription": "Evades attack, but may fail if used in succession.",
+            "descriptionCs": "Vyhne se útoku, ale při opakovaném použití může selhat."
+        },
+        {
+            "moveId": 198,
+            "sourceDescription": "Strikes the foe with a bone in hand 2 to 5 times.",
+            "descriptionCs": "Udeří soupeře kostí drženou v ruce 2 až 5krát."
+        },
+        {
+            "moveId": 199,
+            "sourceDescription": "Locks on to the foe to ensure the next move hits.",
+            "descriptionCs": "Zaměří soupeře a zajistí zásah dalším útokem."
+        },
+        {
+            "moveId": 200,
+            "sourceDescription": "A rampage of 2 to 3 turns that confuses the user.",
+            "descriptionCs": "Zuří 2 až 3 kola a poté se zmate."
+        },
+        {
+            "moveId": 201,
+            "sourceDescription": "Causes a sandstorm that rages for several turns.",
+            "descriptionCs": "Vyvolá písečnou bouři, která zuří několik kol."
+        },
+        {
+            "moveId": 202,
+            "sourceDescription": "An attack that steals half the damage inflicted.",
+            "descriptionCs": "Ukradne HP ve výši poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 203,
+            "sourceDescription": "Endures any attack for 1 turn, leaving at least 1HP.",
+            "descriptionCs": "Po 1 kolo přežije každý útok a zůstane mu alespoň 1 HP."
+        },
+        {
+            "moveId": 204,
+            "sourceDescription": "Charms the foe and sharply reduces its Attack.",
+            "descriptionCs": "Okouzlí soupeře a výrazně sníží jeho útok."
+        },
+        {
+            "moveId": 205,
+            "sourceDescription": "An attack lasting 5 turns with rising intensity.",
+            "descriptionCs": "Útok na 5 kol s postupně rostoucí silou."
+        },
+        {
+            "moveId": 206,
+            "sourceDescription": "An attack that leaves the foe with at least 1 HP.",
+            "descriptionCs": "Útok, po kterém soupeři zůstane alespoň 1 HP."
+        },
+        {
+            "moveId": 207,
+            "sourceDescription": "Confuses the foe, but also sharply raises Attack.",
+            "descriptionCs": "Zmate soupeře, ale také výrazně zvýší jeho útok."
+        },
+        {
+            "moveId": 208,
+            "sourceDescription": "Recovers up to half the user’s maximum HP.",
+            "descriptionCs": "Obnoví si až polovinu maximálních HP."
+        },
+        {
+            "moveId": 209,
+            "sourceDescription": "An electrified tackle that may paralyze the foe.",
+            "descriptionCs": "Elektrický náraz, který může soupeře ochromit."
+        },
+        {
+            "moveId": 210,
+            "sourceDescription": "An attack that intensifies on each successive hit.",
+            "descriptionCs": "Útok, jehož síla roste s každým dalším zásahem v řadě."
+        },
+        {
+            "moveId": 211,
+            "sourceDescription": "Strikes the foe with hard wings spread wide.",
+            "descriptionCs": "Udeří soupeře doširoka roztaženými tvrdými křídly."
+        },
+        {
+            "moveId": 212,
+            "sourceDescription": "Fixes the foe with a mean look that prevents escape.",
+            "descriptionCs": "Upře na soupeře zlý pohled, který mu zabrání utéct."
+        },
+        {
+            "moveId": 213,
+            "sourceDescription": "Makes the opposite gender less likely to attack.",
+            "descriptionCs": "Sníží šanci, že pokémon opačného pohlaví zaútočí."
+        },
+        {
+            "moveId": 214,
+            "sourceDescription": "Uses an available move randomly while asleep.",
+            "descriptionCs": "Ve spánku náhodně použije jeden z dostupných útoků."
+        },
+        {
+            "moveId": 215,
+            "sourceDescription": "Chimes soothingly to heal all status abnormalities.",
+            "descriptionCs": "Uklidňujícím zvoněním vyléčí všechny stavové potíže."
+        },
+        {
+            "moveId": 216,
+            "sourceDescription": "An attack that increases in power with friendship.",
+            "descriptionCs": "Útok, jehož síla roste s přátelstvím."
+        },
+        {
+            "moveId": 217,
+            "sourceDescription": "A gift in the form of a bomb. May restore HP.",
+            "descriptionCs": "Daruje bombu. Může místo toho obnovit HP."
+        },
+        {
+            "moveId": 218,
+            "sourceDescription": "An attack that is stronger if the Trainer is disliked.",
+            "descriptionCs": "Útok je silnější, pokud pokémon nemá rád svého trenéra."
+        },
+        {
+            "moveId": 219,
+            "sourceDescription": "A mystical force prevents all status problems.",
+            "descriptionCs": "Tajemnou silou zabrání všem stavovým potížím."
+        },
+        {
+            "moveId": 220,
+            "sourceDescription": "Adds the user and foe’s HP, then shares them equally.",
+            "descriptionCs": "Sečte HP útočníka a soupeře a rovnoměrně je mezi ně rozdělí."
+        },
+        {
+            "moveId": 221,
+            "sourceDescription": "A mystical fire attack that may inflict a burn.",
+            "descriptionCs": "Tajemný ohnivý útok, který může soupeře popálit."
+        },
+        {
+            "moveId": 222,
+            "sourceDescription": "A ground-shaking attack of random intensity.",
+            "descriptionCs": "Otřese zemí s náhodnou intenzitou."
+        },
+        {
+            "moveId": 223,
+            "sourceDescription": "Powerful and sure to cause confusion, but inaccurate.",
+            "descriptionCs": "Silný, ale nepřesný útok, který zaručeně zmate soupeře."
+        },
+        {
+            "moveId": 224,
+            "sourceDescription": "A brutal ramming attack using out-thrust horns.",
+            "descriptionCs": "Prudce narazí do soupeře nastavenými rohy."
+        },
+        {
+            "moveId": 225,
+            "sourceDescription": "Strikes the foe with an incredible blast of breath.",
+            "descriptionCs": "Zasáhne soupeře neuvěřitelně silným výdechem."
+        },
+        {
+            "moveId": 226,
+            "sourceDescription": "Switches out the user while keeping effects in play.",
+            "descriptionCs": "Vystřídá útočníka a zachová aktivní účinky."
+        },
+        {
+            "moveId": 227,
+            "sourceDescription": "Makes the foe repeat its last move over 2 to 6 turns.",
+            "descriptionCs": "Přiměje soupeře opakovat poslední útok po dobu 2 až 6 kol."
+        },
+        {
+            "moveId": 228,
+            "sourceDescription": "Inflicts bad damage if used on a foe switching out.",
+            "descriptionCs": "Způsobí velké poškození soupeři, který se právě střídá z boje."
+        },
+        {
+            "moveId": 229,
+            "sourceDescription": "Spins the body at high speed to strike the foe.",
+            "descriptionCs": "Roztočí své tělo vysokou rychlostí a zasáhne soupeře."
+        },
+        {
+            "moveId": 230,
+            "sourceDescription": "Allures the foe to reduce evasiveness.",
+            "descriptionCs": "Přiláká soupeře a sníží jeho vyhýbání."
+        },
+        {
+            "moveId": 231,
+            "sourceDescription": "Attacks with a rock-hard tail. May lower Defense.",
+            "descriptionCs": "Zaútočí ocasem tvrdým jako kámen. Může snížit obranu."
+        },
+        {
+            "moveId": 232,
+            "sourceDescription": "A claw attack that may raise the user’s Attack.",
+            "descriptionCs": "Útok drápy, který může zvýšit útočníkův útok."
+        },
+        {
+            "moveId": 233,
+            "sourceDescription": "Makes the user’s move last, but it never misses.",
+            "descriptionCs": "Útočník zaútočí jako poslední, ale nikdy nemine."
+        },
+        {
+            "moveId": 234,
+            "sourceDescription": "Restores HP. The amount varies with the weather.",
+            "descriptionCs": "Obnoví HP. Množství závisí na počasí."
+        },
+        {
+            "moveId": 235,
+            "sourceDescription": "Restores HP. The amount varies with the weather.",
+            "descriptionCs": "Obnoví HP. Množství závisí na počasí."
+        },
+        {
+            "moveId": 236,
+            "sourceDescription": "Restores HP. The amount varies with the weather.",
+            "descriptionCs": "Obnoví HP. Množství závisí na počasí."
+        },
+        {
+            "moveId": 237,
+            "sourceDescription": "The effectiveness varies with the user.",
+            "descriptionCs": "Účinnost závisí na útočníkovi."
+        },
+        {
+            "moveId": 238,
+            "sourceDescription": "A double-chopping attack. High critical-hit ratio.",
+            "descriptionCs": "Dvojitý sekavý útok s vysokou šancí na kritický zásah."
+        },
+        {
+            "moveId": 239,
+            "sourceDescription": "Whips up a vicious twister to tear at the foe.",
+            "descriptionCs": "Vyvolá prudké tornádo, které zasáhne soupeře."
+        },
+        {
+            "moveId": 240,
+            "sourceDescription": "Boosts the power of Water- type moves for 5 turns.",
+            "descriptionCs": "Na 5 kol zvýší sílu útoků vodního typu."
+        },
+        {
+            "moveId": 241,
+            "sourceDescription": "Boosts the power of Fire- type moves for 5 turns.",
+            "descriptionCs": "Na 5 kol zvýší sílu útoků ohnivého typu."
+        },
+        {
+            "moveId": 242,
+            "sourceDescription": "Crunches with sharp fangs. May lower Defense.",
+            "descriptionCs": "Kousne ostrými tesáky. Může snížit obranu."
+        },
+        {
+            "moveId": 243,
+            "sourceDescription": "Counters the foe’s special attack at double the power.",
+            "descriptionCs": "Vrátí soupeřův speciální útok s dvojnásobnou silou."
+        },
+        {
+            "moveId": 244,
+            "sourceDescription": "Copies the foe’s effect(s) and gives to the user.",
+            "descriptionCs": "Zkopíruje účinky působící na soupeře a přenese je na útočníka."
+        },
+        {
+            "moveId": 245,
+            "sourceDescription": "An extremely fast and powerful attack.",
+            "descriptionCs": "Mimořádně rychlý a silný útok."
+        },
+        {
+            "moveId": 246,
+            "sourceDescription": "An attack that may raise all stats.",
+            "descriptionCs": "Útok, který může zvýšit všechny statistiky."
+        },
+        {
+            "moveId": 247,
+            "sourceDescription": "Hurls a black blob that may lower the foe’s Sp. Def.",
+            "descriptionCs": "Vrhne černou kouli, která může snížit soupeřovu speciální obranu."
+        },
+        {
+            "moveId": 248,
+            "sourceDescription": "Heightens inner power to strike 2 turns later.",
+            "descriptionCs": "Zesílí svou vnitřní moc a zaútočí o 2 kola později."
+        },
+        {
+            "moveId": 249,
+            "sourceDescription": "A rock-crushing attack that may lower Defense.",
+            "descriptionCs": "Útok drtící kameny, který může snížit obranu."
+        },
+        {
+            "moveId": 250,
+            "sourceDescription": "Traps and hurts the foe in a whirlpool for 4 or 5 turns.",
+            "descriptionCs": "Uvězní soupeře ve vodním víru a zraňuje ho 4 nebo 5 kol."
+        },
+        {
+            "moveId": 251,
+            "sourceDescription": "Summons party Pokémon to join in the attack.",
+            "descriptionCs": "Přivolá pokémony z týmu, aby se přidali k útoku."
+        },
+        {
+            "moveId": 252,
+            "sourceDescription": "A 1st-turn, 1st-strike move that causes flinching.",
+            "descriptionCs": "Útok pro první kolo, který zasáhne jako první. Soupeř v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 253,
+            "sourceDescription": "Causes an uproar for 2 to 5 turns and prevents sleep.",
+            "descriptionCs": "Tropí hluk 2 až 5 kol a brání spánku."
+        },
+        {
+            "moveId": 254,
+            "sourceDescription": "Charges up power for up to 3 turns.",
+            "descriptionCs": "Hromadí sílu až 3 kola."
+        },
+        {
+            "moveId": 255,
+            "sourceDescription": "Releases stockpiled power (the more the better).",
+            "descriptionCs": "Uvolní nahromaděnou sílu. Čím více jí má, tím lépe."
+        },
+        {
+            "moveId": 256,
+            "sourceDescription": "Absorbs stockpiled power and restores HP.",
+            "descriptionCs": "Vstřebá nahromaděnou sílu a obnoví si HP."
+        },
+        {
+            "moveId": 257,
+            "sourceDescription": "Exhales a hot breath on the foe. May inflict a burn.",
+            "descriptionCs": "Vydechne na soupeře horký vzduch. Může ho popálit."
+        },
+        {
+            "moveId": 258,
+            "sourceDescription": "Summons a hailstorm that strikes every turn.",
+            "descriptionCs": "Vyvolá krupobití, které zasahuje každé kolo."
+        },
+        {
+            "moveId": 259,
+            "sourceDescription": "Torments the foe and stops successive use of a move.",
+            "descriptionCs": "Trápí soupeře a zabrání mu použít stejný útok dvakrát po sobě."
+        },
+        {
+            "moveId": 260,
+            "sourceDescription": "Confuses the foe, but raises its Sp. Atk.",
+            "descriptionCs": "Zmate soupeře, ale zvýší jeho speciální útok."
+        },
+        {
+            "moveId": 261,
+            "sourceDescription": "Inflicts a burn on the foe with intense fire.",
+            "descriptionCs": "Popálí soupeře prudkým ohněm."
+        },
+        {
+            "moveId": 262,
+            "sourceDescription": "The user faints and lowers the foe’s abilities.",
+            "descriptionCs": "Útočník se vyřadí z boje a sníží soupeřovy statistiky."
+        },
+        {
+            "moveId": 263,
+            "sourceDescription": "Boosts Attack when burned, paralyzed, or poisoned.",
+            "descriptionCs": "Při popálení, ochromení nebo otravě zvýší útok."
+        },
+        {
+            "moveId": 264,
+            "sourceDescription": "A powerful loyalty attack. The user flinches if hit.",
+            "descriptionCs": "Silný útok založený na věrnosti. Pokud soupeř útočníka zasáhne, útočník v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 265,
+            "sourceDescription": "Powerful against paralyzed foes, but also heals them.",
+            "descriptionCs": "Silný proti ochromeným soupeřům, ale také je vyléčí."
+        },
+        {
+            "moveId": 266,
+            "sourceDescription": "Draws attention to make foes attack only the user.",
+            "descriptionCs": "Upoutá pozornost soupeřů, aby útočili jen na útočníka."
+        },
+        {
+            "moveId": 267,
+            "sourceDescription": "The type of attack varies depending on the location.",
+            "descriptionCs": "Druh útoku závisí na místě."
+        },
+        {
+            "moveId": 268,
+            "sourceDescription": "Charges power to boost the electric move used next.",
+            "descriptionCs": "Nahromadí sílu a posílí příští elektrický útok."
+        },
+        {
+            "moveId": 269,
+            "sourceDescription": "Taunts the foe into only using attack moves.",
+            "descriptionCs": "Vyprovokuje soupeře, aby používal jen útoky způsobující poškození."
+        },
+        {
+            "moveId": 270,
+            "sourceDescription": "Boosts the power of the recipient’s moves.",
+            "descriptionCs": "Zvýší sílu útoků příjemce."
+        },
+        {
+            "moveId": 271,
+            "sourceDescription": "Tricks the foe into trading held items.",
+            "descriptionCs": "Lstí přiměje soupeře k výměně držených předmětů."
+        },
+        {
+            "moveId": 272,
+            "sourceDescription": "Mimics the target and copies its special ability.",
+            "descriptionCs": "Napodobí cíl a zkopíruje jeho zvláštní schopnost."
+        },
+        {
+            "moveId": 273,
+            "sourceDescription": "A wish that restores HP. It takes time to work.",
+            "descriptionCs": "Vysloví přání, které po určité době obnoví HP."
+        },
+        {
+            "moveId": 274,
+            "sourceDescription": "Attacks randomly with one of the partner’s moves.",
+            "descriptionCs": "Náhodně zaútočí jedním z útoků partnera."
+        },
+        {
+            "moveId": 275,
+            "sourceDescription": "Lays roots that restore HP. The user can’t switch out.",
+            "descriptionCs": "Zapustí kořeny, které obnovují HP. Útočník se nemůže vystřídat."
+        },
+        {
+            "moveId": 276,
+            "sourceDescription": "Boosts strength sharply, but lowers abilities.",
+            "descriptionCs": "Výrazně zvýší sílu, ale sníží statistiky."
+        },
+        {
+            "moveId": 277,
+            "sourceDescription": "Reflects special effects back to the attacker.",
+            "descriptionCs": "Odrazí zvláštní účinky zpět na útočníka."
+        },
+        {
+            "moveId": 278,
+            "sourceDescription": "Recycles a used item for one more use.",
+            "descriptionCs": "Obnoví použitý předmět pro další použití."
+        },
+        {
+            "moveId": 279,
+            "sourceDescription": "An attack that gains power if injured by the foe.",
+            "descriptionCs": "Útok zesílí, pokud soupeř útočníka zranil."
+        },
+        {
+            "moveId": 280,
+            "sourceDescription": "Destroys barriers such as REFLECT and causes damage.",
+            "descriptionCs": "Zničí bariéry, například Reflect, a způsobí poškození."
+        },
+        {
+            "moveId": 281,
+            "sourceDescription": "Lulls the foe into yawning, then sleeping next turn.",
+            "descriptionCs": "Přiměje soupeře zívnout a v dalším kole usnout."
+        },
+        {
+            "moveId": 282,
+            "sourceDescription": "Knocks down the foe’s held item to prevent its use.",
+            "descriptionCs": "Vyrazí soupeři držený předmět, aby ho nemohl použít."
+        },
+        {
+            "moveId": 283,
+            "sourceDescription": "Gains power if the user’s HP is lower than the foe’s HP.",
+            "descriptionCs": "Zesílí, pokud má útočník méně HP než soupeř."
+        },
+        {
+            "moveId": 284,
+            "sourceDescription": "The higher the user’s HP, the more damage caused.",
+            "descriptionCs": "Čím více HP útočník má, tím větší poškození způsobí."
+        },
+        {
+            "moveId": 285,
+            "sourceDescription": "The user swaps special abilities with the target.",
+            "descriptionCs": "Útočník si s cílem vymění zvláštní schopnosti."
+        },
+        {
+            "moveId": 286,
+            "sourceDescription": "Prevents foes from using moves known by the user.",
+            "descriptionCs": "Zabrání soupeřům používat útoky, které útočník zná."
+        },
+        {
+            "moveId": 287,
+            "sourceDescription": "Heals poisoning, paralysis, or a burn.",
+            "descriptionCs": "Vyléčí otravu, ochromení nebo popálení."
+        },
+        {
+            "moveId": 288,
+            "sourceDescription": "If the user faints, deletes all PP of foe’s last move.",
+            "descriptionCs": "Pokud je útočník vyřazen z boje, vyčerpá všechny PP posledního soupeřova útoku."
+        },
+        {
+            "moveId": 289,
+            "sourceDescription": "Steals the effects of the move the target uses next.",
+            "descriptionCs": "Ukradne účinky útoku, který cíl použije jako další."
+        },
+        {
+            "moveId": 290,
+            "sourceDescription": "An attack with effects that vary by location.",
+            "descriptionCs": "Útok, jehož účinky závisí na místě."
+        },
+        {
+            "moveId": 291,
+            "sourceDescription": "Dives underwater the first turn and strikes next turn.",
+            "descriptionCs": "V prvním kole se ponoří pod vodu a v dalším zaútočí."
+        },
+        {
+            "moveId": 292,
+            "sourceDescription": "Straight-arm punches that strike the foe 2 to 5 times.",
+            "descriptionCs": "Zasáhne soupeře přímými údery paží 2 až 5krát."
+        },
+        {
+            "moveId": 293,
+            "sourceDescription": "Alters the Pokémon’s type depending on the location.",
+            "descriptionCs": "Změní typ pokémona podle místa."
+        },
+        {
+            "moveId": 294,
+            "sourceDescription": "Flashes a light that sharply raises Sp. Atk.",
+            "descriptionCs": "Zabliká světlem a výrazně zvýší svůj speciální útok."
+        },
+        {
+            "moveId": 295,
+            "sourceDescription": "Attacks with a burst of light. May lower Sp. Def.",
+            "descriptionCs": "Zaútočí zábleskem světla. Může snížit speciální obranu."
+        },
+        {
+            "moveId": 296,
+            "sourceDescription": "Attacks with a flurry of down. May lower Sp. Atk.",
+            "descriptionCs": "Zaútočí záplavou prachového peří. Může snížit speciální útok."
+        },
+        {
+            "moveId": 297,
+            "sourceDescription": "Envelops the foe with down to sharply reduce Attack.",
+            "descriptionCs": "Zahalí soupeře prachovým peřím a výrazně sníží jeho útok."
+        },
+        {
+            "moveId": 298,
+            "sourceDescription": "Confuses all Pokémon on the scene.",
+            "descriptionCs": "Zmate všechny pokémony na bojišti."
+        },
+        {
+            "moveId": 299,
+            "sourceDescription": "A kick with a high critical- hit ratio. May cause a burn.",
+            "descriptionCs": "Kop s vysokou šancí na kritický zásah. Může soupeře popálit."
+        },
+        {
+            "moveId": 300,
+            "sourceDescription": "Covers the user in mud to raise electrical resistance.",
+            "descriptionCs": "Pokryje své tělo blátem a zvýší svou odolnost vůči elektřině."
+        },
+        {
+            "moveId": 301,
+            "sourceDescription": "A 5-turn attack that gains power on successive hits.",
+            "descriptionCs": "Útok na 5 kol, který sílí s každým dalším zásahem v řadě."
+        },
+        {
+            "moveId": 302,
+            "sourceDescription": "Attacks with thorny arms. May cause flinching.",
+            "descriptionCs": "Zaútočí pažemi pokrytými trny. Soupeř pak v tomto kole nemusí zaútočit."
+        },
+        {
+            "moveId": 303,
+            "sourceDescription": "Slacks off and restores half the maximum HP.",
+            "descriptionCs": "Odpočívá a obnoví si polovinu maximálních HP."
+        },
+        {
+            "moveId": 304,
+            "sourceDescription": "A loud attack that uses sound waves to injure.",
+            "descriptionCs": "Hlasitý útok, který zraňuje zvukovými vlnami."
+        },
+        {
+            "moveId": 305,
+            "sourceDescription": "A sharp-fanged attack. May badly poison the foe.",
+            "descriptionCs": "Útok ostrými tesáky. Může soupeře těžce otrávit."
+        },
+        {
+            "moveId": 306,
+            "sourceDescription": "Tears at the foe with sharp claws. May lower Defense.",
+            "descriptionCs": "Drásá soupeře ostrými drápy. Může snížit obranu."
+        },
+        {
+            "moveId": 307,
+            "sourceDescription": "Powerful, but leaves the user immobile the next turn.",
+            "descriptionCs": "Silný útok, po kterém útočník v dalším kole nemůže jednat."
+        },
+        {
+            "moveId": 308,
+            "sourceDescription": "Powerful, but leaves the user immobile the next turn.",
+            "descriptionCs": "Silný útok, po kterém útočník v dalším kole nemůže jednat."
+        },
+        {
+            "moveId": 309,
+            "sourceDescription": "Fires a meteor-like punch. May raise Attack.",
+            "descriptionCs": "Zasadí úder pěstí jako meteor. Může zvýšit útok."
+        },
+        {
+            "moveId": 310,
+            "sourceDescription": "An attack that may shock the foe into flinching.",
+            "descriptionCs": "Útok, který může soupeře vylekat tak, že v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 311,
+            "sourceDescription": "The move’s type and power change with the weather.",
+            "descriptionCs": "Typ a síla útoku se mění podle počasí."
+        },
+        {
+            "moveId": 312,
+            "sourceDescription": "Heals all status problems with a soothing scent.",
+            "descriptionCs": "Uklidňující vůní léčí všechny stavové potíže."
+        },
+        {
+            "moveId": 313,
+            "sourceDescription": "Feigns crying to sharply lower the foe’s Sp. Def.",
+            "descriptionCs": "Předstírá pláč a prudce snižuje speciální obranu cíle."
+        },
+        {
+            "moveId": 314,
+            "sourceDescription": "Hacks with razorlike wind. High critical-hit ratio.",
+            "descriptionCs": "Seká větrem ostrým jako břitva. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 315,
+            "sourceDescription": "Allows a full-power attack, but sharply lowers Sp. Atk.",
+            "descriptionCs": "Útočí plnou silou, ale prudce snižuje speciální útok útočníka."
+        },
+        {
+            "moveId": 316,
+            "sourceDescription": "Negates the foe’s efforts to heighten evasiveness.",
+            "descriptionCs": "Zruší soupeřovo zvýšené vyhýbání."
+        },
+        {
+            "moveId": 317,
+            "sourceDescription": "Stops the foe from moving with rocks and cuts Speed.",
+            "descriptionCs": "Kameny omezí pohyb cíle a sníží jeho rychlost."
+        },
+        {
+            "moveId": 318,
+            "sourceDescription": "A powdery attack that may raise abilities.",
+            "descriptionCs": "Útok práškem, který může zvýšit statistiky útočníka."
+        },
+        {
+            "moveId": 319,
+            "sourceDescription": "Emits a horrible screech that sharply lowers Sp. Def.",
+            "descriptionCs": "Vydává příšerný skřípot a prudce snižuje speciální obranu cíle."
+        },
+        {
+            "moveId": 320,
+            "sourceDescription": "Lulls the foe into sleep with a pleasant melody.",
+            "descriptionCs": "Příjemnou melodií uspí cíl."
+        },
+        {
+            "moveId": 321,
+            "sourceDescription": "Makes the foe laugh to lower Attack and Defense.",
+            "descriptionCs": "Rozesměje cíl a sníží jeho útok i obranu."
+        },
+        {
+            "moveId": 322,
+            "sourceDescription": "Raises Defense and Sp. Def with a mystic power.",
+            "descriptionCs": "Tajemnou silou zvyšuje obranu a speciální obranu útočníka."
+        },
+        {
+            "moveId": 323,
+            "sourceDescription": "Inflicts more damage if the user’s HP is high.",
+            "descriptionCs": "Způsobí větší poškození, když má útočník hodně HP."
+        },
+        {
+            "moveId": 324,
+            "sourceDescription": "A strange beam attack that may confuse the foe.",
+            "descriptionCs": "Útok podivným paprskem, který může zmást cíl."
+        },
+        {
+            "moveId": 325,
+            "sourceDescription": "An unavoidable punch that is thrown from shadows.",
+            "descriptionCs": "Neomylný úder pěstí ze stínů."
+        },
+        {
+            "moveId": 326,
+            "sourceDescription": "Attacks with a peculiar power. May cause flinching.",
+            "descriptionCs": "Útočí zvláštní silou. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 327,
+            "sourceDescription": "An uppercut thrown as if leaping into the sky.",
+            "descriptionCs": "Zasadí zvedák, jako by útočník vyskakoval k nebi."
+        },
+        {
+            "moveId": 328,
+            "sourceDescription": "Traps and hurts the foe in quicksand for 4 or 5 turns.",
+            "descriptionCs": "Uvězní cíl v tekutém písku a zraňuje ho po dobu 4 až 5 kol."
+        },
+        {
+            "moveId": 329,
+            "sourceDescription": "A chilling attack that causes fainting if it hits.",
+            "descriptionCs": "Mrazivý útok, který při zásahu způsobí omdlení cíle."
+        },
+        {
+            "moveId": 330,
+            "sourceDescription": "Attacks with muddy water. May lower accuracy.",
+            "descriptionCs": "Útočí kalnou vodou. Může snížit přesnost cíle."
+        },
+        {
+            "moveId": 331,
+            "sourceDescription": "Shoots 2 to 5 seeds in a row to strike the foe.",
+            "descriptionCs": "Vystřelí na cíl 2 až 5 semen za sebou."
+        },
+        {
+            "moveId": 332,
+            "sourceDescription": "An extremely speedy and unavoidable attack.",
+            "descriptionCs": "Velmi rychlý útok, kterému se nelze vyhnout."
+        },
+        {
+            "moveId": 333,
+            "sourceDescription": "Attacks the foe by firing 2 to 5 icicles in a row.",
+            "descriptionCs": "Vystřelí na cíl 2 až 5 rampouchů za sebou."
+        },
+        {
+            "moveId": 334,
+            "sourceDescription": "Hardens the body’s surface to sharply raise Defense.",
+            "descriptionCs": "Zpevní povrch těla a prudce zvýší obranu útočníka."
+        },
+        {
+            "moveId": 335,
+            "sourceDescription": "Blocks the foe’s way to prevent escape.",
+            "descriptionCs": "Zablokuje cíli cestu a zabrání mu v útěku."
+        },
+        {
+            "moveId": 336,
+            "sourceDescription": "Howls to raise the spirit and boosts Attack.",
+            "descriptionCs": "Povzbudivým vytím zvýší útok útočníka."
+        },
+        {
+            "moveId": 337,
+            "sourceDescription": "Slashes the foe with sharp claws.",
+            "descriptionCs": "Sekne cíl ostrými drápy."
+        },
+        {
+            "moveId": 338,
+            "sourceDescription": "Powerful, but leaves the user immobile the next turn.",
+            "descriptionCs": "Silný útok, po kterém útočník v dalším kole nemůže jednat."
+        },
+        {
+            "moveId": 339,
+            "sourceDescription": "Bulks up the body to boost both Attack and Defense.",
+            "descriptionCs": "Posílí tělo a zvýší útok i obranu útočníka."
+        },
+        {
+            "moveId": 340,
+            "sourceDescription": "Bounces up, then down the next turn. May paralyze.",
+            "descriptionCs": "Vyskočí a v příštím kole dopadne na cíl. Může ho paralyzovat."
+        },
+        {
+            "moveId": 341,
+            "sourceDescription": "Hurls mud at the foe and reduces Speed.",
+            "descriptionCs": "Vrhne na cíl bláto a sníží jeho rychlost."
+        },
+        {
+            "moveId": 342,
+            "sourceDescription": "Has a high critical-hit ratio. May also poison.",
+            "descriptionCs": "Má vysokou šanci na kritický zásah. Může také otrávit cíl."
+        },
+        {
+            "moveId": 343,
+            "sourceDescription": "Cutely begs to obtain an item held by the foe.",
+            "descriptionCs": "Roztomile žadoní a získá předmět, který cíl drží."
+        },
+        {
+            "moveId": 344,
+            "sourceDescription": "A life-risking tackle that slightly hurts the user.",
+            "descriptionCs": "Riskantní náraz, který mírně zraní i útočníka."
+        },
+        {
+            "moveId": 345,
+            "sourceDescription": "Attacks with a strange leaf that cannot be evaded.",
+            "descriptionCs": "Útočí zvláštním listem, kterému se nelze vyhnout."
+        },
+        {
+            "moveId": 346,
+            "sourceDescription": "The user becomes soaked to raise resistance to fire.",
+            "descriptionCs": "Útočník se namočí a zvýší svou odolnost proti ohni."
+        },
+        {
+            "moveId": 347,
+            "sourceDescription": "Raises Sp. Atk and Sp. Def by focusing the mind.",
+            "descriptionCs": "Soustředěním mysli zvyšuje speciální útok a speciální obranu útočníka."
+        },
+        {
+            "moveId": 348,
+            "sourceDescription": "Slashes with a sharp leaf. High critical-hit ratio.",
+            "descriptionCs": "Seká ostrým listem. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 349,
+            "sourceDescription": "A mystical dance that ups Attack and Speed.",
+            "descriptionCs": "Tajemným tancem zvyšuje útok a rychlost útočníka."
+        },
+        {
+            "moveId": 350,
+            "sourceDescription": "Hurls boulders at the foe 2 to 5 times in a row.",
+            "descriptionCs": "Vrhne na cíl balvany 2krát až 5krát za sebou."
+        },
+        {
+            "moveId": 351,
+            "sourceDescription": "A fast and unavoidable electric attack.",
+            "descriptionCs": "Rychlý elektrický útok, kterému se nelze vyhnout."
+        },
+        {
+            "moveId": 352,
+            "sourceDescription": "Attacks with ultrasonic waves. May confuse the foe.",
+            "descriptionCs": "Útočí ultrazvukovými vlnami. Může zmást cíl."
+        },
+        {
+            "moveId": 353,
+            "sourceDescription": "Summons strong sunlight to attack 2 turns later.",
+            "descriptionCs": "Přivolá silné sluneční světlo, které zaútočí o 2 kola později."
+        },
+        {
+            "moveId": 354,
+            "sourceDescription": "Allows a full-power attack, but sharply lowers Sp. Atk.",
+            "descriptionCs": "Útočí plnou silou, ale prudce snižuje speciální útok útočníka."
+        },
+        {
+            "moveId": 355,
+            "sourceDescription": "Restores the user’s HP by half of its max HP.",
+            "descriptionCs": "Obnoví útočníkovi polovinu maximálních HP."
+        },
+        {
+            "moveId": 356,
+            "sourceDescription": "Gravity is intensified negating levitation.",
+            "descriptionCs": "Zesílí gravitaci a znemožní vznášení."
+        },
+        {
+            "moveId": 357,
+            "sourceDescription": "Negate evasiveness and Dark-type’s immunities.",
+            "descriptionCs": "Ruší vyhýbání a imunity temného typu."
+        },
+        {
+            "moveId": 358,
+            "sourceDescription": "Powerful against sleeping foes, but also heals them.",
+            "descriptionCs": "Silný proti spícím cílům, ale zároveň je vyléčí."
+        },
+        {
+            "moveId": 359,
+            "sourceDescription": "A swinging fist attack that also lowers Speed.",
+            "descriptionCs": "Úder rozmáchlou pěstí, který zároveň sníží rychlost útočníka."
+        },
+        {
+            "moveId": 360,
+            "sourceDescription": "A high-speed spin that does more damage to faster foes.",
+            "descriptionCs": "Rychlé roztočení, které způsobí větší poškození rychlejším cílům."
+        },
+        {
+            "moveId": 361,
+            "sourceDescription": "The user faints to heal up the recipient.",
+            "descriptionCs": "Útočník omdlí, aby vyléčil příjemce účinku."
+        },
+        {
+            "moveId": 362,
+            "sourceDescription": "Does double damage to foes with half HP.",
+            "descriptionCs": "Cílům s polovinou HP způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 363,
+            "sourceDescription": "The effectiveness varies with the held Berry.",
+            "descriptionCs": "Účinnost se mění podle držené bobule."
+        },
+        {
+            "moveId": 364,
+            "sourceDescription": "An attack that hits foes using moves like Protect.",
+            "descriptionCs": "Zasáhne i soupeře, který používá útoky jako Protect."
+        },
+        {
+            "moveId": 365,
+            "sourceDescription": "Eats the foe’s held Berry gaining its effect.",
+            "descriptionCs": "Sní bobuli drženou cílem a získá její účinek."
+        },
+        {
+            "moveId": 366,
+            "sourceDescription": "Whips up a turbulent breeze that raises Speed.",
+            "descriptionCs": "Vyvolá prudký vítr, který zvýší rychlost."
+        },
+        {
+            "moveId": 367,
+            "sourceDescription": "The user sharply raises one of its stats.",
+            "descriptionCs": "Útočník prudce zvýší jednu ze svých statistik."
+        },
+        {
+            "moveId": 368,
+            "sourceDescription": "Retaliates any hit with greater power.",
+            "descriptionCs": "Oplatí jakýkoli zásah větší silou."
+        },
+        {
+            "moveId": 369,
+            "sourceDescription": "Does damage then switches out the user.",
+            "descriptionCs": "Způsobí poškození a poté vystřídá útočníka."
+        },
+        {
+            "moveId": 370,
+            "sourceDescription": "A strong attack but lowers the defensive stats.",
+            "descriptionCs": "Silný útok, který ale sníží obranné statistiky útočníka."
+        },
+        {
+            "moveId": 371,
+            "sourceDescription": "An attack that gains power if the user moves last.",
+            "descriptionCs": "Útok zesílí, pokud útočník jedná jako poslední."
+        },
+        {
+            "moveId": 372,
+            "sourceDescription": "An attack that gains power if the foe has been hurt.",
+            "descriptionCs": "Útok zesílí, pokud už byl cíl zraněn."
+        },
+        {
+            "moveId": 373,
+            "sourceDescription": "Prevents the foe from using any items.",
+            "descriptionCs": "Zabrání cíli používat jakékoli předměty."
+        },
+        {
+            "moveId": 374,
+            "sourceDescription": "The effectiveness varies with the held item.",
+            "descriptionCs": "Účinnost se mění podle drženého předmětu."
+        },
+        {
+            "moveId": 375,
+            "sourceDescription": "Transfers status problems to the foe.",
+            "descriptionCs": "Přenese stavové potíže na cíl."
+        },
+        {
+            "moveId": 376,
+            "sourceDescription": "The less PP the move has the more damage it does.",
+            "descriptionCs": "Čím méně PP útoku zbývá, tím větší poškození způsobí."
+        },
+        {
+            "moveId": 377,
+            "sourceDescription": "Prevents the foe from recovering any HP.",
+            "descriptionCs": "Zabrání cíli obnovovat HP."
+        },
+        {
+            "moveId": 378,
+            "sourceDescription": "The higher the foe’s HP the more damage caused.",
+            "descriptionCs": "Čím více HP má cíl, tím větší poškození útok způsobí."
+        },
+        {
+            "moveId": 379,
+            "sourceDescription": "The user swaps its Attack and Defense stats.",
+            "descriptionCs": "Útočník si prohodí hodnoty útoku a obrany."
+        },
+        {
+            "moveId": 380,
+            "sourceDescription": "Stomach acid suppresses the foe’s ability.",
+            "descriptionCs": "Žaludeční kyselina potlačí schopnost cíle."
+        },
+        {
+            "moveId": 381,
+            "sourceDescription": "Prevents the foe from landing critical hits.",
+            "descriptionCs": "Zabrání cíli zasazovat kritické zásahy."
+        },
+        {
+            "moveId": 382,
+            "sourceDescription": "Executes the foe’s attack with greater power.",
+            "descriptionCs": "Provede útok cíle s větší silou."
+        },
+        {
+            "moveId": 383,
+            "sourceDescription": "The user mimics the last move used by a foe.",
+            "descriptionCs": "Útočník napodobí poslední útok použitý cílem."
+        },
+        {
+            "moveId": 384,
+            "sourceDescription": "Swaps changes to Attack and Sp. Atk with the foe.",
+            "descriptionCs": "Vymění s cílem změny útoku a speciálního útoku."
+        },
+        {
+            "moveId": 385,
+            "sourceDescription": "Swaps changes to Defense and Sp. Def with the foe.",
+            "descriptionCs": "Vymění s cílem změny obrany a speciální obrany."
+        },
+        {
+            "moveId": 386,
+            "sourceDescription": "Does more damage if the foe has powered up.",
+            "descriptionCs": "Způsobí větší poškození, pokud se cíl posílil."
+        },
+        {
+            "moveId": 387,
+            "sourceDescription": "Can only be used if every other move has been used.",
+            "descriptionCs": "Lze použít až po použití všech ostatních útoků."
+        },
+        {
+            "moveId": 388,
+            "sourceDescription": "Plants a seed on the foe giving it Insomnia.",
+            "descriptionCs": "Zasadí do cíle semeno, které mu dá schopnost Insomnia."
+        },
+        {
+            "moveId": 389,
+            "sourceDescription": "Strikes first if the foe is preparing an attack.",
+            "descriptionCs": "Zasáhne jako první, pokud se cíl chystá zaútočit."
+        },
+        {
+            "moveId": 390,
+            "sourceDescription": "Sets spikes that poison a foe switching in.",
+            "descriptionCs": "Rozmístí bodce, které otráví cíl při vstupu do boje."
+        },
+        {
+            "moveId": 391,
+            "sourceDescription": "Swaps any stat changes with the foe.",
+            "descriptionCs": "Vymění s cílem všechny změny statistik."
+        },
+        {
+            "moveId": 392,
+            "sourceDescription": "Forms a veil of water that restores HP.",
+            "descriptionCs": "Vytvoří vodní závoj, který obnovuje HP."
+        },
+        {
+            "moveId": 393,
+            "sourceDescription": "The user levitates with electromagnetism.",
+            "descriptionCs": "Útočník se vznáší pomocí elektromagnetismu."
+        },
+        {
+            "moveId": 394,
+            "sourceDescription": "A charge that may burn the foe. Also hurts the user.",
+            "descriptionCs": "Náraz, který může popálit cíl. Zraní i útočníka."
+        },
+        {
+            "moveId": 395,
+            "sourceDescription": "A shock wave attack that may paralyze the foe.",
+            "descriptionCs": "Útok rázovou vlnou, který může paralyzovat cíl."
+        },
+        {
+            "moveId": 396,
+            "sourceDescription": "Attacks with an aura blast that cannot be evaded.",
+            "descriptionCs": "Útočí výbojem aury, kterému se nelze vyhnout."
+        },
+        {
+            "moveId": 397,
+            "sourceDescription": "Polishes the body to sharply raise Speed.",
+            "descriptionCs": "Vyleští tělo a prudce zvýší rychlost útočníka."
+        },
+        {
+            "moveId": 398,
+            "sourceDescription": "A stabbing attack that may poison the foe.",
+            "descriptionCs": "Bodný útok, který může otrávit cíl."
+        },
+        {
+            "moveId": 399,
+            "sourceDescription": "Attacks with a horrible aura. May cause flinching.",
+            "descriptionCs": "Útočí děsivou aurou. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 400,
+            "sourceDescription": "Hits as soon as possible. High critical-hit ratio.",
+            "descriptionCs": "Zasáhne co nejrychleji. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 401,
+            "sourceDescription": "The user swings its tail like a wave to attack.",
+            "descriptionCs": "Útočník švihne ocasem jako vlnou."
+        },
+        {
+            "moveId": 402,
+            "sourceDescription": "A barrage of hard seeds is fired at the foe.",
+            "descriptionCs": "Vystřelí na cíl salvu tvrdých semen."
+        },
+        {
+            "moveId": 403,
+            "sourceDescription": "Attacks with a blade of air. May cause flinching.",
+            "descriptionCs": "Útočí vzdušnou čepelí. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 404,
+            "sourceDescription": "Slashes the foe with crossed scythes, claws, etc.",
+            "descriptionCs": "Sekne cíl zkříženými kosami, drápy či podobnými částmi těla."
+        },
+        {
+            "moveId": 405,
+            "sourceDescription": "A damaging sound wave that may lower Sp. Def.",
+            "descriptionCs": "Zraňující zvuková vlna, která může snížit speciální obranu cíle."
+        },
+        {
+            "moveId": 406,
+            "sourceDescription": "Generates a shock wave to damage the foe.",
+            "descriptionCs": "Vytvoří rázovou vlnu, která zraní cíl."
+        },
+        {
+            "moveId": 407,
+            "sourceDescription": "Tackles the foe with menace. May cause flinching.",
+            "descriptionCs": "Hrozivě narazí do cíle. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 408,
+            "sourceDescription": "Attacks with rays of light that sparkle like diamonds.",
+            "descriptionCs": "Útočí světelnými paprsky, které se třpytí jako diamanty."
+        },
+        {
+            "moveId": 409,
+            "sourceDescription": "An attack that absorbs half the damage inflicted.",
+            "descriptionCs": "Obnoví si HP ve výši poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 410,
+            "sourceDescription": "Whirls its fists to send a wave that strikes first.",
+            "descriptionCs": "Roztočením pěstí vyšle vlnu, která zasáhne jako první."
+        },
+        {
+            "moveId": 411,
+            "sourceDescription": "Attacks at full power. May lower Sp. Def.",
+            "descriptionCs": "Útočí plnou silou. Může snížit speciální obranu cíle."
+        },
+        {
+            "moveId": 412,
+            "sourceDescription": "Draws power from nature to attack. May lower Sp. Def.",
+            "descriptionCs": "Útočí silou přírody. Může snížit speciální obranu cíle."
+        },
+        {
+            "moveId": 413,
+            "sourceDescription": "A low altitude charge that also hurts the user.",
+            "descriptionCs": "Náraz z nízkého letu, který zraní i útočníka."
+        },
+        {
+            "moveId": 414,
+            "sourceDescription": "Makes the ground erupt with power. May lower Sp. Def.",
+            "descriptionCs": "Vyvolá mocný výbuch země. Může snížit speciální obranu cíle."
+        },
+        {
+            "moveId": 415,
+            "sourceDescription": "Swaps items with the foe faster than the eye can see.",
+            "descriptionCs": "Vymění si s cílem předměty rychleji, než oko postřehne."
+        },
+        {
+            "moveId": 416,
+            "sourceDescription": "Powerful, but leaves the user immobile the next turn.",
+            "descriptionCs": "Silný útok, po kterém útočník v dalším kole nemůže jednat."
+        },
+        {
+            "moveId": 417,
+            "sourceDescription": "Thinks bad thoughts to sharply boost Sp. Atk.",
+            "descriptionCs": "Zlými myšlenkami prudce zvýší speciální útok útočníka."
+        },
+        {
+            "moveId": 418,
+            "sourceDescription": "Punches as fast as a bul- let. It always hits first.",
+            "descriptionCs": "Udeří pěstí rychlostí střely. Vždy zasáhne jako první."
+        },
+        {
+            "moveId": 419,
+            "sourceDescription": "An attack that gains power if injured by the foe.",
+            "descriptionCs": "Útok zesílí, pokud soupeř útočníka zranil."
+        },
+        {
+            "moveId": 420,
+            "sourceDescription": "Hurls a chunk of ice that always strike first.",
+            "descriptionCs": "Vrhne kus ledu, který vždy zasáhne jako první."
+        },
+        {
+            "moveId": 421,
+            "sourceDescription": "Strikes with a shadow claw. High critical-hit ratio.",
+            "descriptionCs": "Sekne stínovým drápem. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 422,
+            "sourceDescription": "May cause flinching or leave the foe paralyzed.",
+            "descriptionCs": "Může paralyzovat cíl nebo způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 423,
+            "sourceDescription": "May cause flinching or leave the foe with frostbite.",
+            "descriptionCs": "Může způsobit omrzliny nebo to, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 424,
+            "sourceDescription": "May cause flinching or leave the foe with a burn.",
+            "descriptionCs": "Může popálit cíl nebo způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 425,
+            "sourceDescription": "Extends the user’s shadow to strike first.",
+            "descriptionCs": "Prodlouží stín útočníka a zasáhne jako první."
+        },
+        {
+            "moveId": 426,
+            "sourceDescription": "Throws a blob of mud to damage and cut accuracy.",
+            "descriptionCs": "Hodí hroudu bláta, která zraní cíl a sníží jeho přesnost."
+        },
+        {
+            "moveId": 427,
+            "sourceDescription": "Tears with psychic blades. High critical-hit ratio.",
+            "descriptionCs": "Seká psychickými čepelemi. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 428,
+            "sourceDescription": "Hits with a strong head- butt. May cause flinching.",
+            "descriptionCs": "Zasadí silný úder hlavou. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 429,
+            "sourceDescription": "Emits a flash of energy to damage and cut accuracy.",
+            "descriptionCs": "Vyšle záblesk energie, který zraní cíl a sníží jeho přesnost."
+        },
+        {
+            "moveId": 430,
+            "sourceDescription": "Releases a blast of light that may lower Sp. Def.",
+            "descriptionCs": "Vyšle světelný výboj, který může snížit speciální obranu cíle."
+        },
+        {
+            "moveId": 431,
+            "sourceDescription": "A charging attack that may confuse the foe.",
+            "descriptionCs": "Náraz, který může zmást cíl."
+        },
+        {
+            "moveId": 432,
+            "sourceDescription": "Removes obstacles and lowers evasion.",
+            "descriptionCs": "Odstraní překážky a sníží vyhýbání cíle."
+        },
+        {
+            "moveId": 433,
+            "sourceDescription": "Slower Pokémon get to move first for 5 turns.",
+            "descriptionCs": "Po dobu 5 kol jednají pomalejší Pokémoni jako první."
+        },
+        {
+            "moveId": 434,
+            "sourceDescription": "Casts comets onto the foe. Harshly lowers the Sp. Atk.",
+            "descriptionCs": "Svrhne na cíl komety. Prudce sníží speciální útok útočníka."
+        },
+        {
+            "moveId": 435,
+            "sourceDescription": "Zaps the foes with electri- city. May paralyze them.",
+            "descriptionCs": "Zasáhne cíle elektřinou. Může je paralyzovat."
+        },
+        {
+            "moveId": 436,
+            "sourceDescription": "Scarlet flames torch everything around the user.",
+            "descriptionCs": "Rudé plameny sežehnou vše kolem útočníka."
+        },
+        {
+            "moveId": 437,
+            "sourceDescription": "Whips up a storm of leaves. Harshly lowers the Sp. Atk.",
+            "descriptionCs": "Vyvolá bouři listí. Prudce sníží speciální útok útočníka."
+        },
+        {
+            "moveId": 438,
+            "sourceDescription": "Violently lashes the foe with vines or tentacles.",
+            "descriptionCs": "Prudce šlehne cíl liánami nebo chapadly."
+        },
+        {
+            "moveId": 439,
+            "sourceDescription": "Powerful, but leaves the user immobile the next turn.",
+            "descriptionCs": "Silný útok, po kterém útočník v dalším kole nemůže jednat."
+        },
+        {
+            "moveId": 440,
+            "sourceDescription": "A slash that may poison a foe and do critical damage.",
+            "descriptionCs": "Seknutí, které může otrávit cíl a způsobit kritické poškození."
+        },
+        {
+            "moveId": 441,
+            "sourceDescription": "Shoots filthy garbage at the foe. May also poison.",
+            "descriptionCs": "Vystřelí na cíl špinavé odpadky. Může ho také otrávit."
+        },
+        {
+            "moveId": 442,
+            "sourceDescription": "Slams the foe with a hard head. May cause flinching.",
+            "descriptionCs": "Udeří cíl tvrdou hlavou. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 443,
+            "sourceDescription": "Launches a magnet that strikes without fail.",
+            "descriptionCs": "Vystřelí magnet, který vždy zasáhne."
+        },
+        {
+            "moveId": 444,
+            "sourceDescription": "Stabs the foe with stones. High critical-hit ratio.",
+            "descriptionCs": "Probodne cíl kameny. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 445,
+            "sourceDescription": "Makes the opposite gender sharply reduce its Sp. Atk.",
+            "descriptionCs": "Prudce sníží speciální útok cíle opačného pohlaví."
+        },
+        {
+            "moveId": 446,
+            "sourceDescription": "Sets floating stones that hurt a foe switching in.",
+            "descriptionCs": "Rozmístí levitující kameny, které zraní cíl při vstupu do boje."
+        },
+        {
+            "moveId": 447,
+            "sourceDescription": "A snare attack that does more damage to heavier foes.",
+            "descriptionCs": "Podrazí cíl. Těžším cílům způsobí větší poškození."
+        },
+        {
+            "moveId": 448,
+            "sourceDescription": "Attacks with a sound wave that causes confusion.",
+            "descriptionCs": "Útočí zvukovou vlnou, která způsobí zmatení."
+        },
+        {
+            "moveId": 449,
+            "sourceDescription": "The type varies with the kind of Plate held.",
+            "descriptionCs": "Typ útoku se mění podle držené desky Plate."
+        },
+        {
+            "moveId": 450,
+            "sourceDescription": "Eats the foe’s held Berry gaining its effect.",
+            "descriptionCs": "Sní bobuli drženou cílem a získá její účinek."
+        },
+        {
+            "moveId": 451,
+            "sourceDescription": "Fires a beam of electricity. May raise Sp. Atk.",
+            "descriptionCs": "Vystřelí elektrický paprsek. Může zvýšit speciální útok útočníka."
+        },
+        {
+            "moveId": 452,
+            "sourceDescription": "Slams the body into a foe. The user gets hurt too.",
+            "descriptionCs": "Narazí tělem do cíle. Zraní i útočníka."
+        },
+        {
+            "moveId": 453,
+            "sourceDescription": "Strikes first by dashing at the foe at a high speed.",
+            "descriptionCs": "Rychle vyrazí proti cíli a zasáhne jako první."
+        },
+        {
+            "moveId": 454,
+            "sourceDescription": "Underlings pummel the foe. High critical-hit ratio.",
+            "descriptionCs": "Pomocníci udeří cíl. Útok má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 455,
+            "sourceDescription": "Raises Defense and Sp. Def with a living shield.",
+            "descriptionCs": "Živým štítem zvýší obranu a speciální obranu útočníka."
+        },
+        {
+            "moveId": 456,
+            "sourceDescription": "The user’s underlings show up to heal half its max HP.",
+            "descriptionCs": "Pomocníci útočníkovi obnoví polovinu maximálních HP."
+        },
+        {
+            "moveId": 457,
+            "sourceDescription": "A life-risking headbutt that seriously hurts the user.",
+            "descriptionCs": "Riskantní úder hlavou, který těžce zraní i útočníka."
+        },
+        {
+            "moveId": 458,
+            "sourceDescription": "Slams the foe with a tail etc. Strikes twice.",
+            "descriptionCs": "Dvakrát udeří cíl ocasem či podobnou částí těla."
+        },
+        {
+            "moveId": 459,
+            "sourceDescription": "Powerful, but leaves the user immobile the next turn.",
+            "descriptionCs": "Silný útok, po kterém útočník v dalším kole nemůže jednat."
+        },
+        {
+            "moveId": 460,
+            "sourceDescription": "Tears the foe, and space. High critical-hit ratio.",
+            "descriptionCs": "Roztrhne cíl i prostor. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 461,
+            "sourceDescription": "The user faints to heal up the recipient.",
+            "descriptionCs": "Útočník omdlí, aby vyléčil příjemce účinku."
+        },
+        {
+            "moveId": 462,
+            "sourceDescription": "The higher the foe’s HP the more damage caused.",
+            "descriptionCs": "Čím více HP má cíl, tím větší poškození útok způsobí."
+        },
+        {
+            "moveId": 463,
+            "sourceDescription": "Traps the foe in a vortex of fire for 4 or 5 turns.",
+            "descriptionCs": "Uvězní cíl v ohnivém víru na 4 až 5 kol."
+        },
+        {
+            "moveId": 464,
+            "sourceDescription": "Drags the foe into total darkness, inducing Sleep.",
+            "descriptionCs": "Vtáhne cíl do naprosté tmy a uspí ho."
+        },
+        {
+            "moveId": 465,
+            "sourceDescription": "Generates a shock wave that sharply reduces Sp. Def.",
+            "descriptionCs": "Vytvoří rázovou vlnu, která prudce sníží speciální obranu cíle."
+        },
+        {
+            "moveId": 466,
+            "sourceDescription": "A repulsive attack that may raise all stats.",
+            "descriptionCs": "Odpudivý útok, který může zvýšit všechny statistiky útočníka."
+        },
+        {
+            "moveId": 467,
+            "sourceDescription": "Vanishes on the first turn then strikes the next turn.",
+            "descriptionCs": "V prvním kole zmizí a v příštím kole zaútočí."
+        },
+        {
+            "moveId": 468,
+            "sourceDescription": "Sharpens its claws to raise Attack and Accuracy.",
+            "descriptionCs": "Naostří si drápy a zvýší svůj útok i přesnost."
+        },
+        {
+            "moveId": 469,
+            "sourceDescription": "Evades wide-ranging attacks for one turn.",
+            "descriptionCs": "Na jedno kolo ochrání před plošnými útoky."
+        },
+        {
+            "moveId": 470,
+            "sourceDescription": "Averages changes to Defense and Sp. Def with the foe.",
+            "descriptionCs": "Zprůměruje změny obrany a speciální obrany s cílem."
+        },
+        {
+            "moveId": 471,
+            "sourceDescription": "Averages changes to Attack and Sp. Atk with the foe.",
+            "descriptionCs": "Zprůměruje změny útoku a speciálního útoku s cílem."
+        },
+        {
+            "moveId": 472,
+            "sourceDescription": "Defense and Sp. Def stats are swapped for 5 turns.",
+            "descriptionCs": "Na 5 kol prohodí hodnoty obrany a speciální obrany."
+        },
+        {
+            "moveId": 473,
+            "sourceDescription": "Attacks with a psychic wave that does physical damage.",
+            "descriptionCs": "Útočí psychickou vlnou, která způsobuje fyzické poškození."
+        },
+        {
+            "moveId": 474,
+            "sourceDescription": "Does double damage if the foe is poisoned.",
+            "descriptionCs": "Otrávenému cíli způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 475,
+            "sourceDescription": "Sheds additional weight to sharply boost Speed.",
+            "descriptionCs": "Zbaví se nadbytečné váhy a prudce zvýší rychlost útočníka."
+        },
+        {
+            "moveId": 476,
+            "sourceDescription": "Scatters powder to make foes attack only the user.",
+            "descriptionCs": "Rozptýlí prášek, který přiměje cíle útočit pouze na útočníka."
+        },
+        {
+            "moveId": 477,
+            "sourceDescription": "Makes the foe float. It is easier to hit for 3 turns.",
+            "descriptionCs": "Nechá cíl vznášet. Po dobu 3 kol se cíl snáze zasahuje."
+        },
+        {
+            "moveId": 478,
+            "sourceDescription": "Hold items lose their effects for 5 turns.",
+            "descriptionCs": "Držené předměty ztratí na 5 kol své účinky."
+        },
+        {
+            "moveId": 479,
+            "sourceDescription": "Throws a rock to knock the foe down to the ground.",
+            "descriptionCs": "Hodí kámen a srazí cíl na zem."
+        },
+        {
+            "moveId": 480,
+            "sourceDescription": "This attack always results in a critical hit.",
+            "descriptionCs": "Tento útok vždy způsobí kritický zásah."
+        },
+        {
+            "moveId": 481,
+            "sourceDescription": "A bursting flame that does damage to all foes.",
+            "descriptionCs": "Výbuch plamene, který zraní všechny cíle."
+        },
+        {
+            "moveId": 482,
+            "sourceDescription": "Swamps the foe with a wave of sludge. May also poison.",
+            "descriptionCs": "Zaplaví cíl vlnou kalu. Může ho také otrávit."
+        },
+        {
+            "moveId": 483,
+            "sourceDescription": "Dances to raise Sp. Atk Sp. Def and Speed.",
+            "descriptionCs": "Tancem zvýší speciální útok, speciální obranu a rychlost útočníka."
+        },
+        {
+            "moveId": 484,
+            "sourceDescription": "Does more damage if the user outweighs the foe.",
+            "descriptionCs": "Způsobí větší poškození, pokud je útočník těžší než cíl."
+        },
+        {
+            "moveId": 485,
+            "sourceDescription": "An odd shock wave that only damages same-type foes.",
+            "descriptionCs": "Zvláštní rázová vlna, která zraní pouze cíle stejného typu."
+        },
+        {
+            "moveId": 486,
+            "sourceDescription": "Hurls an orb that does more damage to slower foes.",
+            "descriptionCs": "Vrhne kouli, která způsobí větší poškození pomalejším cílům."
+        },
+        {
+            "moveId": 487,
+            "sourceDescription": "Sprays water at the foe making it Water-type.",
+            "descriptionCs": "Postříká cíl vodou a změní jeho typ na vodní."
+        },
+        {
+            "moveId": 488,
+            "sourceDescription": "Attacks in a cloak of flames. Raises Speed.",
+            "descriptionCs": "Útočí zahalený v plamenech. Zvýší rychlost útočníka."
+        },
+        {
+            "moveId": 489,
+            "sourceDescription": "Coils up to raise Attack Defense and Accuracy.",
+            "descriptionCs": "Stočí tělo a zvýší svůj útok, obranu i přesnost."
+        },
+        {
+            "moveId": 490,
+            "sourceDescription": "Attacks the foe’s legs lowering its Speed.",
+            "descriptionCs": "Zaútočí na nohy cíle a sníží jeho rychlost."
+        },
+        {
+            "moveId": 491,
+            "sourceDescription": "Sprays a hide-melting acid. Sharply reduces Sp. Def.",
+            "descriptionCs": "Vystříkne kyselinu, která rozpouští kůži. Prudce sníží speciální obranu cíle."
+        },
+        {
+            "moveId": 492,
+            "sourceDescription": "The higher the foe’s Attack the more damage caused.",
+            "descriptionCs": "Čím vyšší útok má cíl, tím větší poškození útok způsobí."
+        },
+        {
+            "moveId": 493,
+            "sourceDescription": "A beam that changes the foe’s ability to Simple.",
+            "descriptionCs": "Paprsek, který změní schopnost cíle na Simple."
+        },
+        {
+            "moveId": 494,
+            "sourceDescription": "Makes the foe mimic the user, gaining its ability.",
+            "descriptionCs": "Přiměje cíl napodobit útočníka a získat jeho schopnost."
+        },
+        {
+            "moveId": 495,
+            "sourceDescription": "Helps out the foe, letting it move next.",
+            "descriptionCs": "Pomůže cíli jednat hned po útočníkovi."
+        },
+        {
+            "moveId": 496,
+            "sourceDescription": "A song that inflicts damage. Others can join in too.",
+            "descriptionCs": "Píseň, která způsobuje poškození. Ostatní se mohou přidat."
+        },
+        {
+            "moveId": 497,
+            "sourceDescription": "Does more damage every turn it is used.",
+            "descriptionCs": "S každým kolem, ve kterém se použije, způsobí větší poškození."
+        },
+        {
+            "moveId": 498,
+            "sourceDescription": "Strikes through the foe’s stat changes.",
+            "descriptionCs": "Zasáhne bez ohledu na změny statistik cíle."
+        },
+        {
+            "moveId": 499,
+            "sourceDescription": "Attacks with white haze that eliminates all stat changes.",
+            "descriptionCs": "Útočí bílým oparem, který odstraní všechny změny statistik."
+        },
+        {
+            "moveId": 500,
+            "sourceDescription": "The higher the user’s stats the more damage caused.",
+            "descriptionCs": "Čím vyšší statistiky má útočník, tím větší poškození útok způsobí."
+        },
+        {
+            "moveId": 501,
+            "sourceDescription": "Evades priority attacks for one turn.",
+            "descriptionCs": "Na jedno kolo ochrání před útoky se zvýšenou prioritou."
+        },
+        {
+            "moveId": 502,
+            "sourceDescription": "The user switches places with its partner.",
+            "descriptionCs": "Útočník si vymění místo se spojencem."
+        },
+        {
+            "moveId": 503,
+            "sourceDescription": "Shoots boiling water at the foe. May inflict a burn.",
+            "descriptionCs": "Vystřelí na cíl vroucí vodu. Může ho popálit."
+        },
+        {
+            "moveId": 504,
+            "sourceDescription": "Raises offensive stats, but lowers defensive stats.",
+            "descriptionCs": "Zvýší útočné statistiky, ale sníží obranné statistiky útočníka."
+        },
+        {
+            "moveId": 505,
+            "sourceDescription": "Recovers up to half the target’s maximum HP.",
+            "descriptionCs": "Obnoví cíli až polovinu maximálních HP."
+        },
+        {
+            "moveId": 506,
+            "sourceDescription": "Does double damage if the foe has a status problem.",
+            "descriptionCs": "Cíli se stavovými potížemi způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 507,
+            "sourceDescription": "Takes the foe into the sky then drops it the next turn.",
+            "descriptionCs": "Vynese cíl do nebe a v příštím kole ho pustí dolů."
+        },
+        {
+            "moveId": 508,
+            "sourceDescription": "Rotates its gears to raise Attack and Speed.",
+            "descriptionCs": "Roztočí ozubená kola a zvýší svůj útok i rychlost."
+        },
+        {
+            "moveId": 509,
+            "sourceDescription": "Knocks the foe away to end the battle.",
+            "descriptionCs": "Odhodí cíl a ukončí boj."
+        },
+        {
+            "moveId": 510,
+            "sourceDescription": "Burns up Berries and Gems preventing their use.",
+            "descriptionCs": "Spálí bobule a drahokamy a zabrání jejich použití."
+        },
+        {
+            "moveId": 511,
+            "sourceDescription": "Suppresses the foe, making it move last.",
+            "descriptionCs": "Potlačí cíl a přiměje ho jednat jako poslední."
+        },
+        {
+            "moveId": 512,
+            "sourceDescription": "Does double damage if the user has no item.",
+            "descriptionCs": "Způsobí dvojnásobné poškození, pokud útočník nedrží předmět."
+        },
+        {
+            "moveId": 513,
+            "sourceDescription": "The user reflects the foe’s type, copying it.",
+            "descriptionCs": "Útočník napodobí typ cíle."
+        },
+        {
+            "moveId": 514,
+            "sourceDescription": "An attack that does more damage if an ally fainted.",
+            "descriptionCs": "Způsobí větší poškození, pokud spojenec omdlel."
+        },
+        {
+            "moveId": 515,
+            "sourceDescription": "The user faints to damage the foe equal to its HP.",
+            "descriptionCs": "Útočník omdlí a způsobí cíli poškození rovné svým HP."
+        },
+        {
+            "moveId": 516,
+            "sourceDescription": "The user gives its held item to the foe.",
+            "descriptionCs": "Útočník předá cíli svůj držený předmět."
+        },
+        {
+            "moveId": 517,
+            "sourceDescription": "Powerful and sure to inflict a burn, but inaccurate.",
+            "descriptionCs": "Silný, ale nepřesný útok, který při zásahu vždy popálí cíl."
+        },
+        {
+            "moveId": 518,
+            "sourceDescription": "Attacks with a column of water. May make a rainbow.",
+            "descriptionCs": "Útočí sloupcem vody. Může vytvořit duhu."
+        },
+        {
+            "moveId": 519,
+            "sourceDescription": "Attacks with a column of fire. May burn the grass.",
+            "descriptionCs": "Útočí sloupcem ohně. Může spálit trávu."
+        },
+        {
+            "moveId": 520,
+            "sourceDescription": "Attacks with a column of grass. May create a swamp.",
+            "descriptionCs": "Útočí sloupcem trávy. Může vytvořit bažinu."
+        },
+        {
+            "moveId": 521,
+            "sourceDescription": "Does damage then switches out the user.",
+            "descriptionCs": "Způsobí poškození a poté vystřídá útočníka."
+        },
+        {
+            "moveId": 522,
+            "sourceDescription": "Resisting, the user attacks the foe. Lowers Sp. Atk.",
+            "descriptionCs": "Útočník se brání a útočí na cíl. Sníží jeho speciální útok."
+        },
+        {
+            "moveId": 523,
+            "sourceDescription": "Stomps down on the ground. Lowers Speed.",
+            "descriptionCs": "Dupne na zem. Sníží rychlost."
+        },
+        {
+            "moveId": 524,
+            "sourceDescription": "This attack always results in a critical hit.",
+            "descriptionCs": "Tento útok vždy způsobí kritický zásah."
+        },
+        {
+            "moveId": 525,
+            "sourceDescription": "Knocks the foe away to end the battle.",
+            "descriptionCs": "Odhodí cíl a ukončí boj."
+        },
+        {
+            "moveId": 526,
+            "sourceDescription": "The user is roused. Ups Attack and Sp. Atk.",
+            "descriptionCs": "Útočník se vyburcuje a zvýší svůj útok i speciální útok."
+        },
+        {
+            "moveId": 527,
+            "sourceDescription": "Snares the foe with an electric net. Lowers Speed.",
+            "descriptionCs": "Chytí cíl do elektrické sítě. Sníží jeho rychlost."
+        },
+        {
+            "moveId": 528,
+            "sourceDescription": "An electrical tackle that also hurts the user.",
+            "descriptionCs": "Elektrický náraz, který zraní i útočníka."
+        },
+        {
+            "moveId": 529,
+            "sourceDescription": "Spins its body like a drill. High critical-hit ratio.",
+            "descriptionCs": "Roztočí tělo jako vrták. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 530,
+            "sourceDescription": "Attacks with brutal hits that strike twice.",
+            "descriptionCs": "Dvakrát tvrdě udeří cíl."
+        },
+        {
+            "moveId": 531,
+            "sourceDescription": "A sudden blow after a cute act. May cause flinching.",
+            "descriptionCs": "Po roztomilém gestu nečekaně udeří. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 532,
+            "sourceDescription": "An attack that absorbs half the damage inflicted.",
+            "descriptionCs": "Obnoví si HP ve výši poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 533,
+            "sourceDescription": "Strikes through the foe’s stat changes.",
+            "descriptionCs": "Zasáhne bez ohledu na změny statistik cíle."
+        },
+        {
+            "moveId": 534,
+            "sourceDescription": "Tears at the foe with sharp shells. May lower Defense.",
+            "descriptionCs": "Seká cíl ostrými lasturami. Může snížit jeho obranu."
+        },
+        {
+            "moveId": 535,
+            "sourceDescription": "Does more damage if the user outweighs the foe.",
+            "descriptionCs": "Způsobí větší poškození, pokud je útočník těžší než cíl."
+        },
+        {
+            "moveId": 536,
+            "sourceDescription": "Circles the foe with leaves to damage and cut accuracy.",
+            "descriptionCs": "Obklopí cíl listím, které ho zraní a sníží jeho přesnost."
+        },
+        {
+            "moveId": 537,
+            "sourceDescription": "Crushes the foe with its body. May cause flinching.",
+            "descriptionCs": "Rozdrtí cíl tělem. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 538,
+            "sourceDescription": "Wraps its body in cotton. Drastically raises Defense.",
+            "descriptionCs": "Obalí tělo bavlnou. Výrazně zvýší obranu útočníka."
+        },
+        {
+            "moveId": 539,
+            "sourceDescription": "Looses a pitch-black shock wave. May lower accuracy.",
+            "descriptionCs": "Vyšle temnou rázovou vlnu. Může snížit přesnost cíle."
+        },
+        {
+            "moveId": 540,
+            "sourceDescription": "Attacks with a psychic wave that does physical damage.",
+            "descriptionCs": "Útočí psychickou vlnou, která způsobuje fyzické poškození."
+        },
+        {
+            "moveId": 541,
+            "sourceDescription": "Strikes the foe with its tail 2 to 5 times.",
+            "descriptionCs": "Udeří cíl ocasem 2krát až 5krát."
+        },
+        {
+            "moveId": 542,
+            "sourceDescription": "Traps the foe in a fierce wind. May cause confusion.",
+            "descriptionCs": "Uvězní cíl v prudkém větru. Může ho zmást."
+        },
+        {
+            "moveId": 543,
+            "sourceDescription": "A charge using guard hair. It hurts the user a little.",
+            "descriptionCs": "Narazí do cíle pomocí ochranné srsti. Mírně zraní i útočníka."
+        },
+        {
+            "moveId": 544,
+            "sourceDescription": "Throws two steel gears that strike twice.",
+            "descriptionCs": "Hodí dvě ocelová ozubená kola a zasáhne dvakrát."
+        },
+        {
+            "moveId": 545,
+            "sourceDescription": "Scarlet flames torch everything around the user.",
+            "descriptionCs": "Rudé plameny sežehnou vše kolem útočníka."
+        },
+        {
+            "moveId": 546,
+            "sourceDescription": "The type varies with the kind of Drive held.",
+            "descriptionCs": "Typ útoku se mění podle drženého modulu Drive."
+        },
+        {
+            "moveId": 547,
+            "sourceDescription": "Attacks with an ancient song. May induce sleep.",
+            "descriptionCs": "Útočí prastarou písní. Může uspat cíl."
+        },
+        {
+            "moveId": 548,
+            "sourceDescription": "Cuts with a long horn that does physical damage.",
+            "descriptionCs": "Sekne dlouhým rohem a způsobí fyzické poškození."
+        },
+        {
+            "moveId": 549,
+            "sourceDescription": "Blows very cold air at the foe. It lowers their Speed.",
+            "descriptionCs": "Foukne na cíl velmi studený vzduch a sníží jeho rychlost."
+        },
+        {
+            "moveId": 550,
+            "sourceDescription": "Strikes with a great amount of lightning. May paralyze.",
+            "descriptionCs": "Zasáhne cíl množstvím blesků. Může ho paralyzovat."
+        },
+        {
+            "moveId": 551,
+            "sourceDescription": "Engulfs the foe in a blue flame. May inflict a burn.",
+            "descriptionCs": "Pohltí cíl modrým plamenem. Může ho popálit."
+        },
+        {
+            "moveId": 552,
+            "sourceDescription": "Dances cloaked in flames. May raise Sp. Atk.",
+            "descriptionCs": "Tančí zahalený v plamenech. Může zvýšit speciální útok útočníka."
+        },
+        {
+            "moveId": 553,
+            "sourceDescription": "A powerful 2-turn move that may paralyze the foe.",
+            "descriptionCs": "Silný útok na 2 kola, který může paralyzovat cíl."
+        },
+        {
+            "moveId": 554,
+            "sourceDescription": "A powerful 2-turn move that may inflict a burn.",
+            "descriptionCs": "Silný útok na 2 kola, který může popálit cíl."
+        },
+        {
+            "moveId": 555,
+            "sourceDescription": "Yells and rants at the foe lowering its Sp. Atk.",
+            "descriptionCs": "Křičí a láteří na cíl a snižuje jeho speciální útok."
+        },
+        {
+            "moveId": 556,
+            "sourceDescription": "Drops large icicles on the foe. May cause flinching.",
+            "descriptionCs": "Svrhne na cíl velké rampouchy. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 557,
+            "sourceDescription": "Very powerful, but lowers Defense, Sp. Def and Speed.",
+            "descriptionCs": "Velmi silný útok, který ale sníží obranu, speciální obranu a rychlost útočníka."
+        },
+        {
+            "moveId": 558,
+            "sourceDescription": "Summons a fireball. Works well with a thunderbolt.",
+            "descriptionCs": "Přivolá ohnivou kouli. Dobře se kombinuje s bleskem."
+        },
+        {
+            "moveId": 559,
+            "sourceDescription": "Summons a thunderbolt. Works well with a fireball.",
+            "descriptionCs": "Přivolá blesk. Dobře se kombinuje s ohnivou koulí."
+        },
+        {
+            "moveId": 560,
+            "sourceDescription": "This attack does Fighting and Flying-type damage.",
+            "descriptionCs": "Způsobí poškození bojového i létajícího typu."
+        },
+        {
+            "moveId": 561,
+            "sourceDescription": "Evades damaging moves for one turn.",
+            "descriptionCs": "Na jedno kolo ochrání před útoky, které způsobují poškození."
+        },
+        {
+            "moveId": 562,
+            "sourceDescription": "Lets out a loud belch. Must eat a Berry to use it.",
+            "descriptionCs": "Hlasitě si říhne. Útočník musí nejprve sníst bobuli."
+        },
+        {
+            "moveId": 563,
+            "sourceDescription": "Ups the Attack and Sp. Atk of Grass-type Pokémon.",
+            "descriptionCs": "Zvýší útok a speciální útok Pokémonů travního typu."
+        },
+        {
+            "moveId": 564,
+            "sourceDescription": "Weaves a sticky net that slows foes switching in.",
+            "descriptionCs": "Uplete lepkavou síť, která zpomalí cíle při vstupu do boje."
+        },
+        {
+            "moveId": 565,
+            "sourceDescription": "If it knocks out a foe the Attack stat is raised.",
+            "descriptionCs": "Pokud tímto útokem vyřadí cíl z boje, zvýší svůj útok."
+        },
+        {
+            "moveId": 566,
+            "sourceDescription": "Vanishes on the first turn then strikes the next turn.",
+            "descriptionCs": "V prvním kole zmizí a v příštím kole zaútočí."
+        },
+        {
+            "moveId": 567,
+            "sourceDescription": "Goes trick-or-treating making the foe Ghost-type.",
+            "descriptionCs": "Halloweenským koledováním změní typ cíle na duchový."
+        },
+        {
+            "moveId": 568,
+            "sourceDescription": "Intimidates the foe, to cut Attack and Sp. Atk.",
+            "descriptionCs": "Zastraší cíl a sníží jeho útok i speciální útok."
+        },
+        {
+            "moveId": 569,
+            "sourceDescription": "Electrifies Normal-type moves with charged atoms.",
+            "descriptionCs": "Nabitými atomy změní útoky normálního typu na elektrické."
+        },
+        {
+            "moveId": 570,
+            "sourceDescription": "Damages adjacent Pokémon and heals up by half of it.",
+            "descriptionCs": "Zraní sousední Pokémony a obnoví útočníkovi HP ve výši poloviny poškození."
+        },
+        {
+            "moveId": 571,
+            "sourceDescription": "Puts a curse on the foe making the foe Grass-type.",
+            "descriptionCs": "Prokleje cíl a změní jeho typ na travní."
+        },
+        {
+            "moveId": 572,
+            "sourceDescription": "Stirs up a violent storm of petals to attack.",
+            "descriptionCs": "Vyvolá prudkou bouři okvětních lístků a zaútočí."
+        },
+        {
+            "moveId": 573,
+            "sourceDescription": "Super effective on Water- types. May cause freezing.",
+            "descriptionCs": "Proti vodním typům je velmi účinný. Může zmrazit cíl."
+        },
+        {
+            "moveId": 574,
+            "sourceDescription": "Lets out a charming cry that cannot be evaded.",
+            "descriptionCs": "Vydá okouzlující výkřik, kterému se nelze vyhnout."
+        },
+        {
+            "moveId": 575,
+            "sourceDescription": "Lowers the foe’s Attack and Sp. Atk, then switches out.",
+            "descriptionCs": "Sníží útok a speciální útok cíle a poté vystřídá útočníka."
+        },
+        {
+            "moveId": 576,
+            "sourceDescription": "Swaps all stat changes that affect the target.",
+            "descriptionCs": "Obrátí všechny změny statistik cíle."
+        },
+        {
+            "moveId": 577,
+            "sourceDescription": "An attack that absorbs over half the damage inflicted.",
+            "descriptionCs": "Obnoví útočníkovi HP ve výši více než poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 578,
+            "sourceDescription": "Evades status moves for one turn.",
+            "descriptionCs": "Na jedno kolo ochrání před stavovými útoky."
+        },
+        {
+            "moveId": 579,
+            "sourceDescription": "Raises the Defense of Grass-type Pokémon.",
+            "descriptionCs": "Zvýší obranu Pokémonů travního typu."
+        },
+        {
+            "moveId": 580,
+            "sourceDescription": "The ground turns to grass for 5 turns. Restores HP.",
+            "descriptionCs": "Pokryje zem trávou na 5 kol. Obnovuje HP."
+        },
+        {
+            "moveId": 581,
+            "sourceDescription": "Covers the ground with mist for 5 turns. Blocks status.",
+            "descriptionCs": "Pokryje zem mlhou na 5 kol. Brání stavovým potížím."
+        },
+        {
+            "moveId": 582,
+            "sourceDescription": "Electrifies the foe, making its next move Electric-type.",
+            "descriptionCs": "Nabije cíl elektřinou a změní jeho příští útok na elektrický."
+        },
+        {
+            "moveId": 583,
+            "sourceDescription": "Plays rough with the foe. May lower Attack.",
+            "descriptionCs": "Drsně si hraje s cílem. Může snížit jeho útok."
+        },
+        {
+            "moveId": 584,
+            "sourceDescription": "Stirs up a fairy wind to strike the foe.",
+            "descriptionCs": "Vyvolá vílí vítr, který zasáhne cíl."
+        },
+        {
+            "moveId": 585,
+            "sourceDescription": "Attacks with the power of the moon. May lower Sp. Atk.",
+            "descriptionCs": "Útočí silou Měsíce. Může snížit speciální útok cíle."
+        },
+        {
+            "moveId": 586,
+            "sourceDescription": "Attacks everything with a destructive sound wave.",
+            "descriptionCs": "Zaútočí na vše ničivou zvukovou vlnou."
+        },
+        {
+            "moveId": 587,
+            "sourceDescription": "Locks down the battlefield preventing escape next turn.",
+            "descriptionCs": "Uzamkne bojiště a v příštím kole zabrání útěku."
+        },
+        {
+            "moveId": 588,
+            "sourceDescription": "Evades damage, and sharply reduces Attack if struck.",
+            "descriptionCs": "Ochrání před poškozením. Při zásahu prudce sníží útok cíle."
+        },
+        {
+            "moveId": 589,
+            "sourceDescription": "Befriend the foe, lowering its Attack without fail.",
+            "descriptionCs": "Spřátelí se s cílem a vždy sníží jeho útok."
+        },
+        {
+            "moveId": 590,
+            "sourceDescription": "Shares a secret with the foe, lowering Sp. Atk.",
+            "descriptionCs": "Svěří cíli tajemství a sníží jeho speciální útok."
+        },
+        {
+            "moveId": 591,
+            "sourceDescription": "Whips up a storm of diamonds. May up Defense.",
+            "descriptionCs": "Vyvolá diamantovou bouři. Může zvýšit obranu útočníka."
+        },
+        {
+            "moveId": 592,
+            "sourceDescription": "Immerses the foe in heated steam. May inflict a burn.",
+            "descriptionCs": "Zahalí cíl horkou párou. Může ho popálit."
+        },
+        {
+            "moveId": 593,
+            "sourceDescription": "Uses a warp hole to attack. Can’t be evaded.",
+            "descriptionCs": "Útočí skrze prostorovou trhlinu. Nelze se mu vyhnout."
+        },
+        {
+            "moveId": 594,
+            "sourceDescription": "Throws 2 to 5 stars that are sure to strike first.",
+            "descriptionCs": "Vrhne 2 až 5 hvězdic, které vždy zasáhnou jako první."
+        },
+        {
+            "moveId": 595,
+            "sourceDescription": "Breathes a special, hot fire. Lowers Sp. Atk.",
+            "descriptionCs": "Chrlí zvláštní žhavý oheň. Sníží speciální útok cíle."
+        },
+        {
+            "moveId": 596,
+            "sourceDescription": "Evades attack, and damages the foe if struck.",
+            "descriptionCs": "Ochrání před útokem. Při zásahu zraní cíl."
+        },
+        {
+            "moveId": 597,
+            "sourceDescription": "Raises the Sp. Def of a partner Pokémon.",
+            "descriptionCs": "Zvýší speciální obranu spojeneckého Pokémona."
+        },
+        {
+            "moveId": 598,
+            "sourceDescription": "Exposes the foe to a pulse that sharply cuts Sp. Atk.",
+            "descriptionCs": "Vystaví cíl pulzu, který prudce sníží jeho speciální útok."
+        },
+        {
+            "moveId": 599,
+            "sourceDescription": "Lowers the Attack, Sp. Atk and Speed of a poisoned foe.",
+            "descriptionCs": "Sníží útok, speciální útok a rychlost otráveného cíle."
+        },
+        {
+            "moveId": 600,
+            "sourceDescription": "Damages the foe if it uses a Fire-type move.",
+            "descriptionCs": "Zraní cíl, pokud použije ohnivý útok."
+        },
+        {
+            "moveId": 601,
+            "sourceDescription": "Raises Sp. Atk, Sp. Def and Speed on the 2nd turn.",
+            "descriptionCs": "Ve druhém kole zvýší speciální útok, speciální obranu a rychlost útočníka."
+        },
+        {
+            "moveId": 602,
+            "sourceDescription": "Boosts the defenses of those with Plus or Minus.",
+            "descriptionCs": "Zvýší obranné statistiky Pokémonů se schopností Plus nebo Minus."
+        },
+        {
+            "moveId": 603,
+            "sourceDescription": "Doubles the amount of Prize Money received.",
+            "descriptionCs": "Zdvojnásobí získanou peněžní odměnu."
+        },
+        {
+            "moveId": 604,
+            "sourceDescription": "Electrifies the ground for 5 turns. Prevents sleep.",
+            "descriptionCs": "Nabije zem elektřinou na 5 kol. Brání usnutí."
+        },
+        {
+            "moveId": 605,
+            "sourceDescription": "Damages foes by emitting a bright flash.",
+            "descriptionCs": "Zraní cíle jasným zábleskem."
+        },
+        {
+            "moveId": 606,
+            "sourceDescription": "Congratulates you on your special day.",
+            "descriptionCs": "Pogratuluje ti k tvému výjimečnému dni."
+        },
+        {
+            "moveId": 607,
+            "sourceDescription": "The user and ally hold hands making them happy.",
+            "descriptionCs": "Útočník a spojenec se chytí za ruce a potěší se."
+        },
+        {
+            "moveId": 608,
+            "sourceDescription": "Lowers the foe’s Attack before it can move.",
+            "descriptionCs": "Sníží útok cíle dříve, než cíl začne jednat."
+        },
+        {
+            "moveId": 609,
+            "sourceDescription": "Rubs its cheecks against the foe, paralyzing it.",
+            "descriptionCs": "Otře se tvářemi o cíl a paralyzuje ho."
+        },
+        {
+            "moveId": 610,
+            "sourceDescription": "An attack that leaves the foe with at least 1 HP.",
+            "descriptionCs": "Útok, po kterém soupeři zůstane alespoň 1 HP."
+        },
+        {
+            "moveId": 611,
+            "sourceDescription": "The foe is infested and attacked for 4 or 5 turns.",
+            "descriptionCs": "Hmyz napadne cíl a útočí na něj po dobu 4 až 5 kol."
+        },
+        {
+            "moveId": 612,
+            "sourceDescription": "A hard punch that raises the user’s Attack.",
+            "descriptionCs": "Tvrdý úder pěstí, který zvýší útok útočníka."
+        },
+        {
+            "moveId": 613,
+            "sourceDescription": "An attack that absorbs over half the damage inflicted.",
+            "descriptionCs": "Obnoví útočníkovi HP ve výši více než poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 614,
+            "sourceDescription": "Can hit Flying foes, then knocks them to the ground.",
+            "descriptionCs": "Zasáhne i létající cíle a srazí je na zem."
+        },
+        {
+            "moveId": 615,
+            "sourceDescription": "Those hit by the wave can no longer escape.",
+            "descriptionCs": "Cíle zasažené vlnou už nemohou utéct."
+        },
+        {
+            "moveId": 616,
+            "sourceDescription": "Gathers the energy of the land to attack every foe.",
+            "descriptionCs": "Shromáždí energii země a zaútočí na všechny cíle."
+        },
+        {
+            "moveId": 617,
+            "sourceDescription": "Fires a great beam of light that also hurts the user.",
+            "descriptionCs": "Vystřelí mohutný světelný paprsek, který zraní i útočníka."
+        },
+        {
+            "moveId": 618,
+            "sourceDescription": "Beams of glowing blue light blast both foes.",
+            "descriptionCs": "Paprsky zářícího modrého světla zasáhnou oba cíle."
+        },
+        {
+            "moveId": 619,
+            "sourceDescription": "Fearsome blades of stone attack both foes.",
+            "descriptionCs": "Děsivé kamenné čepele zaútočí na oba cíle."
+        },
+        {
+            "moveId": 620,
+            "sourceDescription": "A strong attack but lowers the defensive stats.",
+            "descriptionCs": "Silný útok, který ale sníží obranné statistiky útočníka."
+        },
+        {
+            "moveId": 621,
+            "sourceDescription": "Uses a warp hole to attack. Can’t be evaded.",
+            "descriptionCs": "Útočí skrze prostorovou trhlinu. Nelze se mu vyhnout."
+        },
+        {
+            "moveId": 622,
+            "sourceDescription": "Restores the user’s HP. More HP in a sandstorm.",
+            "descriptionCs": "Obnoví HP útočníka. V písečné bouři obnoví více HP."
+        },
+        {
+            "moveId": 623,
+            "sourceDescription": "Hits hard and first. Only works first turn.",
+            "descriptionCs": "Silně zasáhne a útočí jako první. Funguje pouze v prvním kole."
+        },
+        {
+            "moveId": 624,
+            "sourceDescription": "Protects user and poisons foes on contact.",
+            "descriptionCs": "Chrání útočníka a při kontaktu otráví cíle."
+        },
+        {
+            "moveId": 625,
+            "sourceDescription": "After being hit, foes can no longer escape.",
+            "descriptionCs": "Po zásahu již cíle nemohou uniknout."
+        },
+        {
+            "moveId": 626,
+            "sourceDescription": "Swings the arms to strike It ignores stat changes.",
+            "descriptionCs": "Zasáhne máchnutím paží. Ignoruje změny statistik."
+        },
+        {
+            "moveId": 627,
+            "sourceDescription": "Sings with bubbles. Cures burns on contact.",
+            "descriptionCs": "Zpívá za doprovodu bublin. Při kontaktu léčí popálení."
+        },
+        {
+            "moveId": 628,
+            "sourceDescription": "Swings the fist to strike. Lowers the user’s Speed.",
+            "descriptionCs": "Zasáhne máchnutím pěsti. Sníží rychlost útočníka."
+        },
+        {
+            "moveId": 629,
+            "sourceDescription": "Restores an ally’s HP. Heals more on grass.",
+            "descriptionCs": "Obnoví HP spojence. Na trávě léčí více."
+        },
+        {
+            "moveId": 630,
+            "sourceDescription": "Slams hard into the foe with its entire body.",
+            "descriptionCs": "Prudce narazí do cíle celým tělem."
+        },
+        {
+            "moveId": 631,
+            "sourceDescription": "Saps the foe’s Attack to heal HP, then drops Attack.",
+            "descriptionCs": "Vysaje sílu útoku cíle a obnoví HP. Poté sníží útok cíle."
+        },
+        {
+            "moveId": 632,
+            "sourceDescription": "Charges first turn, then chops with a blade of light.",
+            "descriptionCs": "V prvním kole nabije energii, poté sekne světelnou čepelí."
+        },
+        {
+            "moveId": 633,
+            "sourceDescription": "Attacks with a flurry of small leaves.",
+            "descriptionCs": "Útočí přívalem drobných listů."
+        },
+        {
+            "moveId": 634,
+            "sourceDescription": "Makes the foe attack the spotlighted Pokémon.",
+            "descriptionCs": "Přiměje cíl zaútočit na osvětleného Pokémona."
+        },
+        {
+            "moveId": 635,
+            "sourceDescription": "Attacks with a thread that poisons and drops Speed.",
+            "descriptionCs": "Útočí vláknem, které otráví cíl a sníží jeho rychlost."
+        },
+        {
+            "moveId": 636,
+            "sourceDescription": "Guarantees the next move will be a critical hit.",
+            "descriptionCs": "Zaručí, že další útok bude kritický zásah."
+        },
+        {
+            "moveId": 637,
+            "sourceDescription": "Boosts the attacks of those with Plus or Minus.",
+            "descriptionCs": "Zvýší útok a speciální útok Pokémonů se schopností Plus nebo Minus."
+        },
+        {
+            "moveId": 638,
+            "sourceDescription": "Chops the throat to disable sound moves for a while.",
+            "descriptionCs": "Úderem do krku na chvíli znemožní zvukové útoky."
+        },
+        {
+            "moveId": 639,
+            "sourceDescription": "Explodes on foes, but restores ally’s HP.",
+            "descriptionCs": "Při zásahu cíle vybuchne, spojenci však obnoví HP."
+        },
+        {
+            "moveId": 640,
+            "sourceDescription": "Strangles the foe with a chain. The foe can’t escape.",
+            "descriptionCs": "Sevře cíl řetězem. Cíl nemůže uniknout."
+        },
+        {
+            "moveId": 641,
+            "sourceDescription": "The ground turns weird for 5 turns. Blocks priority.",
+            "descriptionCs": "Na 5 kol promění zem v podivný terén. Blokuje prioritní útoky."
+        },
+        {
+            "moveId": 642,
+            "sourceDescription": "Lunges at the foe to lower its Attack stat.",
+            "descriptionCs": "Vrhne se na cíl a sníží jeho útok."
+        },
+        {
+            "moveId": 643,
+            "sourceDescription": "Whips the foe with fire lowering its Defense.",
+            "descriptionCs": "Šlehne cíl ohnivým bičem a sníží jeho obranu."
+        },
+        {
+            "moveId": 644,
+            "sourceDescription": "It hits harder the more stat boosts the user has.",
+            "descriptionCs": "Zasáhne tím silněji, čím více má útočník zvýšené statistiky."
+        },
+        {
+            "moveId": 645,
+            "sourceDescription": "Burns out the user fully removing the Fire type.",
+            "descriptionCs": "Spálí veškerý oheň útočníka, který tím ztratí ohnivý typ."
+        },
+        {
+            "moveId": 646,
+            "sourceDescription": "Swaps user’s Speed with the target’s.",
+            "descriptionCs": "Vymění rychlost útočníka s rychlostí cíle."
+        },
+        {
+            "moveId": 647,
+            "sourceDescription": "Hits with an accurate horn that never misses.",
+            "descriptionCs": "Zasáhne přesným rohem, který nikdy nemine."
+        },
+        {
+            "moveId": 648,
+            "sourceDescription": "Cures the foe’s status to restore HP.",
+            "descriptionCs": "Vyléčí stavový problém cíle a obnoví HP."
+        },
+        {
+            "moveId": 649,
+            "sourceDescription": "Dances with mystical power. Matches user’s first type.",
+            "descriptionCs": "Tančí s mystickou silou. Typ útoku odpovídá prvnímu typu útočníka."
+        },
+        {
+            "moveId": 650,
+            "sourceDescription": "Hits with a ray that nullifies the foe’s ability.",
+            "descriptionCs": "Zasáhne paprskem, který potlačí schopnost cíle."
+        },
+        {
+            "moveId": 651,
+            "sourceDescription": "An intense kick from the tropics. Lowers Attack.",
+            "descriptionCs": "Prudký kop z tropů. Sníží útok cíle."
+        },
+        {
+            "moveId": 652,
+            "sourceDescription": "Orders the target to use its last move again.",
+            "descriptionCs": "Přikáže cíli znovu použít jeho poslední útok."
+        },
+        {
+            "moveId": 653,
+            "sourceDescription": "Heats up beak to attack. Burns foe on contact.",
+            "descriptionCs": "Rozžhaví zobák k útoku. Při kontaktu popálí cíl."
+        },
+        {
+            "moveId": 654,
+            "sourceDescription": "Makes a big noise with its scales. Drops Defense.",
+            "descriptionCs": "Šupinami způsobí silný hluk. Sníží obranu."
+        },
+        {
+            "moveId": 655,
+            "sourceDescription": "Swings its whole body like a hammer to damage.",
+            "descriptionCs": "Máchne celým tělem jako kladivem a způsobí poškození."
+        },
+        {
+            "moveId": 656,
+            "sourceDescription": "Violently swings around to hurt everyone nearby.",
+            "descriptionCs": "Prudce se rozmáchne a zraní všechny v okolí."
+        },
+        {
+            "moveId": 657,
+            "sourceDescription": "Weakens all attacks, but only usable with hail.",
+            "descriptionCs": "Oslabí všechny útoky. Lze použít pouze při krupobití."
+        },
+        {
+            "moveId": 658,
+            "sourceDescription": "Sets a shell trap that damages on contact.",
+            "descriptionCs": "Nastraží past v krunýři, která při kontaktu způsobí poškození."
+        },
+        {
+            "moveId": 659,
+            "sourceDescription": "A strong ray that harshly lowers Sp. Attack.",
+            "descriptionCs": "Silný paprsek, který výrazně sníží speciální útok."
+        },
+        {
+            "moveId": 660,
+            "sourceDescription": "Chomps with psychic fangs. Destroys any barriers.",
+            "descriptionCs": "Kousne psychickými tesáky. Zničí všechny bariéry."
+        },
+        {
+            "moveId": 661,
+            "sourceDescription": "Stomps around angrily. Stronger after a failure.",
+            "descriptionCs": "Vztekle dupe kolem sebe. Po neúspěchu je silnější."
+        },
+        {
+            "moveId": 662,
+            "sourceDescription": "Strikes with a haunted bone. Might drop Defense.",
+            "descriptionCs": "Zasáhne strašidelnou kostí. Může snížit obranu."
+        },
+        {
+            "moveId": 663,
+            "sourceDescription": "Hits with a high-speed rock that always goes first.",
+            "descriptionCs": "Zasáhne rychlým kamenem. Vždy útočí jako první."
+        },
+        {
+            "moveId": 664,
+            "sourceDescription": "Slams the foe with water. Can lower Defense.",
+            "descriptionCs": "Udeří do cíle vodou. Může snížit obranu."
+        },
+        {
+            "moveId": 665,
+            "sourceDescription": "A high power laser that forces recharge next turn.",
+            "descriptionCs": "Velmi silný laser. Útočník musí další kolo odpočívat."
+        },
+        {
+            "moveId": 666,
+            "sourceDescription": "Steals the target’s stat boosts, then attacks.",
+            "descriptionCs": "Ukradne cíli zvýšení statistik a poté zaútočí."
+        },
+        {
+            "moveId": 667,
+            "sourceDescription": "A sun-fueled strike that ignores abilities.",
+            "descriptionCs": "Úder poháněný sluncem, který ignoruje schopnosti."
+        },
+        {
+            "moveId": 668,
+            "sourceDescription": "A moon-powered beam that ignores abilities.",
+            "descriptionCs": "Paprsek poháněný měsícem, který ignoruje schopnosti."
+        },
+        {
+            "moveId": 669,
+            "sourceDescription": "The user tears up, dropping Attack and Sp. Attack.",
+            "descriptionCs": "Útočník se rozpláče a sníží útok a speciální útok cíle."
+        },
+        {
+            "moveId": 670,
+            "sourceDescription": "An electrified impact that can cause flinching.",
+            "descriptionCs": "Elektrický náraz. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 671,
+            "sourceDescription": "Halves the foe’s HP with the power of nature.",
+            "descriptionCs": "Silou přírody sníží HP cíle na polovinu."
+        },
+        {
+            "moveId": 672,
+            "sourceDescription": "An attack that changes with Memories.",
+            "descriptionCs": "Útok, který se mění podle předmětu Memory."
+        },
+        {
+            "moveId": 673,
+            "sourceDescription": "It explodes the user’s head to damage everything around.",
+            "descriptionCs": "Odpálí hlavu útočníka a poškodí vše v okolí."
+        },
+        {
+            "moveId": 674,
+            "sourceDescription": "Hits with electrical fists. Normal moves become Electric.",
+            "descriptionCs": "Zasáhne elektrickými pěstmi. Útoky normálního typu získají elektrický typ."
+        },
+        {
+            "moveId": 675,
+            "sourceDescription": "User’s highest attack stat determines its category.",
+            "descriptionCs": "Kategorii určí vyšší z hodnot útoku a speciálního útoku útočníka."
+        },
+        {
+            "moveId": 676,
+            "sourceDescription": "Electric bursts always go first and land a critical hit.",
+            "descriptionCs": "Elektrické výboje vždy útočí jako první a zasadí kritický zásah."
+        },
+        {
+            "moveId": 677,
+            "sourceDescription": "A huge electrified wave that may paralyze the foe.",
+            "descriptionCs": "Obrovská elektrizující vlna, která může paralyzovat cíl."
+        },
+        {
+            "moveId": 678,
+            "sourceDescription": "Floats in air and dives at angle. May cause flinching.",
+            "descriptionCs": "Vznese se a šikmo se vrhne dolů. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 679,
+            "sourceDescription": "Pikachu’s love increases its power. It never misses.",
+            "descriptionCs": "Pikachuova náklonnost zvyšuje sílu útoku. Nikdy nemine."
+        },
+        {
+            "moveId": 680,
+            "sourceDescription": "An attack that absorbs all the damage inflicted.",
+            "descriptionCs": "Obnoví útočníkovi HP ve výši celého způsobeného poškození."
+        },
+        {
+            "moveId": 681,
+            "sourceDescription": "Shoots a jolt of electricity that always paralyzes.",
+            "descriptionCs": "Vystřelí elektrický výboj, který vždy paralyzuje."
+        },
+        {
+            "moveId": 682,
+            "sourceDescription": "User cloaked in fire charges. Leaves the foe with a burn.",
+            "descriptionCs": "Útočník zahalený ohněm vyrazí vpřed. Popálí cíl."
+        },
+        {
+            "moveId": 683,
+            "sourceDescription": "Telekinetic force that sets wall, lowering Sp. Atk damage.",
+            "descriptionCs": "Telekinetická síla vytvoří zeď, která sníží poškození speciálními útoky."
+        },
+        {
+            "moveId": 684,
+            "sourceDescription": "Acting badly, attacks. Sets wall, lowering Attack damage.",
+            "descriptionCs": "Útočí zlomyslným chováním. Vytvoří zeď, která sníží poškození fyzickými útoky."
+        },
+        {
+            "moveId": 685,
+            "sourceDescription": "Giant stalk scatters seeds that drain HP every turn.",
+            "descriptionCs": "Obří stonek rozptýlí semena, která každé kolo vysávají HP."
+        },
+        {
+            "moveId": 686,
+            "sourceDescription": "Crystal from cold haze hits. Eliminates all stat changes.",
+            "descriptionCs": "Zasáhne krystalem z chladné mlhy. Zruší všechny změny statistik."
+        },
+        {
+            "moveId": 687,
+            "sourceDescription": "Wrap foe with whirlwind of scent. Heals party’s status.",
+            "descriptionCs": "Obklopí cíl voňavým vírem. Vyléčí stavové potíže Pokémonů v týmu."
+        },
+        {
+            "moveId": 688,
+            "sourceDescription": "Eevee’s love increases its power. It never misses.",
+            "descriptionCs": "Eeveeho náklonnost zvyšuje sílu útoku. Nikdy nemine."
+        },
+        {
+            "moveId": 689,
+            "sourceDescription": "The user spins and hits with its arms. May cause flinch.",
+            "descriptionCs": "Útočník se roztočí a zasáhne pažemi. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 690,
+            "sourceDescription": "Fires a strong beam. Deals 2x damage to Dynamaxed foes.",
+            "descriptionCs": "Vystřelí silný paprsek. Cílům pod účinkem Dynamax způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 691,
+            "sourceDescription": "The user ignores effects that draw in moves.",
+            "descriptionCs": "Útočník ignoruje účinky, které přitahují útoky."
+        },
+        {
+            "moveId": 692,
+            "sourceDescription": "Prevents the user and the target from escaping.",
+            "descriptionCs": "Zabrání útočníkovi i cíli uniknout."
+        },
+        {
+            "moveId": 693,
+            "sourceDescription": "Consumes the user’s Berry, then sharply raises Def.",
+            "descriptionCs": "Útočník sní svou bobuli a výrazně si zvýší obranu."
+        },
+        {
+            "moveId": 694,
+            "sourceDescription": "Raises all of the user’s stats but prevents escape.",
+            "descriptionCs": "Zvýší všechny statistiky útočníka, ale zabrání mu uniknout."
+        },
+        {
+            "moveId": 695,
+            "sourceDescription": "Lowers the foe’s Speed and makes it weak to Fire.",
+            "descriptionCs": "Sníží rychlost cíle a učiní ho slabým vůči ohni."
+        },
+        {
+            "moveId": 696,
+            "sourceDescription": "Magic powder changes the target into a Psychic-type.",
+            "descriptionCs": "Magický prášek změní typ cíle na psychický."
+        },
+        {
+            "moveId": 697,
+            "sourceDescription": "The user attacks twice. Two targets are hit once each.",
+            "descriptionCs": "Útočník zaútočí dvakrát. Pokud jsou dva cíle, zasáhne každý jednou."
+        },
+        {
+            "moveId": 698,
+            "sourceDescription": "All Pokémon have teatime and eat their Berries.",
+            "descriptionCs": "Všichni Pokémoni si udělají přestávku na čaj a snědí své bobule."
+        },
+        {
+            "moveId": 699,
+            "sourceDescription": "Traps the foe to lower Def and Sp. Def fall each turn.",
+            "descriptionCs": "Uvězní cíl a každé kolo sníží jeho obranu a speciální obranu."
+        },
+        {
+            "moveId": 700,
+            "sourceDescription": "Double power if the user moves before the target.",
+            "descriptionCs": "Pokud útočník jedná před cílem, síla se zdvojnásobí."
+        },
+        {
+            "moveId": 701,
+            "sourceDescription": "Double power if the user moves before the target.",
+            "descriptionCs": "Pokud útočník jedná před cílem, síla se zdvojnásobí."
+        },
+        {
+            "moveId": 702,
+            "sourceDescription": "The user swaps effects on either side of the field.",
+            "descriptionCs": "Útočník vymění účinky mezi oběma stranami bojiště."
+        },
+        {
+            "moveId": 703,
+            "sourceDescription": "The user uses some of its HP to raise all its stats.",
+            "descriptionCs": "Útočník spotřebuje část svých HP a zvýší všechny své statistiky."
+        },
+        {
+            "moveId": 704,
+            "sourceDescription": "Does more damage the higher the user’s Def.",
+            "descriptionCs": "Způsobí tím větší poškození, čím vyšší má útočník obranu."
+        },
+        {
+            "moveId": 705,
+            "sourceDescription": "The user sharply raises the target’s Atk and Sp.Atk",
+            "descriptionCs": "Útočník výrazně zvýší útok a speciální útok cíle."
+        },
+        {
+            "moveId": 706,
+            "sourceDescription": "Plays a drum to attack. The foe’s Speed is lowered.",
+            "descriptionCs": "Útočí hraním na buben. Sníží rychlost cíle."
+        },
+        {
+            "moveId": 707,
+            "sourceDescription": "Snares the target in a snap trap for four to five turns.",
+            "descriptionCs": "Chytí cíl do sklapovací pasti na 4 až 5 kol."
+        },
+        {
+            "moveId": 708,
+            "sourceDescription": "Launches a fiery ball at the target. It may cause a burn.",
+            "descriptionCs": "Vystřelí na cíl ohnivou kouli. Může ho popálit."
+        },
+        {
+            "moveId": 709,
+            "sourceDescription": "Strikes as a sword. Deals 2x damage to Dynamaxed foes.",
+            "descriptionCs": "Zasáhne jako meč. Cílům pod účinkem Dynamax způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 710,
+            "sourceDescription": "Attacks as a shield. Deals 2x damage to Dynamaxed foes.",
+            "descriptionCs": "Útočí jako štít. Cílům pod účinkem Dynamax způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 711,
+            "sourceDescription": "Raises Speed to attack. The Type is based on its form.",
+            "descriptionCs": "Při útoku zvýší rychlost. Typ útoku závisí na podobě útočníka."
+        },
+        {
+            "moveId": 712,
+            "sourceDescription": "Swings its tail to attack. Lowers the Atk of those hit.",
+            "descriptionCs": "Útočí máchnutím ocasu. Zasaženým cílům sníží útok."
+        },
+        {
+            "moveId": 713,
+            "sourceDescription": "The user pokes the target with a pointed branch.",
+            "descriptionCs": "Útočník bodne cíl špičatou větví."
+        },
+        {
+            "moveId": 714,
+            "sourceDescription": "The user twangs its guitar, causing strong vibrations.",
+            "descriptionCs": "Útočník rozezní svou kytaru a vyvolá silné vibrace."
+        },
+        {
+            "moveId": 715,
+            "sourceDescription": "Attacks with tart apple acid to lower the foe’s Sp. Def.",
+            "descriptionCs": "Útočí kyselou jablečnou šťávou a sníží speciální obranu cíle."
+        },
+        {
+            "moveId": 716,
+            "sourceDescription": "Drops an apple from above. Lowers the foe’s Defense.",
+            "descriptionCs": "Shodí jablko shora. Sníží obranu cíle."
+        },
+        {
+            "moveId": 717,
+            "sourceDescription": "Attacks with spirit-breaking force. Lowers Sp. Atk.",
+            "descriptionCs": "Útočí silou, která zlomí odhodlání cíle. Sníží speciální útok."
+        },
+        {
+            "moveId": 718,
+            "sourceDescription": "Emits a strange steam to potentially confuse the foe.",
+            "descriptionCs": "Vypustí podivnou páru, která může zmást cíl."
+        },
+        {
+            "moveId": 719,
+            "sourceDescription": "Scatters water to restore the HP of itself and allies.",
+            "descriptionCs": "Rozstříkne vodu a obnoví HP sobě i spojencům."
+        },
+        {
+            "moveId": 720,
+            "sourceDescription": "Protects itself, harshly lowering Def on contact.",
+            "descriptionCs": "Chrání útočníka a při kontaktu výrazně sníží obranu cíle."
+        },
+        {
+            "moveId": 721,
+            "sourceDescription": "Bows to stab the foe with hair. It never misses.",
+            "descriptionCs": "Ukloní se a bodne cíl vlasy. Nikdy nemine."
+        },
+        {
+            "moveId": 722,
+            "sourceDescription": "Attacks with a thick leek. The user must then rest.",
+            "descriptionCs": "Útočí silným pórkem. Útočník pak musí odpočívat."
+        },
+        {
+            "moveId": 723,
+            "sourceDescription": "Eternatus’ strongest move. The user rests next turn.",
+            "descriptionCs": "Nejsilnější útok Eternata. Útočník další kolo odpočívá."
+        },
+        {
+            "moveId": 724,
+            "sourceDescription": "Fires a beam of steel from its body. It hurts the user.",
+            "descriptionCs": "Vystřelí z těla ocelový paprsek. Zraní i útočníka."
+        },
+        {
+            "moveId": 725,
+            "sourceDescription": "Power goes up and damages all foes on Psychic Terrain.",
+            "descriptionCs": "Při účinku Psychic Terrain zesílí a poškodí všechny cíle."
+        },
+        {
+            "moveId": 726,
+            "sourceDescription": "Destroys terrain. Fails if ground isn’t terrain.",
+            "descriptionCs": "Zničí terén. Pokud není aktivní žádný terén, selže."
+        },
+        {
+            "moveId": 727,
+            "sourceDescription": "Shoots scales 2 to 5 times. Ups Speed, lowers defense.",
+            "descriptionCs": "Vystřelí šupiny 2krát až 5krát. Zvýší rychlost a sníží obranu."
+        },
+        {
+            "moveId": 728,
+            "sourceDescription": "A 2-turn move that raises Sp. Attack before attacking.",
+            "descriptionCs": "Dvoukolový útok, který před zásahem zvýší speciální útok."
+        },
+        {
+            "moveId": 729,
+            "sourceDescription": "Deals better of physical and special damage. May poison.",
+            "descriptionCs": "Zvolí silnější z fyzického a speciálního poškození. Může otrávit."
+        },
+        {
+            "moveId": 730,
+            "sourceDescription": "Hit everything and faint. Powers up on Misty Terrain.",
+            "descriptionCs": "Zasáhne vše a útočník omdlí. Při účinku Misty Terrain zesílí."
+        },
+        {
+            "moveId": 731,
+            "sourceDescription": "Gliding on ground, hits. Goes first on Grassy Terrain.",
+            "descriptionCs": "Zasáhne skluzem po zemi. Při účinku Grassy Terrain útočí jako první."
+        },
+        {
+            "moveId": 732,
+            "sourceDescription": "This move’s power doubles when on Electric Terrain.",
+            "descriptionCs": "Při účinku Electric Terrain se síla tohoto útoku zdvojnásobí."
+        },
+        {
+            "moveId": 733,
+            "sourceDescription": "Type and power changes depending on the terrain.",
+            "descriptionCs": "Typ a síla útoku se mění podle terénu."
+        },
+        {
+            "moveId": 734,
+            "sourceDescription": "User skitters behind foe to attack. Lowers foe’s Sp. Atk.",
+            "descriptionCs": "Útočník se připlíží za cíl a zaútočí. Sníží speciální útok cíle."
+        },
+        {
+            "moveId": 735,
+            "sourceDescription": "Foes that have stats upped during the turn get burned.",
+            "descriptionCs": "Popálí cíle, kterým se v tomto kole zvýšily statistiky."
+        },
+        {
+            "moveId": 736,
+            "sourceDescription": "If stats lowered during this turn, power is doubled.",
+            "descriptionCs": "Pokud se v tomto kole útočníkovi snížily statistiky, síla se zdvojnásobí."
+        },
+        {
+            "moveId": 737,
+            "sourceDescription": "Control foe’s item to attack. Fails if foe has no item.",
+            "descriptionCs": "Útočí ovládnutím předmětu cíle. Pokud cíl nemá předmět, selže."
+        },
+        {
+            "moveId": 738,
+            "sourceDescription": "Highly acidic gas melts items held by surrounding Pokémon.",
+            "descriptionCs": "Silně kyselý plyn rozpustí předměty držené okolními Pokémony."
+        },
+        {
+            "moveId": 739,
+            "sourceDescription": "Properly coaches allies to up their Attack and Defense.",
+            "descriptionCs": "Účinně trénuje spojence a zvýší jejich útok a obranu."
+        },
+        {
+            "moveId": 740,
+            "sourceDescription": "Attacks and rushes back to switch with a party Pokémon.",
+            "descriptionCs": "Zaútočí, stáhne se a vystřídá se s Pokémonem z týmu."
+        },
+        {
+            "moveId": 741,
+            "sourceDescription": "A 3-kick attack that gets more powerful with each hit.",
+            "descriptionCs": "Útok třemi kopy, který s každým zásahem sílí."
+        },
+        {
+            "moveId": 742,
+            "sourceDescription": "User slams the target with wings and hits twice in a row.",
+            "descriptionCs": "Útočník udeří cíl křídly dvakrát za sebou."
+        },
+        {
+            "moveId": 743,
+            "sourceDescription": "Throws scorching sand at the target. May leave a burn.",
+            "descriptionCs": "Hodí na cíl žhavý písek. Může ho popálit."
+        },
+        {
+            "moveId": 744,
+            "sourceDescription": "Heals HP and status of itself and allies in battle.",
+            "descriptionCs": "Obnoví HP a vyléčí stavové potíže sobě i spojencům v boji."
+        },
+        {
+            "moveId": 745,
+            "sourceDescription": "Mastering the Dark style, strikes with a critical hit.",
+            "descriptionCs": "Mistrovským ovládnutím temného stylu zasadí kritický zásah."
+        },
+        {
+            "moveId": 746,
+            "sourceDescription": "Mastering the Water style, strikes with 3 critical hits.",
+            "descriptionCs": "Mistrovským ovládnutím vodního stylu zasadí 3 kritické zásahy."
+        },
+        {
+            "moveId": 747,
+            "sourceDescription": "Traps the foe in a cage of electricity for 4 or 5 turns.",
+            "descriptionCs": "Uvězní cíl v elektrické kleci na 4 až 5 kol."
+        },
+        {
+            "moveId": 748,
+            "sourceDescription": "The higher the user’s HP the more damage caused.",
+            "descriptionCs": "Způsobí tím větší poškození, čím více má útočník HP."
+        },
+        {
+            "moveId": 749,
+            "sourceDescription": "Shoots psychic power from the eyes. May freeze the foe.",
+            "descriptionCs": "Vystřelí z očí psychickou energii. Může zmrazit cíl."
+        },
+        {
+            "moveId": 750,
+            "sourceDescription": "An attack fueled by your wrath. May cause flinching.",
+            "descriptionCs": "Útok poháněný hněvem. Může způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 751,
+            "sourceDescription": "Uses a lightning-like kick to hit. Lowers foe’s Defense.",
+            "descriptionCs": "Zasáhne kopem rychlým jako blesk. Sníží obranu cíle."
+        },
+        {
+            "moveId": 752,
+            "sourceDescription": "Strikes by hurling a blizzard- cloaked icicle lance at foes.",
+            "descriptionCs": "Vrhne na cíle rampouchové kopí zahalené vánicí."
+        },
+        {
+            "moveId": 753,
+            "sourceDescription": "Strikes by sending a frightful amount of ghosts at foes.",
+            "descriptionCs": "Vyšle na cíle děsivé množství duchů."
+        },
+        {
+            "moveId": 754,
+            "sourceDescription": "Attacks with psychic power. Foe’s last move has 3 PP cut.",
+            "descriptionCs": "Útočí psychickou silou. Odebere 3 PP poslednímu útoku cíle."
+        },
+        {
+            "moveId": 755,
+            "sourceDescription": "High critical hit chance. May paralyze, poison or drowse.",
+            "descriptionCs": "Má vysokou šanci na kritický zásah. Může paralyzovat, otrávit nebo způsobit ospalost."
+        },
+        {
+            "moveId": 756,
+            "sourceDescription": "Hits a foe with psychic energy. May raise Defense.",
+            "descriptionCs": "Zasáhne cíl psychickou energií. Může zvýšit obranu."
+        },
+        {
+            "moveId": 757,
+            "sourceDescription": "The user swaps its Attack and Defense stats.",
+            "descriptionCs": "Útočník si prohodí hodnoty útoku a obrany."
+        },
+        {
+            "moveId": 758,
+            "sourceDescription": "High critical hit ratio. Sets Splinters that hurt the foe.",
+            "descriptionCs": "Má vysokou šanci na kritický zásah. Vytvoří třísky, které zraňují cíl."
+        },
+        {
+            "moveId": 759,
+            "sourceDescription": "Wraps a foe in fierce winds. Varies with the user’s form.",
+            "descriptionCs": "Obklopí cíl prudkým větrem. Účinek závisí na podobě útočníka."
+        },
+        {
+            "moveId": 760,
+            "sourceDescription": "A mysterious power strikes, raising the user’s Sp. Atk.",
+            "descriptionCs": "Zasáhne tajemnou silou a zvýší speciální útok útočníka."
+        },
+        {
+            "moveId": 761,
+            "sourceDescription": "A rampage of 2 to 3 turns that confuses the user.",
+            "descriptionCs": "Zuří 2 až 3 kola a poté se zmate."
+        },
+        {
+            "moveId": 762,
+            "sourceDescription": "A slam shrouded in water. It also hurts the user.",
+            "descriptionCs": "Náraz zahalený vodou. Zraní i útočníka."
+        },
+        {
+            "moveId": 763,
+            "sourceDescription": "A user-hurting blast of amassed chlorophyll.",
+            "descriptionCs": "Výboj nahromaděného chlorofylu, který zraní i útočníka."
+        },
+        {
+            "moveId": 764,
+            "sourceDescription": "Giant chunks of ice damage the foe. It may flinch.",
+            "descriptionCs": "Obří kusy ledu zraní cíl. Mohou způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 765,
+            "sourceDescription": "Dances to raise Attack, Defense and Speed.",
+            "descriptionCs": "Tancem zvýší útok, obranu a rychlost."
+        },
+        {
+            "moveId": 766,
+            "sourceDescription": "Hits with a full-body tackle. Lowers the users’s defenses.",
+            "descriptionCs": "Zasáhne nárazem celého těla. Sníží obranu a speciální obranu útočníka."
+        },
+        {
+            "moveId": 767,
+            "sourceDescription": "Can poison on impact. Powers up against poisoned foes.",
+            "descriptionCs": "Při zásahu může otrávit. Proti otráveným cílům zesílí."
+        },
+        {
+            "moveId": 768,
+            "sourceDescription": "High critical hit ratio. Ups the user’s Speed.",
+            "descriptionCs": "Má vysokou šanci na kritický zásah. Zvýší rychlost útočníka."
+        },
+        {
+            "moveId": 769,
+            "sourceDescription": "A spine-chilling resentment. May lower the foe’s Attack.",
+            "descriptionCs": "Mrazivá zášť. Může snížit útok cíle."
+        },
+        {
+            "moveId": 770,
+            "sourceDescription": "The user hardens their skin, sharply raising its Defense.",
+            "descriptionCs": "Útočník zpevní svou kůži a výrazně si zvýší obranu."
+        },
+        {
+            "moveId": 771,
+            "sourceDescription": "High critical hit ratio. May lower Defense or flinch.",
+            "descriptionCs": "Má vysokou šanci na kritický zásah. Může snížit obranu nebo způsobit, že cíl v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 772,
+            "sourceDescription": "Hurts a foe harder if it has an ailment. May leave a burn.",
+            "descriptionCs": "Silněji zraní cíl se stavovým problémem. Může ho popálit."
+        },
+        {
+            "moveId": 773,
+            "sourceDescription": "High critical hit ratio. Sets Splinters that hurt the foe.",
+            "descriptionCs": "Má vysokou šanci na kritický zásah. Vytvoří třísky, které zraňují cíl."
+        },
+        {
+            "moveId": 774,
+            "sourceDescription": "Hits with brutal, cold winds. May lower the foe’s Speed.",
+            "descriptionCs": "Zasáhne prudkým studeným větrem. Může snížit rychlost cíle."
+        },
+        {
+            "moveId": 775,
+            "sourceDescription": "Hits with a brutal tempest. May inflict paralysis.",
+            "descriptionCs": "Zasáhne prudkou bouří. Může paralyzovat."
+        },
+        {
+            "moveId": 776,
+            "sourceDescription": "Hits with brutally hot sand. May inflict a burn.",
+            "descriptionCs": "Zasáhne rozpáleným pískem. Může popálit."
+        },
+        {
+            "moveId": 777,
+            "sourceDescription": "The user heals and cures itself and its ally.",
+            "descriptionCs": "Útočník obnoví HP a vyléčí stavové potíže sobě i spojenci."
+        },
+        {
+            "moveId": 778,
+            "sourceDescription": "The user lifts its spirits to heal and strengthen itself.",
+            "descriptionCs": "Útočník si zvedne náladu, aby se vyléčil a posílil."
+        },
+        {
+            "moveId": 779,
+            "sourceDescription": "If the user’s Terastallized, it hits with its Tera-type.",
+            "descriptionCs": "Pokud je útočník terastalizovaný, útok použije jeho typ Tera."
+        },
+        {
+            "moveId": 780,
+            "sourceDescription": "Protects itself, lowering Speed on contact.",
+            "descriptionCs": "Chrání útočníka a při kontaktu sníží rychlost cíle."
+        },
+        {
+            "moveId": 781,
+            "sourceDescription": "May miss and hurt the kicker. May cause confusion.",
+            "descriptionCs": "Může minout a zranit útočníka. Může zmást cíl."
+        },
+        {
+            "moveId": 782,
+            "sourceDescription": "This move deals more damage for each defeated ally.",
+            "descriptionCs": "Za každého poraženého spojence způsobí větší poškození."
+        },
+        {
+            "moveId": 783,
+            "sourceDescription": "A mind-affecting light harshly lowers Sp. Def.",
+            "descriptionCs": "Světlo působící na mysl výrazně sníží speciální obranu."
+        },
+        {
+            "moveId": 784,
+            "sourceDescription": "Boosts a user’s stats depending on Tatsugiri.",
+            "descriptionCs": "Zvýší statistiky útočníka v závislosti na Tatsugiri."
+        },
+        {
+            "moveId": 785,
+            "sourceDescription": "A punch is thrown at blinding speed to strike first.",
+            "descriptionCs": "Bleskurychlý úder pěstí, který zasáhne jako první."
+        },
+        {
+            "moveId": 786,
+            "sourceDescription": "Sharply ups target’s Attack, harshly lowers its Defense.",
+            "descriptionCs": "Výrazně zvýší útok cíle a výrazně sníží jeho obranu."
+        },
+        {
+            "moveId": 787,
+            "sourceDescription": "Furiously strains its legs. Harshly lowers user’s Speed.",
+            "descriptionCs": "Prudce namáhá nohy. Výrazně sníží rychlost útočníka."
+        },
+        {
+            "moveId": 788,
+            "sourceDescription": "The user’s fellows hit one to ten times in a row.",
+            "descriptionCs": "Společníci útočníka zasáhnou 1krát až 10krát za sebou."
+        },
+        {
+            "moveId": 789,
+            "sourceDescription": "Ice-covered feet hit a foe and destroy the terrain.",
+            "descriptionCs": "Nohy pokryté ledem zasáhnou cíl a zničí terén."
+        },
+        {
+            "moveId": 790,
+            "sourceDescription": "Foe attacks next turn can’t miss and do double damage.",
+            "descriptionCs": "V příštím kole útoky cíle neminou a způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 791,
+            "sourceDescription": "Revives a fainted party Pokémon and restores half of its HP.",
+            "descriptionCs": "Oživí omdlelého Pokémona v týmu a obnoví polovinu jeho HP."
+        },
+        {
+            "moveId": 792,
+            "sourceDescription": "Hurts foe every turn. Double damage to Steel and Water.",
+            "descriptionCs": "Každé kolo zraňuje cíl. Ocelovým a vodním typům způsobí dvojnásobné poškození."
+        },
+        {
+            "moveId": 793,
+            "sourceDescription": "Hits target with splashes of water 3 times in a row.",
+            "descriptionCs": "Zasáhne cíl proudy vody 3krát za sebou."
+        },
+        {
+            "moveId": 794,
+            "sourceDescription": "Erases trap moves and Leech Seed. Poisons adjecent foes.",
+            "descriptionCs": "Odstraní poutací útoky a Leech Seed. Otráví sousední cíle."
+        },
+        {
+            "moveId": 795,
+            "sourceDescription": "Changes user’s and ally’s Ability into the target’s.",
+            "descriptionCs": "Změní schopnost útočníka a spojence na schopnost cíle."
+        },
+        {
+            "moveId": 796,
+            "sourceDescription": "Sharply boosts offenses and Speed by using its own HP.",
+            "descriptionCs": "Za cenu vlastních HP výrazně zvýší útok, speciální útok a rychlost."
+        },
+        {
+            "moveId": 797,
+            "sourceDescription": "User slashes the foe after kowtowing. It never misses.",
+            "descriptionCs": "Útočník se hluboce ukloní a sekne cíl. Nikdy nemine."
+        },
+        {
+            "moveId": 798,
+            "sourceDescription": "Rigged bouquet. Always gets a critical hit, never missing.",
+            "descriptionCs": "Nastražená kytice. Nikdy nemine a vždy zasadí kritický zásah."
+        },
+        {
+            "moveId": 799,
+            "sourceDescription": "Flames scorch the target. Boosts the user’s Sp. Atk.",
+            "descriptionCs": "Plameny sežehnou cíl. Zvýší speciální útok útočníka."
+        },
+        {
+            "moveId": 800,
+            "sourceDescription": "Hits with light, fluid dance steps. Ups the user’s Speed.",
+            "descriptionCs": "Zasáhne lehkými, plynulými tanečními kroky. Zvýší rychlost útočníka."
+        },
+        {
+            "moveId": 801,
+            "sourceDescription": "Tackle that breaks barriers. User’s form determines type.",
+            "descriptionCs": "Náraz, který boří bariéry. Typ útoku určuje podoba útočníka."
+        },
+        {
+            "moveId": 802,
+            "sourceDescription": "Lowers the user’s Sp. Atk. Money is recovered after.",
+            "descriptionCs": "Sníží speciální útok útočníka. Poté lze posbírat peníze."
+        },
+        {
+            "moveId": 803,
+            "sourceDescription": "Summons a ruinous disaster and cuts half the foe’s HP.",
+            "descriptionCs": "Vyvolá ničivou pohromu a odebere polovinu HP cíle."
+        },
+        {
+            "moveId": 804,
+            "sourceDescription": "Prehistoric explosion that’s stronger if supereffective.",
+            "descriptionCs": "Pravěká exploze, která zesílí, pokud je mimořádně účinná."
+        },
+        {
+            "moveId": 805,
+            "sourceDescription": "Futuristic electricity. It’s stronger if supereffective.",
+            "descriptionCs": "Futuristický elektrický výboj. Zesílí, pokud je mimořádně účinný."
+        },
+        {
+            "moveId": 806,
+            "sourceDescription": "Creates a Substitute for itself before switching out.",
+            "descriptionCs": "Před vystřídáním vytvoří útočníkovi náhradu pomocí Substitute."
+        },
+        {
+            "moveId": 807,
+            "sourceDescription": "Bad joke summons snowstorm. The user also switches out.",
+            "descriptionCs": "Špatný vtip vyvolá sněhovou bouři. Útočník se také vystřídá."
+        },
+        {
+            "moveId": 808,
+            "sourceDescription": "User tidies up hazards and raises its Attack and Speed.",
+            "descriptionCs": "Útočník uklidí nástrahy a zvýší si útok a rychlost."
+        },
+        {
+            "moveId": 809,
+            "sourceDescription": "Summons a snowstorm that lasts for five turns.",
+            "descriptionCs": "Vyvolá sněhovou bouři na 5 kol."
+        },
+        {
+            "moveId": 810,
+            "sourceDescription": "The user pounces on the foe, lowering its Speed.",
+            "descriptionCs": "Útočník skočí na cíl a sníží jeho rychlost."
+        },
+        {
+            "moveId": 811,
+            "sourceDescription": "The user attacks suddenly, raising its Speed.",
+            "descriptionCs": "Útočník náhle zaútočí a zvýší si rychlost."
+        },
+        {
+            "moveId": 812,
+            "sourceDescription": "A shower with ice-cold water lowers the target’s Attack.",
+            "descriptionCs": "Sprcha ledové vody sníží útok cíle."
+        },
+        {
+            "moveId": 813,
+            "sourceDescription": "A spinning pointed part bypasses a foe’s Protect.",
+            "descriptionCs": "Rotující špičatá část těla obejde Protect cíle."
+        },
+        {
+            "moveId": 814,
+            "sourceDescription": "Mystical eye-beams that hit the target twice in a row.",
+            "descriptionCs": "Mystické paprsky z očí zasáhnou cíl dvakrát za sebou."
+        },
+        {
+            "moveId": 815,
+            "sourceDescription": "The more the user has been hit, the stronger the move.",
+            "descriptionCs": "Čím více zásahů útočník utrpěl, tím silnější je útok."
+        },
+        {
+            "moveId": 816,
+            "sourceDescription": "A strong attack but lowers the defensive stats.",
+            "descriptionCs": "Silný útok, který ale sníží obranné statistiky útočníka."
+        },
+        {
+            "moveId": 817,
+            "sourceDescription": "An attack that absorbs half the damage inflicted.",
+            "descriptionCs": "Obnoví si HP ve výši poloviny způsobeného poškození."
+        },
+        {
+            "moveId": 818,
+            "sourceDescription": "Discharges all electricity, losing the Electric type.",
+            "descriptionCs": "Útočník vypustí veškerou elektřinu a ztratí elektrický typ."
+        },
+        {
+            "moveId": 819,
+            "sourceDescription": "Swings a huge hammer. Can’t be used twice in a row.",
+            "descriptionCs": "Máchne obřím kladivem. Nelze použít dvakrát za sebou."
+        },
+        {
+            "moveId": 820,
+            "sourceDescription": "Retaliates strongly against who last hurt the user.",
+            "descriptionCs": "Silně se odplatí tomu, kdo útočníka zranil jako poslední."
+        },
+        {
+            "moveId": 821,
+            "sourceDescription": "Pressurized water cut with a high critical-hit ratio.",
+            "descriptionCs": "Řez stlačenou vodou s vysokou šancí na kritický zásah."
+        },
+        {
+            "moveId": 822,
+            "sourceDescription": "---",
+            "descriptionCs": "---"
+        },
+        {
+            "moveId": 823,
+            "sourceDescription": "---",
+            "descriptionCs": "---"
+        },
+        {
+            "moveId": 824,
+            "sourceDescription": "---",
+            "descriptionCs": "---"
+        },
+        {
+            "moveId": 825,
+            "sourceDescription": "---",
+            "descriptionCs": "---"
+        },
+        {
+            "moveId": 826,
+            "sourceDescription": "---",
+            "descriptionCs": "---"
+        },
+        {
+            "moveId": 827,
+            "sourceDescription": "This move’s power increases when on Electric Terrain.",
+            "descriptionCs": "Při účinku Electric Terrain síla tohoto útoku vzroste."
+        },
+        {
+            "moveId": 828,
+            "sourceDescription": "This move’s power increases under harsh sunlight.",
+            "descriptionCs": "Za prudkého slunečního svitu síla tohoto útoku vzroste."
+        },
+        {
+            "moveId": 829,
+            "sourceDescription": "Unleashes the blood moon. Can’t be used twice in a row.",
+            "descriptionCs": "Uvolní sílu krvavého měsíce. Nelze použít dvakrát za sebou."
+        },
+        {
+            "moveId": 830,
+            "sourceDescription": "Absorbs half the damage inflicted. May cause a burn.",
+            "descriptionCs": "Obnoví útočníkovi HP ve výši poloviny způsobeného poškození. Může popálit."
+        },
+        {
+            "moveId": 831,
+            "sourceDescription": "Lowers the foe’s speed each turn for 3 turns.",
+            "descriptionCs": "Po 3 kola sníží každé kolo rychlost cíle."
+        },
+        {
+            "moveId": 832,
+            "sourceDescription": "Type changes with held mask. High critical-hit ratio.",
+            "descriptionCs": "Typ se mění podle držené masky. Má vysokou šanci na kritický zásah."
+        },
+        {
+            "moveId": 833,
+            "sourceDescription": "Absorbs electricity in one turn, then attacks next turn.",
+            "descriptionCs": "V jednom kole vstřebá elektřinu a v dalším zaútočí."
+        },
+        {
+            "moveId": 834,
+            "sourceDescription": "Damages all opponents if user is Stellar form Terapagos.",
+            "descriptionCs": "Pokud je útočníkem Terapagos v podobě Stellar, poškodí všechny protivníky."
+        },
+        {
+            "moveId": 835,
+            "sourceDescription": "Shoots a beam of light. Sometimes twice as strong.",
+            "descriptionCs": "Vystřelí paprsek světla. Někdy je dvojnásobně silný."
+        },
+        {
+            "moveId": 836,
+            "sourceDescription": "Evades attack, and burns the foe if struck.",
+            "descriptionCs": "Vyhne se útoku a při zásahu popálí cíl."
+        },
+        {
+            "moveId": 837,
+            "sourceDescription": "Strikes first if the foe is preparing an attack.",
+            "descriptionCs": "Zasáhne jako první, pokud se cíl chystá zaútočit."
+        },
+        {
+            "moveId": 838,
+            "sourceDescription": "An attack that hits foes using moves like Protect.",
+            "descriptionCs": "Zasáhne i soupeře, který používá útoky jako Protect."
+        },
+        {
+            "moveId": 839,
+            "sourceDescription": "Launches particle blades at the target. Strikes twice.",
+            "descriptionCs": "Vystřelí na cíl částicové čepele. Zasáhne dvakrát."
+        },
+        {
+            "moveId": 840,
+            "sourceDescription": "The higher the foe’s HP the more damage caused.",
+            "descriptionCs": "Čím více HP má cíl, tím větší poškození útok způsobí."
+        },
+        {
+            "moveId": 841,
+            "sourceDescription": "Increases allies’ critical hit ratio, especially if Dragons.",
+            "descriptionCs": "Zvýší spojencům šanci na kritický zásah, zejména dračím typům."
+        },
+        {
+            "moveId": 842,
+            "sourceDescription": "Confuses the target if their stats were boosted this turn.",
+            "descriptionCs": "Zmate cíl, pokud se mu v tomto kole zvýšily statistiky."
+        },
+        {
+            "moveId": 843,
+            "sourceDescription": "A desperation attack. Power doubles if last move failed.",
+            "descriptionCs": "Zoufalý útok. Pokud poslední útok selhal, síla se zdvojnásobí."
+        },
+        {
+            "moveId": 844,
+            "sourceDescription": "An electrified slam. If it misses, the user is hurt.",
+            "descriptionCs": "Elektrizující náraz. Pokud mine, zraní útočníka."
+        },
+        {
+            "moveId": 845,
+            "sourceDescription": "Unpleasant sound waves that damage and prevent healing.",
+            "descriptionCs": "Nepříjemné zvukové vlny, které zraňují a brání léčení."
+        },
+        {
+            "moveId": 846,
+            "sourceDescription": "Makes the target flinch if readying a priority move.",
+            "descriptionCs": "Pokud cíl připravuje prioritní útok, v tomto kole nezaútočí."
+        },
+        {
+            "moveId": 847,
+            "sourceDescription": "A corrosive chain attack that may badly poison.",
+            "descriptionCs": "Útok žíravým řetězem, který může silně otrávit."
+        }
+    ]
+}
