@@ -24,6 +24,7 @@
         "test:php:db": "npm run build:webzdarma && npm run test:php:db -w apps/server",
         "typecheck": "npm run build -w packages/shared && npm run typecheck --workspaces --if-present && tsc --noEmit -p scripts/tsconfig.json",
         "db:generate-import": "node --import tsx scripts/generate-dex-import.ts",
+        "db:migrate": "node --import tsx scripts/migrate-db.ts",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "lint:tailwind": "tailwint",

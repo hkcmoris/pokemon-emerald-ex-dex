@@ -135,6 +135,16 @@ Keep credentials in this ignored file. `.env.local` takes precedence over `.env`
 development; process environment variables take precedence over both. Production
 (`NODE_ENV=production`) ignores `.env.local`.
 
+Apply missing incremental upgrades to the imported local database:
+
+```bash
+npm run db:migrate
+```
+
+Use a local administrative database account. The command records completed upgrades
+and skips them on subsequent runs. See [local migrations](docs/database.md#local-migrations)
+for initial imports and adoption of databases previously upgraded by hand.
+
 Build the shared package and start the backend in one terminal:
 
 ```bash

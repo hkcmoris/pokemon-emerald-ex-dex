@@ -30,6 +30,36 @@ the database still enforces the restoration/FK semantics.
 5. `scripts/sql/003_verify_import.sql` — counts and representative records.
 6. `scripts/sql/004_api_query_examples.sql` — example queries for the API.
 
+### Local migrations
+
+After the initial `001`/`002` import, apply missing incremental upgrades with:
+
+```bash
+npm run db:migrate
+```
+
+The command uses the backend's `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and
+`DB_PASS` settings from `.env.local`, `.env`, or the process environment. Use a local
+administrative account with schema and data write permissions. It accepts only
+`127.0.0.1`, `localhost`, or `::1` and requires the existing `emerald-ex-1.0.4` dataset;
+it does not create a database or run the replacement `002` import.
+
+Upgrades `005` through `017` run in order on one connection. Successful upgrades are
+recorded in `emerald_ex_migrations` and skipped on subsequent runs. A database lock
+prevents two runners from applying the same upgrades concurrently. The runner stops
+on the first error, rolls back the active data transaction, and leaves that upgrade
+pending for the next run. Schema changes can commit independently; the current
+incremental scripts support retries. Verification and example files `003`/`004`
+remain manual queries. Add future upgrade files explicitly to `scripts/db-migrations.ts`.
+
+On its first run, the command records existing tables, columns, and imported source
+markers as a baseline, so databases upgraded manually retain their data. Existing
+`icon_file` columns are treated as already configured: custom filenames and intentional
+NULL values remain intact. Seeds `008`/`010` run automatically only when the runner
+adds their respective columns. If you imported the current `001`/`002` without the
+initial icon seeds, run `008` and `010` manually as listed above. Upgrade `017` still
+runs once to replace only the original Physical/Special PNG defaults with SVGs.
+
 ### MySQL error 1267: illegal mix of collations
 
 The dex tables use `utf8mb4_unicode_ci`. MySQL 8 commonly gives connections the
