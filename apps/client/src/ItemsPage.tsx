@@ -43,7 +43,8 @@ export function ItemDetails({ item }: { item: Item }) {
             </div>
             <div className="p-5 sm:p-6">
                 <p className="text-sm leading-relaxed">
-                    {item.description || t('No description recorded.', 'Popis není uveden.')}
+                    {t(item.description, item.descriptionCs || item.description) ||
+                        t('No description recorded.', 'Popis není uveden.')}
                 </p>
                 <dl className="rom-fields mt-5">
                     {fields.map(([label, value]) => (
@@ -186,7 +187,10 @@ export function ItemsPage({ itemId, version }: { itemId: number | undefined; ver
                                         </span>
                                     </a>
                                     <p className="mt-3 text-sm leading-relaxed">
-                                        {item.description}
+                                        {t(
+                                            item.description,
+                                            item.descriptionCs || item.description,
+                                        ) || t('No description recorded.', 'Popis není uveden.')}
                                     </p>
                                     <p className="mt-3 text-xs text-stone-600">
                                         {item.pocket} · {t('Price', 'Cena')}{' '}

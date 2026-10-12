@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS emerald_ex_items (
     name VARCHAR(100) NOT NULL,
     plural_name VARCHAR(100) NULL,
     description TEXT NOT NULL,
+    description_cs TEXT NULL,
     price INT UNSIGNED NOT NULL,
     pocket_id TINYINT UNSIGNED NOT NULL,
     secondary_id SMALLINT UNSIGNED NOT NULL,

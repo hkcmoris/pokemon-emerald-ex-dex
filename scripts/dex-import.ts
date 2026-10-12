@@ -59,6 +59,18 @@ function insertStatements(table: TableData): string[] {
     return lines;
 }
 
+// Older upgrade imports must still run before the new translation-column migration.
+// Fresh full imports include translations; incremental imports use the separate seed.
+function withoutTranslatedDescriptions(table: TableData): TableData {
+    const index = table.columns.indexOf('description_cs');
+    if (index === -1) return table;
+    return {
+        ...table,
+        columns: table.columns.filter((_, position) => position !== index),
+        rows: table.rows.map((row) => row.filter((_, position) => position !== index)),
+    };
+}
+
 function assert(condition: boolean, message: string): asserts condition {
     if (!condition) throw new Error(message);
 }
@@ -120,6 +132,8 @@ export function sqlLiteral(value: SqlValue): string {
 export function buildDexImport(
     sources: Record<SourceKind, SourceFile>,
     moveDescriptions: ReadonlyMap<number, string>,
+    abilityDescriptions: ReadonlyMap<number, string>,
+    itemDescriptions: ReadonlyMap<number, string>,
 ): {
     sql: string;
     spritesSql: string;
@@ -730,6 +744,7 @@ export function buildDexImport(
             text(entry.name),
             entry.pluralName === null ? null : text(entry.pluralName),
             text(entry.description),
+            itemDescriptions.get(id) ?? null,
             integer(entry.price, 0, 4294967295),
             pocketId,
             integer(entry.secondaryId),
@@ -765,6 +780,7 @@ export function buildDexImport(
                 'name',
                 'plural_name',
                 'description',
+                'description_cs',
                 'price',
                 'pocket_id',
                 'secondary_id',
@@ -851,6 +867,7 @@ export function buildDexImport(
             integer(entry.abilityId),
             text(entry.name),
             text(entry.description),
+            abilityDescriptions.get(integer(entry.abilityId)) ?? null,
             integer(entry.aiRating, -128, 127),
             ...flagFields.map(([key]) => boolean(flags[key])),
         ];
@@ -916,6 +933,7 @@ export function buildDexImport(
                 'ability_id',
                 'name',
                 'description',
+                'description_cs',
                 'ai_rating',
                 ...flagFields.map(([, column]) => column),
             ],
@@ -1018,7 +1036,7 @@ export function buildDexImport(
             ...sourceTable,
             rows: sourceTable.rows.filter((row) => row[1] === 'items'),
         }),
-        ...itemTables.flatMap((table, index) =>
+        ...itemTables.map(withoutTranslatedDescriptions).flatMap((table, index) =>
             insertStatements(table).map((line) => {
                 if (index >= 2 || !line.endsWith(';')) return line;
                 const columns = table.columns.filter(
@@ -1057,7 +1075,7 @@ export function buildDexImport(
             ...sourceTable,
             rows: sourceTable.rows.filter((row) => row[1] === 'abilities'),
         }),
-        ...abilityTables.flatMap(insertStatements),
+        ...abilityTables.map(withoutTranslatedDescriptions).flatMap(insertStatements),
         '\nCOMMIT;',
         'SET SESSION sql_mode = @dex_previous_sql_mode;',
         '',

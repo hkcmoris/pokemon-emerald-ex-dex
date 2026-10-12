@@ -10,7 +10,11 @@ import {
     type SourceKind,
 } from './dex-import.js';
 import { validateSpriteFiles } from './sprite-files.js';
-import { buildMoveDescriptionImport } from './move-descriptions.js';
+import {
+    buildMoveDescriptionImport,
+    buildDescriptionImport,
+    buildAbilityItemDescriptionImport,
+} from './move-descriptions.js';
 
 const root = new URL('../', import.meta.url);
 const sources = {} as Record<SourceKind, SourceFile>;
@@ -25,9 +29,25 @@ const moveDescriptions = buildMoveDescriptionImport(
     JSON.parse(sources.learnsets.contents),
     JSON.parse(await readFile(new URL('docs/translations/moves.cs.json', root), 'utf8')),
 );
+const abilityDescriptions = buildDescriptionImport(
+    JSON.parse(sources.abilities.contents),
+    JSON.parse(await readFile(new URL('docs/translations/abilities.cs.json', root), 'utf8')),
+    'abilities',
+);
+const itemDescriptions = buildDescriptionImport(
+    JSON.parse(sources.items.contents),
+    JSON.parse(await readFile(new URL('docs/translations/items.cs.json', root), 'utf8')),
+    'items',
+);
+const abilityItemDescriptionsSql = buildAbilityItemDescriptionImport(
+    abilityDescriptions,
+    itemDescriptions,
+);
 const { sql, spritesSql, formsSql, itemsSql, abilitiesSql, counts, datasetId } = buildDexImport(
     sources,
     moveDescriptions.descriptions,
+    abilityDescriptions.descriptions,
+    itemDescriptions.descriptions,
 );
 const manifest = JSON.parse(sources.battle_sprites.contents) as {
     species: { files: Record<string, string> }[];
@@ -52,6 +72,11 @@ await writeFile(new URL('scripts/sql/016_import_abilities_1.0.4.sql', root), abi
 await writeFile(
     new URL('scripts/sql/019_seed_move_descriptions_cs_1.0.4.sql', root),
     moveDescriptions.sql,
+    'utf8',
+);
+await writeFile(
+    new URL('scripts/sql/021_seed_ability_item_descriptions_cs_1.0.4.sql', root),
+    abilityItemDescriptionsSql,
     'utf8',
 );
 console.log(`Prepared ${datasetId}: ${fileURLToPath(output)}`);

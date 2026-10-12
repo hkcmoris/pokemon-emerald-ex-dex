@@ -135,7 +135,16 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
             new URL('../../../docs/pokemon_emerald_ex_1.0.4_items.json', import.meta.url),
             'utf8',
         ),
-    ) as { items: (Omit<Item, 'iconFile'> & { icon: string })[] };
+    ) as { items: (Omit<Item, 'iconFile' | 'descriptionCs'> & { icon: string })[] };
+    const itemTranslations = JSON.parse(
+        await readFile(
+            new URL('../../../docs/translations/items.cs.json', import.meta.url),
+            'utf8',
+        ),
+    ) as { items: { itemId: number; descriptionCs: string }[] };
+    const itemDescriptionsCs = new Map(
+        itemTranslations.items.map((item) => [item.itemId, item.descriptionCs]),
+    );
     const itemIcons = new Map(
         (
             await pool.execute<{ itemId: number; iconFile: string | null }[]>(
@@ -179,6 +188,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     rows,
                     itemSource.items.map(({ icon: _icon, ...item }) => ({
                         ...item,
+                        descriptionCs: itemDescriptionsCs.get(item.itemId) ?? null,
                         iconFile: itemIcons.get(item.itemId) ?? null,
                     })),
                 );
@@ -188,6 +198,15 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                     'Gengarite',
                 );
                 strictEqual((await get<ApiResponse<Item>>('items/0')).data.name, '????????');
+                for (const id of [0, 213, 300, 827]) {
+                    const item = itemSource.items.find((entry) => entry.itemId === id)!;
+                    const { icon: _icon, ...metadata } = item;
+                    deepStrictEqual((await get<ApiResponse<Item>>(`items/${id}`)).data, {
+                        ...metadata,
+                        descriptionCs: itemDescriptionsCs.get(id) ?? null,
+                        iconFile: itemIcons.get(id) ?? null,
+                    });
+                }
                 const links = (await get<ApiResponse<SpeciesEvolution[]>>('species/25/evolution'))
                     .data;
                 deepStrictEqual(links.find((edge) => edge.toSpeciesId === 26)?.items, [
@@ -221,7 +240,7 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                         'utf8',
                     ),
                 ) as {
-                    abilities: Ability[];
+                    abilities: Omit<Ability, 'descriptionCs'>[];
                     species: {
                         speciesId: number;
                         slots: {
@@ -231,13 +250,29 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                         }[];
                     }[];
                 };
+                const abilityTranslations = JSON.parse(
+                    await readFile(
+                        new URL('../../../docs/translations/abilities.cs.json', import.meta.url),
+                        'utf8',
+                    ),
+                ) as { abilities: { abilityId: number; descriptionCs: string }[] };
+                const abilityDescriptionsCs = new Map(
+                    abilityTranslations.abilities.map((ability) => [
+                        ability.abilityId,
+                        ability.descriptionCs,
+                    ]),
+                );
+                const expectedAbilities: Ability[] = abilitiesSource.abilities.map((ability) => ({
+                    ...ability,
+                    descriptionCs: abilityDescriptionsCs.get(ability.abilityId) ?? null,
+                }));
                 const definitions = new Map(
-                    abilitiesSource.abilities.map((ability) => [ability.abilityId, ability]),
+                    expectedAbilities.map((ability) => [ability.abilityId, ability]),
                 );
                 const first = await get<PageResponse<Ability>>('abilities?pageSize=250');
                 const second = await get<PageResponse<Ability>>('abilities?pageSize=250&page=2');
                 strictEqual(first.meta.total, 311);
-                deepStrictEqual([...first.data, ...second.data], abilitiesSource.abilities);
+                deepStrictEqual([...first.data, ...second.data], expectedAbilities);
                 const slots = await pool.query<
                     { speciesId: number; slot: number; kind: string; abilityId: number | null }[]
                 >(
@@ -281,6 +316,12 @@ void test('SQL-backed API against the imported local Emerald EX dataset', async 
                 deepStrictEqual((await get<PageResponse<Ability>>('abilities?q=%230023')).data, [
                     definitions.get(23),
                 ]);
+                for (const id of [9, 23, 59, 310]) {
+                    deepStrictEqual(
+                        (await get<ApiResponse<Ability>>(`abilities/${id}`)).data,
+                        definitions.get(id),
+                    );
+                }
                 strictEqual((await get<PageResponse<Ability>>('abilities?q=%25')).meta.total, 0);
                 strictEqual(
                     (await get<PageResponse<Ability>>('abilities?page=65535')).data.length,

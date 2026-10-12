@@ -188,6 +188,7 @@ export interface Item {
     name: string;
     pluralName: string | null;
     description: string;
+    descriptionCs: string | null;
     price: number;
     pocketId: number;
     pocket: string;
@@ -232,6 +233,7 @@ export interface Ability {
     abilityId: number;
     name: string;
     description: string;
+    descriptionCs: string | null;
     aiRating: number;
     flags: AbilityFlags;
 }

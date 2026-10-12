@@ -34,6 +34,7 @@ const entry: SpeciesDetails = {
                 abilityId: 9,
                 name: 'Static',
                 description: 'Contact with the Pokémon may cause paralysis.',
+                descriptionCs: 'Kontakt s tímto Pokémonem může způsobit ochromení.',
                 aiRating: 0,
                 flags: {
                     cantBeCopied: false,
@@ -102,14 +103,14 @@ function renderSpecies(language: 'en' | 'cs', details: SpeciesDetails = entry): 
     }
 }
 
-void test('Czech species UI translates types and move descriptions while preserving game names', () => {
+void test('Czech species UI translates types, ability and move descriptions while preserving game names', () => {
     const html = renderSpecies('cs');
     for (const label of ['Základní statistiky', 'Vzhled', 'Běžná schopnost 1', 'Naučené útoky'])
         match(html, new RegExp(label));
     for (const data of [
         entry.name,
         entry.abilities[0].ability!.name,
-        entry.abilities[0].ability!.description,
+        entry.abilities[0].ability!.descriptionCs!,
         entry.learnset[0].name,
         entry.learnset[0].descriptionCs!,
         entry.learnset[0].category,

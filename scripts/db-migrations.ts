@@ -79,6 +79,13 @@ const migrations: readonly Migration[] = [
         isPresent: (state) => state.columns.get('emerald_ex_moves')?.has('description_cs') ?? false,
     },
     { file: '019_seed_move_descriptions_cs_1.0.4.sql', isPresent: () => false },
+    {
+        file: '020_ability_item_descriptions_cs.sql',
+        isPresent: (state) =>
+            (state.columns.get('emerald_ex_abilities')?.has('description_cs') ?? false) &&
+            (state.columns.get('emerald_ex_items')?.has('description_cs') ?? false),
+    },
+    { file: '021_seed_ability_item_descriptions_cs_1.0.4.sql', isPresent: () => false },
 ];
 
 export type MigrationConnection = Pick<

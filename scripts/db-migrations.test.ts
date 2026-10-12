@@ -26,6 +26,17 @@ const migrationFiles = [
     '017_move_category_svg_icons.sql',
     '018_move_descriptions_cs.sql',
     '019_seed_move_descriptions_cs_1.0.4.sql',
+    '020_ability_item_descriptions_cs.sql',
+    '021_seed_ability_item_descriptions_cs_1.0.4.sql',
+];
+
+const moveDescriptionMigrations = [
+    '018_move_descriptions_cs.sql',
+    '019_seed_move_descriptions_cs_1.0.4.sql',
+];
+const abilityItemDescriptionMigrations = [
+    '020_ability_item_descriptions_cs.sql',
+    '021_seed_ability_item_descriptions_cs_1.0.4.sql',
 ];
 
 function fakeDatabase(upgraded = false) {
@@ -118,6 +129,10 @@ function fakeDatabase(upgraded = false) {
             if (file === '018_move_descriptions_cs.sql') {
                 columns.get('emerald_ex_moves')?.add('description_cs');
             }
+            if (file === '020_ability_item_descriptions_cs.sql') {
+                columns.get('emerald_ex_abilities')?.add('description_cs');
+                columns.get('emerald_ex_items')?.add('description_cs');
+            }
             return [];
         }
         throw new Error(`Unexpected query: ${sql}`);
@@ -206,8 +221,11 @@ void test('registers every numbered SQL upgrade in the migration runner', async 
 
 void test('existing migration history receives the Czech description column and seed in order', async () => {
     const database = fakeDatabase(true);
-    database.state.history = new Set(['_baseline', ...migrationFiles.slice(0, -2)]);
-    const pending = migrationFiles.slice(-2);
+    database.state.history = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => !moveDescriptionMigrations.includes(file)),
+    ]);
+    const pending = moveDescriptionMigrations;
 
     deepStrictEqual(await database.run(), pending);
     deepStrictEqual(database.state.readFiles, pending);
@@ -219,7 +237,9 @@ void test('existing migration history receives the Czech description column and 
 void test('an existing Czech description column does not suppress its seed', async () => {
     const database = fakeDatabase(true);
     database.state.columns.get('emerald_ex_moves')?.add('description_cs');
-    database.state.history = new Set(migrationFiles.slice(0, -2));
+    database.state.history = new Set(
+        migrationFiles.filter((file) => !moveDescriptionMigrations.includes(file)),
+    );
 
     deepStrictEqual(await database.run(), ['019_seed_move_descriptions_cs_1.0.4.sql']);
     deepStrictEqual(database.state.readFiles, ['019_seed_move_descriptions_cs_1.0.4.sql']);
@@ -229,7 +249,10 @@ void test('an existing Czech description column does not suppress its seed', asy
 
 void test('a failed Czech description seed retries without reapplying its completed column migration', async () => {
     const database = fakeDatabase(true);
-    database.state.history = new Set(['_baseline', ...migrationFiles.slice(0, -2)]);
+    database.state.history = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => !moveDescriptionMigrations.includes(file)),
+    ]);
     database.state.failMigration = '019_seed_move_descriptions_cs_1.0.4.sql';
 
     await rejects(database.run(), /Migration 019_seed_move_descriptions_cs_1.0.4.sql failed/);
@@ -244,6 +267,76 @@ void test('a failed Czech description seed retries without reapplying its comple
         '018_move_descriptions_cs.sql',
         '019_seed_move_descriptions_cs_1.0.4.sql',
         '019_seed_move_descriptions_cs_1.0.4.sql',
+    ]);
+    deepStrictEqual(database.state.history, new Set(['_baseline', ...migrationFiles]));
+});
+
+void test('migration history through 019 receives ability and item columns followed by their seed', async () => {
+    const database = fakeDatabase(true);
+    database.state.columns.get('emerald_ex_moves')?.add('description_cs');
+    database.state.history = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => !abilityItemDescriptionMigrations.includes(file)),
+    ]);
+
+    deepStrictEqual(await database.run(), abilityItemDescriptionMigrations);
+    deepStrictEqual(database.state.readFiles, abilityItemDescriptionMigrations);
+    deepStrictEqual(database.state.executedFiles, abilityItemDescriptionMigrations);
+    strictEqual(database.state.columns.get('emerald_ex_abilities')?.has('description_cs'), true);
+    strictEqual(database.state.columns.get('emerald_ex_items')?.has('description_cs'), true);
+    deepStrictEqual(await database.run(), []);
+});
+
+void test('baseline adoption requires both Czech columns and never suppresses the ability/item seed', async () => {
+    for (const existing of [[], ['abilities'], ['items'], ['abilities', 'items']]) {
+        const database = fakeDatabase(true);
+        database.state.history = new Set(
+            migrationFiles.filter((file) => !abilityItemDescriptionMigrations.includes(file)),
+        );
+        for (const table of existing) {
+            database.state.columns.get(`emerald_ex_${table}`)?.add('description_cs');
+        }
+        const pending =
+            existing.length === 2
+                ? ['021_seed_ability_item_descriptions_cs_1.0.4.sql']
+                : abilityItemDescriptionMigrations;
+
+        deepStrictEqual(await database.run(), pending);
+        deepStrictEqual(database.state.readFiles, pending);
+        strictEqual(database.state.history.has('020_ability_item_descriptions_cs.sql'), true);
+        strictEqual(
+            database.state.history.has('021_seed_ability_item_descriptions_cs_1.0.4.sql'),
+            true,
+        );
+    }
+});
+
+void test('a failed ability/item seed retries without reapplying completed Czech columns', async () => {
+    const database = fakeDatabase(true);
+    database.state.history = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => !abilityItemDescriptionMigrations.includes(file)),
+    ]);
+    database.state.failMigration = '021_seed_ability_item_descriptions_cs_1.0.4.sql';
+
+    await rejects(
+        database.run(),
+        /Migration 021_seed_ability_item_descriptions_cs_1.0.4.sql failed/,
+    );
+    strictEqual(database.state.history.has('020_ability_item_descriptions_cs.sql'), true);
+    strictEqual(
+        database.state.history.has('021_seed_ability_item_descriptions_cs_1.0.4.sql'),
+        false,
+    );
+    strictEqual(database.state.columns.get('emerald_ex_abilities')?.has('description_cs'), true);
+    strictEqual(database.state.columns.get('emerald_ex_items')?.has('description_cs'), true);
+    strictEqual(database.state.events.at(-1), 'rollback');
+
+    database.state.failMigration = '';
+    deepStrictEqual(await database.run(), ['021_seed_ability_item_descriptions_cs_1.0.4.sql']);
+    deepStrictEqual(database.state.readFiles, [
+        ...abilityItemDescriptionMigrations,
+        '021_seed_ability_item_descriptions_cs_1.0.4.sql',
     ]);
     deepStrictEqual(database.state.history, new Set(['_baseline', ...migrationFiles]));
 });
@@ -278,6 +371,8 @@ void test('existing tables without source markers still receive their data impor
         '017_move_category_svg_icons.sql',
         '018_move_descriptions_cs.sql',
         '019_seed_move_descriptions_cs_1.0.4.sql',
+        '020_ability_item_descriptions_cs.sql',
+        '021_seed_ability_item_descriptions_cs_1.0.4.sql',
     ];
 
     deepStrictEqual(await database.run(), missingImports);

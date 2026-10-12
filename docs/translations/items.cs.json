@@ -1,0 +1,4146 @@
+{
+    "datasetId": "emerald-ex-1.0.4",
+    "language": "cs",
+    "items": [
+        {
+            "itemId": 0,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 1,
+            "sourceDescription": "A tool used for catching wild Pokémon.",
+            "descriptionCs": "Nástroj k chytání divokých Pokémonů."
+        },
+        {
+            "itemId": 2,
+            "sourceDescription": "A good Ball with a higher catch rate than a Poké Ball.",
+            "descriptionCs": "Dobrý míč s vyšší šancí na chycení než Poké Ball."
+        },
+        {
+            "itemId": 3,
+            "sourceDescription": "A better Ball with a higher catch rate than a Great Ball.",
+            "descriptionCs": "Lepší míč s vyšší šancí na chycení než Great Ball."
+        },
+        {
+            "itemId": 4,
+            "sourceDescription": "The best Ball that catches a Pokémon without fail.",
+            "descriptionCs": "Nejlepší míč, který Pokémona chytí bez selhání."
+        },
+        {
+            "itemId": 5,
+            "sourceDescription": "A rare Ball made in commemoration of some event.",
+            "descriptionCs": "Vzácný míč vyrobený na památku určité události."
+        },
+        {
+            "itemId": 6,
+            "sourceDescription": "A remedial Ball that restores caught Pokémon.",
+            "descriptionCs": "Léčivý míč, který uzdraví chyceného Pokémona."
+        },
+        {
+            "itemId": 7,
+            "sourceDescription": "A Ball that works well on Water- and Bug-type Pokémon.",
+            "descriptionCs": "Míč, který dobře funguje na vodní a hmyzí Pokémony."
+        },
+        {
+            "itemId": 8,
+            "sourceDescription": "A Ball that works better on weaker Pokémon.",
+            "descriptionCs": "Míč, který lépe funguje na slabší Pokémony."
+        },
+        {
+            "itemId": 9,
+            "sourceDescription": "A Ball that works better on Pokémon on the ocean floor.",
+            "descriptionCs": "Míč, který lépe funguje na Pokémony na dně oceánu."
+        },
+        {
+            "itemId": 10,
+            "sourceDescription": "Works well if used in a dark place.",
+            "descriptionCs": "Dobře funguje při použití na tmavém místě."
+        },
+        {
+            "itemId": 11,
+            "sourceDescription": "A Ball that gains power in battles taking many turns.",
+            "descriptionCs": "Míč, jehož účinnost roste v bojích trvajících mnoho kol."
+        },
+        {
+            "itemId": 12,
+            "sourceDescription": "Works well if used on the first turn.",
+            "descriptionCs": "Dobře funguje při použití v prvním kole."
+        },
+        {
+            "itemId": 13,
+            "sourceDescription": "A Ball that works better on Pokémon caught before.",
+            "descriptionCs": "Míč, který lépe funguje na dříve chycené Pokémony."
+        },
+        {
+            "itemId": 14,
+            "sourceDescription": "A cozy Ball that makes Pokémon more friendly.",
+            "descriptionCs": "Útulný míč, díky němuž jsou Pokémoni přátelštější."
+        },
+        {
+            "itemId": 15,
+            "sourceDescription": "A Ball that works well on lower level Pokémon.",
+            "descriptionCs": "Míč, který dobře funguje na Pokémony s nižší úrovní."
+        },
+        {
+            "itemId": 16,
+            "sourceDescription": "A Ball that works well on fished up Pokémon.",
+            "descriptionCs": "Míč, který dobře funguje na vylovené Pokémony."
+        },
+        {
+            "itemId": 17,
+            "sourceDescription": "A Ball that works well on Moon Stone users.",
+            "descriptionCs": "Míč, který dobře funguje na Pokémony používající Moon Stone."
+        },
+        {
+            "itemId": 18,
+            "sourceDescription": "A Ball that makes a Pokémon friendly when caught.",
+            "descriptionCs": "Míč, díky němuž je Pokémon po chycení přátelský."
+        },
+        {
+            "itemId": 19,
+            "sourceDescription": "Works well on Pokémon of the opposite gender.",
+            "descriptionCs": "Dobře funguje na Pokémony opačného pohlaví."
+        },
+        {
+            "itemId": 20,
+            "sourceDescription": "Works well on very fast Pokémon.",
+            "descriptionCs": "Dobře funguje na velmi rychlé Pokémony."
+        },
+        {
+            "itemId": 21,
+            "sourceDescription": "Works well on very heavy Pokémon.",
+            "descriptionCs": "Dobře funguje na velmi těžké Pokémony."
+        },
+        {
+            "itemId": 22,
+            "sourceDescription": "A Ball that works well on sleeping Pokémon.",
+            "descriptionCs": "Míč, který dobře funguje na spící Pokémony."
+        },
+        {
+            "itemId": 23,
+            "sourceDescription": "A special Ball that is used only in the Safari Zone.",
+            "descriptionCs": "Speciální míč používaný pouze v Safari Zone."
+        },
+        {
+            "itemId": 24,
+            "sourceDescription": "A special Ball used in the Bug-Catching Contest.",
+            "descriptionCs": "Speciální míč používaný v soutěži Bug-Catching Contest."
+        },
+        {
+            "itemId": 25,
+            "sourceDescription": "A special Ball for the Pal Park.",
+            "descriptionCs": "Speciální míč pro Pal Park."
+        },
+        {
+            "itemId": 26,
+            "sourceDescription": "A Ball designed to catch Ultra Beasts.",
+            "descriptionCs": "Míč určený k chytání Ultra Beasts."
+        },
+        {
+            "itemId": 27,
+            "sourceDescription": "A rare Ball made in commemoration of some event.",
+            "descriptionCs": "Vzácný míč vyrobený na památku určité události."
+        },
+        {
+            "itemId": 28,
+            "sourceDescription": "Restores the HP of a Pokémon by 20 points.",
+            "descriptionCs": "Obnoví Pokémonovi 20 HP."
+        },
+        {
+            "itemId": 29,
+            "sourceDescription": "Restores the HP of a Pokémon by 60 points.",
+            "descriptionCs": "Obnoví Pokémonovi 60 HP."
+        },
+        {
+            "itemId": 30,
+            "sourceDescription": "Restores the HP of a Pokémon by 120 points.",
+            "descriptionCs": "Obnoví Pokémonovi 120 HP."
+        },
+        {
+            "itemId": 31,
+            "sourceDescription": "Fully restores the HP of a Pokémon.",
+            "descriptionCs": "Plně obnoví Pokémonovi HP."
+        },
+        {
+            "itemId": 32,
+            "sourceDescription": "Fully restores the HP and status of a Pokémon.",
+            "descriptionCs": "Plně obnoví Pokémonovi HP a vyléčí stavové potíže."
+        },
+        {
+            "itemId": 33,
+            "sourceDescription": "Revives a fainted Pokémon with half its HP.",
+            "descriptionCs": "Oživí vyřazeného Pokémona s polovinou HP."
+        },
+        {
+            "itemId": 34,
+            "sourceDescription": "Revives a fainted Pokémon with all its HP.",
+            "descriptionCs": "Oživí vyřazeného Pokémona se všemi HP."
+        },
+        {
+            "itemId": 35,
+            "sourceDescription": "A mineral water that restores HP by 30 points.",
+            "descriptionCs": "Minerální voda, která obnoví 30 HP."
+        },
+        {
+            "itemId": 36,
+            "sourceDescription": "A fizzy soda drink that restores HP by 50 points.",
+            "descriptionCs": "Perlivá limonáda, která obnoví 50 HP."
+        },
+        {
+            "itemId": 37,
+            "sourceDescription": "A very sweet drink that restores HP by 70 points.",
+            "descriptionCs": "Velmi sladký nápoj, který obnoví 70 HP."
+        },
+        {
+            "itemId": 38,
+            "sourceDescription": "A nutritious milk that restores HP by 100 points.",
+            "descriptionCs": "Výživné mléko, které obnoví 100 HP."
+        },
+        {
+            "itemId": 39,
+            "sourceDescription": "A bitter powder that restores HP by 60 points.",
+            "descriptionCs": "Hořký prášek, který obnoví 60 HP."
+        },
+        {
+            "itemId": 40,
+            "sourceDescription": "A bitter root that restores HP by 120 points.",
+            "descriptionCs": "Hořký kořen, který obnoví 120 HP."
+        },
+        {
+            "itemId": 41,
+            "sourceDescription": "A bitter powder that heals all status problems.",
+            "descriptionCs": "Hořký prášek, který vyléčí všechny stavové potíže."
+        },
+        {
+            "itemId": 42,
+            "sourceDescription": "A very bitter herb that revives a fainted Pokémon.",
+            "descriptionCs": "Velmi hořká bylina, která oživí vyřazeného Pokémona."
+        },
+        {
+            "itemId": 43,
+            "sourceDescription": "Heals a poisoned Pokémon.",
+            "descriptionCs": "Vyléčí otráveného Pokémona."
+        },
+        {
+            "itemId": 44,
+            "sourceDescription": "Heals a paralyzed Pokémon.",
+            "descriptionCs": "Vyléčí ochromeného Pokémona."
+        },
+        {
+            "itemId": 45,
+            "sourceDescription": "Heals Pokémon of a burn.",
+            "descriptionCs": "Vyléčí Pokémonovi popálení."
+        },
+        {
+            "itemId": 46,
+            "sourceDescription": "Defrosts a frozen Pokémon.",
+            "descriptionCs": "Rozmrazí zmrazeného Pokémona."
+        },
+        {
+            "itemId": 47,
+            "sourceDescription": "Awakens a sleeping Pokémon.",
+            "descriptionCs": "Probudí spícího Pokémona."
+        },
+        {
+            "itemId": 48,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 49,
+            "sourceDescription": "Restores the PP of a selected move by 10.",
+            "descriptionCs": "Obnoví vybranému útoku 10 PP."
+        },
+        {
+            "itemId": 50,
+            "sourceDescription": "Fully restores the PP of a selected move.",
+            "descriptionCs": "Plně obnoví PP vybraného útoku."
+        },
+        {
+            "itemId": 51,
+            "sourceDescription": "Restores the PP of all moves by 10.",
+            "descriptionCs": "Obnoví všem útokům 10 PP."
+        },
+        {
+            "itemId": 52,
+            "sourceDescription": "Fully restores the PP of a Pokémon’s moves.",
+            "descriptionCs": "Plně obnoví PP všech Pokémonových útoků."
+        },
+        {
+            "itemId": 53,
+            "sourceDescription": "A 100% pure juice that restores HP by 20 points.",
+            "descriptionCs": "Stoprocentně čistá šťáva, která obnoví 20 HP."
+        },
+        {
+            "itemId": 54,
+            "sourceDescription": "Fully revives and restores all fainted Pokémon.",
+            "descriptionCs": "Plně oživí a uzdraví všechny vyřazené Pokémony."
+        },
+        {
+            "itemId": 55,
+            "sourceDescription": "A sweet chocolate that restores HP by 20 points.",
+            "descriptionCs": "Sladká čokoláda, která obnoví 20 HP."
+        },
+        {
+            "itemId": 56,
+            "sourceDescription": "Revives a fainted Pokémon with all its HP.",
+            "descriptionCs": "Oživí vyřazeného Pokémona se všemi HP."
+        },
+        {
+            "itemId": 57,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 58,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 59,
+            "sourceDescription": "A local specialty that heals all status problems.",
+            "descriptionCs": "Místní specialita, která vyléčí všechny stavové potíže."
+        },
+        {
+            "itemId": 60,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 61,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 62,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 63,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 64,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 65,
+            "sourceDescription": "Raises the base HP of one Pokémon.",
+            "descriptionCs": "Zvýší základní HP jednoho Pokémona."
+        },
+        {
+            "itemId": 66,
+            "sourceDescription": "Raises the base Attack stat of one Pokémon.",
+            "descriptionCs": "Zvýší základní útok jednoho Pokémona."
+        },
+        {
+            "itemId": 67,
+            "sourceDescription": "Raises the base Defense stat of one Pokémon.",
+            "descriptionCs": "Zvýší základní obranu jednoho Pokémona."
+        },
+        {
+            "itemId": 68,
+            "sourceDescription": "Raises the base Sp. Atk stat of one Pokémon.",
+            "descriptionCs": "Zvýší základní speciální útok jednoho Pokémona."
+        },
+        {
+            "itemId": 69,
+            "sourceDescription": "Raises the base Sp. Def stat of one Pokémon.",
+            "descriptionCs": "Zvýší základní speciální obranu jednoho Pokémona."
+        },
+        {
+            "itemId": 70,
+            "sourceDescription": "Raises the base Speed stat of one Pokémon.",
+            "descriptionCs": "Zvýší základní rychlost jednoho Pokémona."
+        },
+        {
+            "itemId": 71,
+            "sourceDescription": "Raises the maximum PP of a selected move.",
+            "descriptionCs": "Zvýší maximální PP vybraného útoku."
+        },
+        {
+            "itemId": 72,
+            "sourceDescription": "Raises the PP of a move to its maximum points.",
+            "descriptionCs": "Zvýší PP útoku na nejvyšší možnou hodnotu."
+        },
+        {
+            "itemId": 73,
+            "sourceDescription": "An item that raises the base HP of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní HP."
+        },
+        {
+            "itemId": 74,
+            "sourceDescription": "An item that raises the base Attack of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní útok."
+        },
+        {
+            "itemId": 75,
+            "sourceDescription": "An item that raises the base Defense of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní obranu."
+        },
+        {
+            "itemId": 76,
+            "sourceDescription": "An item that raises the base Sp. Atk. of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní speciální útok."
+        },
+        {
+            "itemId": 77,
+            "sourceDescription": "An item that raises the base Sp. Def. of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní speciální obranu."
+        },
+        {
+            "itemId": 78,
+            "sourceDescription": "An item that raises the base Speed of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní rychlost."
+        },
+        {
+            "itemId": 79,
+            "sourceDescription": "Switches a Poké- mon’s ability.",
+            "descriptionCs": "Změní Pokémonovu schopnost."
+        },
+        {
+            "itemId": 80,
+            "sourceDescription": "Turns the ability of a Pokémon into a rare ability.",
+            "descriptionCs": "Změní Pokémonovu schopnost na vzácnou schopnost."
+        },
+        {
+            "itemId": 81,
+            "sourceDescription": "Can be smelled. It ups Attack, but reduces Defense.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší útok, ale sníží obranu."
+        },
+        {
+            "itemId": 82,
+            "sourceDescription": "Can be smelled. It ups Attack, but reduces Sp. Atk.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší útok, ale sníží speciální útok."
+        },
+        {
+            "itemId": 83,
+            "sourceDescription": "Can be smelled. It ups Attack, but reduces Sp. Def.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší útok, ale sníží speciální obranu."
+        },
+        {
+            "itemId": 84,
+            "sourceDescription": "Can be smelled. It ups Attack, but reduces Speed.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší útok, ale sníží rychlost."
+        },
+        {
+            "itemId": 85,
+            "sourceDescription": "Can be smelled. It ups Defense, but reduces Attack.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší obranu, ale sníží útok."
+        },
+        {
+            "itemId": 86,
+            "sourceDescription": "Can be smelled. It ups Defense, but reduces Sp. Atk.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší obranu, ale sníží speciální útok."
+        },
+        {
+            "itemId": 87,
+            "sourceDescription": "Can be smelled. It ups Defense, but reduces Sp. Def.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší obranu, ale sníží speciální obranu."
+        },
+        {
+            "itemId": 88,
+            "sourceDescription": "Can be smelled. It ups Defense, but reduces Speed.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší obranu, ale sníží rychlost."
+        },
+        {
+            "itemId": 89,
+            "sourceDescription": "Can be smelled. It ups Sp. Atk, but reduces Attack.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální útok, ale sníží útok."
+        },
+        {
+            "itemId": 90,
+            "sourceDescription": "Can be smelled. It ups Sp. Atk, but reduces Defense.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální útok, ale sníží obranu."
+        },
+        {
+            "itemId": 91,
+            "sourceDescription": "Can be smelled. It ups Sp. Atk, but reduces Sp. Def.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální útok, ale sníží speciální obranu."
+        },
+        {
+            "itemId": 92,
+            "sourceDescription": "Can be smelled. It ups Sp. Atk, but reduces Speed.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální útok, ale sníží rychlost."
+        },
+        {
+            "itemId": 93,
+            "sourceDescription": "Can be smelled. It ups Sp. Def, but reduces Attack.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální obranu, ale sníží útok."
+        },
+        {
+            "itemId": 94,
+            "sourceDescription": "Can be smelled. It ups Sp. Def, but reduces Defense.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální obranu, ale sníží obranu."
+        },
+        {
+            "itemId": 95,
+            "sourceDescription": "Can be smelled. It ups Sp. Def, but reduces Sp. Atk.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální obranu, ale sníží speciální útok."
+        },
+        {
+            "itemId": 96,
+            "sourceDescription": "Can be smelled. It ups Sp. Def, but reduces Speed.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší speciální obranu, ale sníží rychlost."
+        },
+        {
+            "itemId": 97,
+            "sourceDescription": "Can be smelled. It ups Speed, but reduces Attack.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší rychlost, ale sníží útok."
+        },
+        {
+            "itemId": 98,
+            "sourceDescription": "Can be smelled. It ups Speed, but reduces Defense.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší rychlost, ale sníží obranu."
+        },
+        {
+            "itemId": 99,
+            "sourceDescription": "Can be smelled. It ups Speed, but reduces Sp. Atk.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší rychlost, ale sníží speciální útok."
+        },
+        {
+            "itemId": 100,
+            "sourceDescription": "Can be smelled. It ups Speed, but reduces Sp. Def.",
+            "descriptionCs": "Lze k ní přivonět. Zvýší rychlost, ale sníží speciální obranu."
+        },
+        {
+            "itemId": 101,
+            "sourceDescription": "Can be smelled. It makes each stat grow equally.",
+            "descriptionCs": "Lze k ní přivonět. Způsobí, že všechny statistiky rostou stejně."
+        },
+        {
+            "itemId": 102,
+            "sourceDescription": "Raises the level of a Pokémon by one.",
+            "descriptionCs": "Zvýší Pokémonovu úroveň o jednu."
+        },
+        {
+            "itemId": 103,
+            "sourceDescription": "Gives a very small amount of Exp. to a single Pokémon.",
+            "descriptionCs": "Dá jednomu Pokémonovi velmi malé množství zkušeností."
+        },
+        {
+            "itemId": 104,
+            "sourceDescription": "Gives a small amount of Exp. to a single Pokémon.",
+            "descriptionCs": "Dá jednomu Pokémonovi malé množství zkušeností."
+        },
+        {
+            "itemId": 105,
+            "sourceDescription": "Gives a moderate amount of Exp. to a single Pokémon.",
+            "descriptionCs": "Dá jednomu Pokémonovi střední množství zkušeností."
+        },
+        {
+            "itemId": 106,
+            "sourceDescription": "Gives a large amount of Exp. to a single Pokémon.",
+            "descriptionCs": "Dá jednomu Pokémonovi velké množství zkušeností."
+        },
+        {
+            "itemId": 107,
+            "sourceDescription": "Gives a very large amount of Exp. to a single Pokémon.",
+            "descriptionCs": "Dá jednomu Pokémonovi velmi velké množství zkušeností."
+        },
+        {
+            "itemId": 108,
+            "sourceDescription": "Raises the Dynamax Level of a single Pokémon by one.",
+            "descriptionCs": "Zvýší jednomu Pokémonovi úroveň Dynamax o jednu."
+        },
+        {
+            "itemId": 109,
+            "sourceDescription": "A glass flute that awakens sleeping Pokémon.",
+            "descriptionCs": "Skleněná flétna, která probudí spící Pokémony."
+        },
+        {
+            "itemId": 110,
+            "sourceDescription": "A glass flute that snaps Pokémon out of confusion.",
+            "descriptionCs": "Skleněná flétna, která zbaví Pokémony zmatení."
+        },
+        {
+            "itemId": 111,
+            "sourceDescription": "A glass flute that snaps Pokémon out of attraction.",
+            "descriptionCs": "Skleněná flétna, která zbaví Pokémony zamilování."
+        },
+        {
+            "itemId": 112,
+            "sourceDescription": "A glass flute that keeps away wild Pokémon.",
+            "descriptionCs": "Skleněná flétna, která odpuzuje divoké Pokémony."
+        },
+        {
+            "itemId": 113,
+            "sourceDescription": "A glass flute that lures wild Pokémon.",
+            "descriptionCs": "Skleněná flétna, která přiláká divoké Pokémony."
+        },
+        {
+            "itemId": 114,
+            "sourceDescription": "Repels weak wild Pokémon for 100 steps.",
+            "descriptionCs": "Odpuzuje slabé divoké Pokémony po dobu 100 kroků."
+        },
+        {
+            "itemId": 115,
+            "sourceDescription": "Repels weak wild Pokémon for 200 steps.",
+            "descriptionCs": "Odpuzuje slabé divoké Pokémony po dobu 200 kroků."
+        },
+        {
+            "itemId": 116,
+            "sourceDescription": "Repels weak wild Pokémon for 250 steps.",
+            "descriptionCs": "Odpuzuje slabé divoké Pokémony po dobu 250 kroků."
+        },
+        {
+            "itemId": 117,
+            "sourceDescription": "Makes Pokémon more likely to appear for 100 steps.",
+            "descriptionCs": "Zvýší šanci na výskyt Pokémonů po dobu 100 kroků."
+        },
+        {
+            "itemId": 118,
+            "sourceDescription": "Makes Pokémon more likely to appear for 200 steps.",
+            "descriptionCs": "Zvýší šanci na výskyt Pokémonů po dobu 200 kroků."
+        },
+        {
+            "itemId": 119,
+            "sourceDescription": "Makes Pokémon more likely to appear for 250 steps.",
+            "descriptionCs": "Zvýší šanci na výskyt Pokémonů po dobu 250 kroků."
+        },
+        {
+            "itemId": 120,
+            "sourceDescription": "Use to escape instantly from a cave or a dungeon.",
+            "descriptionCs": "Umožní okamžitě uniknout z jeskyně nebo podzemí."
+        },
+        {
+            "itemId": 121,
+            "sourceDescription": "Sharply raises stat Attack during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší útok."
+        },
+        {
+            "itemId": 122,
+            "sourceDescription": "Sharply raises stat Defense during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší obranu."
+        },
+        {
+            "itemId": 123,
+            "sourceDescription": "Sharply raises stat Sp. Atk during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší speciální útok."
+        },
+        {
+            "itemId": 124,
+            "sourceDescription": "Sharply raises stat Sp. Def during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší speciální obranu."
+        },
+        {
+            "itemId": 125,
+            "sourceDescription": "Sharply raises stat Speed during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší rychlost."
+        },
+        {
+            "itemId": 126,
+            "sourceDescription": "Sharply raises move accuracy during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší přesnost útoků."
+        },
+        {
+            "itemId": 127,
+            "sourceDescription": "Raises the critical-hit ratio during one battle.",
+            "descriptionCs": "Během jednoho boje zvýší šanci na kritický zásah."
+        },
+        {
+            "itemId": 128,
+            "sourceDescription": "Prevents stat reduction when used in battle.",
+            "descriptionCs": "Při použití v boji zabrání snížení statistik."
+        },
+        {
+            "itemId": 129,
+            "sourceDescription": "Use to flee from any battle with a wild Pokémon.",
+            "descriptionCs": "Umožní uniknout z jakéhokoli boje s divokým Pokémonem."
+        },
+        {
+            "itemId": 130,
+            "sourceDescription": "Use to flee from any battle with a wild Pokémon.",
+            "descriptionCs": "Umožní uniknout z jakéhokoli boje s divokým Pokémonem."
+        },
+        {
+            "itemId": 131,
+            "sourceDescription": "Use to flee from any battle with a wild Pokémon.",
+            "descriptionCs": "Umožní uniknout z jakéhokoli boje s divokým Pokémonem."
+        },
+        {
+            "itemId": 132,
+            "sourceDescription": "Raises every stat during one battle by one stage.",
+            "descriptionCs": "Během jednoho boje zvýší každou statistiku o jeden stupeň."
+        },
+        {
+            "itemId": 133,
+            "sourceDescription": "A beautiful bottle cap that gives off a silver gleam.",
+            "descriptionCs": "Krásné víčko od láhve se stříbrným leskem."
+        },
+        {
+            "itemId": 134,
+            "sourceDescription": "A beautiful bottle cap that gives off a golden gleam.",
+            "descriptionCs": "Krásné víčko od láhve se zlatým leskem."
+        },
+        {
+            "itemId": 135,
+            "sourceDescription": "A nugget of pure gold. Can be sold at a high price.",
+            "descriptionCs": "Valounek ryzího zlata. Lze jej prodat za vysokou cenu."
+        },
+        {
+            "itemId": 136,
+            "sourceDescription": "A big nugget made of gold, sellable at a high price.",
+            "descriptionCs": "Velký zlatý valounek, který lze prodat za vysokou cenu."
+        },
+        {
+            "itemId": 137,
+            "sourceDescription": "A plain mushroom that would sell at a cheap price.",
+            "descriptionCs": "Obyčejná houba, kterou lze prodat za nízkou cenu."
+        },
+        {
+            "itemId": 138,
+            "sourceDescription": "A rare mushroom that would sell at a high price.",
+            "descriptionCs": "Vzácná houba, kterou lze prodat za vysokou cenu."
+        },
+        {
+            "itemId": 139,
+            "sourceDescription": "A rare mushroom that would sell at a high price.",
+            "descriptionCs": "Vzácná houba, kterou lze prodat za vysokou cenu."
+        },
+        {
+            "itemId": 140,
+            "sourceDescription": "A pretty pearl that would sell at a cheap price.",
+            "descriptionCs": "Pěkná perla, kterou lze prodat za nízkou cenu."
+        },
+        {
+            "itemId": 141,
+            "sourceDescription": "A lovely large pearl that would sell at a high price.",
+            "descriptionCs": "Krásná velká perla, kterou lze prodat za vysokou cenu."
+        },
+        {
+            "itemId": 142,
+            "sourceDescription": "Very large pearls that would sell at a high price.",
+            "descriptionCs": "Velmi velké perly, které lze prodat za vysokou cenu."
+        },
+        {
+            "itemId": 143,
+            "sourceDescription": "Beautiful red sand. Can be sold at a high price.",
+            "descriptionCs": "Krásný červený písek. Lze jej prodat za vysokou cenu."
+        },
+        {
+            "itemId": 144,
+            "sourceDescription": "A red gem shard. It would sell for a very high price.",
+            "descriptionCs": "Úlomek červeného drahokamu. Lze jej prodat za velmi vysokou cenu."
+        },
+        {
+            "itemId": 145,
+            "sourceDescription": "A comet’s shard. It would sell for a high price.",
+            "descriptionCs": "Úlomek komety. Lze jej prodat za vysokou cenu."
+        },
+        {
+            "itemId": 146,
+            "sourceDescription": "Salt obtained from deep inside the Shoal Cave.",
+            "descriptionCs": "Sůl získaná z hlubin jeskyně Shoal Cave."
+        },
+        {
+            "itemId": 147,
+            "sourceDescription": "A seashell found deep inside the Shoal Cave.",
+            "descriptionCs": "Mušle nalezená hluboko v jeskyni Shoal Cave."
+        },
+        {
+            "itemId": 148,
+            "sourceDescription": "A shard from an ancient item. Can be sold cheaply.",
+            "descriptionCs": "Úlomek starobylého předmětu. Lze jej levně prodat."
+        },
+        {
+            "itemId": 149,
+            "sourceDescription": "A shard from an ancient item. Can be sold cheaply.",
+            "descriptionCs": "Úlomek starobylého předmětu. Lze jej levně prodat."
+        },
+        {
+            "itemId": 150,
+            "sourceDescription": "A shard from an ancient item. Can be sold cheaply.",
+            "descriptionCs": "Úlomek starobylého předmětu. Lze jej levně prodat."
+        },
+        {
+            "itemId": 151,
+            "sourceDescription": "A shard from an ancient item. Can be sold cheaply.",
+            "descriptionCs": "Úlomek starobylého předmětu. Lze jej levně prodat."
+        },
+        {
+            "itemId": 152,
+            "sourceDescription": "A lovely scale. It is coveted by collectors.",
+            "descriptionCs": "Krásná šupina, po které touží sběratelé."
+        },
+        {
+            "itemId": 153,
+            "sourceDescription": "Sweet honey that attracts wild Pokémon when used.",
+            "descriptionCs": "Sladký med, který při použití přiláká divoké Pokémony."
+        },
+        {
+            "itemId": 154,
+            "sourceDescription": "A very rare bone. It can be sold at a high price.",
+            "descriptionCs": "Velmi vzácná kost. Lze ji prodat za vysokou cenu."
+        },
+        {
+            "itemId": 155,
+            "sourceDescription": "Voices can be heard from this odd stone occasionally.",
+            "descriptionCs": "Z tohoto podivného kamene se občas ozývají hlasy."
+        },
+        {
+            "itemId": 156,
+            "sourceDescription": "A beautiful yet plain feather that does nothing.",
+            "descriptionCs": "Krásné, ale obyčejné pero, které nemá žádný účinek."
+        },
+        {
+            "itemId": 157,
+            "sourceDescription": "A copper coin used long ago. It sells at a high price.",
+            "descriptionCs": "Měděná mince používaná v dávných dobách. Lze ji prodat za vysokou cenu."
+        },
+        {
+            "itemId": 158,
+            "sourceDescription": "A silver coin used long ago. It sells at a high price.",
+            "descriptionCs": "Stříbrná mince používaná v dávných dobách. Lze ji prodat za vysokou cenu."
+        },
+        {
+            "itemId": 159,
+            "sourceDescription": "A gold coin used long ago. It sells at a high price.",
+            "descriptionCs": "Zlatá mince používaná v dávných dobách. Lze ji prodat za vysokou cenu."
+        },
+        {
+            "itemId": 160,
+            "sourceDescription": "A vase made long ago. It sells at a high price.",
+            "descriptionCs": "Váza vyrobená v dávných dobách. Lze ji prodat za vysokou cenu."
+        },
+        {
+            "itemId": 161,
+            "sourceDescription": "An old bracelet. It sells at a high price.",
+            "descriptionCs": "Starý náramek. Lze jej prodat za vysokou cenu."
+        },
+        {
+            "itemId": 162,
+            "sourceDescription": "An old statue. It sells at a high price.",
+            "descriptionCs": "Stará socha. Lze ji prodat za vysokou cenu."
+        },
+        {
+            "itemId": 163,
+            "sourceDescription": "An old crown. It sells at a high price.",
+            "descriptionCs": "Stará koruna. Lze ji prodat za vysokou cenu."
+        },
+        {
+            "itemId": 164,
+            "sourceDescription": "An ornament that depicts a Pokémon from Alola.",
+            "descriptionCs": "Ozdoba zobrazující Pokémona z Aloly."
+        },
+        {
+            "itemId": 165,
+            "sourceDescription": "A piece of an ancient marine Pokémon’s seashell.",
+            "descriptionCs": "Kus lastury dávného mořského Pokémona."
+        },
+        {
+            "itemId": 166,
+            "sourceDescription": "A piece of an ancient marine Pokémon’s shell.",
+            "descriptionCs": "Kus krunýře dávného mořského Pokémona."
+        },
+        {
+            "itemId": 167,
+            "sourceDescription": "A stone containing the genes of an ancient Pokémon.",
+            "descriptionCs": "Kámen obsahující geny dávného Pokémona."
+        },
+        {
+            "itemId": 168,
+            "sourceDescription": "A fossil of an ancient, seafloor- dwelling Pokémon.",
+            "descriptionCs": "Fosilie dávného Pokémona žijícího na mořském dně."
+        },
+        {
+            "itemId": 169,
+            "sourceDescription": "A fossil of an ancient, seafloor- dwelling Pokémon.",
+            "descriptionCs": "Fosilie dávného Pokémona žijícího na mořském dně."
+        },
+        {
+            "itemId": 170,
+            "sourceDescription": "A piece of a prehistoric Poké- mon’s head.",
+            "descriptionCs": "Kus hlavy pravěkého Pokémona."
+        },
+        {
+            "itemId": 171,
+            "sourceDescription": "A piece of a prehistoric Poké- mon’s collar.",
+            "descriptionCs": "Kus krčního límce pravěkého Pokémona."
+        },
+        {
+            "itemId": 172,
+            "sourceDescription": "A piece of a prehistoric Poké- mon’s back.",
+            "descriptionCs": "Kus hřbetu pravěkého Pokémona."
+        },
+        {
+            "itemId": 173,
+            "sourceDescription": "A piece of a prehistoric Poké- mon’s wing.",
+            "descriptionCs": "Kus křídla pravěkého Pokémona."
+        },
+        {
+            "itemId": 174,
+            "sourceDescription": "A piece of a prehis- toric Pokémon’s large jaw.",
+            "descriptionCs": "Kus velké čelisti pravěkého Pokémona."
+        },
+        {
+            "itemId": 175,
+            "sourceDescription": "A piece of a prehis- toric Pokémon’s skin sail.",
+            "descriptionCs": "Kus kožní plachty pravěkého Pokémona."
+        },
+        {
+            "itemId": 176,
+            "sourceDescription": "A fossil of an ancient, sky- soaring Pokémon.",
+            "descriptionCs": "Fosilie dávného Pokémona plachtícího po obloze."
+        },
+        {
+            "itemId": 177,
+            "sourceDescription": "A fossil of an ancient, sea- dwelling Pokémon.",
+            "descriptionCs": "Fosilie dávného Pokémona žijícího v moři."
+        },
+        {
+            "itemId": 178,
+            "sourceDescription": "A fossil of an ancient, land- roaming Pokémon.",
+            "descriptionCs": "Fosilie dávného Pokémona žijícího na souši."
+        },
+        {
+            "itemId": 179,
+            "sourceDescription": "A fossil of an ancient, sea- dwelling Pokémon.",
+            "descriptionCs": "Fosilie dávného Pokémona žijícího v moři."
+        },
+        {
+            "itemId": 180,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 181,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 182,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 183,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 184,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 185,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 186,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 187,
+            "sourceDescription": "A fertilizer that is unsuitable for local soil.",
+            "descriptionCs": "Hnojivo nevhodné pro místní půdu."
+        },
+        {
+            "itemId": 188,
+            "sourceDescription": "A red apricorn. It assails your nostrils.",
+            "descriptionCs": "Červený apricorn. Jeho vůně dráždí nos."
+        },
+        {
+            "itemId": 189,
+            "sourceDescription": "A blue apricorn. It smells a bit like grass.",
+            "descriptionCs": "Modrý apricorn. Trochu voní po trávě."
+        },
+        {
+            "itemId": 190,
+            "sourceDescription": "A yellow apricorn. It has an invigor- ating scent.",
+            "descriptionCs": "Žlutý apricorn. Má povzbuzující vůni."
+        },
+        {
+            "itemId": 191,
+            "sourceDescription": "A green apricorn. It has a strange, aromatic scent.",
+            "descriptionCs": "Zelený apricorn. Má zvláštní aromatickou vůni."
+        },
+        {
+            "itemId": 192,
+            "sourceDescription": "A pink apricorn. It has a nice, sweet scent.",
+            "descriptionCs": "Růžový apricorn. Má příjemnou sladkou vůni."
+        },
+        {
+            "itemId": 193,
+            "sourceDescription": "A white apricorn. It doesn’t smell like anything.",
+            "descriptionCs": "Bílý apricorn. Nemá žádnou vůni."
+        },
+        {
+            "itemId": 194,
+            "sourceDescription": "A black apricorn. It has an inde- scribable scent.",
+            "descriptionCs": "Černý apricorn. Má nepopsatelnou vůni."
+        },
+        {
+            "itemId": 195,
+            "sourceDescription": "Throw into a Pokémon Den to attract Dynamax Pokémon.",
+            "descriptionCs": "Vhoďte do Pokémon Den, abyste přilákali Pokémony Dynamax."
+        },
+        {
+            "itemId": 196,
+            "sourceDescription": "A twig from a tree in Galar called Galarica.",
+            "descriptionCs": "Větvička ze stromu zvaného Galarica, který roste v Galaru."
+        },
+        {
+            "itemId": 197,
+            "sourceDescription": "A rare ore. Can be found in the Isle of Armor at Galar.",
+            "descriptionCs": "Vzácná ruda. Lze ji najít na Isle of Armor v Galaru."
+        },
+        {
+            "itemId": 198,
+            "sourceDescription": "A mysterious ore. It can be found in Galar’s Max Lair.",
+            "descriptionCs": "Záhadná ruda. Lze ji najít v Max Lair v Galaru."
+        },
+        {
+            "itemId": 199,
+            "sourceDescription": "A Zigzagoon-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Zigzagoon, který může Pokémon držet."
+        },
+        {
+            "itemId": 200,
+            "sourceDescription": "A Wingull-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Wingull, který může Pokémon držet."
+        },
+        {
+            "itemId": 201,
+            "sourceDescription": "A Pikachu-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Pikachu, který může Pokémon držet."
+        },
+        {
+            "itemId": 202,
+            "sourceDescription": "A Magnemite-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Magnemite, který může Pokémon držet."
+        },
+        {
+            "itemId": 203,
+            "sourceDescription": "A Slakoth-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Slakoth, který může Pokémon držet."
+        },
+        {
+            "itemId": 204,
+            "sourceDescription": "A Wailmer-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Wailmer, který může Pokémon držet."
+        },
+        {
+            "itemId": 205,
+            "sourceDescription": "Mail featuring a sketch of the holding Pokémon.",
+            "descriptionCs": "Dopis s kresbou Pokémona, který jej drží."
+        },
+        {
+            "itemId": 206,
+            "sourceDescription": "A Duskull-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Duskull, který může Pokémon držet."
+        },
+        {
+            "itemId": 207,
+            "sourceDescription": "A Bellossom-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s motivem Pokémona Bellossom, který může Pokémon držet."
+        },
+        {
+            "itemId": 208,
+            "sourceDescription": "Mail featuring a sketch of the holding Pokémon.",
+            "descriptionCs": "Dopis s kresbou Pokémona, který jej drží."
+        },
+        {
+            "itemId": 209,
+            "sourceDescription": "A gorgeous-print Mail to be held by a Pokémon.",
+            "descriptionCs": "Dopis s nádherným vzorem, který může Pokémon držet."
+        },
+        {
+            "itemId": 210,
+            "sourceDescription": "Mail featuring the drawings of three Pokémon.",
+            "descriptionCs": "Dopis s kresbami tří Pokémonů."
+        },
+        {
+            "itemId": 211,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 212,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 213,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 214,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 215,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 216,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 217,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 218,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 219,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 220,
+            "sourceDescription": "Makes certain species of Pokémon evolve.",
+            "descriptionCs": "Vyvolá evoluci určitých druhů Pokémonů."
+        },
+        {
+            "itemId": 221,
+            "sourceDescription": "A very sweet apple that makes certain Pokémon evolve.",
+            "descriptionCs": "Velmi sladké jablko, které vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 222,
+            "sourceDescription": "A very tart apple that makes certain Pokémon evolve.",
+            "descriptionCs": "Velmi kyselé jablko, které vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 223,
+            "sourceDescription": "A cracked teapot that makes certain Pokémon evolve.",
+            "descriptionCs": "Prasklá konvice, která vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 224,
+            "sourceDescription": "A chipped teapot that makes certain Pokémon evolve.",
+            "descriptionCs": "Otlučená konvice, která vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 225,
+            "sourceDescription": "A cuff from Galar that makes certain Pokémon evolve.",
+            "descriptionCs": "Náramek z Galaru, který vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 226,
+            "sourceDescription": "A wreath made in Galar. Makes some Pokémon evolve.",
+            "descriptionCs": "Věnec vyrobený v Galaru. Vyvolá evoluci některých Pokémonů."
+        },
+        {
+            "itemId": 227,
+            "sourceDescription": "A strange scale held by Dragon- type Pokémon.",
+            "descriptionCs": "Zvláštní šupina, kterou drží dračí Pokémoni."
+        },
+        {
+            "itemId": 228,
+            "sourceDescription": "A peculiar box made by Silph Co.",
+            "descriptionCs": "Neobvyklá krabička vyrobená společností Silph Co."
+        },
+        {
+            "itemId": 229,
+            "sourceDescription": "Loved by a certain Pokémon. It’s stiff and heavy.",
+            "descriptionCs": "Má ji rád určitý Pokémon. Je pevná a těžká."
+        },
+        {
+            "itemId": 230,
+            "sourceDescription": "Loved by a certain Pokémon. It’s full of electric energy.",
+            "descriptionCs": "Má ji rád určitý Pokémon. Je plná elektrické energie."
+        },
+        {
+            "itemId": 231,
+            "sourceDescription": "Loved by a certain Pokémon. It’s full of magma energy.",
+            "descriptionCs": "Má ji rád určitý Pokémon. Je plná energie magmatu."
+        },
+        {
+            "itemId": 232,
+            "sourceDescription": "A transparent device overflowing with dubious data.",
+            "descriptionCs": "Průhledné zařízení překypující pochybnými daty."
+        },
+        {
+            "itemId": 233,
+            "sourceDescription": "Loved by a certain Pokémon. Imbued with spiritual energy.",
+            "descriptionCs": "Má ji rád určitý Pokémon. Je prodchnutá duchovní energií."
+        },
+        {
+            "itemId": 234,
+            "sourceDescription": "A mysterious scale that evolves certain Pokémon. It shines.",
+            "descriptionCs": "Záhadná šupina, která vyvolá evoluci určitých Pokémonů. Leskne se."
+        },
+        {
+            "itemId": 235,
+            "sourceDescription": "A soft and sweet treat loved by a certain Pokémon.",
+            "descriptionCs": "Měkká sladká pochoutka, kterou má rád určitý Pokémon."
+        },
+        {
+            "itemId": 236,
+            "sourceDescription": "A sachet filled with perfumes loved by a certain Pokémon.",
+            "descriptionCs": "Sáček naplněný parfémy, které má rád určitý Pokémon."
+        },
+        {
+            "itemId": 237,
+            "sourceDescription": "Makes a certain Pokémon evolve. It’s shaped like an egg.",
+            "descriptionCs": "Vyvolá evoluci určitého Pokémona. Má tvar vejce."
+        },
+        {
+            "itemId": 238,
+            "sourceDescription": "Strawberry-shaped sweet loved by Milcery.",
+            "descriptionCs": "Sladkost ve tvaru jahody, kterou má rád Milcery."
+        },
+        {
+            "itemId": 239,
+            "sourceDescription": "A heart-shaped sweet loved by Milcery.",
+            "descriptionCs": "Sladkost ve tvaru srdce, kterou má rád Milcery."
+        },
+        {
+            "itemId": 240,
+            "sourceDescription": "A berry-shaped sweet loved by Milcery.",
+            "descriptionCs": "Sladkost ve tvaru bobule, kterou má rád Milcery."
+        },
+        {
+            "itemId": 241,
+            "sourceDescription": "A clover-shaped sweet loved by Milcery.",
+            "descriptionCs": "Sladkost ve tvaru jetele, kterou má rád Milcery."
+        },
+        {
+            "itemId": 242,
+            "sourceDescription": "A flower-shaped sweet loved by Milcery.",
+            "descriptionCs": "Sladkost ve tvaru květiny, kterou má rád Milcery."
+        },
+        {
+            "itemId": 243,
+            "sourceDescription": "A star-shaped sweet loved by Milcery.",
+            "descriptionCs": "Sladkost ve tvaru hvězdy, kterou má rád Milcery."
+        },
+        {
+            "itemId": 244,
+            "sourceDescription": "A ribbon-shaped sweet loved by Milcery.",
+            "descriptionCs": "Sladkost ve tvaru stuhy, kterou má rád Milcery."
+        },
+        {
+            "itemId": 245,
+            "sourceDescription": "A wondrous hold item that prevents evolution.",
+            "descriptionCs": "Podivuhodný držený předmět, který brání evoluci."
+        },
+        {
+            "itemId": 246,
+            "sourceDescription": "Flower nectar that changes the form of certain Pokémon.",
+            "descriptionCs": "Květinový nektar, který změní podobu určitých Pokémonů."
+        },
+        {
+            "itemId": 247,
+            "sourceDescription": "Flower nectar that changes the form of certain Pokémon.",
+            "descriptionCs": "Květinový nektar, který změní podobu určitých Pokémonů."
+        },
+        {
+            "itemId": 248,
+            "sourceDescription": "Flower nectar that changes the form of certain Pokémon.",
+            "descriptionCs": "Květinový nektar, který změní podobu určitých Pokémonů."
+        },
+        {
+            "itemId": 249,
+            "sourceDescription": "Flower nectar that changes the form of certain Pokémon.",
+            "descriptionCs": "Květinový nektar, který změní podobu určitých Pokémonů."
+        },
+        {
+            "itemId": 250,
+            "sourceDescription": "A tablet that ups the power of Fire-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků ohnivého typu."
+        },
+        {
+            "itemId": 251,
+            "sourceDescription": "A tablet that ups the power of Water-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků vodního typu."
+        },
+        {
+            "itemId": 252,
+            "sourceDescription": "A tablet that ups the power of Elec- tric-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků elektrického typu."
+        },
+        {
+            "itemId": 253,
+            "sourceDescription": "A tablet that ups the power of Grass-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků travního typu."
+        },
+        {
+            "itemId": 254,
+            "sourceDescription": "A tablet that ups the power of Ice-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků ledového typu."
+        },
+        {
+            "itemId": 255,
+            "sourceDescription": "A tablet that ups the power of Fight- ing-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků bojového typu."
+        },
+        {
+            "itemId": 256,
+            "sourceDescription": "A tablet that ups the power of Poison-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků jedového typu."
+        },
+        {
+            "itemId": 257,
+            "sourceDescription": "A tablet that ups the power of Ground-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků zemního typu."
+        },
+        {
+            "itemId": 258,
+            "sourceDescription": "A tablet that ups the power of Flying-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků létajícího typu."
+        },
+        {
+            "itemId": 259,
+            "sourceDescription": "A tablet that ups the power of Psy chic-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků psychického typu."
+        },
+        {
+            "itemId": 260,
+            "sourceDescription": "A tablet that ups the power of Bug-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků hmyzího typu."
+        },
+        {
+            "itemId": 261,
+            "sourceDescription": "A tablet that ups the power of Rock-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků kamenného typu."
+        },
+        {
+            "itemId": 262,
+            "sourceDescription": "A tablet that ups the power of Ghost-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků duchového typu."
+        },
+        {
+            "itemId": 263,
+            "sourceDescription": "A tablet that ups the power of Dragon-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků dračího typu."
+        },
+        {
+            "itemId": 264,
+            "sourceDescription": "A tablet that ups the power of Dark-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků temného typu."
+        },
+        {
+            "itemId": 265,
+            "sourceDescription": "A tablet that ups the power of Steel-type moves.",
+            "descriptionCs": "Destička, která zvýší sílu útoků ocelového typu."
+        },
+        {
+            "itemId": 266,
+            "sourceDescription": "A stone tablet that boosts the power of Fairy-type moves.",
+            "descriptionCs": "Kamenná destička, která zvýší sílu vílích útoků."
+        },
+        {
+            "itemId": 267,
+            "sourceDescription": "Changes Genesect’s Techno Blast to Water-type.",
+            "descriptionCs": "Změní útok Techno Blast Pokémona Genesect na vodní typ."
+        },
+        {
+            "itemId": 268,
+            "sourceDescription": "Changes Genesect’s Techno Blast to Electric-type.",
+            "descriptionCs": "Změní útok Techno Blast Pokémona Genesect na elektrický typ."
+        },
+        {
+            "itemId": 269,
+            "sourceDescription": "Changes Genesect’s Techno Blast to Fire-type.",
+            "descriptionCs": "Změní útok Techno Blast Pokémona Genesect na ohnivý typ."
+        },
+        {
+            "itemId": 270,
+            "sourceDescription": "Changes Genesect’s Techno Blast to Ice-type.",
+            "descriptionCs": "Změní útok Techno Blast Pokémona Genesect na ledový typ."
+        },
+        {
+            "itemId": 271,
+            "sourceDescription": "A disc with Fire type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty ohnivého typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 272,
+            "sourceDescription": "A disc with Water type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty vodního typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 273,
+            "sourceDescription": "A disc with Electric type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty elektrického typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 274,
+            "sourceDescription": "A disc with Grass type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty travního typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 275,
+            "sourceDescription": "A disc with Ice type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty ledového typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 276,
+            "sourceDescription": "A disc with Fighting type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty bojového typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 277,
+            "sourceDescription": "A disc with Poison type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty jedového typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 278,
+            "sourceDescription": "A disc with Ground type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty zemního typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 279,
+            "sourceDescription": "A disc with Flying type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty létajícího typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 280,
+            "sourceDescription": "A disc with Psychic type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty psychického typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 281,
+            "sourceDescription": "A disc with Bug type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty hmyzího typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 282,
+            "sourceDescription": "A disc with Rock type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty kamenného typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 283,
+            "sourceDescription": "A disc with Ghost type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty duchového typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 284,
+            "sourceDescription": "A disc with Dragon type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty dračího typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 285,
+            "sourceDescription": "A disc with Dark type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty temného typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 286,
+            "sourceDescription": "A disc with Steel type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty ocelového typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 287,
+            "sourceDescription": "A disc with Fairy type data. It swaps Silvally’s type.",
+            "descriptionCs": "Disk s daty vílího typu. Změní typ Pokémona Silvally."
+        },
+        {
+            "itemId": 288,
+            "sourceDescription": "A rusty sword. A hero used it to halt a disaster.",
+            "descriptionCs": "Rezavý meč. Hrdina jej použil k odvrácení katastrofy."
+        },
+        {
+            "itemId": 289,
+            "sourceDescription": "A rusty shield. A hero used it to halt a disaster.",
+            "descriptionCs": "Rezavý štít. Hrdina jej použil k odvrácení katastrofy."
+        },
+        {
+            "itemId": 290,
+            "sourceDescription": "A red, glowing orb said to contain an ancient power.",
+            "descriptionCs": "Červená zářící koule, která prý obsahuje dávnou sílu."
+        },
+        {
+            "itemId": 291,
+            "sourceDescription": "A blue, glowing orb said to contain an ancient power.",
+            "descriptionCs": "Modrá zářící koule, která prý obsahuje dávnou sílu."
+        },
+        {
+            "itemId": 292,
+            "sourceDescription": "This stone enables Venusaur to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Venusaur během boje Mega evoluci."
+        },
+        {
+            "itemId": 293,
+            "sourceDescription": "This stone enables Charizard to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Charizard během boje Mega evoluci."
+        },
+        {
+            "itemId": 294,
+            "sourceDescription": "This stone enables Charizard to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Charizard během boje Mega evoluci."
+        },
+        {
+            "itemId": 295,
+            "sourceDescription": "This stone enables Blastoise to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Blastoise během boje Mega evoluci."
+        },
+        {
+            "itemId": 296,
+            "sourceDescription": "This stone enables Beedrill to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Beedrill během boje Mega evoluci."
+        },
+        {
+            "itemId": 297,
+            "sourceDescription": "This stone enables Pidgeot to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Pidgeot během boje Mega evoluci."
+        },
+        {
+            "itemId": 298,
+            "sourceDescription": "This stone enables Alakazam to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Alakazam během boje Mega evoluci."
+        },
+        {
+            "itemId": 299,
+            "sourceDescription": "This stone enables Slowbro to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Slowbro během boje Mega evoluci."
+        },
+        {
+            "itemId": 300,
+            "sourceDescription": "This stone enables Gengar to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Gengar během boje Mega evoluci."
+        },
+        {
+            "itemId": 301,
+            "sourceDescription": "This stone enables Kangaskhan to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Kangaskhan během boje Mega evoluci."
+        },
+        {
+            "itemId": 302,
+            "sourceDescription": "This stone enables Pinsir to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Pinsir během boje Mega evoluci."
+        },
+        {
+            "itemId": 303,
+            "sourceDescription": "This stone enables Gyarados to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Gyarados během boje Mega evoluci."
+        },
+        {
+            "itemId": 304,
+            "sourceDescription": "This stone enables Aerodactyl to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Aerodactyl během boje Mega evoluci."
+        },
+        {
+            "itemId": 305,
+            "sourceDescription": "This stone enables Mewtwo to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Mewtwo během boje Mega evoluci."
+        },
+        {
+            "itemId": 306,
+            "sourceDescription": "This stone enables Mewtwo to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Mewtwo během boje Mega evoluci."
+        },
+        {
+            "itemId": 307,
+            "sourceDescription": "This stone enables Ampharos to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Ampharos během boje Mega evoluci."
+        },
+        {
+            "itemId": 308,
+            "sourceDescription": "This stone enables Steelix to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Steelix během boje Mega evoluci."
+        },
+        {
+            "itemId": 309,
+            "sourceDescription": "This stone enables Scizor to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Scizor během boje Mega evoluci."
+        },
+        {
+            "itemId": 310,
+            "sourceDescription": "This stone enables Heracross to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Heracross během boje Mega evoluci."
+        },
+        {
+            "itemId": 311,
+            "sourceDescription": "This stone enables Houndoom to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Houndoom během boje Mega evoluci."
+        },
+        {
+            "itemId": 312,
+            "sourceDescription": "This stone enables Tyranitar to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Tyranitar během boje Mega evoluci."
+        },
+        {
+            "itemId": 313,
+            "sourceDescription": "This stone enables Sceptile to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Sceptile během boje Mega evoluci."
+        },
+        {
+            "itemId": 314,
+            "sourceDescription": "This stone enables Blaziken to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Blaziken během boje Mega evoluci."
+        },
+        {
+            "itemId": 315,
+            "sourceDescription": "This stone enables Swampert to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Swampert během boje Mega evoluci."
+        },
+        {
+            "itemId": 316,
+            "sourceDescription": "This stone enables Gardevoir to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Gardevoir během boje Mega evoluci."
+        },
+        {
+            "itemId": 317,
+            "sourceDescription": "This stone enables Sableye to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Sableye během boje Mega evoluci."
+        },
+        {
+            "itemId": 318,
+            "sourceDescription": "This stone enables Mawile to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Mawile během boje Mega evoluci."
+        },
+        {
+            "itemId": 319,
+            "sourceDescription": "This stone enables Aggron to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Aggron během boje Mega evoluci."
+        },
+        {
+            "itemId": 320,
+            "sourceDescription": "This stone enables Medicham to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Medicham během boje Mega evoluci."
+        },
+        {
+            "itemId": 321,
+            "sourceDescription": "This stone enables Manectric to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Manectric během boje Mega evoluci."
+        },
+        {
+            "itemId": 322,
+            "sourceDescription": "This stone enables Sharpedo to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Sharpedo během boje Mega evoluci."
+        },
+        {
+            "itemId": 323,
+            "sourceDescription": "This stone enables Camerupt to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Camerupt během boje Mega evoluci."
+        },
+        {
+            "itemId": 324,
+            "sourceDescription": "This stone enables Altaria to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Altaria během boje Mega evoluci."
+        },
+        {
+            "itemId": 325,
+            "sourceDescription": "This stone enables Banette to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Banette během boje Mega evoluci."
+        },
+        {
+            "itemId": 326,
+            "sourceDescription": "This stone enables Absol to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Absol během boje Mega evoluci."
+        },
+        {
+            "itemId": 327,
+            "sourceDescription": "This stone enables Glalie to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Glalie během boje Mega evoluci."
+        },
+        {
+            "itemId": 328,
+            "sourceDescription": "This stone enables Salamence to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Salamence během boje Mega evoluci."
+        },
+        {
+            "itemId": 329,
+            "sourceDescription": "This stone enables Metagross to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Metagross během boje Mega evoluci."
+        },
+        {
+            "itemId": 330,
+            "sourceDescription": "This stone enables Latias to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Latias během boje Mega evoluci."
+        },
+        {
+            "itemId": 331,
+            "sourceDescription": "This stone enables Latios to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Latios během boje Mega evoluci."
+        },
+        {
+            "itemId": 332,
+            "sourceDescription": "This stone enables Lopunny to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Lopunny během boje Mega evoluci."
+        },
+        {
+            "itemId": 333,
+            "sourceDescription": "This stone enables Garchomp to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Garchomp během boje Mega evoluci."
+        },
+        {
+            "itemId": 334,
+            "sourceDescription": "This stone enables Lucario to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Lucario během boje Mega evoluci."
+        },
+        {
+            "itemId": 335,
+            "sourceDescription": "This stone enables Abomasnow to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Abomasnow během boje Mega evoluci."
+        },
+        {
+            "itemId": 336,
+            "sourceDescription": "This stone enables Gallade to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Gallade během boje Mega evoluci."
+        },
+        {
+            "itemId": 337,
+            "sourceDescription": "This stone enables Audino to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Audino během boje Mega evoluci."
+        },
+        {
+            "itemId": 338,
+            "sourceDescription": "This stone enables Diancie to Mega Evolve in battle.",
+            "descriptionCs": "Tento kámen umožní Pokémonovi Diancie během boje Mega evoluci."
+        },
+        {
+            "itemId": 339,
+            "sourceDescription": "Increases the power of Normal Type moves.",
+            "descriptionCs": "Zvýší sílu útoků normálního typu."
+        },
+        {
+            "itemId": 340,
+            "sourceDescription": "Increases the power of Fire Type moves.",
+            "descriptionCs": "Zvýší sílu útoků ohnivého typu."
+        },
+        {
+            "itemId": 341,
+            "sourceDescription": "Increases the power of Water Type moves.",
+            "descriptionCs": "Zvýší sílu útoků vodního typu."
+        },
+        {
+            "itemId": 342,
+            "sourceDescription": "Increases the power of Electric Type moves.",
+            "descriptionCs": "Zvýší sílu útoků elektrického typu."
+        },
+        {
+            "itemId": 343,
+            "sourceDescription": "Increases the power of Grass Type moves.",
+            "descriptionCs": "Zvýší sílu útoků travního typu."
+        },
+        {
+            "itemId": 344,
+            "sourceDescription": "Increases the power of Ice Type moves.",
+            "descriptionCs": "Zvýší sílu útoků ledového typu."
+        },
+        {
+            "itemId": 345,
+            "sourceDescription": "Increases the power of Fighting Type moves.",
+            "descriptionCs": "Zvýší sílu útoků bojového typu."
+        },
+        {
+            "itemId": 346,
+            "sourceDescription": "Increases the power of Poison Type moves.",
+            "descriptionCs": "Zvýší sílu útoků jedového typu."
+        },
+        {
+            "itemId": 347,
+            "sourceDescription": "Increases the power of Ground Type moves.",
+            "descriptionCs": "Zvýší sílu útoků zemního typu."
+        },
+        {
+            "itemId": 348,
+            "sourceDescription": "Increases the power of Flying Type moves.",
+            "descriptionCs": "Zvýší sílu útoků létajícího typu."
+        },
+        {
+            "itemId": 349,
+            "sourceDescription": "Increases the power of Psychic Type moves.",
+            "descriptionCs": "Zvýší sílu útoků psychického typu."
+        },
+        {
+            "itemId": 350,
+            "sourceDescription": "Increases the power of Bug Type moves.",
+            "descriptionCs": "Zvýší sílu útoků hmyzího typu."
+        },
+        {
+            "itemId": 351,
+            "sourceDescription": "Increases the power of Rock Type moves.",
+            "descriptionCs": "Zvýší sílu útoků kamenného typu."
+        },
+        {
+            "itemId": 352,
+            "sourceDescription": "Increases the power of Ghost Type moves.",
+            "descriptionCs": "Zvýší sílu útoků duchového typu."
+        },
+        {
+            "itemId": 353,
+            "sourceDescription": "Increases the power of Dragon Type moves.",
+            "descriptionCs": "Zvýší sílu útoků dračího typu."
+        },
+        {
+            "itemId": 354,
+            "sourceDescription": "Increases the power of Dark Type moves.",
+            "descriptionCs": "Zvýší sílu útoků temného typu."
+        },
+        {
+            "itemId": 355,
+            "sourceDescription": "Increases the power of Steel Type moves.",
+            "descriptionCs": "Zvýší sílu útoků ocelového typu."
+        },
+        {
+            "itemId": 356,
+            "sourceDescription": "Increases the power of Fairy Type moves.",
+            "descriptionCs": "Zvýší sílu útoků vílího typu."
+        },
+        {
+            "itemId": 357,
+            "sourceDescription": "Upgrade Normal- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky normálního typu v Z-útoky."
+        },
+        {
+            "itemId": 358,
+            "sourceDescription": "Upgrade Fire- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky ohnivého typu v Z-útoky."
+        },
+        {
+            "itemId": 359,
+            "sourceDescription": "Upgrade Water- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky vodního typu v Z-útoky."
+        },
+        {
+            "itemId": 360,
+            "sourceDescription": "Upgrade Electric- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky elektrického typu v Z-útoky."
+        },
+        {
+            "itemId": 361,
+            "sourceDescription": "Upgrade Grass- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky travního typu v Z-útoky."
+        },
+        {
+            "itemId": 362,
+            "sourceDescription": "Upgrade Ice- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky ledového typu v Z-útoky."
+        },
+        {
+            "itemId": 363,
+            "sourceDescription": "Upgrade Fighting- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky bojového typu v Z-útoky."
+        },
+        {
+            "itemId": 364,
+            "sourceDescription": "Upgrade Poison- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky jedového typu v Z-útoky."
+        },
+        {
+            "itemId": 365,
+            "sourceDescription": "Upgrade Ground- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky zemního typu v Z-útoky."
+        },
+        {
+            "itemId": 366,
+            "sourceDescription": "Upgrade Flying- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky létajícího typu v Z-útoky."
+        },
+        {
+            "itemId": 367,
+            "sourceDescription": "Upgrade Psychic- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky psychického typu v Z-útoky."
+        },
+        {
+            "itemId": 368,
+            "sourceDescription": "Upgrade Bug- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky hmyzího typu v Z-útoky."
+        },
+        {
+            "itemId": 369,
+            "sourceDescription": "Upgrade Rock- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky kamenného typu v Z-útoky."
+        },
+        {
+            "itemId": 370,
+            "sourceDescription": "Upgrade Ghost- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky duchového typu v Z-útoky."
+        },
+        {
+            "itemId": 371,
+            "sourceDescription": "Upgrade Dragon- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky dračího typu v Z-útoky."
+        },
+        {
+            "itemId": 372,
+            "sourceDescription": "Upgrade Dark- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky temného typu v Z-útoky."
+        },
+        {
+            "itemId": 373,
+            "sourceDescription": "Upgrade Steel- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky ocelového typu v Z-útoky."
+        },
+        {
+            "itemId": 374,
+            "sourceDescription": "Upgrade Fairy- type moves into Z-Moves.",
+            "descriptionCs": "Promění útoky vílího typu v Z-útoky."
+        },
+        {
+            "itemId": 375,
+            "sourceDescription": "Upgrade Pikachu’s Volt Tackle into a Z-Move.",
+            "descriptionCs": "Promění útok Volt Tackle Pokémona Pikachu v Z-útok."
+        },
+        {
+            "itemId": 376,
+            "sourceDescription": "Upgrade Eevee’s Last Resort into a Z-Move.",
+            "descriptionCs": "Promění útok Last Resort Pokémona Eevee v Z-útok."
+        },
+        {
+            "itemId": 377,
+            "sourceDescription": "Upgrade Snorlax’s Giga Impact into a Z-Move.",
+            "descriptionCs": "Promění útok Giga Impact Pokémona Snorlax v Z-útok."
+        },
+        {
+            "itemId": 378,
+            "sourceDescription": "Upgrade Mew’s Psychic into a Z-Move.",
+            "descriptionCs": "Promění útok Psychic Pokémona Mew v Z-útok."
+        },
+        {
+            "itemId": 379,
+            "sourceDescription": "Upgrade Decidu- eye’s Spirit Sha- ckle into a Z-Move.",
+            "descriptionCs": "Promění útok Spirit Shackle Pokémona Decidueye v Z-útok."
+        },
+        {
+            "itemId": 380,
+            "sourceDescription": "Upgrade Incine- roar’s Darkest La- riat into a Z-Move.",
+            "descriptionCs": "Promění útok Darkest Lariat Pokémona Incineroar v Z-útok."
+        },
+        {
+            "itemId": 381,
+            "sourceDescription": "Upgrade Primarina’s Sparkling Aria into a Z-Move.",
+            "descriptionCs": "Promění útok Sparkling Aria Pokémona Primarina v Z-útok."
+        },
+        {
+            "itemId": 382,
+            "sourceDescription": "Upgrade Lycanroc’s Stone Edge into a Z-Move.",
+            "descriptionCs": "Promění útok Stone Edge Pokémona Lycanroc v Z-útok."
+        },
+        {
+            "itemId": 383,
+            "sourceDescription": "Upgrade Mimikyu’s Play Rough into a Z-Move.",
+            "descriptionCs": "Promění útok Play Rough Pokémona Mimikyu v Z-útok."
+        },
+        {
+            "itemId": 384,
+            "sourceDescription": "Upgrade Kommo-o’s Clanging Scales into a Z-Move.",
+            "descriptionCs": "Promění útok Clanging Scales Pokémona Kommo-o v Z-útok."
+        },
+        {
+            "itemId": 385,
+            "sourceDescription": "Upgrade the tapus’ Nature’s Madness into a Z-Move.",
+            "descriptionCs": "Promění útok Nature’s Madness Pokémonů Tapu v Z-útok."
+        },
+        {
+            "itemId": 386,
+            "sourceDescription": "Upgrade Solgaleo’s Sunsteel Strike into a Z-Move.",
+            "descriptionCs": "Promění útok Sunsteel Strike Pokémona Solgaleo v Z-útok."
+        },
+        {
+            "itemId": 387,
+            "sourceDescription": "Upgrade Lunala’s Moongeist Beam into a Z-Move.",
+            "descriptionCs": "Promění útok Moongeist Beam Pokémona Lunala v Z-útok."
+        },
+        {
+            "itemId": 388,
+            "sourceDescription": "Upgrade Marsha- dow’s Spectral Thi- ef into a Z-Move.",
+            "descriptionCs": "Promění útok Spectral Thief Pokémona Marshadow v Z-útok."
+        },
+        {
+            "itemId": 389,
+            "sourceDescription": "Upgrade Alolan Raichu’s Thunder- bolt into a Z-Move.",
+            "descriptionCs": "Promění útok Thunderbolt alolského Pokémona Raichu v Z-útok."
+        },
+        {
+            "itemId": 390,
+            "sourceDescription": "Upgrade Pikachu w/ a cap’s Thunderbolt into a Z-Move.",
+            "descriptionCs": "Promění útok Thunderbolt Pokémona Pikachu s čepicí v Z-útok."
+        },
+        {
+            "itemId": 391,
+            "sourceDescription": "A crystal to turn fused Necrozma into a new form.",
+            "descriptionCs": "Krystal, který změní sloučeného Pokémona Necrozma do nové podoby."
+        },
+        {
+            "itemId": 392,
+            "sourceDescription": "A hold item that raises the Atk and Sp. Atk of Pikachu.",
+            "descriptionCs": "Držený předmět, který zvýší Pokémonovi Pikachu útok a speciální útok."
+        },
+        {
+            "itemId": 393,
+            "sourceDescription": "A hold item that raises Farfetch’d’s critical-hit ratio.",
+            "descriptionCs": "Držený předmět, který zvýší Pokémonovi Farfetch’d šanci na kritický zásah."
+        },
+        {
+            "itemId": 394,
+            "sourceDescription": "A hold item that raises Cubone or Marowak’s Attack.",
+            "descriptionCs": "Držený předmět, který zvýší útok Pokémonovi Cubone nebo Marowak."
+        },
+        {
+            "itemId": 395,
+            "sourceDescription": "A hold item that raises Chansey’s critical-hit rate.",
+            "descriptionCs": "Držený předmět, který zvýší Pokémonovi Chansey šanci na kritický zásah."
+        },
+        {
+            "itemId": 396,
+            "sourceDescription": "A hold item that raises Ditto’s Defense.",
+            "descriptionCs": "Držený předmět, který zvýší Pokémonovi Ditto obranu."
+        },
+        {
+            "itemId": 397,
+            "sourceDescription": "An item to be held by Ditto. This odd powder boosts Speed.",
+            "descriptionCs": "Předmět pro Pokémona Ditto. Tento zvláštní prášek zvýší rychlost."
+        },
+        {
+            "itemId": 398,
+            "sourceDescription": "A hold item that raises the Sp. Def of Clamperl.",
+            "descriptionCs": "Držený předmět, který zvýší Pokémonovi Clamperl speciální obranu."
+        },
+        {
+            "itemId": 399,
+            "sourceDescription": "A hold item that raises the Sp. Atk of Clamperl.",
+            "descriptionCs": "Držený předmět, který zvýší Pokémonovi Clamperl speciální útok."
+        },
+        {
+            "itemId": 400,
+            "sourceDescription": "Powers up Latios’ & Latias’ Psychic and Dragon-type moves.",
+            "descriptionCs": "Zvýší sílu psychických a dračích útoků Pokémonů Latios a Latias."
+        },
+        {
+            "itemId": 401,
+            "sourceDescription": "Boosts the power of Dialga’s Dragon and Steel-type moves.",
+            "descriptionCs": "Zvýší sílu dračích a ocelových útoků Pokémona Dialga."
+        },
+        {
+            "itemId": 402,
+            "sourceDescription": "Boosts the power of Palkia’s Dragon and Water-type moves.",
+            "descriptionCs": "Zvýší sílu dračích a vodních útoků Pokémona Palkia."
+        },
+        {
+            "itemId": 403,
+            "sourceDescription": "Powers up Giratina’s Dragon and Ghost- type moves.",
+            "descriptionCs": "Zvýší sílu dračích a duchových útoků Pokémona Giratina."
+        },
+        {
+            "itemId": 404,
+            "sourceDescription": "A hold item that slightly boosts Water-type moves.",
+            "descriptionCs": "Držený předmět, který mírně posílí vodní útoky."
+        },
+        {
+            "itemId": 405,
+            "sourceDescription": "A hold item that slightly lowers the foe’s accuracy.",
+            "descriptionCs": "Držený předmět, který mírně sníží soupeřovu přesnost."
+        },
+        {
+            "itemId": 406,
+            "sourceDescription": "A hold item that boosts Psychic- type moves.",
+            "descriptionCs": "Držený předmět, který posílí psychické útoky."
+        },
+        {
+            "itemId": 407,
+            "sourceDescription": "A hold item that raises the power of Rock-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků kamenného typu."
+        },
+        {
+            "itemId": 408,
+            "sourceDescription": "A held item that makes the holder move slower.",
+            "descriptionCs": "Držený předmět, který způsobí, že se držitel pohybuje pomaleji."
+        },
+        {
+            "itemId": 409,
+            "sourceDescription": "A hold item that slightly boosts Water-type moves.",
+            "descriptionCs": "Držený předmět, který mírně posílí vodní útoky."
+        },
+        {
+            "itemId": 410,
+            "sourceDescription": "A hold item that raises the power of Grass-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků travního typu."
+        },
+        {
+            "itemId": 411,
+            "sourceDescription": "Doubles money in battle if the holder takes part.",
+            "descriptionCs": "Zdvojnásobí peníze z boje, pokud se jej držitel účastní."
+        },
+        {
+            "itemId": 412,
+            "sourceDescription": "A hold item that helps repel wild Pokémon.",
+            "descriptionCs": "Držený předmět, který pomáhá odpuzovat divoké Pokémony."
+        },
+        {
+            "itemId": 413,
+            "sourceDescription": "A hold item that raises Cool in Contests.",
+            "descriptionCs": "Držený předmět, který zvýší styl v soutěžích."
+        },
+        {
+            "itemId": 414,
+            "sourceDescription": "A hold item that raises Beauty in Contests.",
+            "descriptionCs": "Držený předmět, který zvýší krásu v soutěžích."
+        },
+        {
+            "itemId": 415,
+            "sourceDescription": "A hold item that raises Cute in Contests.",
+            "descriptionCs": "Držený předmět, který zvýší roztomilost v soutěžích."
+        },
+        {
+            "itemId": 416,
+            "sourceDescription": "A hold item that raises Smart in Contests.",
+            "descriptionCs": "Držený předmět, který zvýší chytrost v soutěžích."
+        },
+        {
+            "itemId": 417,
+            "sourceDescription": "A hold item that raises Tough in Contests.",
+            "descriptionCs": "Držený předmět, který zvýší houževnatost v soutěžích."
+        },
+        {
+            "itemId": 418,
+            "sourceDescription": "A hold item that promotes growth, but reduces Speed.",
+            "descriptionCs": "Držený předmět, který podporuje růst, ale sníží rychlost."
+        },
+        {
+            "itemId": 419,
+            "sourceDescription": "A hold item that promotes HP gain, but reduces Speed.",
+            "descriptionCs": "Držený předmět, který podporuje růst HP, ale sníží rychlost."
+        },
+        {
+            "itemId": 420,
+            "sourceDescription": "A hold item that promotes Atk gain, but reduces Speed.",
+            "descriptionCs": "Držený předmět, který podporuje růst útoku, ale sníží rychlost."
+        },
+        {
+            "itemId": 421,
+            "sourceDescription": "A hold item that promotes Def gain, but reduces Speed.",
+            "descriptionCs": "Držený předmět, který podporuje růst obrany, ale sníží rychlost."
+        },
+        {
+            "itemId": 422,
+            "sourceDescription": "Hold item that pro- motes Sp. Atk gain, but reduces Speed.",
+            "descriptionCs": "Držený předmět, který podporuje růst speciálního útoku, ale sníží rychlost."
+        },
+        {
+            "itemId": 423,
+            "sourceDescription": "Hold item that pro- motes Sp. Def gain, but reduces Speed.",
+            "descriptionCs": "Držený předmět, který podporuje růst speciální obrany, ale sníží rychlost."
+        },
+        {
+            "itemId": 424,
+            "sourceDescription": "A hold item that promotes Spd gain, but reduces Speed.",
+            "descriptionCs": "Držený předmět, který podporuje růst rychlosti, ale sníží rychlost."
+        },
+        {
+            "itemId": 425,
+            "sourceDescription": "A hold item that raises the power of Normal-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků normálního typu."
+        },
+        {
+            "itemId": 426,
+            "sourceDescription": "A hold item that raises the power of Fire-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků ohnivého typu."
+        },
+        {
+            "itemId": 427,
+            "sourceDescription": "A hold item that raises the power of Water-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků vodního typu."
+        },
+        {
+            "itemId": 428,
+            "sourceDescription": "A hold item that boosts Electric- type moves.",
+            "descriptionCs": "Držený předmět, který posílí elektrické útoky."
+        },
+        {
+            "itemId": 429,
+            "sourceDescription": "A hold item that raises the power of Grass-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků travního typu."
+        },
+        {
+            "itemId": 430,
+            "sourceDescription": "A hold item that raises the power of Ice-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků ledového typu."
+        },
+        {
+            "itemId": 431,
+            "sourceDescription": "A hold item that boosts Fighting- type moves.",
+            "descriptionCs": "Držený předmět, který posílí bojové útoky."
+        },
+        {
+            "itemId": 432,
+            "sourceDescription": "A hold item that raises the power of Poison-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků jedového typu."
+        },
+        {
+            "itemId": 433,
+            "sourceDescription": "A hold item that raises the power of Ground-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků zemního typu."
+        },
+        {
+            "itemId": 434,
+            "sourceDescription": "A hold item that raises the power of Flying-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků létajícího typu."
+        },
+        {
+            "itemId": 435,
+            "sourceDescription": "A hold item that boosts Psychic- type moves.",
+            "descriptionCs": "Držený předmět, který posílí psychické útoky."
+        },
+        {
+            "itemId": 436,
+            "sourceDescription": "A hold item that raises the power of Bug-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků hmyzího typu."
+        },
+        {
+            "itemId": 437,
+            "sourceDescription": "A hold item that raises the power of Rock-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků kamenného typu."
+        },
+        {
+            "itemId": 438,
+            "sourceDescription": "A hold item that raises the power of Ghost-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků duchového typu."
+        },
+        {
+            "itemId": 439,
+            "sourceDescription": "A hold item that raises the power of Dragon-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků dračího typu."
+        },
+        {
+            "itemId": 440,
+            "sourceDescription": "A hold item that raises the power of Dark-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků temného typu."
+        },
+        {
+            "itemId": 441,
+            "sourceDescription": "A hold item that raises the power of Steel-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků ocelového typu."
+        },
+        {
+            "itemId": 442,
+            "sourceDescription": "Boosts Attack, but allows the use of only one move.",
+            "descriptionCs": "Zvýší útok, ale umožní použít pouze jeden útok."
+        },
+        {
+            "itemId": 443,
+            "sourceDescription": "Boosts Sp. Atk, but allows the use of only one move.",
+            "descriptionCs": "Zvýší speciální útok, ale umožní použít pouze jeden útok."
+        },
+        {
+            "itemId": 444,
+            "sourceDescription": "Boosts Speed, but allows the use of only one move.",
+            "descriptionCs": "Zvýší rychlost, ale umožní použít pouze jeden útok."
+        },
+        {
+            "itemId": 445,
+            "sourceDescription": "A bizarre orb that inflicts a burn on holder in battle.",
+            "descriptionCs": "Bizarní koule, která během boje popálí držitele."
+        },
+        {
+            "itemId": 446,
+            "sourceDescription": "A bizarre orb that badly poisons the holder in battle.",
+            "descriptionCs": "Bizarní koule, která během boje silně otráví držitele."
+        },
+        {
+            "itemId": 447,
+            "sourceDescription": "Extends the length of Rain Dance if used by the holder.",
+            "descriptionCs": "Prodlouží trvání útoku Rain Dance, pokud jej použije držitel."
+        },
+        {
+            "itemId": 448,
+            "sourceDescription": "Extends the length of Sunny Day if used by the holder.",
+            "descriptionCs": "Prodlouží trvání útoku Sunny Day, pokud jej použije držitel."
+        },
+        {
+            "itemId": 449,
+            "sourceDescription": "Extends the length of Sandstorm if used by the holder.",
+            "descriptionCs": "Prodlouží trvání útoku Sandstorm, pokud jej použije držitel."
+        },
+        {
+            "itemId": 450,
+            "sourceDescription": "Extends the length of the move Hail used by the holder.",
+            "descriptionCs": "Prodlouží trvání útoku Hail použitého držitelem."
+        },
+        {
+            "itemId": 451,
+            "sourceDescription": "Boosts Defense on Electric Terrain, but only one time.",
+            "descriptionCs": "Jednorázově zvýší obranu na Electric Terrain."
+        },
+        {
+            "itemId": 452,
+            "sourceDescription": "Boosts Sp. Def. on Psychic Terrain, but only one time.",
+            "descriptionCs": "Jednorázově zvýší speciální obranu na Psychic Terrain."
+        },
+        {
+            "itemId": 453,
+            "sourceDescription": "Boosts Sp. Def. on Misty Terrain, but only one time.",
+            "descriptionCs": "Jednorázově zvýší speciální obranu na Misty Terrain."
+        },
+        {
+            "itemId": 454,
+            "sourceDescription": "Boosts Defense on Grassy Terrain, but only one time.",
+            "descriptionCs": "Jednorázově zvýší obranu na Grassy Terrain."
+        },
+        {
+            "itemId": 455,
+            "sourceDescription": "Raises Sp. Atk if the holder is hit by a Water-type move.",
+            "descriptionCs": "Zvýší speciální útok, pokud držitele zasáhne vodní útok."
+        },
+        {
+            "itemId": 456,
+            "sourceDescription": "Raises Atk if the holder is hit by an Electric-type move.",
+            "descriptionCs": "Zvýší útok, pokud držitele zasáhne elektrický útok."
+        },
+        {
+            "itemId": 457,
+            "sourceDescription": "Raises Sp. Def if the holder is hit by a Water-type move.",
+            "descriptionCs": "Zvýší speciální obranu, pokud držitele zasáhne vodní útok."
+        },
+        {
+            "itemId": 458,
+            "sourceDescription": "Raises Atk if its holder is hit by an Ice-type move.",
+            "descriptionCs": "Zvýší útok, pokud držitele zasáhne ledový útok."
+        },
+        {
+            "itemId": 459,
+            "sourceDescription": "A hold item that casts a glare to reduce accuracy.",
+            "descriptionCs": "Držený předmět, který oslňuje a snižuje přesnost."
+        },
+        {
+            "itemId": 460,
+            "sourceDescription": "A hold item that restores any lowered stat.",
+            "descriptionCs": "Držený předmět, který obnoví jakoukoli sníženou statistiku."
+        },
+        {
+            "itemId": 461,
+            "sourceDescription": "A hold item that gets Exp. points from battles.",
+            "descriptionCs": "Držený předmět, který získává zkušenosti z bojů."
+        },
+        {
+            "itemId": 462,
+            "sourceDescription": "A hold item that occasionally allows the first strike.",
+            "descriptionCs": "Držený předmět, který občas umožní zaútočit jako první."
+        },
+        {
+            "itemId": 463,
+            "sourceDescription": "A hold item that calms spirits and fosters friendship.",
+            "descriptionCs": "Držený předmět, který uklidňuje a posiluje přátelství."
+        },
+        {
+            "itemId": 464,
+            "sourceDescription": "Snaps Pokémon out of move-binding effects.",
+            "descriptionCs": "Zbaví Pokémony účinků omezujících použití útoků."
+        },
+        {
+            "itemId": 465,
+            "sourceDescription": "A hold item that may cause flinching when the foe is hit.",
+            "descriptionCs": "Držený předmět, který může zasaženému soupeři zabránit v útoku v tomto kole."
+        },
+        {
+            "itemId": 466,
+            "sourceDescription": "Doubles money in battle if the holder takes part.",
+            "descriptionCs": "Zdvojnásobí peníze z boje, pokud se jej držitel účastní."
+        },
+        {
+            "itemId": 467,
+            "sourceDescription": "A hold item that helps repel wild Pokémon.",
+            "descriptionCs": "Držený předmět, který pomáhá odpuzovat divoké Pokémony."
+        },
+        {
+            "itemId": 468,
+            "sourceDescription": "A hold item that assures fleeing from wild Pokémon.",
+            "descriptionCs": "Držený předmět, který zaručí únik před divokými Pokémony."
+        },
+        {
+            "itemId": 469,
+            "sourceDescription": "A hold item that occasionally prevents fainting.",
+            "descriptionCs": "Držený předmět, který občas zabrání vyřazení z boje."
+        },
+        {
+            "itemId": 470,
+            "sourceDescription": "A hold item that boosts Exp. points earned in battle.",
+            "descriptionCs": "Držený předmět, který zvýší zkušenosti získané v boji."
+        },
+        {
+            "itemId": 471,
+            "sourceDescription": "A hold item that improves the critical-hit rate.",
+            "descriptionCs": "Držený předmět, který zvýší šanci na kritický zásah."
+        },
+        {
+            "itemId": 472,
+            "sourceDescription": "A hold item that gradually restores HP in battle.",
+            "descriptionCs": "Držený předmět, který během boje postupně obnovuje HP."
+        },
+        {
+            "itemId": 473,
+            "sourceDescription": "A hold item that restores HP upon striking the foe.",
+            "descriptionCs": "Držený předmět, který obnoví HP při zásahu soupeře."
+        },
+        {
+            "itemId": 474,
+            "sourceDescription": "A magnifying lens that boosts the accuracy of moves.",
+            "descriptionCs": "Zvětšovací čočka, která zvýší přesnost útoků."
+        },
+        {
+            "itemId": 475,
+            "sourceDescription": "A headband that boosts the power of physical moves.",
+            "descriptionCs": "Čelenka, která zvýší sílu fyzických útoků."
+        },
+        {
+            "itemId": 476,
+            "sourceDescription": "A pair of glasses that ups the power of special moves.",
+            "descriptionCs": "Brýle, které zvýší sílu speciálních útoků."
+        },
+        {
+            "itemId": 477,
+            "sourceDescription": "A belt that boosts the power of super effective moves.",
+            "descriptionCs": "Pás, který zvýší sílu velmi účinných útoků."
+        },
+        {
+            "itemId": 478,
+            "sourceDescription": "Extends the length of barrier moves used by the holder.",
+            "descriptionCs": "Prodlouží trvání bariérových útoků použitých držitelem."
+        },
+        {
+            "itemId": 479,
+            "sourceDescription": "Boosts the power of moves at the cost of some HP per turn.",
+            "descriptionCs": "Zvýší sílu útoků za cenu části HP v každém kole."
+        },
+        {
+            "itemId": 480,
+            "sourceDescription": "Allows immediate use of a move that charges first.",
+            "descriptionCs": "Umožní okamžitě použít útok, který se nejprve nabíjí."
+        },
+        {
+            "itemId": 481,
+            "sourceDescription": "If the holder has full HP, it endures KO hits with 1 HP.",
+            "descriptionCs": "Pokud má držitel plné HP, přežije vyřazující zásahy s 1 HP."
+        },
+        {
+            "itemId": 482,
+            "sourceDescription": "If the holder moves after the foe, it’ll boost accuracy.",
+            "descriptionCs": "Zvýší přesnost, pokud se držitel pohybuje až po soupeři."
+        },
+        {
+            "itemId": 483,
+            "sourceDescription": "A held item that boosts a move used consecutively.",
+            "descriptionCs": "Držený předmět, který posílí opakovaně používaný útok."
+        },
+        {
+            "itemId": 484,
+            "sourceDescription": "Cuts Speed and lets Flying-types be hit by Ground moves.",
+            "descriptionCs": "Sníží rychlost a umožní zemním útokům zasáhnout létající Pokémony."
+        },
+        {
+            "itemId": 485,
+            "sourceDescription": "A held item that makes the holder move slower.",
+            "descriptionCs": "Držený předmět, který způsobí, že se držitel pohybuje pomaleji."
+        },
+        {
+            "itemId": 486,
+            "sourceDescription": "If the holder falls in love, the foe does too.",
+            "descriptionCs": "Pokud se držitel zamiluje, zamiluje se i soupeř."
+        },
+        {
+            "itemId": 487,
+            "sourceDescription": "Gradually restores HP of Poison-types. Damages others.",
+            "descriptionCs": "Postupně obnovuje HP jedových Pokémonů. Ostatní zraňuje."
+        },
+        {
+            "itemId": 488,
+            "sourceDescription": "Makes binding moves used by the holder go on for 7 turns.",
+            "descriptionCs": "Způsobí, že svazující útoky použité držitelem trvají 7 kol."
+        },
+        {
+            "itemId": 489,
+            "sourceDescription": "Damages the holder each turn. May latch on to foes.",
+            "descriptionCs": "V každém kole zraňuje držitele. Může se přichytit na soupeře."
+        },
+        {
+            "itemId": 490,
+            "sourceDescription": "Enables the holder to switch out of battle without fail.",
+            "descriptionCs": "Umožní držitele během boje vyměnit bez selhání."
+        },
+        {
+            "itemId": 491,
+            "sourceDescription": "A held item that boosts the power of HP-stealing moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků vysávajících HP."
+        },
+        {
+            "itemId": 492,
+            "sourceDescription": "A hooked claw that ups the holder’s critical-hit ratio.",
+            "descriptionCs": "Zahnutý dráp, který zvýší držiteli šanci na kritický zásah."
+        },
+        {
+            "itemId": 493,
+            "sourceDescription": "A hold item that may cause flinching when the foe is hit.",
+            "descriptionCs": "Držený předmět, který může zasaženému soupeři zabránit v útoku v tomto kole."
+        },
+        {
+            "itemId": 494,
+            "sourceDescription": "Raises the Def and Sp. Def of Pokémon that can evolve.",
+            "descriptionCs": "Zvýší obranu a speciální obranu Pokémonů, kteří se mohou vyvíjet."
+        },
+        {
+            "itemId": 495,
+            "sourceDescription": "It’s so light that when held, it halves a Pokémon’s weight.",
+            "descriptionCs": "Je tak lehký, že při držení sníží Pokémonovu hmotnost na polovinu."
+        },
+        {
+            "itemId": 496,
+            "sourceDescription": "Hurts the foe if they touch its holder.",
+            "descriptionCs": "Zraní soupeře, pokud se dotkne držitele."
+        },
+        {
+            "itemId": 497,
+            "sourceDescription": "Elevates the holder in the air. If hit, this item will burst.",
+            "descriptionCs": "Vznese držitele do vzduchu. Při zásahu tento předmět praskne."
+        },
+        {
+            "itemId": 498,
+            "sourceDescription": "Switches out the foe if they hit the holder.",
+            "descriptionCs": "Vymění soupeře, pokud zasáhne držitele."
+        },
+        {
+            "itemId": 499,
+            "sourceDescription": "Moves that wouldn’t have effect will land on its holder.",
+            "descriptionCs": "Držitele zasáhnou i útoky, které by jinak neměly účinek."
+        },
+        {
+            "itemId": 500,
+            "sourceDescription": "Increases the power of binding moves when held.",
+            "descriptionCs": "Při držení zvýší sílu svazujících útoků."
+        },
+        {
+            "itemId": 501,
+            "sourceDescription": "Switches out the user if they’re hit by the foe.",
+            "descriptionCs": "Vymění uživatele, pokud jej zasáhne soupeř."
+        },
+        {
+            "itemId": 502,
+            "sourceDescription": "If hit by a Super Effective move, ups Atk and Sp. Atk.",
+            "descriptionCs": "Při zásahu velmi účinným útokem zvýší útok a speciální útok."
+        },
+        {
+            "itemId": 503,
+            "sourceDescription": "Raises Sp. Def but prevents the use of status moves.",
+            "descriptionCs": "Zvýší speciální obranu, ale zabrání použití stavových útoků."
+        },
+        {
+            "itemId": 504,
+            "sourceDescription": "Protect from weather damage and powder moves.",
+            "descriptionCs": "Chrání před poškozením počasím a práškovými útoky."
+        },
+        {
+            "itemId": 505,
+            "sourceDescription": "Boosts Speed if the user is intimidated, but only one time.",
+            "descriptionCs": "Pokud je uživatel zastrašen, jednorázově zvýší rychlost."
+        },
+        {
+            "itemId": 506,
+            "sourceDescription": "Extends the length of the active battle terrain.",
+            "descriptionCs": "Prodlouží trvání aktivního terénu v boji."
+        },
+        {
+            "itemId": 507,
+            "sourceDescription": "Guard the holder from contact move effects.",
+            "descriptionCs": "Chrání držitele před účinky kontaktních útoků."
+        },
+        {
+            "itemId": 508,
+            "sourceDescription": "Raises Sp. Atk. if the holder uses a sound-based move.",
+            "descriptionCs": "Zvýší speciální útok, pokud držitel použije zvukový útok."
+        },
+        {
+            "itemId": 509,
+            "sourceDescription": "Forces the user to switch if its stats are lowered.",
+            "descriptionCs": "Vynutí výměnu uživatele, pokud se mu sníží statistiky."
+        },
+        {
+            "itemId": 510,
+            "sourceDescription": "Boots that prevent effects of traps set in the field.",
+            "descriptionCs": "Boty, které zabrání účinkům pastí nastražených na bojišti."
+        },
+        {
+            "itemId": 511,
+            "sourceDescription": "Raises Speed if the user misses due to Accuracy.",
+            "descriptionCs": "Zvýší rychlost, pokud uživatel mine kvůli přesnosti."
+        },
+        {
+            "itemId": 512,
+            "sourceDescription": "Lowers Speed if Trick Room is active.",
+            "descriptionCs": "Sníží rychlost, pokud je aktivní Trick Room."
+        },
+        {
+            "itemId": 513,
+            "sourceDescription": "An umbrella that protects from weather effects.",
+            "descriptionCs": "Deštník, který chrání před účinky počasí."
+        },
+        {
+            "itemId": 514,
+            "sourceDescription": "A hold item that heals paralysis in battle.",
+            "descriptionCs": "Držený předmět, který během boje vyléčí ochromení."
+        },
+        {
+            "itemId": 515,
+            "sourceDescription": "A hold item that awakens Pokémon in battle.",
+            "descriptionCs": "Držený předmět, který během boje probudí Pokémona."
+        },
+        {
+            "itemId": 516,
+            "sourceDescription": "A hold item that heals poisoning in battle.",
+            "descriptionCs": "Držený předmět, který během boje vyléčí otravu."
+        },
+        {
+            "itemId": 517,
+            "sourceDescription": "A hold item that heals a burn in battle.",
+            "descriptionCs": "Držený předmět, který během boje vyléčí popálení."
+        },
+        {
+            "itemId": 518,
+            "sourceDescription": "A hold item that defrosts Pokémon in battle.",
+            "descriptionCs": "Držený předmět, který během boje rozmrazí Pokémona."
+        },
+        {
+            "itemId": 519,
+            "sourceDescription": "A hold item that restores 10 PP in battle.",
+            "descriptionCs": "Držený předmět, který během boje obnoví 10 PP."
+        },
+        {
+            "itemId": 520,
+            "sourceDescription": "A hold item that restores 10 HP in battle.",
+            "descriptionCs": "Držený předmět, který během boje obnoví 10 HP."
+        },
+        {
+            "itemId": 521,
+            "sourceDescription": "A hold item that heals confusion in battle.",
+            "descriptionCs": "Držený předmět, který během boje vyléčí zmatení."
+        },
+        {
+            "itemId": 522,
+            "sourceDescription": "A hold item that heals any status problem in battle.",
+            "descriptionCs": "Držený předmět, který během boje vyléčí jakoukoli stavovou potíž."
+        },
+        {
+            "itemId": 523,
+            "sourceDescription": "A hold item that restores the user’s HP a little.",
+            "descriptionCs": "Držený předmět, který uživateli obnoví trochu HP."
+        },
+        {
+            "itemId": 524,
+            "sourceDescription": "A hold item that restores HP but may confuse.",
+            "descriptionCs": "Držený předmět, který obnoví HP, ale může zmást."
+        },
+        {
+            "itemId": 525,
+            "sourceDescription": "A hold item that restores HP but may confuse.",
+            "descriptionCs": "Držený předmět, který obnoví HP, ale může zmást."
+        },
+        {
+            "itemId": 526,
+            "sourceDescription": "A hold item that restores HP but may confuse.",
+            "descriptionCs": "Držený předmět, který obnoví HP, ale může zmást."
+        },
+        {
+            "itemId": 527,
+            "sourceDescription": "A hold item that restores HP but may confuse.",
+            "descriptionCs": "Držený předmět, který obnoví HP, ale může zmást."
+        },
+        {
+            "itemId": 528,
+            "sourceDescription": "A hold item that restores HP but may confuse.",
+            "descriptionCs": "Držený předmět, který obnoví HP, ale může zmást."
+        },
+        {
+            "itemId": 529,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Razz.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Razz."
+        },
+        {
+            "itemId": 530,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Bluk.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Bluk."
+        },
+        {
+            "itemId": 531,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Nanab.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Nanab."
+        },
+        {
+            "itemId": 532,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Wepear.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Wepear."
+        },
+        {
+            "itemId": 533,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Pinap.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Pinap."
+        },
+        {
+            "itemId": 534,
+            "sourceDescription": "Makes a Pokémon friendly but lowers base HP.",
+            "descriptionCs": "Zvýší Pokémonovo přátelství, ale sníží základní HP."
+        },
+        {
+            "itemId": 535,
+            "sourceDescription": "Makes a Pokémon friendly but lowers base Attack.",
+            "descriptionCs": "Zvýší Pokémonovo přátelství, ale sníží základní útok."
+        },
+        {
+            "itemId": 536,
+            "sourceDescription": "Makes a Pokémon friendly but lowers base Defense.",
+            "descriptionCs": "Zvýší Pokémonovo přátelství, ale sníží základní obranu."
+        },
+        {
+            "itemId": 537,
+            "sourceDescription": "Makes a Pokémon friendly but lowers base Sp. Atk.",
+            "descriptionCs": "Zvýší Pokémonovo přátelství, ale sníží základní speciální útok."
+        },
+        {
+            "itemId": 538,
+            "sourceDescription": "Makes a Pokémon friendly but lowers base Sp. Def.",
+            "descriptionCs": "Zvýší Pokémonovo přátelství, ale sníží základní speciální obranu."
+        },
+        {
+            "itemId": 539,
+            "sourceDescription": "Makes a Pokémon friendly but lowers base Speed.",
+            "descriptionCs": "Zvýší Pokémonovo přátelství, ale sníží základní rychlost."
+        },
+        {
+            "itemId": 540,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Cornn.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Cornn."
+        },
+        {
+            "itemId": 541,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Magost.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Magost."
+        },
+        {
+            "itemId": 542,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Rabuta.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Rabuta."
+        },
+        {
+            "itemId": 543,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Nomel.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Nomel."
+        },
+        {
+            "itemId": 544,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Spelon.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Spelon."
+        },
+        {
+            "itemId": 545,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Pamtre.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Pamtre."
+        },
+        {
+            "itemId": 546,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Watmel.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Watmel."
+        },
+        {
+            "itemId": 547,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Durin.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Durin."
+        },
+        {
+            "itemId": 548,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow Belue.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyrostou bobule Belue."
+        },
+        {
+            "itemId": 549,
+            "sourceDescription": "A hold item that weakens a Normal move.",
+            "descriptionCs": "Držený předmět, který oslabí normální útok."
+        },
+        {
+            "itemId": 550,
+            "sourceDescription": "A hold item that weakens a Fire move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok ohnivého typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 551,
+            "sourceDescription": "A hold item that weakens a Water move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok vodního typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 552,
+            "sourceDescription": "A hold item that weakens a Electric move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok elektrického typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 553,
+            "sourceDescription": "A hold item that weakens a Grass move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok travního typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 554,
+            "sourceDescription": "A hold item that weakens a Ice move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok ledového typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 555,
+            "sourceDescription": "A hold item that weakens a Fighting move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok bojového typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 556,
+            "sourceDescription": "A hold item that weakens a Poison move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok jedového typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 557,
+            "sourceDescription": "A hold item that weakens a Ground move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok zemního typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 558,
+            "sourceDescription": "A hold item that weakens a Flying move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok létajícího typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 559,
+            "sourceDescription": "A hold item that weakens a Psychic move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok psychického typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 560,
+            "sourceDescription": "A hold item that weakens a Bug move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok hmyzího typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 561,
+            "sourceDescription": "A hold item that weakens a Rock move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok kamenného typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 562,
+            "sourceDescription": "A hold item that weakens a Ghost move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok duchového typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 563,
+            "sourceDescription": "A hold item that weakens a Dragon move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok dračího typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 564,
+            "sourceDescription": "A hold item that weakens a Dark move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok temného typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 565,
+            "sourceDescription": "A hold item that weakens a Steel move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok ocelového typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 566,
+            "sourceDescription": "A hold item that weakens a Fairy move if weak to it.",
+            "descriptionCs": "Držený předmět, který oslabí útok vílího typu, pokud je vůči němu držitel slabý."
+        },
+        {
+            "itemId": 567,
+            "sourceDescription": "A hold item that raises Attack in a pinch.",
+            "descriptionCs": "Držený předmět, který v nouzi zvýší útok."
+        },
+        {
+            "itemId": 568,
+            "sourceDescription": "A hold item that raises Defense in a pinch.",
+            "descriptionCs": "Držený předmět, který v nouzi zvýší obranu."
+        },
+        {
+            "itemId": 569,
+            "sourceDescription": "A hold item that raises Speed in a pinch.",
+            "descriptionCs": "Držený předmět, který v nouzi zvýší rychlost."
+        },
+        {
+            "itemId": 570,
+            "sourceDescription": "A hold item that raises Sp. Atk in a pinch.",
+            "descriptionCs": "Držený předmět, který v nouzi zvýší speciální útok."
+        },
+        {
+            "itemId": 571,
+            "sourceDescription": "A hold item that raises Sp. Def in a pinch.",
+            "descriptionCs": "Držený předmět, který v nouzi zvýší speciální obranu."
+        },
+        {
+            "itemId": 572,
+            "sourceDescription": "A hold item that ups the critical- hit rate in a pinch.",
+            "descriptionCs": "Držený předmět, který v nouzi zvýší šanci na kritický zásah."
+        },
+        {
+            "itemId": 573,
+            "sourceDescription": "A hold item that sharply boosts a stat in a pinch.",
+            "descriptionCs": "Držený předmět, který v nouzi výrazně zvýší jednu statistiku."
+        },
+        {
+            "itemId": 574,
+            "sourceDescription": "A hold item that heals from super effective moves.",
+            "descriptionCs": "Držený předmět, který léčí při zásahu velmi účinnými útoky."
+        },
+        {
+            "itemId": 575,
+            "sourceDescription": "When held, it ups the Accuracy of a move in a pinch.",
+            "descriptionCs": "Při držení v nouzi zvýší přesnost útoku."
+        },
+        {
+            "itemId": 576,
+            "sourceDescription": "It allows a Pokémon in a pinch to move first just once.",
+            "descriptionCs": "Umožní Pokémonovi v nouzi jednorázově jednat jako první."
+        },
+        {
+            "itemId": 577,
+            "sourceDescription": "If hit by a physical move, it will hurt the attacker a bit.",
+            "descriptionCs": "Při zásahu fyzickým útokem trochu zraní útočníka."
+        },
+        {
+            "itemId": 578,
+            "sourceDescription": "If hit by a special move, it will hurt the attacker a bit.",
+            "descriptionCs": "Při zásahu speciálním útokem trochu zraní útočníka."
+        },
+        {
+            "itemId": 579,
+            "sourceDescription": "If hit by a physical move, it raises the Defense a bit.",
+            "descriptionCs": "Při zásahu fyzickým útokem trochu zvýší obranu."
+        },
+        {
+            "itemId": 580,
+            "sourceDescription": "If hit by a special move, it raises the Sp. Def. a bit.",
+            "descriptionCs": "Při zásahu speciálním útokem trochu zvýší speciální obranu."
+        },
+        {
+            "itemId": 581,
+            "sourceDescription": "Pokéblock ingredient. Plant in loamy soil to grow a mystery.",
+            "descriptionCs": "Přísada do Pokéblocků. Po zasazení do hlinité půdy vyroste záhadná bobule."
+        },
+        {
+            "itemId": 582,
+            "sourceDescription": "Powerful, but makes the user flinch if hit by the foe.",
+            "descriptionCs": "Silný útok, ale při zásahu soupeřem uživatel v tomto kole nezaútočí."
+        },
+        {
+            "itemId": 583,
+            "sourceDescription": "Hooks and slashes the foe with long, sharp claws.",
+            "descriptionCs": "Zachytí a sekne soupeře dlouhými ostrými drápy."
+        },
+        {
+            "itemId": 584,
+            "sourceDescription": "Generates an ultrasonic wave that may confuse.",
+            "descriptionCs": "Vyšle ultrazvukovou vlnu, která může zmást."
+        },
+        {
+            "itemId": 585,
+            "sourceDescription": "Raises Sp. Atk and Sp. Def by focusing the mind.",
+            "descriptionCs": "Soustředěním mysli zvyšuje speciální útok a speciální obranu útočníka."
+        },
+        {
+            "itemId": 586,
+            "sourceDescription": "A savage roar that makes the foe flee to end the battle.",
+            "descriptionCs": "Divoký řev, který přinutí soupeře utéct a ukončí boj."
+        },
+        {
+            "itemId": 587,
+            "sourceDescription": "Poisons the foe with a toxin that gradually worsens.",
+            "descriptionCs": "Otráví soupeře jedem, jehož účinek se postupně zhoršuje."
+        },
+        {
+            "itemId": 588,
+            "sourceDescription": "Creates a hailstorm that damages all types except Ice.",
+            "descriptionCs": "Vyvolá krupobití, které zraňuje všechny typy kromě ledového."
+        },
+        {
+            "itemId": 589,
+            "sourceDescription": "Bulks up the body to boost both Attack & Defense.",
+            "descriptionCs": "Posílí tělo a zvýší útok i obranu."
+        },
+        {
+            "itemId": 590,
+            "sourceDescription": "Shoots 2 to 5 seeds in a row to strike the foe.",
+            "descriptionCs": "Vystřelí na cíl 2 až 5 semen za sebou."
+        },
+        {
+            "itemId": 591,
+            "sourceDescription": "The attack power varies among different Pokémon.",
+            "descriptionCs": "Síla útoku se u jednotlivých Pokémonů liší."
+        },
+        {
+            "itemId": 592,
+            "sourceDescription": "Raises the power of Fire-type moves for 5 turns.",
+            "descriptionCs": "Na 5 kol zvýší sílu ohnivých útoků."
+        },
+        {
+            "itemId": 593,
+            "sourceDescription": "Enrages the foe so it can only use attack moves.",
+            "descriptionCs": "Rozzuří soupeře, aby mohl používat pouze útočné útoky."
+        },
+        {
+            "itemId": 594,
+            "sourceDescription": "Fires an icy cold beam that may freeze the foe.",
+            "descriptionCs": "Vystřelí ledově chladný paprsek, který může soupeře zmrazit."
+        },
+        {
+            "itemId": 595,
+            "sourceDescription": "A brutal snow-and- wind attack that may freeze the foe.",
+            "descriptionCs": "Prudký útok sněhem a větrem, který může soupeře zmrazit."
+        },
+        {
+            "itemId": 596,
+            "sourceDescription": "Powerful, but needs recharging the next turn.",
+            "descriptionCs": "Silný útok, který vyžaduje nabíjení v dalším kole."
+        },
+        {
+            "itemId": 597,
+            "sourceDescription": "Creates a wall of light that lowers Sp. Atk damage.",
+            "descriptionCs": "Vytvoří světelnou stěnu, která sníží poškození speciálními útoky."
+        },
+        {
+            "itemId": 598,
+            "sourceDescription": "Negates all damage, but may fail if used in succession.",
+            "descriptionCs": "Zabrání veškerému poškození, ale při opakovaném použití může selhat."
+        },
+        {
+            "itemId": 599,
+            "sourceDescription": "Raises the power of Water-type moves for 5 turns.",
+            "descriptionCs": "Na 5 kol zvýší sílu vodních útoků."
+        },
+        {
+            "itemId": 600,
+            "sourceDescription": "Recovers half the HP of the damage this move inflicts.",
+            "descriptionCs": "Obnoví HP ve výši poloviny poškození způsobeného tímto útokem."
+        },
+        {
+            "itemId": 601,
+            "sourceDescription": "Prevents status abnormality with a mystical power.",
+            "descriptionCs": "Mystickou silou zabrání stavovým potížím."
+        },
+        {
+            "itemId": 602,
+            "sourceDescription": "The less the user likes you, the more powerful this move.",
+            "descriptionCs": "Čím méně vás má uživatel rád, tím je útok silnější."
+        },
+        {
+            "itemId": 603,
+            "sourceDescription": "Absorbs sunlight in the 1st turn, then attacks next turn.",
+            "descriptionCs": "V prvním kole vstřebá sluneční světlo a v dalším zaútočí."
+        },
+        {
+            "itemId": 604,
+            "sourceDescription": "Slams the foe with a hard tail. It may lower Defense.",
+            "descriptionCs": "Udeří soupeře tvrdým ocasem. Může snížit obranu."
+        },
+        {
+            "itemId": 605,
+            "sourceDescription": "A powerful electric attack that may cause paralysis.",
+            "descriptionCs": "Silný elektrický útok, který může ochromit."
+        },
+        {
+            "itemId": 606,
+            "sourceDescription": "Strikes the foe with a thunderbolt. It may paralyze.",
+            "descriptionCs": "Zasáhne soupeře bleskem. Může ochromit."
+        },
+        {
+            "itemId": 607,
+            "sourceDescription": "Causes a quake that has no effect on flying foes.",
+            "descriptionCs": "Vyvolá zemětřesení, které nemá účinek na létající soupeře."
+        },
+        {
+            "itemId": 608,
+            "sourceDescription": "The more the user likes you, the more powerful this move.",
+            "descriptionCs": "Čím více vás má uživatel rád, tím je útok silnější."
+        },
+        {
+            "itemId": 609,
+            "sourceDescription": "Digs underground the 1st turn, then strikes next turn.",
+            "descriptionCs": "V prvním kole se zahrabe pod zem a v dalším zaútočí."
+        },
+        {
+            "itemId": 610,
+            "sourceDescription": "A powerful psychic attack that may lower Sp. Def.",
+            "descriptionCs": "Silný psychický útok, který může snížit speciální obranu."
+        },
+        {
+            "itemId": 611,
+            "sourceDescription": "Hurls a dark lump at the foe. It may lower Sp. Def.",
+            "descriptionCs": "Vrhne na soupeře temnou hroudu. Může snížit speciální obranu."
+        },
+        {
+            "itemId": 612,
+            "sourceDescription": "Destroys barriers like Light Screen and causes damage.",
+            "descriptionCs": "Zničí bariéry jako Light Screen a způsobí poškození."
+        },
+        {
+            "itemId": 613,
+            "sourceDescription": "Creates illusory copies to enhance elusiveness.",
+            "descriptionCs": "Vytvoří své iluzorní kopie a zvýší vyhýbání."
+        },
+        {
+            "itemId": 614,
+            "sourceDescription": "Creates a wall of light that weakens physical attacks.",
+            "descriptionCs": "Vytvoří světelnou stěnu, která zeslabí fyzické útoky."
+        },
+        {
+            "itemId": 615,
+            "sourceDescription": "Zaps the foe with a jolt of electricity that never misses.",
+            "descriptionCs": "Zasáhne soupeře elektrickým výbojem, který nikdy nemine."
+        },
+        {
+            "itemId": 616,
+            "sourceDescription": "Looses a stream of fire that may burn the foe.",
+            "descriptionCs": "Vypustí proud ohně, který může soupeře popálit."
+        },
+        {
+            "itemId": 617,
+            "sourceDescription": "Hurls sludge at the foe. It may poison the foe.",
+            "descriptionCs": "Vrhne na soupeře kal. Může soupeře otrávit."
+        },
+        {
+            "itemId": 618,
+            "sourceDescription": "Causes a sandstorm that hits the foe over several turns.",
+            "descriptionCs": "Vyvolá písečnou bouři, která zraňuje soupeře po několik kol."
+        },
+        {
+            "itemId": 619,
+            "sourceDescription": "A powerful fire attack that may burn the foe.",
+            "descriptionCs": "Silný ohnivý útok, který může soupeře popálit."
+        },
+        {
+            "itemId": 620,
+            "sourceDescription": "Stops the foe from moving with rocks. May lower Speed.",
+            "descriptionCs": "Zastaví soupeře kameny. Může snížit rychlost."
+        },
+        {
+            "itemId": 621,
+            "sourceDescription": "An extremely fast attack that can’t be avoided.",
+            "descriptionCs": "Mimořádně rychlý útok, kterému nelze uniknout."
+        },
+        {
+            "itemId": 622,
+            "sourceDescription": "Prevents the foe from using the same move in a row.",
+            "descriptionCs": "Zabrání soupeři použít stejný útok dvakrát za sebou."
+        },
+        {
+            "itemId": 623,
+            "sourceDescription": "Raises Attack when poisoned, burned, or paralyzed.",
+            "descriptionCs": "Zvýší útok při otravě, popálení nebo ochromení."
+        },
+        {
+            "itemId": 624,
+            "sourceDescription": "Adds an effect to attack depending on the location.",
+            "descriptionCs": "Přidá útoku účinek podle místa použití."
+        },
+        {
+            "itemId": 625,
+            "sourceDescription": "The user sleeps for 2 turns to restore health and status.",
+            "descriptionCs": "Uživatel spí 2 kola, aby obnovil HP a vyléčil stavové potíže."
+        },
+        {
+            "itemId": 626,
+            "sourceDescription": "Makes it tough to attack a foe of the opposite gender.",
+            "descriptionCs": "Ztíží útok na soupeře opačného pohlaví."
+        },
+        {
+            "itemId": 627,
+            "sourceDescription": "While attacking, it may steal the foe’s held item.",
+            "descriptionCs": "Při útoku může ukrást soupeři držený předmět."
+        },
+        {
+            "itemId": 628,
+            "sourceDescription": "Spreads hard- edged wings and slams into the foe.",
+            "descriptionCs": "Roztáhne křídla s ostrými hranami a narazí do soupeře."
+        },
+        {
+            "itemId": 629,
+            "sourceDescription": "Switches abilities with the foe on the turn this is used.",
+            "descriptionCs": "V kole použití si vymění schopnosti se soupeřem."
+        },
+        {
+            "itemId": 630,
+            "sourceDescription": "Steals the effects of the move the foe is trying to use.",
+            "descriptionCs": "Ukradne účinky útoku, který se soupeř chystá použít."
+        },
+        {
+            "itemId": 631,
+            "sourceDescription": "Enables full-power attack, but sharply lowers Sp. Atk.",
+            "descriptionCs": "Umožní zaútočit plnou silou, ale výrazně sníží speciální útok."
+        },
+        {
+            "itemId": 632,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 633,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 634,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 635,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 636,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 637,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 638,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 639,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 640,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 641,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 642,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 643,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 644,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 645,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 646,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 647,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 648,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 649,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 650,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 651,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 652,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 653,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 654,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 655,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 656,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 657,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 658,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 659,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 660,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 661,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 662,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 663,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 664,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 665,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 666,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 667,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 668,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 669,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 670,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 671,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 672,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 673,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 674,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 675,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 676,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 677,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 678,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 679,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 680,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 681,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 682,
+            "sourceDescription": "Attacks the foe with sharp blades or claws.",
+            "descriptionCs": "Zaútočí na soupeře ostrými čepelemi nebo drápy."
+        },
+        {
+            "itemId": 683,
+            "sourceDescription": "Flies up on the first turn, then attacks next turn.",
+            "descriptionCs": "V prvním kole vzlétne a v dalším zaútočí."
+        },
+        {
+            "itemId": 684,
+            "sourceDescription": "Creates a huge wave, then crashes it down on the foe.",
+            "descriptionCs": "Vytvoří obrovskou vlnu a nechá ji dopadnout na soupeře."
+        },
+        {
+            "itemId": 685,
+            "sourceDescription": "Builds enormous power, then slams the foe.",
+            "descriptionCs": "Nahromadí obrovskou sílu a udeří soupeře."
+        },
+        {
+            "itemId": 686,
+            "sourceDescription": "Looses a powerful blast of light that reduces accuracy.",
+            "descriptionCs": "Vypustí silný záblesk světla, který sníží přesnost."
+        },
+        {
+            "itemId": 687,
+            "sourceDescription": "A rock-crushingly tough attack that may lower Defense.",
+            "descriptionCs": "Útok dost silný na drcení kamenů, který může snížit obranu."
+        },
+        {
+            "itemId": 688,
+            "sourceDescription": "Attacks the foe with enough power to climb waterfalls.",
+            "descriptionCs": "Zaútočí na soupeře silou, která stačí k překonání vodopádů."
+        },
+        {
+            "itemId": 689,
+            "sourceDescription": "Dives underwater the 1st turn, then attacks next turn.",
+            "descriptionCs": "V prvním kole se ponoří pod vodu a v dalším zaútočí."
+        },
+        {
+            "itemId": 690,
+            "sourceDescription": "Raises the chance of finding eggs at the daycare.",
+            "descriptionCs": "Zvýší šanci na nalezení vajec v pečovatelském centru."
+        },
+        {
+            "itemId": 691,
+            "sourceDescription": "A charm that will raise the chance of Shiny Pokémon.",
+            "descriptionCs": "Talizman, který zvýší šanci na výskyt Shiny Pokémonů."
+        },
+        {
+            "itemId": 692,
+            "sourceDescription": "A charm that raises the chance of Critical Captures.",
+            "descriptionCs": "Talizman, který zvýší šanci na kritické chycení."
+        },
+        {
+            "itemId": 693,
+            "sourceDescription": "A charm that raises the amount of Exp. earned in battle.",
+            "descriptionCs": "Talizman, který zvýší množství zkušeností získaných v boji."
+        },
+        {
+            "itemId": 694,
+            "sourceDescription": "A catalog full of devices liked by Rotom.",
+            "descriptionCs": "Katalog plný zařízení, která má rád Rotom."
+        },
+        {
+            "itemId": 695,
+            "sourceDescription": "Bouquets made with it are offered as a token of gratitude.",
+            "descriptionCs": "Kytice z této květiny se dávají na znamení vděčnosti."
+        },
+        {
+            "itemId": 696,
+            "sourceDescription": "This glass returns a Pokémon back to its original form.",
+            "descriptionCs": "Toto zrcadlo vrátí Pokémona do jeho původní podoby."
+        },
+        {
+            "itemId": 697,
+            "sourceDescription": "Splicer that fuses Kyurem and a certain Pokémon.",
+            "descriptionCs": "Zařízení, které spojí Pokémona Kyurem s určitým Pokémonem."
+        },
+        {
+            "itemId": 698,
+            "sourceDescription": "An item to store Zygarde Cores and Cells.",
+            "descriptionCs": "Předmět pro ukládání jader a buněk Pokémona Zygarde."
+        },
+        {
+            "itemId": 699,
+            "sourceDescription": "A bottle used to seal a certain Pokémon long ago.",
+            "descriptionCs": "Láhev, která v dávných dobách sloužila k zapečetění určitého Pokémona."
+        },
+        {
+            "itemId": 700,
+            "sourceDescription": "A device to fuse and split Necrozma using a Solgaleo.",
+            "descriptionCs": "Zařízení ke spojení a oddělení Pokémona Necrozma pomocí Pokémona Solgaleo."
+        },
+        {
+            "itemId": 701,
+            "sourceDescription": "A device to fuse and split Necrozma using a Lunala.",
+            "descriptionCs": "Zařízení ke spojení a oddělení Pokémona Necrozma pomocí Pokémona Lunala."
+        },
+        {
+            "itemId": 702,
+            "sourceDescription": "Reins that unite Calyrex with its beloved steed.",
+            "descriptionCs": "Otěže, které spojí Pokémona Calyrex s jeho milovaným ořem."
+        },
+        {
+            "itemId": 703,
+            "sourceDescription": "Enables Pokémon holding their Mega Stone to Mega Evolve.",
+            "descriptionCs": "Umožní Mega evoluci Pokémonům, kteří drží svůj Mega Stone."
+        },
+        {
+            "itemId": 704,
+            "sourceDescription": "A strange ring that enables Z-Move usage.",
+            "descriptionCs": "Zvláštní prsten, který umožní použít Z-útoky."
+        },
+        {
+            "itemId": 705,
+            "sourceDescription": "A band carrying a Wishing Star that allows Dynamaxing.",
+            "descriptionCs": "Náramek s Wishing Star, který umožní Dynamax."
+        },
+        {
+            "itemId": 706,
+            "sourceDescription": "A folding bicycle that is faster than the Running Shoes.",
+            "descriptionCs": "Skládací kolo, které je rychlejší než Running Shoes."
+        },
+        {
+            "itemId": 707,
+            "sourceDescription": "A folding bicycle that doubles your speed or better.",
+            "descriptionCs": "Skládací kolo, které alespoň zdvojnásobí vaši rychlost."
+        },
+        {
+            "itemId": 708,
+            "sourceDescription": "A folding bicycle capable of jumps and wheelies.",
+            "descriptionCs": "Skládací kolo, se kterým lze skákat a jezdit po zadním kole."
+        },
+        {
+            "itemId": 709,
+            "sourceDescription": "Use by any body of water to fish for wild Pokémon.",
+            "descriptionCs": "Lze použít u jakékoli vodní plochy k lovu divokých Pokémonů."
+        },
+        {
+            "itemId": 710,
+            "sourceDescription": "A decent fishing rod for catching wild Pokémon.",
+            "descriptionCs": "Slušný rybářský prut pro chytání divokých Pokémonů."
+        },
+        {
+            "itemId": 711,
+            "sourceDescription": "The best fishing rod for catching wild Pokémon.",
+            "descriptionCs": "Nejlepší rybářský prut pro chytání divokých Pokémonů."
+        },
+        {
+            "itemId": 712,
+            "sourceDescription": "A device that signals an invisible item by sound.",
+            "descriptionCs": "Zařízení, které zvukem upozorní na neviditelný předmět."
+        },
+        {
+            "itemId": 713,
+            "sourceDescription": "Can be viewed anytime. Shows your present location.",
+            "descriptionCs": "Lze ji kdykoli prohlédnout. Ukazuje vaši aktuální polohu."
+        },
+        {
+            "itemId": 714,
+            "sourceDescription": "A rechargeable unit that flags battle- ready Trainers.",
+            "descriptionCs": "Dobíjecí zařízení, které označí trenéry připravené k boji."
+        },
+        {
+            "itemId": 715,
+            "sourceDescription": "A convenient case that holds TMs and HMs.",
+            "descriptionCs": "Praktické pouzdro na TM a HM."
+        },
+        {
+            "itemId": 716,
+            "sourceDescription": "A convenient container that holds Berries.",
+            "descriptionCs": "Praktická nádoba na bobule."
+        },
+        {
+            "itemId": 717,
+            "sourceDescription": "This device grants access to the Pokémon Storage System.",
+            "descriptionCs": "Toto zařízení umožní přístup k systému ukládání Pokémonů."
+        },
+        {
+            "itemId": 718,
+            "sourceDescription": "A case that holds up to 9,999 Coins.",
+            "descriptionCs": "Pouzdro, do kterého se vejde až 9 999 mincí."
+        },
+        {
+            "itemId": 719,
+            "sourceDescription": "Stores Berry Powder made using a Berry Crusher.",
+            "descriptionCs": "Uchovává Berry Powder vyrobený pomocí Berry Crusher."
+        },
+        {
+            "itemId": 720,
+            "sourceDescription": "A tool used for watering Berries and plants.",
+            "descriptionCs": "Nástroj na zalévání bobulí a rostlin."
+        },
+        {
+            "itemId": 721,
+            "sourceDescription": "A tool used to search out Pokémon hiding in grass.",
+            "descriptionCs": "Nástroj pro hledání Pokémonů schovaných v trávě."
+        },
+        {
+            "itemId": 722,
+            "sourceDescription": "A case for holding Pokéblocks made with a Berry Blender.",
+            "descriptionCs": "Pouzdro na Pokéblocky vyrobené pomocí Berry Blender."
+        },
+        {
+            "itemId": 723,
+            "sourceDescription": "A sack used to gather and hold volcanic ash.",
+            "descriptionCs": "Pytel na sběr a uchovávání sopečného popela."
+        },
+        {
+            "itemId": 724,
+            "sourceDescription": "A sweet-sounding flute that awakens Pokémon.",
+            "descriptionCs": "Líbezně znějící flétna, která probudí Pokémony."
+        },
+        {
+            "itemId": 725,
+            "sourceDescription": "Stores information on famous people for instant recall.",
+            "descriptionCs": "Uchovává informace o slavných lidech pro okamžité vybavení."
+        },
+        {
+            "itemId": 726,
+            "sourceDescription": "A TV set tuned to an advice program for Trainers.",
+            "descriptionCs": "Televizor naladěný na pořad s radami pro trenéry."
+        },
+        {
+            "itemId": 727,
+            "sourceDescription": "The ticket required for sailing on a ferry.",
+            "descriptionCs": "Lístek potřebný k plavbě trajektem."
+        },
+        {
+            "itemId": 728,
+            "sourceDescription": "The ticket for a ferry to a distant southern island.",
+            "descriptionCs": "Lístek na trajekt na vzdálený jižní ostrov."
+        },
+        {
+            "itemId": 729,
+            "sourceDescription": "A ticket required to board the ship to Navel Rock.",
+            "descriptionCs": "Lístek potřebný k nalodění na loď do Navel Rock."
+        },
+        {
+            "itemId": 730,
+            "sourceDescription": "A ticket required to board the ship to Birth Island.",
+            "descriptionCs": "Lístek potřebný k nalodění na loď na Birth Island."
+        },
+        {
+            "itemId": 731,
+            "sourceDescription": "A faded sea chart that shows the way to a certain island.",
+            "descriptionCs": "Vybledlá námořní mapa, která ukazuje cestu na určitý ostrov."
+        },
+        {
+            "itemId": 732,
+            "sourceDescription": "A letter to Steven from the President of the Devon Corp.",
+            "descriptionCs": "Dopis Stevenovi od prezidenta společnosti Devon Corp."
+        },
+        {
+            "itemId": 733,
+            "sourceDescription": "A package that contains Devon’s machine parts.",
+            "descriptionCs": "Balík obsahující součástky strojů společnosti Devon."
+        },
+        {
+            "itemId": 734,
+            "sourceDescription": "Nifty goggles that protect eyes from desert sandstorms.",
+            "descriptionCs": "Šikovné brýle, které chrání oči před pouštními písečnými bouřemi."
+        },
+        {
+            "itemId": 735,
+            "sourceDescription": "A device by Devon that signals any unseeable Pokémon.",
+            "descriptionCs": "Zařízení společnosti Devon, které upozorní na jakéhokoli neviditelného Pokémona."
+        },
+        {
+            "itemId": 736,
+            "sourceDescription": "The key for New Mauville beneath Mauville City.",
+            "descriptionCs": "Klíč do New Mauville pod městem Mauville City."
+        },
+        {
+            "itemId": 737,
+            "sourceDescription": "A device found inside the Abandoned Ship.",
+            "descriptionCs": "Zařízení nalezené v Abandoned Ship."
+        },
+        {
+            "itemId": 738,
+            "sourceDescription": "The key to the storage inside the Abandoned Ship.",
+            "descriptionCs": "Klíč ke skladu v Abandoned Ship."
+        },
+        {
+            "itemId": 739,
+            "sourceDescription": "A key that opens a door inside the Abandoned Ship.",
+            "descriptionCs": "Klíč, který otevře dveře v Abandoned Ship."
+        },
+        {
+            "itemId": 740,
+            "sourceDescription": "A key that opens a door inside the Abandoned Ship.",
+            "descriptionCs": "Klíč, který otevře dveře v Abandoned Ship."
+        },
+        {
+            "itemId": 741,
+            "sourceDescription": "A key that opens a door inside the Abandoned Ship.",
+            "descriptionCs": "Klíč, který otevře dveře v Abandoned Ship."
+        },
+        {
+            "itemId": 742,
+            "sourceDescription": "A key that opens a door inside the Abandoned Ship.",
+            "descriptionCs": "Klíč, který otevře dveře v Abandoned Ship."
+        },
+        {
+            "itemId": 743,
+            "sourceDescription": "A meteorite found at Meteor Falls.",
+            "descriptionCs": "Meteorit nalezený v Meteor Falls."
+        },
+        {
+            "itemId": 744,
+            "sourceDescription": "A medal-like item in the same shape as Team Magma’s mark.",
+            "descriptionCs": "Předmět podobný medaili ve tvaru znaku Team Magma."
+        },
+        {
+            "itemId": 745,
+            "sourceDescription": "The pass required for entering Pokémon Contests.",
+            "descriptionCs": "Průkaz potřebný k účasti v soutěžích Pokémonů."
+        },
+        {
+            "itemId": 746,
+            "sourceDescription": "A parcel for Prof. Oak from a Pokémon Mart’s clerk.",
+            "descriptionCs": "Balík pro profesora Oaka od prodavače z Pokémon Mart."
+        },
+        {
+            "itemId": 747,
+            "sourceDescription": "The key to the Cinnabar Island Gym’s entrance.",
+            "descriptionCs": "Klíč ke vchodu do tělocvičny na Cinnabar Island."
+        },
+        {
+            "itemId": 748,
+            "sourceDescription": "A voucher for obtaining a bicycle from the Bike Shop.",
+            "descriptionCs": "Poukaz na získání kola v Bike Shop."
+        },
+        {
+            "itemId": 749,
+            "sourceDescription": "Gold dentures lost by the Safari Zone’s Warden.",
+            "descriptionCs": "Zlatá zubní protéza, kterou ztratil správce Safari Zone."
+        },
+        {
+            "itemId": 750,
+            "sourceDescription": "A card-type door key used in Silph Co’s office.",
+            "descriptionCs": "Kartový klíč ke dveřím používaný v kanceláři společnosti Silph Co."
+        },
+        {
+            "itemId": 751,
+            "sourceDescription": "An elevator key used in Team Rocket’s Hideout.",
+            "descriptionCs": "Klíč k výtahu používaný v úkrytu Team Rocket."
+        },
+        {
+            "itemId": 752,
+            "sourceDescription": "Silph Co’s scope makes unseeable POKéMON visible.",
+            "descriptionCs": "Dalekohled společnosti Silph Co. zviditelní neviditelné Pokémony."
+        },
+        {
+            "itemId": 753,
+            "sourceDescription": "A pass for ferries between One, Two, and Three Island.",
+            "descriptionCs": "Průkaz na trajekty mezi One Island, Two Island a Three Island."
+        },
+        {
+            "itemId": 754,
+            "sourceDescription": "For ferries serving Vermilion and the Sevii Islands.",
+            "descriptionCs": "Pro trajekty mezi Vermilion a Sevii Islands."
+        },
+        {
+            "itemId": 755,
+            "sourceDescription": "A thirst-quenching tea prepared by an old lady.",
+            "descriptionCs": "Čaj připravený starou paní, který uhasí žízeň."
+        },
+        {
+            "itemId": 756,
+            "sourceDescription": "An exquisite, red- glowing gem that symbolizes passion.",
+            "descriptionCs": "Nádherný červeně zářící drahokam, který symbolizuje vášeň."
+        },
+        {
+            "itemId": 757,
+            "sourceDescription": "A brilliant blue gem that symbolizes honesty.",
+            "descriptionCs": "Zářivý modrý drahokam, který symbolizuje poctivost."
+        },
+        {
+            "itemId": 758,
+            "sourceDescription": "Ability changes are prevented for this items’s holder.",
+            "descriptionCs": "Držiteli tohoto předmětu nelze změnit schopnost."
+        },
+        {
+            "itemId": 759,
+            "sourceDescription": "Stat lowering is prevented for this items’s holder.",
+            "descriptionCs": "Držiteli tohoto předmětu nelze snížit statistiky."
+        },
+        {
+            "itemId": 760,
+            "sourceDescription": "Powers up punching moves and removes their contact.",
+            "descriptionCs": "Posílí údery pěstí a zbaví je kontaktu."
+        },
+        {
+            "itemId": 761,
+            "sourceDescription": "Protects the holder from secondary move effects.",
+            "descriptionCs": "Chrání držitele před vedlejšími účinky útoků."
+        },
+        {
+            "itemId": 762,
+            "sourceDescription": "Rolls high numbers. Multihit strikes hit more times.",
+            "descriptionCs": "Padají na nich vysoká čísla. Vícezásahové útoky zasáhnou vícekrát."
+        },
+        {
+            "itemId": 763,
+            "sourceDescription": "Armor inhabited by auspicious wishes. Causes evolution.",
+            "descriptionCs": "Brnění prodchnuté příznivými přáními. Vyvolá evoluci."
+        },
+        {
+            "itemId": 764,
+            "sourceDescription": "Encapsuled energy ups Pokémon with certain Abilities.",
+            "descriptionCs": "Uzavřená energie posílí Pokémony s určitými schopnostmi."
+        },
+        {
+            "itemId": 765,
+            "sourceDescription": "A large and rare bamboo shoot. Best sold to gourmands.",
+            "descriptionCs": "Velký vzácný bambusový výhonek. Nejlépe se prodává gurmánům."
+        },
+        {
+            "itemId": 766,
+            "sourceDescription": "Gimmighoul hoard and treasure these curious coins.",
+            "descriptionCs": "Gimmighoul hromadí a střeží tyto podivné mince."
+        },
+        {
+            "itemId": 767,
+            "sourceDescription": "A shard of an old blade of some sort. Held by Bisharp.",
+            "descriptionCs": "Úlomek nějaké staré čepele. Drží jej Bisharp."
+        },
+        {
+            "itemId": 768,
+            "sourceDescription": "Armor inhabited by malicious will. Causes evolution.",
+            "descriptionCs": "Brnění prodchnuté zlovolnou vůlí. Vyvolá evoluci."
+        },
+        {
+            "itemId": 769,
+            "sourceDescription": "Mirrors an enemy’s stat increases but only once.",
+            "descriptionCs": "Jednorázově napodobí zvýšení soupeřových statistik."
+        },
+        {
+            "itemId": 770,
+            "sourceDescription": "A peculiar scroll with secrets of the dark path.",
+            "descriptionCs": "Neobvyklý svitek s tajemstvími temné cesty."
+        },
+        {
+            "itemId": 771,
+            "sourceDescription": "A peculiar scroll with secrets of the water path.",
+            "descriptionCs": "Neobvyklý svitek s tajemstvími vodní cesty."
+        },
+        {
+            "itemId": 772,
+            "sourceDescription": "Energy charges can be used to cause Terastallization.",
+            "descriptionCs": "Energetické náboje lze použít k vyvolání terastalizace."
+        },
+        {
+            "itemId": 773,
+            "sourceDescription": "A small and rare bamboo shoot. Best sold to gourmands.",
+            "descriptionCs": "Malý vzácný bambusový výhonek. Nejlépe se prodává gurmánům."
+        },
+        {
+            "itemId": 774,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 775,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 776,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 777,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 778,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 779,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 780,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 781,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 782,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 783,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 784,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 785,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 786,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 787,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 788,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 789,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 790,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 791,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 792,
+            "sourceDescription": "A large, glowing gem that lets Dialga change form.",
+            "descriptionCs": "Velký zářící drahokam, který umožní Pokémonovi Dialga změnit podobu."
+        },
+        {
+            "itemId": 793,
+            "sourceDescription": "A large, glowing gem that lets Giratina change form.",
+            "descriptionCs": "Velký zářící drahokam, který umožní Pokémonovi Giratina změnit podobu."
+        },
+        {
+            "itemId": 794,
+            "sourceDescription": "A large, glowing gem that lets Palkia change form.",
+            "descriptionCs": "Velký zářící drahokam, který umožní Pokémonovi Palkia změnit podobu."
+        },
+        {
+            "itemId": 795,
+            "sourceDescription": "A black stone that makes some Pokémon evolve.",
+            "descriptionCs": "Černý kámen, který vyvolá evoluci některých Pokémonů."
+        },
+        {
+            "itemId": 796,
+            "sourceDescription": "A mysterious string that makes some Pokémon evolve.",
+            "descriptionCs": "Záhadný provázek, který vyvolá evoluci některých Pokémonů."
+        },
+        {
+            "itemId": 797,
+            "sourceDescription": "A block of material that makes some Pokémon evolve.",
+            "descriptionCs": "Blok materiálu, který vyvolá evoluci některých Pokémonů."
+        },
+        {
+            "itemId": 798,
+            "sourceDescription": "Sharply boosts Attack, but causes lasting confusion.",
+            "descriptionCs": "Výrazně zvýší útok, ale způsobí trvalé zmatení."
+        },
+        {
+            "itemId": 799,
+            "sourceDescription": "A hold item that raises the power of Fairy-type moves.",
+            "descriptionCs": "Držený předmět, který zvýší sílu útoků vílího typu."
+        },
+        {
+            "itemId": 800,
+            "sourceDescription": "A very syrupy apple that makes certain Pokémon evolve.",
+            "descriptionCs": "Velmi sirupové jablko, které vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 801,
+            "sourceDescription": "A cracked teacup that makes certain Pokémon evolve.",
+            "descriptionCs": "Prasklý šálek, který vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 802,
+            "sourceDescription": "A chipped teacup that makes certain Pokémon evolve.",
+            "descriptionCs": "Otlučený šálek, který vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 803,
+            "sourceDescription": "Allows Ogerpon to wield the Rock- type in battle.",
+            "descriptionCs": "Umožní Pokémonovi Ogerpon v boji používat kamenný typ."
+        },
+        {
+            "itemId": 804,
+            "sourceDescription": "Allows Ogerpon to wield the Water- type in battle.",
+            "descriptionCs": "Umožní Pokémonovi Ogerpon v boji používat vodní typ."
+        },
+        {
+            "itemId": 805,
+            "sourceDescription": "Allows Ogerpon to wield the Fire- type in battle.",
+            "descriptionCs": "Umožní Pokémonovi Ogerpon v boji používat ohnivý typ."
+        },
+        {
+            "itemId": 806,
+            "sourceDescription": "An item that raises the base HP of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní HP."
+        },
+        {
+            "itemId": 807,
+            "sourceDescription": "An item that raises the base Attack of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní útok."
+        },
+        {
+            "itemId": 808,
+            "sourceDescription": "An item that raises the base Defense of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní obranu."
+        },
+        {
+            "itemId": 809,
+            "sourceDescription": "An item that raises the base Sp. Atk. of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní speciální útok."
+        },
+        {
+            "itemId": 810,
+            "sourceDescription": "An item that raises the base Sp. Def. of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní speciální obranu."
+        },
+        {
+            "itemId": 811,
+            "sourceDescription": "An item that raises the base Speed of a Pokémon.",
+            "descriptionCs": "Předmět, který zvýší Pokémonovi základní rychlost."
+        },
+        {
+            "itemId": 812,
+            "sourceDescription": "An item that resets all base points of a Pokémon.",
+            "descriptionCs": "Předmět, který resetuje všechny základní body Pokémona."
+        },
+        {
+            "itemId": 813,
+            "sourceDescription": "A charm that will raise the shards from Tera Raids.",
+            "descriptionCs": "Talizman, který zvýší počet úlomků získaných z Tera nájezdů."
+        },
+        {
+            "itemId": 814,
+            "sourceDescription": "A peculiar metal that makes certain Pokémon evolve.",
+            "descriptionCs": "Neobvyklý kov, který vyvolá evoluci určitých Pokémonů."
+        },
+        {
+            "itemId": 815,
+            "sourceDescription": "These shards may form when a Tera Pokémon faints.",
+            "descriptionCs": "Tyto úlomky mohou vzniknout při vyřazení Pokémona v podobě Tera."
+        },
+        {
+            "itemId": 816,
+            "sourceDescription": "Heals all the status problems of one Pokémon.",
+            "descriptionCs": "Vyléčí všechny stavové potíže jednoho Pokémona."
+        },
+        {
+            "itemId": 817,
+            "sourceDescription": "A bitter powder that restores HP by 20 points.",
+            "descriptionCs": "Hořký prášek, který obnoví 20 HP."
+        },
+        {
+            "itemId": 818,
+            "sourceDescription": "A bitter powder that restores HP by 60 points.",
+            "descriptionCs": "Hořký prášek, který obnoví 60 HP."
+        },
+        {
+            "itemId": 819,
+            "sourceDescription": "A bitter powder that restores HP by 120 points.",
+            "descriptionCs": "Hořký prášek, který obnoví 120 HP."
+        },
+        {
+            "itemId": 820,
+            "sourceDescription": "Sharply raises evasiveness during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší vyhýbání."
+        },
+        {
+            "itemId": 821,
+            "sourceDescription": "Sharply raises defenses during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší obranné statistiky."
+        },
+        {
+            "itemId": 822,
+            "sourceDescription": "Sharply raises offenses during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší útočné statistiky."
+        },
+        {
+            "itemId": 823,
+            "sourceDescription": "Sharply raises offenses & defenses during one battle.",
+            "descriptionCs": "Během jednoho boje výrazně zvýší útočné i obranné statistiky."
+        },
+        {
+            "itemId": 824,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 825,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 826,
+            "sourceDescription": "?????",
+            "descriptionCs": "?????"
+        },
+        {
+            "itemId": 827,
+            "sourceDescription": "A wooden toy carved in the image of a Pokémon. Can be sold.",
+            "descriptionCs": "Dřevěná hračka vyřezaná do podoby Pokémona. Lze ji prodat."
+        }
+    ]
+}

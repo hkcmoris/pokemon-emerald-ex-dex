@@ -27,14 +27,14 @@ final class DexRepository
             ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id';
 
     private const ITEM_SELECT = 'SELECT i.item_id AS itemId, i.name, i.plural_name AS pluralName,
-        i.description, i.price, i.pocket_id AS pocketId, p.name AS pocket, i.secondary_id AS secondaryId,
+        i.description, i.description_cs AS descriptionCs, i.price, i.pocket_id AS pocketId, p.name AS pocket, i.secondary_id AS secondaryId,
         i.hold_effect_id AS holdEffectId, i.hold_effect_param AS holdEffectParam, i.importance,
         i.not_consumed AS notConsumed, i.item_use_type_id AS itemUseTypeId, i.battle_usage_id AS battleUsageId,
         i.fling_power AS flingPower, i.icon_file AS iconFile, i.rom
         FROM emerald_ex_items AS i JOIN emerald_ex_item_pockets AS p
             ON p.dataset_id = i.dataset_id AND p.pocket_id = i.pocket_id';
 
-    private const ABILITY_FIELDS = 'a.ability_id AS abilityId, a.name, a.description, a.ai_rating AS aiRating,
+    private const ABILITY_FIELDS = 'a.ability_id AS abilityId, a.name, a.description, a.description_cs AS descriptionCs, a.ai_rating AS aiRating,
         a.cant_be_copied AS cantBeCopied, a.cant_be_swapped AS cantBeSwapped,
         a.cant_be_traced AS cantBeTraced, a.cant_be_suppressed AS cantBeSuppressed,
         a.cant_be_overwritten AS cantBeOverwritten, a.breakable, a.fails_on_imposter AS failsOnImposter';
@@ -385,6 +385,7 @@ final class DexRepository
             $flags[$key] = (bool) $row[$key];
         }
         return ['abilityId' => $row['abilityId'], 'name' => $row['name'], 'description' => $row['description'],
+            'descriptionCs' => $row['descriptionCs'],
             'aiRating' => $row['aiRating'], 'flags' => $flags];
     }
 

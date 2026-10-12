@@ -14,6 +14,7 @@ const item: Item = {
     name: 'Gengarite',
     pluralName: null,
     description: 'This stone enables Gengar to Mega Evolve in battle.',
+    descriptionCs: 'Tento kámen umožňuje Gengarovi megaevoluci během souboje.',
     price: 0,
     pocketId: 1,
     pocket: 'Items',

@@ -1,0 +1,1561 @@
+{
+    "datasetId": "emerald-ex-1.0.4",
+    "language": "cs",
+    "abilities": [
+        {
+            "abilityId": 0,
+            "sourceDescription": "No special ability.",
+            "descriptionCs": "Nemá žádnou zvláštní schopnost."
+        },
+        {
+            "abilityId": 1,
+            "sourceDescription": "May cause a foe to flinch.",
+            "descriptionCs": "Může soupeři zabránit v útoku v tomto kole."
+        },
+        {
+            "abilityId": 2,
+            "sourceDescription": "Summons rain in battle.",
+            "descriptionCs": "V boji přivolává déšť."
+        },
+        {
+            "abilityId": 3,
+            "sourceDescription": "Gradually boosts Speed.",
+            "descriptionCs": "Postupně zvyšuje rychlost."
+        },
+        {
+            "abilityId": 4,
+            "sourceDescription": "Blocks critical hits.",
+            "descriptionCs": "Blokuje kritické zásahy."
+        },
+        {
+            "abilityId": 5,
+            "sourceDescription": "Negates 1-hit KO attacks.",
+            "descriptionCs": "Zneškodňuje útoky, které vyřazují jediným zásahem."
+        },
+        {
+            "abilityId": 6,
+            "sourceDescription": "Prevents self-destruction.",
+            "descriptionCs": "Brání sebezničení."
+        },
+        {
+            "abilityId": 7,
+            "sourceDescription": "Prevents paralysis.",
+            "descriptionCs": "Brání ochromení."
+        },
+        {
+            "abilityId": 8,
+            "sourceDescription": "Ups evasion in a sandstorm.",
+            "descriptionCs": "V písečné bouři zvyšuje vyhýbání."
+        },
+        {
+            "abilityId": 9,
+            "sourceDescription": "Paralyzes on contact.",
+            "descriptionCs": "Při kontaktu ochromuje."
+        },
+        {
+            "abilityId": 10,
+            "sourceDescription": "Turns electricity into HP.",
+            "descriptionCs": "Mění elektřinu na HP."
+        },
+        {
+            "abilityId": 11,
+            "sourceDescription": "Changes water into HP.",
+            "descriptionCs": "Mění vodu na HP."
+        },
+        {
+            "abilityId": 12,
+            "sourceDescription": "Prevents attraction.",
+            "descriptionCs": "Brání zamilování."
+        },
+        {
+            "abilityId": 13,
+            "sourceDescription": "Negates weather effects.",
+            "descriptionCs": "Ruší účinky počasí."
+        },
+        {
+            "abilityId": 14,
+            "sourceDescription": "Raises accuracy.",
+            "descriptionCs": "Zvyšuje přesnost."
+        },
+        {
+            "abilityId": 15,
+            "sourceDescription": "Prevents sleep.",
+            "descriptionCs": "Brání usnutí."
+        },
+        {
+            "abilityId": 16,
+            "sourceDescription": "Changes type to foe’s move.",
+            "descriptionCs": "Mění typ podle soupeřova útoku."
+        },
+        {
+            "abilityId": 17,
+            "sourceDescription": "Prevents poisoning.",
+            "descriptionCs": "Brání otravě."
+        },
+        {
+            "abilityId": 18,
+            "sourceDescription": "Powers up if hit by fire.",
+            "descriptionCs": "Po zásahu ohněm zesílí."
+        },
+        {
+            "abilityId": 19,
+            "sourceDescription": "Prevents added effects.",
+            "descriptionCs": "Brání dodatečným účinkům."
+        },
+        {
+            "abilityId": 20,
+            "sourceDescription": "Prevents confusion.",
+            "descriptionCs": "Brání zmatení."
+        },
+        {
+            "abilityId": 21,
+            "sourceDescription": "Firmly anchors the body.",
+            "descriptionCs": "Pevně ukotvuje tělo."
+        },
+        {
+            "abilityId": 22,
+            "sourceDescription": "Lowers the foe’s Attack.",
+            "descriptionCs": "Snižuje soupeřův útok."
+        },
+        {
+            "abilityId": 23,
+            "sourceDescription": "Prevents the foe’s escape.",
+            "descriptionCs": "Brání soupeři v útěku."
+        },
+        {
+            "abilityId": 24,
+            "sourceDescription": "Hurts to touch.",
+            "descriptionCs": "Dotyk způsobuje zranění."
+        },
+        {
+            "abilityId": 25,
+            "sourceDescription": "“Supereffective” hits.",
+            "descriptionCs": "Zasahují ho velmi účinné útoky."
+        },
+        {
+            "abilityId": 26,
+            "sourceDescription": "Not hit by Ground attacks.",
+            "descriptionCs": "Nezasáhnou ho zemní útoky."
+        },
+        {
+            "abilityId": 27,
+            "sourceDescription": "Leaves spores on contact.",
+            "descriptionCs": "Při kontaktu uvolňuje výtrusy."
+        },
+        {
+            "abilityId": 28,
+            "sourceDescription": "Passes on status problems.",
+            "descriptionCs": "Přenáší stavové potíže."
+        },
+        {
+            "abilityId": 29,
+            "sourceDescription": "Prevents ability reduction.",
+            "descriptionCs": "Brání snížení statistik."
+        },
+        {
+            "abilityId": 30,
+            "sourceDescription": "Heals upon switching out.",
+            "descriptionCs": "Při vystřídání se vyléčí."
+        },
+        {
+            "abilityId": 31,
+            "sourceDescription": "Draws electrical moves.",
+            "descriptionCs": "Přitahuje elektrické útoky."
+        },
+        {
+            "abilityId": 32,
+            "sourceDescription": "Promotes added effects.",
+            "descriptionCs": "Podporuje dodatečné účinky."
+        },
+        {
+            "abilityId": 33,
+            "sourceDescription": "Raises Speed in rain.",
+            "descriptionCs": "Za deště zvyšuje rychlost."
+        },
+        {
+            "abilityId": 34,
+            "sourceDescription": "Raises Speed in sunshine.",
+            "descriptionCs": "Za slunečního svitu zvyšuje rychlost."
+        },
+        {
+            "abilityId": 35,
+            "sourceDescription": "Encounter rate increases.",
+            "descriptionCs": "Zvyšuje četnost setkání."
+        },
+        {
+            "abilityId": 36,
+            "sourceDescription": "Copies special ability.",
+            "descriptionCs": "Kopíruje zvláštní schopnost."
+        },
+        {
+            "abilityId": 37,
+            "sourceDescription": "Raises Attack.",
+            "descriptionCs": "Zvyšuje útok."
+        },
+        {
+            "abilityId": 38,
+            "sourceDescription": "Poisons foe on contact.",
+            "descriptionCs": "Při kontaktu otráví soupeře."
+        },
+        {
+            "abilityId": 39,
+            "sourceDescription": "Prevents flinching.",
+            "descriptionCs": "Brání vynechání útoku kvůli leknutí."
+        },
+        {
+            "abilityId": 40,
+            "sourceDescription": "Prevents freezing.",
+            "descriptionCs": "Brání zmrazení."
+        },
+        {
+            "abilityId": 41,
+            "sourceDescription": "Prevents burns.",
+            "descriptionCs": "Brání popálení."
+        },
+        {
+            "abilityId": 42,
+            "sourceDescription": "Traps Steel-type Pokémon.",
+            "descriptionCs": "Uvězňuje Pokémony ocelového typu."
+        },
+        {
+            "abilityId": 43,
+            "sourceDescription": "Avoids sound-based moves.",
+            "descriptionCs": "Vyhýbá se zvukovým útokům."
+        },
+        {
+            "abilityId": 44,
+            "sourceDescription": "Slight HP recovery in rain.",
+            "descriptionCs": "Za deště mírně obnovuje HP."
+        },
+        {
+            "abilityId": 45,
+            "sourceDescription": "Summons a sandstorm.",
+            "descriptionCs": "Přivolává písečnou bouři."
+        },
+        {
+            "abilityId": 46,
+            "sourceDescription": "Raises foe’s PP usage.",
+            "descriptionCs": "Zvyšuje spotřebu PP soupeře."
+        },
+        {
+            "abilityId": 47,
+            "sourceDescription": "Heat-and-cold protection.",
+            "descriptionCs": "Chrání před horkem a chladem."
+        },
+        {
+            "abilityId": 48,
+            "sourceDescription": "Awakens quickly from sleep.",
+            "descriptionCs": "Rychle se probouzí ze spánku."
+        },
+        {
+            "abilityId": 49,
+            "sourceDescription": "Burns the foe on contact.",
+            "descriptionCs": "Při kontaktu popálí soupeře."
+        },
+        {
+            "abilityId": 50,
+            "sourceDescription": "Makes escaping easier.",
+            "descriptionCs": "Usnadňuje útěk."
+        },
+        {
+            "abilityId": 51,
+            "sourceDescription": "Prevents loss of accuracy.",
+            "descriptionCs": "Brání snížení přesnosti."
+        },
+        {
+            "abilityId": 52,
+            "sourceDescription": "Prevents Attack reduction.",
+            "descriptionCs": "Brání snížení útoku."
+        },
+        {
+            "abilityId": 53,
+            "sourceDescription": "May pick up items.",
+            "descriptionCs": "Může sbírat předměty."
+        },
+        {
+            "abilityId": 54,
+            "sourceDescription": "Moves only every two turns.",
+            "descriptionCs": "Útočí jen každé druhé kolo."
+        },
+        {
+            "abilityId": 55,
+            "sourceDescription": "Trades accuracy for power.",
+            "descriptionCs": "Zvyšuje sílu na úkor přesnosti."
+        },
+        {
+            "abilityId": 56,
+            "sourceDescription": "Infatuates on contact.",
+            "descriptionCs": "Při kontaktu vyvolává zamilování."
+        },
+        {
+            "abilityId": 57,
+            "sourceDescription": "Powers up with Minus.",
+            "descriptionCs": "Se schopností Minus zesílí."
+        },
+        {
+            "abilityId": 58,
+            "sourceDescription": "Powers up with Plus.",
+            "descriptionCs": "Se schopností Plus zesílí."
+        },
+        {
+            "abilityId": 59,
+            "sourceDescription": "Changes with the weather.",
+            "descriptionCs": "Mění se podle počasí."
+        },
+        {
+            "abilityId": 60,
+            "sourceDescription": "Prevents item theft.",
+            "descriptionCs": "Brání krádeži předmětu."
+        },
+        {
+            "abilityId": 61,
+            "sourceDescription": "Heals the body by shedding.",
+            "descriptionCs": "Léčí tělo svlékáním kůže."
+        },
+        {
+            "abilityId": 62,
+            "sourceDescription": "Ups Attack if suffering.",
+            "descriptionCs": "Při stavových potížích zvyšuje útok."
+        },
+        {
+            "abilityId": 63,
+            "sourceDescription": "Ups Defense if suffering.",
+            "descriptionCs": "Při stavových potížích zvyšuje obranu."
+        },
+        {
+            "abilityId": 64,
+            "sourceDescription": "Draining causes injury.",
+            "descriptionCs": "Vysávání způsobuje zranění."
+        },
+        {
+            "abilityId": 65,
+            "sourceDescription": "Ups Grass moves in a pinch.",
+            "descriptionCs": "V nouzi posiluje travní útoky."
+        },
+        {
+            "abilityId": 66,
+            "sourceDescription": "Ups Fire moves in a pinch.",
+            "descriptionCs": "V nouzi posiluje ohnivé útoky."
+        },
+        {
+            "abilityId": 67,
+            "sourceDescription": "Ups Water moves in a pinch.",
+            "descriptionCs": "V nouzi posiluje vodní útoky."
+        },
+        {
+            "abilityId": 68,
+            "sourceDescription": "Ups Bug moves in a pinch.",
+            "descriptionCs": "V nouzi posiluje hmyzí útoky."
+        },
+        {
+            "abilityId": 69,
+            "sourceDescription": "Prevents recoil damage.",
+            "descriptionCs": "Brání poškození zpětným rázem."
+        },
+        {
+            "abilityId": 70,
+            "sourceDescription": "Summons sunlight in battle.",
+            "descriptionCs": "V boji přivolává sluneční svit."
+        },
+        {
+            "abilityId": 71,
+            "sourceDescription": "Prevents fleeing.",
+            "descriptionCs": "Brání útěku."
+        },
+        {
+            "abilityId": 72,
+            "sourceDescription": "Prevents sleep.",
+            "descriptionCs": "Brání usnutí."
+        },
+        {
+            "abilityId": 73,
+            "sourceDescription": "Prevents ability reduction.",
+            "descriptionCs": "Brání snížení statistik."
+        },
+        {
+            "abilityId": 74,
+            "sourceDescription": "Raises Attack.",
+            "descriptionCs": "Zvyšuje útok."
+        },
+        {
+            "abilityId": 75,
+            "sourceDescription": "Blocks critical hits.",
+            "descriptionCs": "Blokuje kritické zásahy."
+        },
+        {
+            "abilityId": 76,
+            "sourceDescription": "Negates weather effects.",
+            "descriptionCs": "Ruší účinky počasí."
+        },
+        {
+            "abilityId": 77,
+            "sourceDescription": "Ups evasion if confused.",
+            "descriptionCs": "Při zmatení zvyšuje vyhýbání."
+        },
+        {
+            "abilityId": 78,
+            "sourceDescription": "Electricity raises Speed.",
+            "descriptionCs": "Elektřina zvyšuje rychlost."
+        },
+        {
+            "abilityId": 79,
+            "sourceDescription": "Powers up against rivals.",
+            "descriptionCs": "Proti rivalům zesílí."
+        },
+        {
+            "abilityId": 80,
+            "sourceDescription": "Flinching raises Speed.",
+            "descriptionCs": "Leknutí zvyšuje rychlost."
+        },
+        {
+            "abilityId": 81,
+            "sourceDescription": "Ups evasion in Hail or Snow.",
+            "descriptionCs": "Za krupobití nebo sněžení zvyšuje vyhýbání."
+        },
+        {
+            "abilityId": 82,
+            "sourceDescription": "Eats Berries early.",
+            "descriptionCs": "Jí bobule dříve."
+        },
+        {
+            "abilityId": 83,
+            "sourceDescription": "Critical hits raise Attack.",
+            "descriptionCs": "Kritické zásahy zvyšují útok."
+        },
+        {
+            "abilityId": 84,
+            "sourceDescription": "Using a hold item ups Speed.",
+            "descriptionCs": "Použití drženého předmětu zvyšuje rychlost."
+        },
+        {
+            "abilityId": 85,
+            "sourceDescription": "Heat and burn protection.",
+            "descriptionCs": "Chrání před horkem a popálením."
+        },
+        {
+            "abilityId": 86,
+            "sourceDescription": "Prone to wild stat changes.",
+            "descriptionCs": "Má sklony k prudkým změnám statistik."
+        },
+        {
+            "abilityId": 87,
+            "sourceDescription": "Prefers moisture to heat.",
+            "descriptionCs": "Dává přednost vlhku před horkem."
+        },
+        {
+            "abilityId": 88,
+            "sourceDescription": "Adjusts power favorably.",
+            "descriptionCs": "Výhodně upravuje sílu."
+        },
+        {
+            "abilityId": 89,
+            "sourceDescription": "Boosts punching moves.",
+            "descriptionCs": "Posiluje útoky pěstmi."
+        },
+        {
+            "abilityId": 90,
+            "sourceDescription": "Restores HP if poisoned.",
+            "descriptionCs": "Při otravě obnovuje HP."
+        },
+        {
+            "abilityId": 91,
+            "sourceDescription": "Boosts same type attacks.",
+            "descriptionCs": "Posiluje útoky stejného typu."
+        },
+        {
+            "abilityId": 92,
+            "sourceDescription": "Multi-hit moves hit 5 times.",
+            "descriptionCs": "Vícezásahové útoky zasáhnou 5krát."
+        },
+        {
+            "abilityId": 93,
+            "sourceDescription": "Cures status in rain.",
+            "descriptionCs": "Za deště léčí stavové potíže."
+        },
+        {
+            "abilityId": 94,
+            "sourceDescription": "Powers up in sunshine.",
+            "descriptionCs": "Za slunečního svitu zesílí."
+        },
+        {
+            "abilityId": 95,
+            "sourceDescription": "Ups Speed if suffering.",
+            "descriptionCs": "Při stavových potížích zvyšuje rychlost."
+        },
+        {
+            "abilityId": 96,
+            "sourceDescription": "Moves become Normal-type.",
+            "descriptionCs": "Útoky se mění na normální typ."
+        },
+        {
+            "abilityId": 97,
+            "sourceDescription": "Boosts critical hits.",
+            "descriptionCs": "Posiluje kritické zásahy."
+        },
+        {
+            "abilityId": 98,
+            "sourceDescription": "Only damaged by attacks.",
+            "descriptionCs": "Poškození způsobují jen útoky."
+        },
+        {
+            "abilityId": 99,
+            "sourceDescription": "Ensures that all moves hit.",
+            "descriptionCs": "Zajišťuje zásah všech útoků."
+        },
+        {
+            "abilityId": 100,
+            "sourceDescription": "Always moves last.",
+            "descriptionCs": "Vždy útočí jako poslední."
+        },
+        {
+            "abilityId": 101,
+            "sourceDescription": "Boosts weaker moves.",
+            "descriptionCs": "Posiluje slabší útoky."
+        },
+        {
+            "abilityId": 102,
+            "sourceDescription": "Blocks status in sunshine.",
+            "descriptionCs": "Za slunečního svitu brání stavovým potížím."
+        },
+        {
+            "abilityId": 103,
+            "sourceDescription": "Can’t use hold items.",
+            "descriptionCs": "Nemůže používat držené předměty."
+        },
+        {
+            "abilityId": 104,
+            "sourceDescription": "Moves hit through abilities.",
+            "descriptionCs": "Útoky zasahují i přes schopnosti."
+        },
+        {
+            "abilityId": 105,
+            "sourceDescription": "Critical hits land often.",
+            "descriptionCs": "Často způsobuje kritické zásahy."
+        },
+        {
+            "abilityId": 106,
+            "sourceDescription": "Fainting damages the foe.",
+            "descriptionCs": "Jeho vyřazení z boje poškodí soupeře."
+        },
+        {
+            "abilityId": 107,
+            "sourceDescription": "Senses dangerous moves.",
+            "descriptionCs": "Vnímá nebezpečné útoky."
+        },
+        {
+            "abilityId": 108,
+            "sourceDescription": "Determines a foe’s move.",
+            "descriptionCs": "Odhaluje soupeřův útok."
+        },
+        {
+            "abilityId": 109,
+            "sourceDescription": "Ignores stat changes.",
+            "descriptionCs": "Ignoruje změny statistik."
+        },
+        {
+            "abilityId": 110,
+            "sourceDescription": "Ups “not very effective”.",
+            "descriptionCs": "Posiluje málo účinné útoky."
+        },
+        {
+            "abilityId": 111,
+            "sourceDescription": "Weakens “supereffective”.",
+            "descriptionCs": "Oslabuje velmi účinné útoky."
+        },
+        {
+            "abilityId": 112,
+            "sourceDescription": "Takes a while to get going.",
+            "descriptionCs": "Chvíli trvá, než se rozběhne."
+        },
+        {
+            "abilityId": 113,
+            "sourceDescription": "Hits Ghost-type Pokémon.",
+            "descriptionCs": "Zasahuje Pokémony duchového typu."
+        },
+        {
+            "abilityId": 114,
+            "sourceDescription": "Draws in Water moves.",
+            "descriptionCs": "Přitahuje vodní útoky."
+        },
+        {
+            "abilityId": 115,
+            "sourceDescription": "HP recovery in Hail or Snow.",
+            "descriptionCs": "Za krupobití nebo sněžení obnovuje HP."
+        },
+        {
+            "abilityId": 116,
+            "sourceDescription": "Weakens “supereffective”.",
+            "descriptionCs": "Oslabuje velmi účinné útoky."
+        },
+        {
+            "abilityId": 117,
+            "sourceDescription": "Summons a Hailstorm.",
+            "descriptionCs": "Přivolává krupobití."
+        },
+        {
+            "abilityId": 118,
+            "sourceDescription": "May gather Honey.",
+            "descriptionCs": "Může sbírat předmět Honey."
+        },
+        {
+            "abilityId": 119,
+            "sourceDescription": "Checks a foe’s item.",
+            "descriptionCs": "Zjišťuje soupeřův předmět."
+        },
+        {
+            "abilityId": 120,
+            "sourceDescription": "Boosts moves with recoil.",
+            "descriptionCs": "Posiluje útoky se zpětným rázem."
+        },
+        {
+            "abilityId": 121,
+            "sourceDescription": "Changes type to its Plate.",
+            "descriptionCs": "Mění typ podle své desky Plate."
+        },
+        {
+            "abilityId": 122,
+            "sourceDescription": "Allies power up in sunshine.",
+            "descriptionCs": "Spojenci za slunečního svitu zesílí."
+        },
+        {
+            "abilityId": 123,
+            "sourceDescription": "Damages sleeping Pokémon.",
+            "descriptionCs": "Poškozuje spící Pokémony."
+        },
+        {
+            "abilityId": 124,
+            "sourceDescription": "Steals the foe’s held item.",
+            "descriptionCs": "Krade soupeřův držený předmět."
+        },
+        {
+            "abilityId": 125,
+            "sourceDescription": "Trades effects for power.",
+            "descriptionCs": "Zvyšuje sílu na úkor účinků."
+        },
+        {
+            "abilityId": 126,
+            "sourceDescription": "Inverts stat changes.",
+            "descriptionCs": "Obrací změny statistik."
+        },
+        {
+            "abilityId": 127,
+            "sourceDescription": "Foes can’t eat Berries.",
+            "descriptionCs": "Soupeři nemohou jíst bobule."
+        },
+        {
+            "abilityId": 128,
+            "sourceDescription": "Lowered stats up Attack.",
+            "descriptionCs": "Snížení statistik zvyšuje útok."
+        },
+        {
+            "abilityId": 129,
+            "sourceDescription": "Gives up at half HP.",
+            "descriptionCs": "Při polovině HP se vzdává."
+        },
+        {
+            "abilityId": 130,
+            "sourceDescription": "Disables moves on contact.",
+            "descriptionCs": "Při kontaktu znemožňuje použití útoků."
+        },
+        {
+            "abilityId": 131,
+            "sourceDescription": "Heals partner Pokémon.",
+            "descriptionCs": "Léčí spojeneckého Pokémona."
+        },
+        {
+            "abilityId": 132,
+            "sourceDescription": "Lowers damage to partner.",
+            "descriptionCs": "Snižuje poškození utrpěné spojencem."
+        },
+        {
+            "abilityId": 133,
+            "sourceDescription": "Its stats change when hit.",
+            "descriptionCs": "Po zásahu se mění jeho statistiky."
+        },
+        {
+            "abilityId": 134,
+            "sourceDescription": "Doubles weight.",
+            "descriptionCs": "Zdvojnásobuje hmotnost."
+        },
+        {
+            "abilityId": 135,
+            "sourceDescription": "Halves weight.",
+            "descriptionCs": "Snižuje hmotnost na polovinu."
+        },
+        {
+            "abilityId": 136,
+            "sourceDescription": "Halves damage at full HP.",
+            "descriptionCs": "Při plném HP snižuje poškození na polovinu."
+        },
+        {
+            "abilityId": 137,
+            "sourceDescription": "Ups Attack if poisoned.",
+            "descriptionCs": "Při otravě zvyšuje útok."
+        },
+        {
+            "abilityId": 138,
+            "sourceDescription": "Ups Sp. Atk if burned.",
+            "descriptionCs": "Při popálení zvyšuje speciální útok."
+        },
+        {
+            "abilityId": 139,
+            "sourceDescription": "May recycle a used Berry.",
+            "descriptionCs": "Může obnovit použitou bobuli."
+        },
+        {
+            "abilityId": 140,
+            "sourceDescription": "Can’t be damaged by an ally.",
+            "descriptionCs": "Spojenec ho nemůže poškodit."
+        },
+        {
+            "abilityId": 141,
+            "sourceDescription": "Stats change gradually.",
+            "descriptionCs": "Postupně mění statistiky."
+        },
+        {
+            "abilityId": 142,
+            "sourceDescription": "Blocks weather and powder.",
+            "descriptionCs": "Blokuje počasí a prášek."
+        },
+        {
+            "abilityId": 143,
+            "sourceDescription": "Poisons foe on contact.",
+            "descriptionCs": "Při kontaktu otráví soupeře."
+        },
+        {
+            "abilityId": 144,
+            "sourceDescription": "Heals upon switching out.",
+            "descriptionCs": "Při vystřídání se vyléčí."
+        },
+        {
+            "abilityId": 145,
+            "sourceDescription": "Prevents Defense loss.",
+            "descriptionCs": "Brání snížení obrany."
+        },
+        {
+            "abilityId": 146,
+            "sourceDescription": "Ups Speed in a sandstorm.",
+            "descriptionCs": "V písečné bouři zvyšuje rychlost."
+        },
+        {
+            "abilityId": 147,
+            "sourceDescription": "May avoid status problems.",
+            "descriptionCs": "Může se vyhnout stavovým potížím."
+        },
+        {
+            "abilityId": 148,
+            "sourceDescription": "Moving last boosts power.",
+            "descriptionCs": "Útok v posledním pořadí zvyšuje sílu."
+        },
+        {
+            "abilityId": 149,
+            "sourceDescription": "Appears as a partner.",
+            "descriptionCs": "Vypadá jako spojenec."
+        },
+        {
+            "abilityId": 150,
+            "sourceDescription": "Transforms into the foe.",
+            "descriptionCs": "Promění se v soupeře."
+        },
+        {
+            "abilityId": 151,
+            "sourceDescription": "Passes through barriers.",
+            "descriptionCs": "Prochází přes bariéry."
+        },
+        {
+            "abilityId": 152,
+            "sourceDescription": "Spreads with contact.",
+            "descriptionCs": "Šíří se kontaktem."
+        },
+        {
+            "abilityId": 153,
+            "sourceDescription": "KOs raise Attack.",
+            "descriptionCs": "Vyřazení Pokémona z boje zvyšuje útok."
+        },
+        {
+            "abilityId": 154,
+            "sourceDescription": "Dark hits raise Attack.",
+            "descriptionCs": "Zásahy temnými útoky zvyšují útok."
+        },
+        {
+            "abilityId": 155,
+            "sourceDescription": "Raises Speed when scared.",
+            "descriptionCs": "Při vystrašení zvyšuje rychlost."
+        },
+        {
+            "abilityId": 156,
+            "sourceDescription": "Reflects status moves.",
+            "descriptionCs": "Odráží stavové útoky."
+        },
+        {
+            "abilityId": 157,
+            "sourceDescription": "Grass increases Attack.",
+            "descriptionCs": "Tráva zvyšuje útok."
+        },
+        {
+            "abilityId": 158,
+            "sourceDescription": "Status moves go first.",
+            "descriptionCs": "Stavové útoky se provádějí jako první."
+        },
+        {
+            "abilityId": 159,
+            "sourceDescription": "Powers up in a sandstorm.",
+            "descriptionCs": "V písečné bouři zesílí."
+        },
+        {
+            "abilityId": 160,
+            "sourceDescription": "Hurts to touch.",
+            "descriptionCs": "Dotyk způsobuje zranění."
+        },
+        {
+            "abilityId": 161,
+            "sourceDescription": "Transforms at half HP.",
+            "descriptionCs": "Při polovině HP se promění."
+        },
+        {
+            "abilityId": 162,
+            "sourceDescription": "Raises party accuracy.",
+            "descriptionCs": "Zvyšuje přesnost týmu."
+        },
+        {
+            "abilityId": 163,
+            "sourceDescription": "Moves hit through abilities.",
+            "descriptionCs": "Útoky zasahují i přes schopnosti."
+        },
+        {
+            "abilityId": 164,
+            "sourceDescription": "Moves hit through abilities.",
+            "descriptionCs": "Útoky zasahují i přes schopnosti."
+        },
+        {
+            "abilityId": 165,
+            "sourceDescription": "Prevents limiting of moves.",
+            "descriptionCs": "Brání omezování útoků."
+        },
+        {
+            "abilityId": 166,
+            "sourceDescription": "Protects Grass-types.",
+            "descriptionCs": "Chrání Pokémony travního typu."
+        },
+        {
+            "abilityId": 167,
+            "sourceDescription": "Eating Berries restores HP.",
+            "descriptionCs": "Požití bobulí obnovuje HP."
+        },
+        {
+            "abilityId": 168,
+            "sourceDescription": "Changes type to used move.",
+            "descriptionCs": "Mění typ podle použitého útoku."
+        },
+        {
+            "abilityId": 169,
+            "sourceDescription": "Raises Defense.",
+            "descriptionCs": "Zvyšuje obranu."
+        },
+        {
+            "abilityId": 170,
+            "sourceDescription": "Steals the foe’s held item.",
+            "descriptionCs": "Krade soupeřův držený předmět."
+        },
+        {
+            "abilityId": 171,
+            "sourceDescription": "Avoids some projectiles.",
+            "descriptionCs": "Vyhýbá se některým projektilům."
+        },
+        {
+            "abilityId": 172,
+            "sourceDescription": "Lowered stats up Sp. Atk.",
+            "descriptionCs": "Snížení statistik zvyšuje speciální útok."
+        },
+        {
+            "abilityId": 173,
+            "sourceDescription": "Boosts biting moves.",
+            "descriptionCs": "Posiluje útoky kousnutím."
+        },
+        {
+            "abilityId": 174,
+            "sourceDescription": "Normal moves become Ice.",
+            "descriptionCs": "Normální útoky se mění na ledové."
+        },
+        {
+            "abilityId": 175,
+            "sourceDescription": "Prevents party from sleep.",
+            "descriptionCs": "Brání usnutí Pokémonů v týmu."
+        },
+        {
+            "abilityId": 176,
+            "sourceDescription": "Transforms as it battles.",
+            "descriptionCs": "Během boje se proměňuje."
+        },
+        {
+            "abilityId": 177,
+            "sourceDescription": "Flying moves go first.",
+            "descriptionCs": "Létající útoky se provádějí jako první."
+        },
+        {
+            "abilityId": 178,
+            "sourceDescription": "Boosts pulse moves.",
+            "descriptionCs": "Posiluje pulzní útoky."
+        },
+        {
+            "abilityId": 179,
+            "sourceDescription": "Ups Defense in grass.",
+            "descriptionCs": "V trávě zvyšuje obranu."
+        },
+        {
+            "abilityId": 180,
+            "sourceDescription": "Passes its item to an ally.",
+            "descriptionCs": "Předává svůj předmět spojenci."
+        },
+        {
+            "abilityId": 181,
+            "sourceDescription": "Boosts contact moves.",
+            "descriptionCs": "Posiluje kontaktní útoky."
+        },
+        {
+            "abilityId": 182,
+            "sourceDescription": "Normal moves become Fairy.",
+            "descriptionCs": "Normální útoky se mění na vílí."
+        },
+        {
+            "abilityId": 183,
+            "sourceDescription": "Lowers Speed on contact.",
+            "descriptionCs": "Při kontaktu snižuje rychlost."
+        },
+        {
+            "abilityId": 184,
+            "sourceDescription": "Normal moves become Flying.",
+            "descriptionCs": "Normální útoky se mění na létající."
+        },
+        {
+            "abilityId": 185,
+            "sourceDescription": "Moves hit twice.",
+            "descriptionCs": "Útoky zasahují dvakrát."
+        },
+        {
+            "abilityId": 186,
+            "sourceDescription": "Boosts Dark moves.",
+            "descriptionCs": "Posiluje temné útoky."
+        },
+        {
+            "abilityId": 187,
+            "sourceDescription": "Boosts Fairy moves.",
+            "descriptionCs": "Posiluje vílí útoky."
+        },
+        {
+            "abilityId": 188,
+            "sourceDescription": "Reverse aura abilities.",
+            "descriptionCs": "Obrací účinky schopností aury."
+        },
+        {
+            "abilityId": 189,
+            "sourceDescription": "Summons heavy rain.",
+            "descriptionCs": "Přivolává silný déšť."
+        },
+        {
+            "abilityId": 190,
+            "sourceDescription": "Summons intense sunlight.",
+            "descriptionCs": "Přivolává intenzivní sluneční svit."
+        },
+        {
+            "abilityId": 191,
+            "sourceDescription": "Summons strong winds.",
+            "descriptionCs": "Přivolává silný vítr."
+        },
+        {
+            "abilityId": 192,
+            "sourceDescription": "Boosts Defense when hit.",
+            "descriptionCs": "Po zásahu zvyšuje obranu."
+        },
+        {
+            "abilityId": 193,
+            "sourceDescription": "Flees at half HP.",
+            "descriptionCs": "Při polovině HP prchá."
+        },
+        {
+            "abilityId": 194,
+            "sourceDescription": "Flees at half HP.",
+            "descriptionCs": "Při polovině HP prchá."
+        },
+        {
+            "abilityId": 195,
+            "sourceDescription": "Water boosts Defense.",
+            "descriptionCs": "Voda zvyšuje obranu."
+        },
+        {
+            "abilityId": 196,
+            "sourceDescription": "Criticals poisoned foes.",
+            "descriptionCs": "Způsobuje kritické zásahy otráveným soupeřům."
+        },
+        {
+            "abilityId": 197,
+            "sourceDescription": "Shell breaks at half HP.",
+            "descriptionCs": "Při polovině HP praská krunýř."
+        },
+        {
+            "abilityId": 198,
+            "sourceDescription": "Stronger as foes switch in.",
+            "descriptionCs": "Zesílí, když soupeři přicházejí do boje."
+        },
+        {
+            "abilityId": 199,
+            "sourceDescription": "Guards from fire and burns.",
+            "descriptionCs": "Chrání před ohněm a popálením."
+        },
+        {
+            "abilityId": 200,
+            "sourceDescription": "Powers up Steel moves.",
+            "descriptionCs": "Posiluje ocelové útoky."
+        },
+        {
+            "abilityId": 201,
+            "sourceDescription": "Boosts Sp. Atk at low HP.",
+            "descriptionCs": "Při nízkém HP zvyšuje speciální útok."
+        },
+        {
+            "abilityId": 202,
+            "sourceDescription": "Raises Speed in Hail or Snow.",
+            "descriptionCs": "Za krupobití nebo sněžení zvyšuje rychlost."
+        },
+        {
+            "abilityId": 203,
+            "sourceDescription": "Never makes contact.",
+            "descriptionCs": "Nikdy nedochází ke kontaktu."
+        },
+        {
+            "abilityId": 204,
+            "sourceDescription": "Makes sound moves Water.",
+            "descriptionCs": "Mění zvukové útoky na vodní."
+        },
+        {
+            "abilityId": 205,
+            "sourceDescription": "Healing moves go first.",
+            "descriptionCs": "Léčivé útoky se provádějí jako první."
+        },
+        {
+            "abilityId": 206,
+            "sourceDescription": "Normal moves turn Electric.",
+            "descriptionCs": "Normální útoky se mění na elektrické."
+        },
+        {
+            "abilityId": 207,
+            "sourceDescription": "Faster on electricity.",
+            "descriptionCs": "Na elektřině je rychlejší."
+        },
+        {
+            "abilityId": 208,
+            "sourceDescription": "Forms a school when strong.",
+            "descriptionCs": "Když je silný, vytváří hejno."
+        },
+        {
+            "abilityId": 209,
+            "sourceDescription": "Decoy protects it once.",
+            "descriptionCs": "Návnada ho jednou ochrání."
+        },
+        {
+            "abilityId": 210,
+            "sourceDescription": "Changes form after a KO.",
+            "descriptionCs": "Po vyřazení Pokémona z boje mění podobu."
+        },
+        {
+            "abilityId": 211,
+            "sourceDescription": "Cells aid it when weakened.",
+            "descriptionCs": "Při oslabení mu pomáhají buňky."
+        },
+        {
+            "abilityId": 212,
+            "sourceDescription": "Poisons any type.",
+            "descriptionCs": "Otráví jakýkoli typ."
+        },
+        {
+            "abilityId": 213,
+            "sourceDescription": "Always drowsing.",
+            "descriptionCs": "Stále podřimuje."
+        },
+        {
+            "abilityId": 214,
+            "sourceDescription": "Protects from priority.",
+            "descriptionCs": "Chrání před prioritními útoky."
+        },
+        {
+            "abilityId": 215,
+            "sourceDescription": "Hurts foe when defeated.",
+            "descriptionCs": "Po porážce zraní soupeře."
+        },
+        {
+            "abilityId": 216,
+            "sourceDescription": "Dances along with others.",
+            "descriptionCs": "Tančí spolu s ostatními."
+        },
+        {
+            "abilityId": 217,
+            "sourceDescription": "Boosts ally’s Sp. Atk.",
+            "descriptionCs": "Zvyšuje speciální útok spojence."
+        },
+        {
+            "abilityId": 218,
+            "sourceDescription": "Tougher but flammable.",
+            "descriptionCs": "Je odolnější, ale hořlavý."
+        },
+        {
+            "abilityId": 219,
+            "sourceDescription": "Protects from priority.",
+            "descriptionCs": "Chrání před prioritními útoky."
+        },
+        {
+            "abilityId": 220,
+            "sourceDescription": "KOs raise Sp. Atk.",
+            "descriptionCs": "Vyřazení Pokémona z boje zvyšuje speciální útok."
+        },
+        {
+            "abilityId": 221,
+            "sourceDescription": "Lowers Speed on contact.",
+            "descriptionCs": "Při kontaktu snižuje rychlost."
+        },
+        {
+            "abilityId": 222,
+            "sourceDescription": "Copies ally’s ability.",
+            "descriptionCs": "Kopíruje schopnost spojence."
+        },
+        {
+            "abilityId": 223,
+            "sourceDescription": "Copies ally’s ability.",
+            "descriptionCs": "Kopíruje schopnost spojence."
+        },
+        {
+            "abilityId": 224,
+            "sourceDescription": "KOs boost best stat.",
+            "descriptionCs": "Vyřazení Pokémona z boje zvyšuje nejlepší statistiku."
+        },
+        {
+            "abilityId": 225,
+            "sourceDescription": "Memories change its type.",
+            "descriptionCs": "Paměťové předměty mění jeho typ."
+        },
+        {
+            "abilityId": 226,
+            "sourceDescription": "Field becomes Electric.",
+            "descriptionCs": "Bojiště se stává elektrickým."
+        },
+        {
+            "abilityId": 227,
+            "sourceDescription": "Field becomes weird.",
+            "descriptionCs": "Bojiště se stává podivným."
+        },
+        {
+            "abilityId": 228,
+            "sourceDescription": "Field becomes misty.",
+            "descriptionCs": "Bojiště se zahaluje mlhou."
+        },
+        {
+            "abilityId": 229,
+            "sourceDescription": "Field becomes grassy.",
+            "descriptionCs": "Bojiště porůstá trávou."
+        },
+        {
+            "abilityId": 230,
+            "sourceDescription": "Prevents stat reduction.",
+            "descriptionCs": "Brání snížení statistik."
+        },
+        {
+            "abilityId": 231,
+            "sourceDescription": "Halves damage at full HP.",
+            "descriptionCs": "Při plném HP snižuje poškození na polovinu."
+        },
+        {
+            "abilityId": 232,
+            "sourceDescription": "Weakens “supereffective”.",
+            "descriptionCs": "Oslabuje velmi účinné útoky."
+        },
+        {
+            "abilityId": 233,
+            "sourceDescription": "Ups “supereffective”.",
+            "descriptionCs": "Posiluje velmi účinné útoky."
+        },
+        {
+            "abilityId": 234,
+            "sourceDescription": "Ups Attack on entry.",
+            "descriptionCs": "Při vstupu do boje zvyšuje útok."
+        },
+        {
+            "abilityId": 235,
+            "sourceDescription": "Ups Defense on entry.",
+            "descriptionCs": "Při vstupu do boje zvyšuje obranu."
+        },
+        {
+            "abilityId": 236,
+            "sourceDescription": "Changes type to move’s.",
+            "descriptionCs": "Mění typ podle útoku."
+        },
+        {
+            "abilityId": 237,
+            "sourceDescription": "Fetches failed Poké Ball.",
+            "descriptionCs": "Přináší Poké Ball po neúspěšném chycení."
+        },
+        {
+            "abilityId": 238,
+            "sourceDescription": "Lower Speed of all when hit.",
+            "descriptionCs": "Po zásahu snižuje rychlost všech."
+        },
+        {
+            "abilityId": 239,
+            "sourceDescription": "Ignores foe’s redirection.",
+            "descriptionCs": "Ignoruje soupeřovo přesměrování útoků."
+        },
+        {
+            "abilityId": 240,
+            "sourceDescription": "Reflect stat decreases.",
+            "descriptionCs": "Odráží snížení statistik."
+        },
+        {
+            "abilityId": 241,
+            "sourceDescription": "If hit, spits prey from sea.",
+            "descriptionCs": "Po zásahu vyplivne kořist z moře."
+        },
+        {
+            "abilityId": 242,
+            "sourceDescription": "Ignores foe’s redirection.",
+            "descriptionCs": "Ignoruje soupeřovo přesměrování útoků."
+        },
+        {
+            "abilityId": 243,
+            "sourceDescription": "Fire or Water hits up Speed.",
+            "descriptionCs": "Zásahy ohnivými nebo vodními útoky zvyšují rychlost."
+        },
+        {
+            "abilityId": 244,
+            "sourceDescription": "Ups and resists sound.",
+            "descriptionCs": "Posiluje zvukové útoky a odolává jim."
+        },
+        {
+            "abilityId": 245,
+            "sourceDescription": "Creates a sandstorm if hit.",
+            "descriptionCs": "Po zásahu vytváří písečnou bouři."
+        },
+        {
+            "abilityId": 246,
+            "sourceDescription": "Halves special damage.",
+            "descriptionCs": "Snižuje poškození speciálními útoky na polovinu."
+        },
+        {
+            "abilityId": 247,
+            "sourceDescription": "Doubles effect of Berries.",
+            "descriptionCs": "Zdvojnásobuje účinek bobulí."
+        },
+        {
+            "abilityId": 248,
+            "sourceDescription": "Hail or Snow renew free hit.",
+            "descriptionCs": "Krupobití nebo sněžení obnovuje ochranu před jedním zásahem."
+        },
+        {
+            "abilityId": 249,
+            "sourceDescription": "Powers up ally moves.",
+            "descriptionCs": "Posiluje útoky spojence."
+        },
+        {
+            "abilityId": 250,
+            "sourceDescription": "Changes type on terrain.",
+            "descriptionCs": "Mění typ podle terénu."
+        },
+        {
+            "abilityId": 251,
+            "sourceDescription": "Removes walls of light.",
+            "descriptionCs": "Odstraňuje světelné stěny."
+        },
+        {
+            "abilityId": 252,
+            "sourceDescription": "Boosts ally’s Steel moves.",
+            "descriptionCs": "Posiluje ocelové útoky spojence."
+        },
+        {
+            "abilityId": 253,
+            "sourceDescription": "Foe faints in 3 turns if hit.",
+            "descriptionCs": "Po zásahu soupeř za 3 kola padne."
+        },
+        {
+            "abilityId": 254,
+            "sourceDescription": "Trade abilities on contact.",
+            "descriptionCs": "Při kontaktu vyměňuje schopnosti."
+        },
+        {
+            "abilityId": 255,
+            "sourceDescription": "Ups Attack and locks move.",
+            "descriptionCs": "Zvyšuje útok a uzamyká volbu útoku."
+        },
+        {
+            "abilityId": 256,
+            "sourceDescription": "All Abilities are nullified.",
+            "descriptionCs": "Ruší všechny schopnosti."
+        },
+        {
+            "abilityId": 257,
+            "sourceDescription": "Protects team from poison.",
+            "descriptionCs": "Chrání tým před otravou."
+        },
+        {
+            "abilityId": 258,
+            "sourceDescription": "Changes form each turn.",
+            "descriptionCs": "Každé kolo mění podobu."
+        },
+        {
+            "abilityId": 259,
+            "sourceDescription": "Moves first occasionally.",
+            "descriptionCs": "Občas útočí jako první."
+        },
+        {
+            "abilityId": 260,
+            "sourceDescription": "Contact evades protection.",
+            "descriptionCs": "Kontaktní útoky obcházejí ochranu."
+        },
+        {
+            "abilityId": 261,
+            "sourceDescription": "Remove ally’s stat changes.",
+            "descriptionCs": "Odstraňuje změny statistik spojence."
+        },
+        {
+            "abilityId": 262,
+            "sourceDescription": "Ups Electric-type moves.",
+            "descriptionCs": "Posiluje elektrické útoky."
+        },
+        {
+            "abilityId": 263,
+            "sourceDescription": "Ups Dragon-type moves.",
+            "descriptionCs": "Posiluje dračí útoky."
+        },
+        {
+            "abilityId": 264,
+            "sourceDescription": "KOs boost Attack stat.",
+            "descriptionCs": "Vyřazení Pokémona z boje zvyšuje statistiku útoku."
+        },
+        {
+            "abilityId": 265,
+            "sourceDescription": "KOs boost Sp. Atk stat.",
+            "descriptionCs": "Vyřazení Pokémona z boje zvyšuje statistiku speciálního útoku."
+        },
+        {
+            "abilityId": 266,
+            "sourceDescription": "Unnerve and Chilling Neigh.",
+            "descriptionCs": "Spojuje Unnerve a Chilling Neigh."
+        },
+        {
+            "abilityId": 267,
+            "sourceDescription": "Unnerve and Grim Neigh.",
+            "descriptionCs": "Spojuje Unnerve a Grim Neigh."
+        },
+        {
+            "abilityId": 268,
+            "sourceDescription": "Spreads with contact.",
+            "descriptionCs": "Šíří se kontaktem."
+        },
+        {
+            "abilityId": 269,
+            "sourceDescription": "Affects terrain when hit.",
+            "descriptionCs": "Po zásahu ovlivňuje terén."
+        },
+        {
+            "abilityId": 270,
+            "sourceDescription": "Fire hits up Attack.",
+            "descriptionCs": "Zásahy ohnivými útoky zvyšují útok."
+        },
+        {
+            "abilityId": 271,
+            "sourceDescription": "Gets angry at half HP.",
+            "descriptionCs": "Při polovině HP se rozzuří."
+        },
+        {
+            "abilityId": 272,
+            "sourceDescription": "Protected by pure salts.",
+            "descriptionCs": "Chrání ho čisté soli."
+        },
+        {
+            "abilityId": 273,
+            "sourceDescription": "Strengthened by Fire.",
+            "descriptionCs": "Oheň ho posiluje."
+        },
+        {
+            "abilityId": 274,
+            "sourceDescription": "Ups Attack if hit by wind.",
+            "descriptionCs": "Po zásahu větrem zvyšuje útok."
+        },
+        {
+            "abilityId": 275,
+            "sourceDescription": "Cannot be intimidated.",
+            "descriptionCs": "Nelze ho zastrašit."
+        },
+        {
+            "abilityId": 276,
+            "sourceDescription": "Powers up Rock moves.",
+            "descriptionCs": "Posiluje kamenné útoky."
+        },
+        {
+            "abilityId": 277,
+            "sourceDescription": "Gets charged by wind.",
+            "descriptionCs": "Vítr ho nabíjí."
+        },
+        {
+            "abilityId": 278,
+            "sourceDescription": "Changes form on switch out.",
+            "descriptionCs": "Při vystřídání mění podobu."
+        },
+        {
+            "abilityId": 279,
+            "sourceDescription": "Commands from Dondozo.",
+            "descriptionCs": "Velí z Pokémona Dondozo."
+        },
+        {
+            "abilityId": 280,
+            "sourceDescription": "Gets Charged when hit.",
+            "descriptionCs": "Po zásahu se nabije."
+        },
+        {
+            "abilityId": 281,
+            "sourceDescription": "Sun boosts best stat.",
+            "descriptionCs": "Slunce zvyšuje nejlepší statistiku."
+        },
+        {
+            "abilityId": 282,
+            "sourceDescription": "Elec. field ups best stat.",
+            "descriptionCs": "Elektrické bojiště zvyšuje nejlepší statistiku."
+        },
+        {
+            "abilityId": 283,
+            "sourceDescription": "Avoids status problems.",
+            "descriptionCs": "Vyhýbá se stavovým potížím."
+        },
+        {
+            "abilityId": 284,
+            "sourceDescription": "Lowers foes’ sp. damage.",
+            "descriptionCs": "Snižuje speciální poškození způsobené soupeři."
+        },
+        {
+            "abilityId": 285,
+            "sourceDescription": "Lowers foes’ Defense.",
+            "descriptionCs": "Snižuje obranu soupeřů."
+        },
+        {
+            "abilityId": 286,
+            "sourceDescription": "Lowers foes’ damage.",
+            "descriptionCs": "Snižuje poškození způsobené soupeři."
+        },
+        {
+            "abilityId": 287,
+            "sourceDescription": "Lowers foes’ Sp. Defense.",
+            "descriptionCs": "Snižuje speciální obranu soupeřů."
+        },
+        {
+            "abilityId": 288,
+            "sourceDescription": "Summons sunlight in battle.",
+            "descriptionCs": "V boji přivolává sluneční svit."
+        },
+        {
+            "abilityId": 289,
+            "sourceDescription": "Field becomes Electric.",
+            "descriptionCs": "Bojiště se stává elektrickým."
+        },
+        {
+            "abilityId": 290,
+            "sourceDescription": "Copies foe’s stat change.",
+            "descriptionCs": "Kopíruje změnu statistik soupeře."
+        },
+        {
+            "abilityId": 291,
+            "sourceDescription": "Eats a used berry again.",
+            "descriptionCs": "Znovu jí použitou bobuli."
+        },
+        {
+            "abilityId": 292,
+            "sourceDescription": "Strengthens slicing moves.",
+            "descriptionCs": "Posiluje sečné útoky."
+        },
+        {
+            "abilityId": 293,
+            "sourceDescription": "Inherits fallen’s strength.",
+            "descriptionCs": "Dědí sílu padlých."
+        },
+        {
+            "abilityId": 294,
+            "sourceDescription": "Copies ally’s stat changes.",
+            "descriptionCs": "Kopíruje změny statistik spojence."
+        },
+        {
+            "abilityId": 295,
+            "sourceDescription": "Throws poison spikes if hit.",
+            "descriptionCs": "Po zásahu rozhazuje jedovaté bodce."
+        },
+        {
+            "abilityId": 296,
+            "sourceDescription": "Protects from priority.",
+            "descriptionCs": "Chrání před prioritními útoky."
+        },
+        {
+            "abilityId": 297,
+            "sourceDescription": "Eats ground to heal HP.",
+            "descriptionCs": "Pojídáním země obnovuje HP."
+        },
+        {
+            "abilityId": 298,
+            "sourceDescription": "Status moves never fail.",
+            "descriptionCs": "Stavové útoky nikdy neselžou."
+        },
+        {
+            "abilityId": 299,
+            "sourceDescription": "Restores ally’s HP.",
+            "descriptionCs": "Obnovuje HP spojence."
+        },
+        {
+            "abilityId": 300,
+            "sourceDescription": "Keen Eye and Scrappy.",
+            "descriptionCs": "Spojuje Keen Eye a Scrappy."
+        },
+        {
+            "abilityId": 301,
+            "sourceDescription": "Raises Speed.",
+            "descriptionCs": "Zvyšuje rychlost."
+        },
+        {
+            "abilityId": 302,
+            "sourceDescription": "Raises Attack.",
+            "descriptionCs": "Zvyšuje útok."
+        },
+        {
+            "abilityId": 303,
+            "sourceDescription": "Raises Sp. Def.",
+            "descriptionCs": "Zvyšuje speciální obranu."
+        },
+        {
+            "abilityId": 304,
+            "sourceDescription": "Raises Defense.",
+            "descriptionCs": "Zvyšuje obranu."
+        },
+        {
+            "abilityId": 305,
+            "sourceDescription": "Moves can poison.",
+            "descriptionCs": "Útoky mohou otrávit."
+        },
+        {
+            "abilityId": 306,
+            "sourceDescription": "Lowers the foe’s Speed.",
+            "descriptionCs": "Snižuje soupeřovu rychlost."
+        },
+        {
+            "abilityId": 307,
+            "sourceDescription": "Terasteralizes upon entry.",
+            "descriptionCs": "Při vstupu do boje terastalizuje."
+        },
+        {
+            "abilityId": 308,
+            "sourceDescription": "Resistant to types at full HP.",
+            "descriptionCs": "Při plném HP odolává typům."
+        },
+        {
+            "abilityId": 309,
+            "sourceDescription": "Removes weather and terrain.",
+            "descriptionCs": "Odstraňuje počasí a terén."
+        },
+        {
+            "abilityId": 310,
+            "sourceDescription": "Confuses poisoned foes.",
+            "descriptionCs": "Mate otrávené soupeře."
+        }
+    ]
+}

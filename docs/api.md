@@ -363,7 +363,7 @@ and link with an accessible placeholder.
 Node and PHP 8.4 expose identical SQL-backed responses:
 
 - `GET /api/v1/abilities?q=shadow&page=1&pageSize=40`: ability definitions in ROM ID order, using the existing `data`/`meta` pagination envelope. Name substrings and numeric IDs (optionally `#` prefixed) are accepted; `%`, `_` and `!` are literal search characters. Page size is limited to 250.
-- `GET /api/v1/abilities/:id`: `{ data: { abilityId, name, description, aiRating, flags } }`. IDs 0–65535 are accepted; missing definitions return 404. `aiRating` is signed. `flags` contains seven booleans: `cantBeCopied`, `cantBeSwapped`, `cantBeTraced`, `cantBeSuppressed`, `cantBeOverwritten`, `breakable` and `failsOnImposter`.
+- `GET /api/v1/abilities/:id`: `{ data: { abilityId, name, description, descriptionCs, aiRating, flags } }`. IDs 0–65535 are accepted; missing definitions return 404. `aiRating` is signed. `flags` contains seven booleans: `cantBeCopied`, `cantBeSwapped`, `cantBeTraced`, `cantBeSuppressed`, `cantBeOverwritten`, `breakable` and `failsOnImposter`.
 - `GET /api/v1/species/:id/abilities`: `{ data: [{ slot, kind, ability }, ...] }`, ordered by slot 1, 2, 3. Slots 1/2 are `normal`; slot 3 is `hidden`. Each non-null `ability` is the full definition above.
 
 `/species/:id/details` embeds the same `abilities` array, avoiding additional
@@ -393,3 +393,15 @@ message. Move names and mechanics retain the original values.
 Apply schema migration `018_move_descriptions_cs.sql` before deploying the
 backend and seed `019_seed_move_descriptions_cs_1.0.4.sql` to populate translations.
 See [Czech move descriptions](database.md#czech-move-descriptions).
+
+### Localized ability and item descriptions
+
+Ability and item records include `description: string` and `descriptionCs: string | null`
+in both APIs, including catalog rows, detail responses, and assigned species abilities.
+The frontend selects Czech text in Czech mode, falls back to English for NULL or empty
+Czech text, and always shows the original description in English mode. Item and ability
+names, mechanics, and the lightweight rule-item references retain their existing values.
+
+Apply `020_ability_item_descriptions_cs.sql` before deploying the backend, followed by
+`021_seed_ability_item_descriptions_cs_1.0.4.sql` to populate both catalogs. For the local
+database, use `npm run db:migrate`. See [Czech ability and item descriptions](database.md#czech-ability-and-item-descriptions).

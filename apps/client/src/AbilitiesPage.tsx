@@ -35,7 +35,8 @@ export function AbilityDetails({ ability }: { ability: Ability }) {
             </div>
             <div className="p-5 sm:p-6">
                 <p className="text-sm leading-relaxed">
-                    {ability.description || t('No description recorded.', 'Popis není uveden.')}
+                    {t(ability.description, ability.descriptionCs || ability.description) ||
+                        t('No description recorded.', 'Popis není uveden.')}
                 </p>
                 {ability.abilityId === 0 && (
                     <p className="empty-note mt-3">
@@ -176,7 +177,10 @@ export function AbilitiesPage({
                                         </span>
                                     </a>
                                     <p className="mt-3 text-sm leading-relaxed">
-                                        {ability.description}
+                                        {t(
+                                            ability.description,
+                                            ability.descriptionCs || ability.description,
+                                        ) || t('No description recorded.', 'Popis není uveden.')}
                                     </p>
                                 </li>
                             ))}

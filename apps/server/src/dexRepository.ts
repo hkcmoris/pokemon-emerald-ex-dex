@@ -59,7 +59,7 @@ const moveJoins = `JOIN emerald_ex_types AS t ON t.dataset_id = m.dataset_id AND
         ON c.dataset_id = m.dataset_id AND c.category_id = m.category_id`;
 
 const itemSelect = `SELECT i.item_id AS itemId, i.name, i.plural_name AS pluralName,
-    i.description, i.price, i.pocket_id AS pocketId, p.name AS pocket, i.secondary_id AS secondaryId,
+    i.description, i.description_cs AS descriptionCs, i.price, i.pocket_id AS pocketId, p.name AS pocket, i.secondary_id AS secondaryId,
     i.hold_effect_id AS holdEffectId, i.hold_effect_param AS holdEffectParam, i.importance,
     i.not_consumed AS notConsumed, i.item_use_type_id AS itemUseTypeId, i.battle_usage_id AS battleUsageId,
     i.fling_power AS flingPower, i.icon_file AS iconFile, i.rom
@@ -71,17 +71,18 @@ function parseItem(row: ItemRow): Item {
     return { ...row, notConsumed: Boolean(row.notConsumed), rom: parseConditions(row.rom) };
 }
 
-const abilityFields = `a.ability_id AS abilityId, a.name, a.description, a.ai_rating AS aiRating,
+const abilityFields = `a.ability_id AS abilityId, a.name, a.description, a.description_cs AS descriptionCs, a.ai_rating AS aiRating,
     a.cant_be_copied AS cantBeCopied, a.cant_be_swapped AS cantBeSwapped,
     a.cant_be_traced AS cantBeTraced, a.cant_be_suppressed AS cantBeSuppressed,
     a.cant_be_overwritten AS cantBeOverwritten, a.breakable, a.fails_on_imposter AS failsOnImposter`;
 type AbilityRow = Omit<Ability, 'flags'> & { [K in keyof AbilityFlags]: number };
 function parseAbility(row: AbilityRow): Ability {
-    const { abilityId, name, description, aiRating, ...flags } = row;
+    const { abilityId, name, description, descriptionCs, aiRating, ...flags } = row;
     return {
         abilityId,
         name,
         description,
+        descriptionCs,
         aiRating,
         flags: {
             cantBeCopied: Boolean(flags.cantBeCopied),

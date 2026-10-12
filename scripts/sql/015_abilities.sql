@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS emerald_ex_abilities (
     ability_id SMALLINT UNSIGNED NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
+    description_cs TEXT NULL,
     ai_rating TINYINT NOT NULL,
     cant_be_copied TINYINT UNSIGNED NOT NULL CHECK (cant_be_copied IN (0, 1)),
     cant_be_swapped TINYINT UNSIGNED NOT NULL CHECK (cant_be_swapped IN (0, 1)),

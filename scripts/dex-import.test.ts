@@ -13,7 +13,7 @@ import {
     type SourceKind,
 } from './dex-import.js';
 import { validateSpriteFiles } from './sprite-files.js';
-import { buildMoveDescriptionImport } from './move-descriptions.js';
+import { buildMoveDescriptionImport, buildDescriptionImport } from './move-descriptions.js';
 
 const sources = {} as Record<SourceKind, SourceFile>;
 for (const kind of sourceKinds) {
@@ -30,8 +30,22 @@ const moveDescriptions = buildMoveDescriptionImport(
         await readFile(new URL('../docs/translations/moves.cs.json', import.meta.url), 'utf8'),
     ),
 ).descriptions;
+const abilityDescriptions = buildDescriptionImport(
+    JSON.parse(sources.abilities.contents),
+    JSON.parse(
+        await readFile(new URL('../docs/translations/abilities.cs.json', import.meta.url), 'utf8'),
+    ),
+    'abilities',
+).descriptions;
+const itemDescriptions = buildDescriptionImport(
+    JSON.parse(sources.items.contents),
+    JSON.parse(
+        await readFile(new URL('../docs/translations/items.cs.json', import.meta.url), 'utf8'),
+    ),
+    'items',
+).descriptions;
 const buildDexImport = (files: Record<SourceKind, SourceFile>) =>
-    buildDexImportWithTranslations(files, moveDescriptions);
+    buildDexImportWithTranslations(files, moveDescriptions, abilityDescriptions, itemDescriptions);
 
 void test('all exports produce a complete relational import, including move zero and form markers', async () => {
     const { sql, spritesSql, formsSql, itemsSql, abilitiesSql, counts, datasetId } =
@@ -56,6 +70,15 @@ void test('all exports produce a complete relational import, including move zero
         ['emerald_ex_form_change_items', 'emerald_ex_evolution_items', 'emerald_ex_sources'],
     );
     strictEqual(itemsSql.includes('icon_file = VALUES(icon_file)'), false);
+    strictEqual(itemsSql.includes('description_cs'), false, 'Old item imports run before 020');
+    strictEqual(
+        abilitiesSql.includes('description_cs'),
+        false,
+        'Old ability imports run before 020',
+    );
+    strictEqual(sql.includes('No special ability.'), true);
+    strictEqual(sql.includes(sqlLiteral(abilityDescriptions.get(0)!)), true);
+    strictEqual(sql.includes(sqlLiteral(itemDescriptions.get(1)!)), true);
     deepStrictEqual(counts, {
         emerald_ex_datasets: 1,
         emerald_ex_sources: 8,
@@ -178,6 +201,8 @@ void test('schema, import and query examples stay within the dex table namespace
         '017_move_category_svg_icons.sql',
         '018_move_descriptions_cs.sql',
         '019_seed_move_descriptions_cs_1.0.4.sql',
+        '020_ability_item_descriptions_cs.sql',
+        '021_seed_ability_item_descriptions_cs_1.0.4.sql',
     ]) {
         const sql = await readFile(new URL(`sql/${file}`, import.meta.url), 'utf8');
         strictEqual(/^\s*(?:(?:CREATE|ALTER|DROP) DATABASE|USE\s)/im.test(sql), false, file);

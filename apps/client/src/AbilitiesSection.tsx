@@ -32,7 +32,10 @@ export function AbilitiesSection({ slots }: { slots: readonly SpeciesAbilitySlot
                                         #{String(ability.abilityId).padStart(3, '0')}
                                     </span>
                                     <p className="mt-2 text-sm leading-relaxed">
-                                        {ability.description}
+                                        {t(
+                                            ability.description,
+                                            ability.descriptionCs || ability.description,
+                                        ) || t('No description recorded.', 'Popis není uveden.')}
                                     </p>
                                 </>
                             ) : (

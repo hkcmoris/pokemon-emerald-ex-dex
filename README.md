@@ -53,9 +53,9 @@ filters, species details, and move tables, including icon tooltips and accessibl
 Type translations are maintained in `apps/client/src/typeNames.ts`; unknown types fall
 back to their original names. Database/API values, filter values, and type colours keep
 using the original English names. Pokémon, move, item, ability and form names retain
-their original wording. Move descriptions use database-backed Czech translations in
-Czech mode, with the original English description as fallback. Item and ability
-descriptions and other database text keep their original wording. Switching languages
+their original wording. Move, item, and ability descriptions use database-backed Czech
+translations in Czech mode, with the original English description as fallback. Other
+database text keeps its original wording. Switching languages
 preserves the current page and filters.
 
 Before deploying this release to an existing database, run
@@ -64,6 +64,9 @@ Before deploying this release to an existing database, run
 `emerald_ex_moves.description_cs`; English `description` remains unchanged. Fresh
 installations use the updated `001` schema and `002` import, which already include
 the translations. See [Czech move descriptions](docs/database.md#czech-move-descriptions).
+For Czech ability and item descriptions, apply `020_ability_item_descriptions_cs.sql`,
+then `021_seed_ability_item_descriptions_cs_1.0.4.sql` before deploying. Local development
+uses `npm run db:migrate`. See [ability and item translations](docs/database.md#czech-ability-and-item-descriptions).
 Expand move names for descriptions and full move data, or evolution rules for their
 conditions and ROM identifiers. Move categories show Physical, Special, and Status
 icons alongside their labels in both level-up and TM/HM tables. Category icon filenames

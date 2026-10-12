@@ -237,3 +237,16 @@ client assets and PHP API files must be updated. Verify
 `/pokemon-emerald-ex-dex/api/v1/abilities/23` and
 `/pokemon-emerald-ex-dex/api/v1/species/914/abilities`, then open Mega Gengar's
 Abilities section and the `#/abilities` catalog.
+
+## Czech ability and item descriptions
+
+Before deploying, import `scripts/sql/020_ability_item_descriptions_cs.sql`, then
+`scripts/sql/021_seed_ability_item_descriptions_cs_1.0.4.sql` in the existing production
+database with an administrative account. Use stop-on-error handling and roll back a
+failed seed transaction. Local development uses `npm run db:migrate`.
+
+Rebuild with `npm run build:webzdarma` and upload the client and PHP API files while
+preserving `api/private/config.local.php`. Verify `descriptionCs` in ability and item
+API responses and Czech descriptions in their catalogs, details, and species ability
+slots. English mode retains the original ROM descriptions. No additional grants are
+needed beyond SELECT on the existing ability and item tables.

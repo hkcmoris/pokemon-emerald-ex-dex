@@ -44,7 +44,7 @@ administrative account with schema and data write permissions. It accepts only
 `127.0.0.1`, `localhost`, or `::1` and requires the existing `emerald-ex-1.0.4` dataset;
 it does not create a database or run the replacement `002` import.
 
-Upgrades `005` through `019` run in order on one connection. Successful upgrades are
+Upgrades `005` through `021` run in order on one connection. Successful upgrades are
 recorded in `emerald_ex_migrations` and skipped on subsequent runs. A database lock
 prevents two runners from applying the same upgrades concurrently. The runner stops
 on the first error, rolls back the active data transaction, and leaves that upgrade
@@ -62,6 +62,7 @@ initial icon seeds, run `008` and `010` manually as listed above. Upgrade `017` 
 runs once to replace only the original Physical/Special PNG defaults with SVGs.
 Upgrade `018` recognizes an existing `description_cs` column. Seed `019` runs once
 unless recorded in migration history; the column alone does not prove it was seeded.
+Upgrades `020`/`021` follow the same rule for ability and item descriptions.
 
 ### MySQL error 1267: illegal mix of collations
 
@@ -71,7 +72,7 @@ inherits the collation of its assigned value; comparing it with a table column o
 another collation can produce `ERROR 1267 (HY000)` in verification or example queries.
 See [MySQL user-variable collations](https://dev.mysql.com/doc/refman/8.0/en/user-variables.html).
 
-Every script from `001` through `019` explicitly sets the connection collation:
+Every script from `001` through `021` explicitly sets the connection collation:
 
 ```sql
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -579,3 +580,43 @@ missing, duplicate or unknown IDs, stale English text, blank Czech translations,
 wrong dataset/language and inconsistent translations of identical source text.
 It regenerates both the full import and `019`; apply `019` to update translations
 without reimporting other dex data.
+
+## Czech ability and item descriptions
+
+The new nullable `description_cs TEXT` columns on `emerald_ex_abilities` and
+`emerald_ex_items` store Czech descriptions alongside the original English ROM text.
+Both APIs return `descriptionCs`. Czech mode uses it in ability and item catalogs,
+detail pages, and species ability slots; NULL or empty values fall back to English.
+Names and other ROM fields keep their original values.
+
+For an existing database, apply these scripts with an administrative account before
+deploying the updated API and client:
+
+1. `scripts/sql/020_ability_item_descriptions_cs.sql` adds both columns if missing.
+2. `scripts/sql/021_seed_ability_item_descriptions_cs_1.0.4.sql` seeds both catalogs in
+   one transaction.
+
+For local development, `npm run db:migrate` applies both upgrades and records their
+completion. Schema presence does not establish that the seed has run. Production
+imports use a client that stops on errors; roll back an unsuccessful data transaction.
+
+Translation catalogs are `docs/translations/abilities.cs.json` (311 descriptions)
+and `docs/translations/items.cs.json` (828 descriptions). Each record includes its
+ROM ID, exact English `sourceDescription`, and Czech `descriptionCs`. Repeated English
+descriptions share one Czech wording; literal placeholder text remains literal.
+The seed compares the stored English text byte for byte before setting Czech. A
+changed English source gets NULL, enabling fallback. Only Czech description columns
+for these known IDs in `emerald-ex-1.0.4` are updated; mechanics, icons, English text,
+other datasets, and unrelated tables are preserved.
+
+Run `npm run db:generate-import` after editing the catalogs. Validation rejects
+missing, duplicate, unknown or invalid IDs, stale English text, empty/NUL translations,
+wrong dataset/language, inconsistent repeats, and changed placeholders before writing
+SQL. The fresh `001` schema and full `002` import include all translations. Existing
+schemas still need `018` and `020` before rerunning the full import.
+
+The older `014`/`016` incremental imports retain their original column lists so they
+work on schemas predating `020`. `014` preserves existing Czech item text on updates;
+`016` replaces ability definitions, so rerun `021` after it to restore translations.
+Apply `021` directly after changing translations, because migration history causes
+`db:migrate` to skip an already recorded seed.

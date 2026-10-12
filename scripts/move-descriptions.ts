@@ -1,9 +1,39 @@
 import { sqlLiteral } from './dex-import.js';
 
-interface SourceMove {
-    moveId: number;
+interface SourceDescription {
+    id: number;
     description: string;
 }
+
+export type DescriptionKind = 'moves' | 'abilities' | 'items';
+
+export interface DescriptionImport {
+    sql: string;
+    updates: readonly string[];
+    descriptions: ReadonlyMap<number, string>;
+    datasetId: string;
+}
+
+const descriptionCatalogs = {
+    moves: {
+        label: 'move',
+        idKey: 'moveId',
+        countKey: 'moveCount',
+        schema: '018_move_descriptions_cs.sql',
+    },
+    abilities: {
+        label: 'ability',
+        idKey: 'abilityId',
+        countKey: 'abilityCount',
+        schema: '020_ability_item_descriptions_cs.sql',
+    },
+    items: {
+        label: 'item',
+        idKey: 'itemId',
+        countKey: 'itemCount',
+        schema: '020_ability_item_descriptions_cs.sql',
+    },
+} as const;
 
 export interface MoveDescriptionTranslation {
     moveId: number;
@@ -19,21 +49,21 @@ export interface MoveDescriptionTranslations {
 
 function object(value: unknown): Record<string, unknown> {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new Error('Expected a move description object');
+        throw new Error('Expected a description object');
     }
     return value as Record<string, unknown>;
 }
 
 function text(value: unknown): string {
     if (typeof value !== 'string' || value.includes('\0')) {
-        throw new Error('Move descriptions must be strings without NUL bytes');
+        throw new Error('Descriptions must be strings without NUL bytes');
     }
     return value;
 }
 
-function moveId(value: unknown): number {
+function descriptionId(value: unknown, label: string): number {
     if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 65535) {
-        throw new Error('Invalid move ID in descriptions');
+        throw new Error(`Invalid ${label} ID in descriptions`);
     }
     return value;
 }
@@ -41,7 +71,16 @@ function moveId(value: unknown): number {
 export function buildMoveDescriptionImport(
     source: unknown,
     translations: unknown,
-): { sql: string; descriptions: ReadonlyMap<number, string>; datasetId: string } {
+): DescriptionImport {
+    return buildDescriptionImport(source, translations, 'moves');
+}
+
+export function buildDescriptionImport(
+    source: unknown,
+    translations: unknown,
+    kind: DescriptionKind,
+): DescriptionImport {
+    const { label, idKey, countKey, schema } = descriptionCatalogs[kind];
     const sourceDocument = object(source);
     const metadata = object(sourceDocument.metadata);
     const document = object(translations);
@@ -53,34 +92,36 @@ export function buildMoveDescriptionImport(
         document.datasetId !== datasetId ||
         document.language !== 'cs'
     ) {
-        throw new Error('Move translation dataset/language mismatch');
+        throw new Error(`${label} translation dataset/language mismatch`);
     }
-    if (!Array.isArray(sourceDocument.moves) || !Array.isArray(document.moves)) {
-        throw new Error('Expected move description arrays');
+    const sourceRows = sourceDocument[kind];
+    const translatedRows = document[kind];
+    if (!Array.isArray(sourceRows) || !Array.isArray(translatedRows)) {
+        throw new Error(`Expected ${label} description arrays`);
     }
-    const moves = new Map<number, SourceMove>();
-    for (const value of sourceDocument.moves) {
+    const moves = new Map<number, SourceDescription>();
+    for (const value of sourceRows) {
         const row = object(value);
-        const id = moveId(row.moveId);
-        if (moves.has(id)) throw new Error(`Duplicate source move: ${id}`);
-        moves.set(id, { moveId: id, description: text(row.description) });
+        const id = descriptionId(row[idKey], label);
+        if (moves.has(id)) throw new Error(`Duplicate source ${label}: ${id}`);
+        moves.set(id, { id, description: text(row.description) });
     }
-    if (moves.size !== metadata.moveCount) throw new Error('Source move count mismatch');
+    if (moves.size !== metadata[countKey]) throw new Error(`Source ${label} count mismatch`);
     const descriptions = new Map<number, string>();
     const bySource = new Map<string, string>();
-    for (const value of document.moves) {
+    for (const value of translatedRows) {
         const row = object(value);
-        const id = moveId(row.moveId);
+        const id = descriptionId(row[idKey], label);
         const original = moves.get(id);
-        if (!original) throw new Error(`Unknown translated move: ${id}`);
-        if (descriptions.has(id)) throw new Error(`Duplicate translated move: ${id}`);
+        if (!original) throw new Error(`Unknown translated ${label}: ${id}`);
+        if (descriptions.has(id)) throw new Error(`Duplicate translated ${label}: ${id}`);
         const sourceDescription = text(row.sourceDescription);
         const descriptionCs = text(row.descriptionCs);
         if (!sourceDescription.trim() || sourceDescription !== original.description) {
             throw new Error(`Stale or empty source description: ${id}`);
         }
         if (!descriptionCs.trim()) throw new Error(`Empty Czech description: ${id}`);
-        if (sourceDescription === '---' && descriptionCs !== '---') {
+        if (/^(?:-+|\?+)$/.test(sourceDescription) && descriptionCs !== sourceDescription) {
             throw new Error(`Source placeholder must be preserved: ${id}`);
         }
         const previous = bySource.get(sourceDescription);
@@ -91,13 +132,14 @@ export function buildMoveDescriptionImport(
         bySource.set(sourceDescription, descriptionCs);
     }
     for (const move of moves.values()) {
-        if (move.description.trim() && !descriptions.has(move.moveId)) {
-            throw new Error(`Missing Czech description: ${move.moveId}`);
+        if (move.description.trim() && !descriptions.has(move.id)) {
+            throw new Error(`Missing Czech description: ${move.id}`);
         }
     }
+    const updates: string[] = [];
     const lines = [
-        '-- Generated by npm run db:generate-import from docs/translations/moves.cs.json.',
-        '-- Run 018_move_descriptions_cs.sql first on existing databases.',
+        `-- Generated by npm run db:generate-import from docs/translations/${kind}.cs.json.`,
+        `-- Run ${schema} first on existing databases.`,
         '-- Updates Czech descriptions only; changed English sources get NULL for fallback.',
         '-- Use a batch client that stops on the first error.',
         'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;',
@@ -106,16 +148,39 @@ export function buildMoveDescriptionImport(
         'START TRANSACTION;',
         `SELECT dataset_id FROM emerald_ex_datasets WHERE dataset_id = ${sqlLiteral(datasetId)} FOR UPDATE;`,
     ];
-    for (const move of [...moves.values()].sort((a, b) => a.moveId - b.moveId)) {
-        const description = descriptions.get(move.moveId);
+    for (const move of [...moves.values()].sort((a, b) => a.id - b.id)) {
+        const description = descriptions.get(move.id);
         const value =
             description === undefined
                 ? 'NULL'
                 : `CASE WHEN CAST(description AS BINARY) = CAST(${sqlLiteral(move.description)} AS BINARY) THEN ${sqlLiteral(description)} ELSE NULL END`;
-        lines.push(
-            `UPDATE emerald_ex_moves SET description_cs = ${value} WHERE dataset_id = ${sqlLiteral(datasetId)} AND move_id = ${move.moveId};`,
+        updates.push(
+            `UPDATE emerald_ex_${kind} SET description_cs = ${value} WHERE dataset_id = ${sqlLiteral(datasetId)} AND ${label}_id = ${move.id};`,
         );
     }
-    lines.push('COMMIT;', 'SET SESSION sql_mode = @dex_previous_sql_mode;', '');
-    return { sql: lines.join('\n'), descriptions, datasetId };
+    lines.push(...updates, 'COMMIT;', 'SET SESSION sql_mode = @dex_previous_sql_mode;', '');
+    return { sql: lines.join('\n'), updates, descriptions, datasetId };
+}
+
+export function buildAbilityItemDescriptionImport(
+    abilities: DescriptionImport,
+    items: DescriptionImport,
+): string {
+    if (abilities.datasetId !== items.datasetId) throw new Error('Translation dataset mismatch');
+    return [
+        '-- Generated by npm run db:generate-import from docs/translations/abilities.cs.json and items.cs.json.',
+        '-- Run 020_ability_item_descriptions_cs.sql first on existing databases.',
+        '-- Updates Czech descriptions only; changed English sources get NULL for fallback.',
+        '-- Use a batch client that stops on the first error.',
+        'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;',
+        'SET @dex_previous_sql_mode = @@SESSION.sql_mode;',
+        "SET SESSION sql_mode = 'STRICT_ALL_TABLES,NO_BACKSLASH_ESCAPES,NO_ENGINE_SUBSTITUTION';",
+        'START TRANSACTION;',
+        `SELECT dataset_id FROM emerald_ex_datasets WHERE dataset_id = ${sqlLiteral(abilities.datasetId)} FOR UPDATE;`,
+        ...abilities.updates,
+        ...items.updates,
+        'COMMIT;',
+        'SET SESSION sql_mode = @dex_previous_sql_mode;',
+        '',
+    ].join('\n');
 }

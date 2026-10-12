@@ -8,11 +8,13 @@ import type { Ability, SpeciesAbilitySlot } from '@pokemon-emerald-ex-dex/shared
 import { AbilitiesSection } from './AbilitiesSection.js';
 import { AbilityDetails, AbilitiesPage } from './AbilitiesPage.js';
 import { abilityHref, parseRoute } from './navigation.js';
+import { LanguageProvider } from './language.js';
 
 const ability: Ability = {
     abilityId: 23,
     name: 'Shadow Tag',
     description: 'Prevents the foe from escaping.',
+    descriptionCs: 'Brání soupeři v útěku.',
     aiRating: 10,
     flags: {
         cantBeCopied: false,
@@ -56,6 +58,66 @@ void test('species ability slots label hidden abilities, preserve duplicates and
         renderToStaticMarkup(createElement(AbilitiesSection, { slots: [] })),
         /No ability data recorded/,
     );
+});
+
+for (const language of ['en', 'cs'] as const) {
+    void test(`species ability slots use localized descriptions and preserve hidden, null and duplicate slots (${language})`, () => {
+        const slots: SpeciesAbilitySlot[] = [
+            { slot: 1, kind: 'normal', ability },
+            { slot: 2, kind: 'normal', ability: null },
+            { slot: 3, kind: 'hidden', ability },
+        ];
+        const html = renderToStaticMarkup(
+            createElement(
+                LanguageProvider,
+                { initialLanguage: language },
+                createElement(AbilitiesSection, { slots }),
+            ),
+        );
+        const description = language === 'cs' ? ability.descriptionCs! : ability.description;
+        strictEqual(html.split(description).length - 1, 2);
+        strictEqual([...html.matchAll(/href="#\/abilities\/23"/g)].length, 2);
+        match(html, language === 'cs' ? /Skrytá schopnost/ : /Hidden ability/);
+        match(html, language === 'cs' ? />Žádná</ : />None</);
+        doesNotMatch(
+            html,
+            language === 'cs' ? /Prevents the foe from escaping/ : /Brání soupeři v útěku/,
+        );
+    });
+}
+
+for (const descriptionCs of [null, '']) {
+    void test(`Czech species ability descriptions fall back to English for ${String(descriptionCs)}`, () => {
+        const html = renderToStaticMarkup(
+            createElement(
+                LanguageProvider,
+                { initialLanguage: 'cs' },
+                createElement(AbilitiesSection, {
+                    slots: [{ slot: 1, kind: 'normal', ability: { ...ability, descriptionCs } }],
+                }),
+            ),
+        );
+        match(html, /Prevents the foe from escaping/);
+    });
+}
+
+void test('species abilities without a description use the localized empty message', () => {
+    const html = renderToStaticMarkup(
+        createElement(
+            LanguageProvider,
+            { initialLanguage: 'cs' },
+            createElement(AbilitiesSection, {
+                slots: [
+                    {
+                        slot: 1,
+                        kind: 'normal',
+                        ability: { ...ability, description: '', descriptionCs: null },
+                    },
+                ],
+            }),
+        ),
+    );
+    match(html, /Popis není uveden\./);
 });
 
 void test('ability details expose signed AI rating and every boolean flag without invented descriptions', () => {
