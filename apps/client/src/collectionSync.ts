@@ -67,6 +67,7 @@ export class CollectionHttpError extends Error {
     constructor(
         public readonly status: number,
         message: string,
+        public readonly code?: string,
     ) {
         super(message);
     }
@@ -438,8 +439,31 @@ export class CollectionEngine {
             this.error = null;
             await this.sync();
         } catch (error) {
-            if (generation === this.authGeneration) this.failure(error);
-            throw error;
+            let failure = error;
+            if (
+                generation === this.authGeneration &&
+                error instanceof CollectionHttpError &&
+                error.status === 403 &&
+                error.code === 'invalid_csrf'
+            ) {
+                try {
+                    await this.acceptSession(await this.transport.session(), generation);
+                    // A new challenge requires a new Google credential; never replay this one.
+                    failure = new CollectionHttpError(
+                        403,
+                        'Sign-in was refreshed. Please sign in with Google again.',
+                        'invalid_csrf',
+                    );
+                } catch {
+                    failure = new CollectionHttpError(
+                        403,
+                        'Sign-in could not be refreshed. Check your connection and reload this page. Your collection is saved on this device.',
+                        'invalid_csrf',
+                    );
+                }
+            }
+            if (generation === this.authGeneration) this.failure(failure);
+            throw failure;
         } finally {
             if (generation === this.authGeneration) this.authBusy = false;
         }

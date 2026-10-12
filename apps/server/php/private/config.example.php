@@ -11,6 +11,7 @@ return [
     'DB_PASS' => 'YOUR_DATABASE_PASSWORD',
     'DEX_DATASET_ID' => 'emerald-ex-1.0.4',
     'GOOGLE_CLIENT_ID' => '',
+    // Exact production origin, e.g. https://devground.cz; no app path or trailing slash.
     'COLLECTION_ALLOWED_ORIGINS' => 'https://YOUR_SITE_HOST',
     'COLLECTION_COOKIE_SECURE' => 'true',
 ];

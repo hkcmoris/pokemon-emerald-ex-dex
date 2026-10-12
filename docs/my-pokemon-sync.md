@@ -38,6 +38,33 @@ The database user needs SELECT/INSERT/UPDATE/DELETE access to the three new
 `emerald_ex_collection*` tables. Dex tables remain read-only at runtime. Database
 administration/migration permissions are separate from the runtime user.
 
+## Troubleshooting sign-in on the live site
+
+For `https://devground.cz/pokemon-emerald-ex-dex/`, the live
+`api/private/config.local.php` must include:
+
+```php
+'COLLECTION_ALLOWED_ORIGINS' => 'https://devground.cz',
+'COLLECTION_COOKIE_SECURE' => 'true',
+```
+
+The origin has no app path or trailing slash. The localhost values in `.env.example`
+are for development and do not authorize the deployed website. The same production
+origin must also be registered under the Google client's authorized JavaScript
+origins. Keep the existing database settings and Google client ID.
+
+An `invalid_origin` response means the server's allowlist does not contain the
+browser's exact origin. Older API bundles report this as `invalid_csrf` with
+“Refresh sign-in and try again,” even with a valid cookie. Correct the live setting,
+then reload the page and sign in again; no database migration or frontend rebuild
+is needed for this configuration change.
+
+An `invalid_csrf` response with a matching allowed origin means the sign-in challenge
+or session token no longer matches. Sign-in challenges expire after ten minutes.
+The client renews a rejected challenge and asks for a new Google sign-in; it never
+reuses the old Google credential with a different nonce. Cookies must be permitted
+for the app, and production must be served over HTTPS.
+
 ## API contract
 
 All paths below are under `/api/v1/collection`, including under the deployment prefix.

@@ -95,7 +95,8 @@ function collectionCsrf(string $token, array $settings): void
 {
     $provided = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     $origins = array_filter(array_map('trim', explode(',', (string) ($settings['COLLECTION_ALLOWED_ORIGINS'] ?? ''))));
-    if ($token === '' || !hash_equals($token, $provided) || !in_array($_SERVER['HTTP_ORIGIN'] ?? '', $origins, true)) { throw new HttpError(403, 'invalid_csrf', 'Refresh sign-in and try again'); }
+    if (!in_array($_SERVER['HTTP_ORIGIN'] ?? '', $origins, true)) { throw new HttpError(403, 'invalid_origin', 'Collection sync is not configured for this website address. Check COLLECTION_ALLOWED_ORIGINS on the server.'); }
+    if ($token === '' || !hash_equals($token, $provided)) { throw new HttpError(403, 'invalid_csrf', 'Refresh sign-in and try again'); }
 }
 
 function collectionBody(): stdClass

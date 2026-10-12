@@ -33,9 +33,14 @@ function cookie(request: Request, name: string): string {
 }
 
 function verifyCsrf(request: Request, token: string, allowedOrigins: readonly string[]): void {
+    if (!allowedOrigins.includes(request.get('Origin') ?? ''))
+        throw new HttpError(
+            403,
+            'invalid_origin',
+            'Collection sync is not configured for this website address. Check COLLECTION_ALLOWED_ORIGINS on the server.',
+        );
     const provided = request.get('X-CSRF-Token') ?? '';
     if (
-        !allowedOrigins.includes(request.get('Origin') ?? '') ||
         !token ||
         !/^[a-f0-9]{64}$/.test(provided) ||
         provided.length !== token.length ||

@@ -99,6 +99,27 @@ void test('collection auth, CSRF, account isolation, strict validation and concu
                 body: JSON.stringify({ credential: name }),
             });
             strictEqual(badOrigin.status, 403);
+            strictEqual(
+                ((await badOrigin.json()) as { error: { code: string } }).error.code,
+                'invalid_origin',
+            );
+            strictEqual(verifications, 0);
+            for (const disallowedOrigin of [
+                '',
+                `${origin}/`,
+                `${origin}/pokemon-emerald-ex-dex/`,
+            ]) {
+                const rejectedOrigin = await request('/session', {
+                    method: 'POST',
+                    headers: { ...headers, Origin: disallowedOrigin },
+                    body: JSON.stringify({ credential: name }),
+                });
+                strictEqual(rejectedOrigin.status, 403);
+                strictEqual(
+                    ((await rejectedOrigin.json()) as { error: { code: string } }).error.code,
+                    'invalid_origin',
+                );
+            }
             strictEqual(verifications, 0);
             const noCsrf = await request('/session', {
                 method: 'POST',
@@ -106,6 +127,10 @@ void test('collection auth, CSRF, account isolation, strict validation and concu
                 body: JSON.stringify({ credential: name }),
             });
             strictEqual(noCsrf.status, 403);
+            strictEqual(
+                ((await noCsrf.json()) as { error: { code: string } }).error.code,
+                'invalid_csrf',
+            );
             strictEqual(verifications, 0);
             const invalid = await request('/session', {
                 method: 'POST',

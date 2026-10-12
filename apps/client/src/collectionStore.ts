@@ -29,12 +29,16 @@ async function request<T>(
         signal: AbortSignal.timeout(20_000),
     });
     if (response.status === 204) return undefined as T;
-    const value = (await response.json()) as { data: T; error?: { message?: string } };
+    const value = (await response.json()) as {
+        data: T;
+        error?: { code?: string; message?: string };
+    };
     if (!response.ok)
         throw new CollectionHttpError(
             response.status,
             value.error?.message ??
                 'Collection sync is unavailable. Changes remain saved on this device.',
+            value.error?.code,
         );
     return value.data;
 }

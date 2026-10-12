@@ -382,6 +382,135 @@ void test('failed local persistence is reported and cannot masquerade as a saved
     strictEqual(engine.getSnapshot().error, 'Storage full');
 });
 
+void test('expired sign-in renews its challenge without replaying the credential or losing guest edits', async () => {
+    const initial = initialCollectionPersistence();
+    initial.partitions.guest.document = fixture();
+    const store = memory(initial);
+    const server = transport(emptyCollection());
+    let sessionRequests = 0;
+    server.api.session = () => {
+        sessionRequests++;
+        const challenge = sessionRequests === 1 ? 'expired-challenge' : 'new-challenge';
+        return Promise.resolve({ user: null, csrfToken: challenge, nonce: challenge });
+    };
+    const loginRequests: { credential: string; csrf: string }[] = [];
+    const login = server.api.login.bind(server.api);
+    server.api.login = (credential, csrf) => {
+        loginRequests.push({ credential, csrf });
+        if (loginRequests.length === 1)
+            return Promise.reject(
+                new CollectionHttpError(403, 'Refresh sign-in and try again', 'invalid_csrf'),
+            );
+        return login(credential, csrf);
+    };
+    const engine = new CollectionEngine(
+        store,
+        server.api,
+        () => true,
+        () => 'new',
+    );
+    await engine.initialize();
+    await engine.update((document) => {
+        document.pokemon.one.nickname = 'Saved before signing in';
+        return document;
+    });
+    const before = await store.read();
+
+    await rejects(engine.login('credential-with-expired-nonce'), /sign in with Google again/);
+
+    strictEqual(sessionRequests, 2);
+    strictEqual(engine.getSnapshot().nonce, 'new-challenge');
+    strictEqual(engine.getSnapshot().status, 'error');
+    strictEqual(
+        engine.getSnapshot().error,
+        'Sign-in was refreshed. Please sign in with Google again.',
+    );
+    deepStrictEqual(await store.read(), before);
+    deepStrictEqual(loginRequests, [
+        { credential: 'credential-with-expired-nonce', csrf: 'expired-challenge' },
+    ]);
+    strictEqual(server.writes(), 0);
+
+    await engine.login('credential-with-new-nonce');
+
+    deepStrictEqual(loginRequests[1], {
+        credential: 'credential-with-new-nonce',
+        csrf: 'new-challenge',
+    });
+    strictEqual(loginRequests.length, 2);
+    strictEqual(server.remote().document.pokemon.one.nickname, 'Saved before signing in');
+    strictEqual(engine.getSnapshot().status, 'synced');
+    strictEqual(engine.getSnapshot().error, null);
+});
+
+void test('an invalid sign-in origin stays a configuration error and does not renew the challenge', async () => {
+    const initial = initialCollectionPersistence();
+    initial.partitions.guest.document = fixture();
+    const store = memory(initial);
+    const server = transport(emptyCollection());
+    let sessionRequests = 0;
+    server.api.session = () => {
+        sessionRequests++;
+        return Promise.resolve({ user: null, csrfToken: 'challenge', nonce: 'challenge' });
+    };
+    const invalidOrigin = new CollectionHttpError(
+        403,
+        'This website origin is not allowed by the server configuration.',
+        'invalid_origin',
+    );
+    server.api.login = () => Promise.reject(invalidOrigin);
+    const engine = new CollectionEngine(
+        store,
+        server.api,
+        () => true,
+        () => 'new',
+    );
+    await engine.initialize();
+    const before = await store.read();
+
+    await rejects(engine.login('credential'), (error) => error === invalidOrigin);
+
+    strictEqual(sessionRequests, 1);
+    strictEqual(engine.getSnapshot().nonce, 'challenge');
+    strictEqual(engine.getSnapshot().error, invalidOrigin.message);
+    deepStrictEqual(await store.read(), before);
+    strictEqual(server.writes(), 0);
+});
+
+void test('failed sign-in challenge recovery keeps local edits and asks for a page reload', async () => {
+    const initial = initialCollectionPersistence();
+    initial.partitions.guest.document = fixture();
+    const store = memory(initial);
+    const server = transport(emptyCollection());
+    let sessionRequests = 0;
+    server.api.session = () => {
+        sessionRequests++;
+        return sessionRequests === 1
+            ? Promise.resolve({ user: null, csrfToken: 'challenge', nonce: 'challenge' })
+            : Promise.reject(new Error('Connection lost'));
+    };
+    let loginRequests = 0;
+    server.api.login = () => {
+        loginRequests++;
+        return Promise.reject(new CollectionHttpError(403, 'Expired challenge', 'invalid_csrf'));
+    };
+    const engine = new CollectionEngine(
+        store,
+        server.api,
+        () => true,
+        () => 'new',
+    );
+    await engine.initialize();
+    const before = await store.read();
+
+    await rejects(engine.login('credential'), /Check your connection and reload this page/);
+
+    strictEqual(loginRequests, 1);
+    strictEqual(sessionRequests, 2);
+    deepStrictEqual(await store.read(), before);
+    strictEqual(server.writes(), 0);
+});
+
 void test('document equality ignores object insertion order but respects party order', () => {
     strictEqual(sameCollectionValue({ a: 1, b: 2 }, { b: 2, a: 1 }), true);
     strictEqual(sameCollectionValue(['a', 'b'], ['b', 'a']), false);
