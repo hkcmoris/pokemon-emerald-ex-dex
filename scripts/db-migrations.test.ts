@@ -1,4 +1,5 @@
 import { deepStrictEqual, rejects, strictEqual, throws } from 'node:assert/strict';
+import { readdir } from 'node:fs/promises';
 import { test } from 'node:test';
 
 import type { QueryOptions } from 'mariadb';
@@ -23,6 +24,8 @@ const migrationFiles = [
     '015_abilities.sql',
     '016_import_abilities_1.0.4.sql',
     '017_move_category_svg_icons.sql',
+    '018_move_descriptions_cs.sql',
+    '019_seed_move_descriptions_cs_1.0.4.sql',
 ];
 
 function fakeDatabase(upgraded = false) {
@@ -30,7 +33,7 @@ function fakeDatabase(upgraded = false) {
     const addTables = (...tables: string[]) => {
         for (const table of tables) columns.set(`emerald_ex_${table}`, new Set(['id']));
     };
-    addTables('datasets', 'sources', 'species', 'move_categories', 'types');
+    addTables('datasets', 'sources', 'species', 'moves', 'move_categories', 'types');
     const sources = new Set<string>();
     if (upgraded) {
         addTables(
@@ -112,6 +115,9 @@ function fakeDatabase(upgraded = false) {
             if (file === '007_move_category_icons.sql') {
                 columns.get('emerald_ex_move_categories')?.add('icon_file');
             }
+            if (file === '018_move_descriptions_cs.sql') {
+                columns.get('emerald_ex_moves')?.add('description_cs');
+            }
             return [];
         }
         throw new Error(`Unexpected query: ${sql}`);
@@ -150,11 +156,12 @@ function fakeDatabase(upgraded = false) {
     return { state, run };
 }
 
-void test('adopts manually imported upgrades and applies the SVG migration only once', async () => {
+void test('adopts manually imported upgrades and applies remaining migrations only once', async () => {
     const database = fakeDatabase(true);
+    const pending = migrationFiles.slice(12);
 
-    deepStrictEqual(await database.run(), ['017_move_category_svg_icons.sql']);
-    deepStrictEqual(database.state.readFiles, ['017_move_category_svg_icons.sql']);
+    deepStrictEqual(await database.run(), pending);
+    deepStrictEqual(database.state.readFiles, pending);
     deepStrictEqual(database.state.history, new Set([...migrationFiles, '_baseline']));
     strictEqual(
         database.state.events.indexOf('commit') <
@@ -163,7 +170,7 @@ void test('adopts manually imported upgrades and applies the SVG migration only 
     );
 
     deepStrictEqual(await database.run(), []);
-    deepStrictEqual(database.state.executedFiles, ['017_move_category_svg_icons.sql']);
+    deepStrictEqual(database.state.executedFiles, pending);
     deepStrictEqual(database.state.releasedLocks, database.state.acquiredLocks);
 });
 
@@ -186,6 +193,59 @@ void test('applies every missing upgrade in order and the next run reads no SQL 
 
     deepStrictEqual(await database.run(), []);
     deepStrictEqual(database.state.readFiles, migrationFiles);
+});
+
+void test('registers every numbered SQL upgrade in the migration runner', async () => {
+    const upgradeFiles = (await readdir(new URL('sql/', import.meta.url)))
+        .filter((file) => /^\d{3}_.+\.sql$/.test(file) && Number(file.slice(0, 3)) >= 5)
+        .sort();
+    const database = fakeDatabase();
+
+    deepStrictEqual(await database.run(), upgradeFiles);
+});
+
+void test('existing migration history receives the Czech description column and seed in order', async () => {
+    const database = fakeDatabase(true);
+    database.state.history = new Set(['_baseline', ...migrationFiles.slice(0, -2)]);
+    const pending = migrationFiles.slice(-2);
+
+    deepStrictEqual(await database.run(), pending);
+    deepStrictEqual(database.state.readFiles, pending);
+    deepStrictEqual(database.state.executedFiles, pending);
+    strictEqual(database.state.columns.get('emerald_ex_moves')?.has('description_cs'), true);
+    deepStrictEqual(await database.run(), []);
+});
+
+void test('an existing Czech description column does not suppress its seed', async () => {
+    const database = fakeDatabase(true);
+    database.state.columns.get('emerald_ex_moves')?.add('description_cs');
+    database.state.history = new Set(migrationFiles.slice(0, -2));
+
+    deepStrictEqual(await database.run(), ['019_seed_move_descriptions_cs_1.0.4.sql']);
+    deepStrictEqual(database.state.readFiles, ['019_seed_move_descriptions_cs_1.0.4.sql']);
+    strictEqual(database.state.history.has('018_move_descriptions_cs.sql'), true);
+    strictEqual(database.state.history.has('019_seed_move_descriptions_cs_1.0.4.sql'), true);
+});
+
+void test('a failed Czech description seed retries without reapplying its completed column migration', async () => {
+    const database = fakeDatabase(true);
+    database.state.history = new Set(['_baseline', ...migrationFiles.slice(0, -2)]);
+    database.state.failMigration = '019_seed_move_descriptions_cs_1.0.4.sql';
+
+    await rejects(database.run(), /Migration 019_seed_move_descriptions_cs_1.0.4.sql failed/);
+    strictEqual(database.state.history.has('018_move_descriptions_cs.sql'), true);
+    strictEqual(database.state.history.has('019_seed_move_descriptions_cs_1.0.4.sql'), false);
+    strictEqual(database.state.columns.get('emerald_ex_moves')?.has('description_cs'), true);
+    strictEqual(database.state.events.at(-1), 'rollback');
+
+    database.state.failMigration = '';
+    deepStrictEqual(await database.run(), ['019_seed_move_descriptions_cs_1.0.4.sql']);
+    deepStrictEqual(database.state.readFiles, [
+        '018_move_descriptions_cs.sql',
+        '019_seed_move_descriptions_cs_1.0.4.sql',
+        '019_seed_move_descriptions_cs_1.0.4.sql',
+    ]);
+    deepStrictEqual(database.state.history, new Set(['_baseline', ...migrationFiles]));
 });
 
 void test('a failed seed remains pending on retry after its column migration succeeded', async () => {
@@ -216,6 +276,8 @@ void test('existing tables without source markers still receive their data impor
         '014_import_items_1.0.4.sql',
         '016_import_abilities_1.0.4.sql',
         '017_move_category_svg_icons.sql',
+        '018_move_descriptions_cs.sql',
+        '019_seed_move_descriptions_cs_1.0.4.sql',
     ];
 
     deepStrictEqual(await database.run(), missingImports);
@@ -277,6 +339,6 @@ void test('baseline history is rolled back atomically and can be adopted on retr
     deepStrictEqual(database.state.releasedLocks, database.state.acquiredLocks);
 
     database.state.failHistory = '';
-    deepStrictEqual(await database.run(), ['017_move_category_svg_icons.sql']);
+    deepStrictEqual(await database.run(), migrationFiles.slice(12));
     deepStrictEqual(database.state.history, new Set([...migrationFiles, '_baseline']));
 });

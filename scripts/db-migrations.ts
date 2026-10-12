@@ -74,6 +74,11 @@ const migrations: readonly Migration[] = [
             hasTables(state, ...abilitiesTables) && state.sources.has('abilities'),
     },
     { file: '017_move_category_svg_icons.sql', isPresent: () => false },
+    {
+        file: '018_move_descriptions_cs.sql',
+        isPresent: (state) => state.columns.get('emerald_ex_moves')?.has('description_cs') ?? false,
+    },
+    { file: '019_seed_move_descriptions_cs_1.0.4.sql', isPresent: () => false },
 ];
 
 export type MigrationConnection = Pick<

@@ -44,13 +44,14 @@ administrative account with schema and data write permissions. It accepts only
 `127.0.0.1`, `localhost`, or `::1` and requires the existing `emerald-ex-1.0.4` dataset;
 it does not create a database or run the replacement `002` import.
 
-Upgrades `005` through `017` run in order on one connection. Successful upgrades are
+Upgrades `005` through `019` run in order on one connection. Successful upgrades are
 recorded in `emerald_ex_migrations` and skipped on subsequent runs. A database lock
 prevents two runners from applying the same upgrades concurrently. The runner stops
 on the first error, rolls back the active data transaction, and leaves that upgrade
 pending for the next run. Schema changes can commit independently; the current
 incremental scripts support retries. Verification and example files `003`/`004`
 remain manual queries. Add future upgrade files explicitly to `scripts/db-migrations.ts`.
+The migration tests check that every numbered upgrade file is registered.
 
 On its first run, the command records existing tables, columns, and imported source
 markers as a baseline, so databases upgraded manually retain their data. Existing
@@ -59,6 +60,8 @@ NULL values remain intact. Seeds `008`/`010` run automatically only when the run
 adds their respective columns. If you imported the current `001`/`002` without the
 initial icon seeds, run `008` and `010` manually as listed above. Upgrade `017` still
 runs once to replace only the original Physical/Special PNG defaults with SVGs.
+Upgrade `018` recognizes an existing `description_cs` column. Seed `019` runs once
+unless recorded in migration history; the column alone does not prove it was seeded.
 
 ### MySQL error 1267: illegal mix of collations
 
@@ -550,6 +553,8 @@ For an existing database, select its schema and run with an administrative accou
 2. `scripts/sql/019_seed_move_descriptions_cs_1.0.4.sql` fills Czech descriptions.
 3. Deploy the updated Node or PHP backend and frontend. The backend requires the
    new column, so apply the schema migration before deployment.
+
+For the local database, `npm run db:migrate` applies these two upgrades automatically.
 
 Both scripts are repeatable. The seed updates only `description_cs` for the
 935 known moves in dataset `emerald-ex-1.0.4`. It compares each English description
