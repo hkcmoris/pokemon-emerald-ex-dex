@@ -225,6 +225,15 @@ a remote `DB_HOST`. Regular `npm run check` does not require a running database.
 
 ## Full check
 
+Formatting and ESLint skip the exported battle sprite directory, including its manifest.
+Regular tests skip the full sprite PNG scan. Run it separately when needed:
+
+```bash
+npm run test:sprites
+```
+
+Run the standard project checks with:
+
 ```bash
 npm run check
 ```

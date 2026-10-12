@@ -402,17 +402,8 @@ void test('the type icon seed maps all supplied PNGs, including Electric/Lightni
     }
 });
 
-void test('sprite references point to existing 64x64 PNGs and agree with the migration schema', async () => {
+void test('sprite references agree with the migration schema', async () => {
     buildDexImport(sources);
-    const manifest = JSON.parse(sources.battle_sprites.contents) as {
-        species: { files: Record<string, string> }[];
-    };
-    await validateSpriteFiles(
-        fileURLToPath(
-            new URL('../assets/pokemon_emerald_ex_1.0.4_battle_sprites/', import.meta.url),
-        ),
-        manifest.species.flatMap((entry) => Object.values(entry.files)),
-    );
     const schema = await readFile(new URL('sql/001_schema.sql', import.meta.url), 'utf8');
     const migration = await readFile(
         new URL('sql/005_species_sprites.sql', import.meta.url),

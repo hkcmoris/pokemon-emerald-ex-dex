@@ -121,9 +121,10 @@ base member each, 700 unique memberships, 367 change-table sources and 1,600 rul
 Sources, nonzero targets, method references and per-source rule orders must be valid;
 target 0 requires `restorePreviousForm: true`. Original detail objects, nulls and
 raw parameters are preserved. Invalid exports are rejected before SQL generation.
-Sprite validation matches IDs/names to the species catalog, verifies availability,
-variant/frame counts and relative filenames, and reads every referenced PNG to check
-that it exists and has a 64×64 PNG header. Image bytes remain on disk; SQL stores the
+Sprite validation matches IDs/names to the species catalog and verifies availability,
+variant/frame counts and relative filenames. The generator and `npm run test:sprites`
+read every referenced PNG to check that it exists and has a 64×64 PNG header.
+`npm test` and `npm run check` skip this full sprite PNG scan. Image bytes remain on disk; SQL stores the
 relative filenames, frame count and the reason recorded for missing sprites.
 The sprite PNGs and their manifest live together under `assets/`, alongside the
 type and move category icon folders. Moving this folder does not change stored

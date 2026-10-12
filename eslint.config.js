@@ -5,7 +5,12 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
     {
-        ignores: ['**/dist/**', 'coverage/**', 'node_modules/**'],
+        ignores: [
+            '**/dist/**',
+            'coverage/**',
+            'node_modules/**',
+            'assets/pokemon_emerald_ex_1.0.4_battle_sprites/**',
+        ],
     },
     js.configs.recommended,
     tseslint.configs.recommendedTypeChecked,

@@ -4,3 +4,4 @@ dist
 .vscode
 package-lock.json
 *.md
+assets/pokemon_emerald_ex_1.0.4_battle_sprites/
