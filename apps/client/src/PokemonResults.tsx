@@ -88,7 +88,11 @@ export function PokemonResults({ entries, datasetId, sort }: PokemonResultsProps
                     </thead>
                     <tbody>
                         {entries.map((entry) => (
-                            <tr key={entry.speciesId}>
+                            <tr
+                                key={entry.speciesId}
+                                className="type-surface"
+                                style={typeSurfaceStyle(entry.types)}
+                            >
                                 <td className="font-mono text-xs text-stone-500">
                                     {String(entry.speciesId).padStart(4, '0')}
                                 </td>

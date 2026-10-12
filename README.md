@@ -256,9 +256,10 @@ keyboard handling, focus management, and scroll locking. Emerald theme variables
 live in `apps/client/src/style.css`. DM Sans is bundled locally; its OFL license is
 included in `apps/client/src/fonts/OFL.txt`.
 
-Species headers, mobile Pokémon cards, and move rows use a Mica-inspired opaque
-surface with broad type tints, a soft sheen, and subtle inset edge highlights. Move
-rows use the move’s own type, including level-up moves and TM/HM compatibility.
+Species headers, mobile Pokémon cards, desktop Pokémon rows, and move rows use a
+Mica-inspired opaque surface with broad type tints, a soft sheen, and subtle inset
+edge highlights. Move rows use the move’s own type, including level-up moves and
+TM/HM compatibility.
 Type colors supply the tint; text tones adapt to the light and dark themes.
 
 Species detail headings receive focus after navigation for screen readers, without
