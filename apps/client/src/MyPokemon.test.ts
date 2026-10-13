@@ -321,9 +321,8 @@ void test('real Torchic guidance visibly compares waiting for Flamethrower with 
     match(czech, /Nové útoky za úrovně po vývoji/);
     match(czech, /TM35, pokud tento přístroj máte/);
     match(czech, /při odkladu vývoje můžete tyto možnosti přeskočit/);
-    match(czech, /Dosáhnout úrovně 16\./);
-    match(czech, /Zaznamenaná úroveň dosahuje úrovně 16/);
-    doesNotMatch(czech, /Reach level|Recorded level/);
+    match(czech, /vývoj na úrovni 16\./);
+    doesNotMatch(czech, /Dosáhnout úrovně|Zaznamenaná úroveň|Reach level|Recorded level/);
 });
 
 void test('Czech collection guidance and recaps translate item and friendship summaries and their condition notes', () => {
@@ -364,4 +363,42 @@ void test('Czech collection guidance and recaps translate item and friendship su
     match(levelRecap, /Dosáhnout úrovně 16\./);
     match(levelRecap, /Požadované úrovně dosaženo/);
     doesNotMatch(levelRecap, /Reach level|Level requirement reached/);
+});
+
+void test('plain level evolutions state the requirement once below, at, and above the required level', () => {
+    const torchic = loadCollectionSpeciesFixture([255])[255];
+    for (const level of [11, 16, 20]) {
+        const advice = createElement(EvolutionAdvice, {
+            pokemon: { ...owned, state: { ...owned.state, speciesId: 255, level } },
+            family: [torchic],
+        });
+        const english = render(advice);
+        match(english, /→ Combusken/);
+        strictEqual((english.match(/evolves at level 16\./g) ?? []).length, 1);
+        doesNotMatch(
+            english,
+            /Reach level 16|Recorded level|Not met in recorded data|Ready to evolve/,
+        );
+        const czech = render(advice, 'cs');
+        strictEqual((czech.match(/vývoj na úrovni 16\./g) ?? []).length, 1);
+        doesNotMatch(czech, /Dosáhnout úrovně|Zaznamenaná úroveň|Zaznamenané údaje|evolves at/);
+    }
+});
+
+void test('custom evolution summaries keep their additional requirements', () => {
+    const torchic = loadCollectionSpeciesFixture([255])[255];
+    const summary = 'Reach level 16 after meeting a special condition.';
+    const html = render(
+        createElement(EvolutionAdvice, {
+            pokemon: { ...owned, state: { ...owned.state, speciesId: 255, level: 11 } },
+            family: [
+                {
+                    ...torchic,
+                    evolutionLinks: torchic.evolutionLinks.map((edge) => ({ ...edge, summary })),
+                },
+            ],
+        }),
+    );
+    match(html, /Reach level 16 after meeting a special condition\./);
+    doesNotMatch(html, /evolves at level 16\./);
 });

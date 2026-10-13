@@ -83,6 +83,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0;
+    max-width: 55%;
+    flex-shrink: 0;
     border: 1px solid var(--dex-border);
     background: var(--dex-surface);
     border-radius: 100px;
@@ -90,8 +93,14 @@
     font-size: 0.75rem;
     color: var(--dex-muted);
 }
+.my-sync-status > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .my-sync-status::before {
     content: '';
+    flex-shrink: 0;
     width: 7px;
     height: 7px;
     background: currentColor;
@@ -112,8 +121,35 @@
     background: var(--dex-surface);
 }
 .my-account {
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
     margin-bottom: 1.5rem;
+}
+.my-account > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2rem;
+    list-style: none;
+}
+.my-account > summary::-webkit-details-marker {
+    display: none;
+}
+.my-account > summary::before {
+    content: '';
+    flex-shrink: 0;
+    border-top: 0.25rem solid transparent;
+    border-bottom: 0.25rem solid transparent;
+    border-left: 0.35rem solid currentColor;
+}
+.my-account[open] > summary::before {
+    transform: rotate(90deg);
+}
+.my-account-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .my-account-content {
     display: grid;

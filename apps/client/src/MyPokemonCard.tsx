@@ -413,12 +413,33 @@ export function EvolutionAdvice({
                     )}
                 </p>
             )}
-            {evolutions.map((entry) => (
-                <p className="my-evolution-note" key={entry.edgeOrder}>
-                    <strong>→ {entry.toName}</strong>
-                    <span>{evolutionSummary(entry.summary, language)}</span>
-                    {getEvolutionConditions(pokemon, entry, { party, observations, details }).map(
-                        (condition, index) => (
+            {evolutions.map((entry) => {
+                const levelOnly =
+                    entry.method === 'level' &&
+                    entry.level !== null &&
+                    Object.keys(entry.conditions).length === 0 &&
+                    entry.summary === `Reach level ${entry.level}.`;
+                if (levelOnly)
+                    return (
+                        <p className="my-evolution-note" key={entry.edgeOrder}>
+                            <span>
+                                <strong>→ {entry.toName}</strong> —{' '}
+                                {t(
+                                    `evolves at level ${entry.level}.`,
+                                    `vývoj na úrovni ${entry.level}.`,
+                                )}
+                            </span>
+                        </p>
+                    );
+                return (
+                    <p className="my-evolution-note" key={entry.edgeOrder}>
+                        <strong>→ {entry.toName}</strong>
+                        <span>{evolutionSummary(entry.summary, language)}</span>
+                        {getEvolutionConditions(pokemon, entry, {
+                            party,
+                            observations,
+                            details,
+                        }).map((condition, index) => (
                             <small
                                 key={index}
                                 className={`my-condition my-condition-${condition.status}`}
@@ -433,10 +454,10 @@ export function EvolutionAdvice({
                                       : t('Unknown / check in game', 'Neznámé / ověřte ve hře')}
                                 : {evolutionConditionLabel(condition.label, language)}
                             </small>
-                        ),
-                    )}
-                </p>
-            ))}
+                        ))}
+                    </p>
+                );
+            })}
             <EvolutionTradeoffGroup
                 entries={beforeEvolving}
                 gained={false}

@@ -154,6 +154,12 @@ export function MyPokemonPage({
         offline: t('Offline · edits saved here', 'Offline · změny jsou uloženy zde'),
         error: t('Sync needs attention', 'Synchronizace vyžaduje pozornost'),
     };
+    const syncBadgeLabels = {
+        ...syncLabels,
+        local: t('Saved locally', 'Uloženo místně'),
+        offline: 'Offline',
+        error: t('Sync issue', 'Chyba synchronizace'),
+    };
     async function perform(action: () => Promise<void>) {
         setError(null);
         setBusy(true);
@@ -301,15 +307,20 @@ export function MyPokemonPage({
                             )}
                         </p>
                     </div>
-                    <span className={`my-sync-status my-sync-${collection.status}`} role="status">
-                        {syncLabels[collection.status]}
-                    </span>
                 </div>
                 <details className="my-account my-details">
                     <summary>
-                        {collection.user
-                            ? `${collection.user.name} · ${t('Sync & account', 'Synchronizace a účet')}`
-                            : t('Use on your phone and PC', 'Používat na telefonu i počítači')}
+                        <span className="my-account-label" title={collection.user?.name}>
+                            {collection.user?.name ?? t('Sync & account', 'Synchronizace a účet')}
+                        </span>
+                        <span
+                            className={`my-sync-status my-sync-${collection.status}`}
+                            role="status"
+                            title={syncLabels[collection.status]}
+                        >
+                            <span aria-hidden="true">{syncBadgeLabels[collection.status]}</span>
+                            <span className="sr-only">{syncLabels[collection.status]}</span>
+                        </span>
                     </summary>
                     <div className="my-account-content">
                         <div>

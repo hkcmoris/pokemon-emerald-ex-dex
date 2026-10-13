@@ -136,7 +136,9 @@ moves. The comparison does not claim permanent loss. Entries
 whose learning level has passed are not presented as future opportunities. Raw
 level-zero entries are conditional special entries to verify in the game. Evolution
 conditions use recorded moves, party members, and measured stats where available;
-unknown requirements still need checking in the game.
+unknown requirements still need checking in the game. Plain level-only evolutions
+use one concise line, such as “→ Combusken — evolves at level 16.”, without repeating
+the level as a recorded-data status. Rules with additional conditions keep their details.
 
 Guest use starts without registration. Collections are saved in browser storage.
 In production builds, a service worker makes the app reopen offline after a successful
@@ -148,6 +150,7 @@ playthroughs upload automatically as separate runs, even when names match. Compa
 offline changes merge automatically; conflicting values, removals, or party lineups
 show both alternatives for an explicit choice. Pending edits sync while the app is
 open and connected, and signing out keeps account data separate from guest data.
+The sync status shares one compact row with the expandable account controls.
 
 Google sign-in still needs deployment configuration: apply
 `scripts/sql/022_my_pokemon.sql`, create a Google OAuth Web client, and configure its
