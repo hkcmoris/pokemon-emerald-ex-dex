@@ -813,13 +813,14 @@ export function MyPokemonCard({
                         {t('No moves recorded as known', 'Žádné útoky nejsou označeny jako známé')}
                     </p>
                 ) : (
-                    <ul className="my-move-chips">
+                    <ul className="my-move-grid">
                         {pokemon.state.moves.map((move) => (
                             <MyPokemonMove
                                 as="li"
                                 key={move.moveId}
                                 move={move}
                                 reference={findReferenceMove(move.moveId, family)}
+                                showStats
                             />
                         ))}
                     </ul>

@@ -176,8 +176,8 @@ export function AddPokemonForm({
             </div>
             <p className="my-muted">
                 {t(
-                    'Moves and battle stats can be recorded later. The Pokémon is added to your party if a slot is free.',
-                    'Útoky a bojové statistiky lze doplnit později. Pokud je v týmu místo, Pokémon se do něj přidá.',
+                    'Starts with up to four recent level-up moves. Joins your party if a slot is free.',
+                    'Začne až se čtyřmi posledními útoky podle úrovně. Pokud je v týmu místo, přidá se do něj.',
                 )}
             </p>
             {error && <p role="alert">{error}</p>}

@@ -340,6 +340,52 @@
 .my-move .type-icons {
     flex-shrink: 0;
 }
+.my-move-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+.my-move-detailed {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    min-width: 0;
+    gap: 0.3rem;
+    padding: 0.5rem;
+}
+.my-move-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    font-weight: 600;
+    line-height: 1.25;
+}
+.my-move-heading > span:last-child {
+    min-width: 0;
+}
+.my-move-stats,
+.my-move-power {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.my-move-stats {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    font-size: 0.7rem;
+}
+.my-move-power {
+    margin-left: auto;
+    white-space: nowrap;
+}
+.my-move-power > span {
+    color: var(--dex-muted);
+}
+.my-move-power strong {
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+}
 .my-move-options {
     display: grid;
     gap: 0.4rem;

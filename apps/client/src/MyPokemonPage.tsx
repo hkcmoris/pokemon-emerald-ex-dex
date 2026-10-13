@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type SubmitEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type {
-    CollectionDocument,
-    OwnedPokemon,
-    Pokemon,
-    Playthrough,
+import {
+    getDefaultMoves,
+    type CollectionDocument,
+    type OwnedPokemon,
+    type Pokemon,
+    type Playthrough,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { useCollection } from './collectionStore.js';
@@ -197,6 +198,8 @@ export function MyPokemonPage({
     }
     async function addPokemon(level: number, nickname: string) {
         if (!picked || !run) return;
+        // Keep adding available offline when this species' learnset is not cached.
+        const details = await loadCollectionSpecies(picked.speciesId).catch(() => null);
         const id = crypto.randomUUID();
         const pokemon: OwnedPokemon = {
             id,
@@ -205,7 +208,7 @@ export function MyPokemonPage({
             state: {
                 speciesId: picked.speciesId,
                 level,
-                moves: null,
+                moves: details ? getDefaultMoves(details.learnset, level) : null,
                 formEpoch: crypto.randomUUID(),
             },
             deleted: false,

@@ -32,14 +32,19 @@ exporting or importing their collection.
   stat observations remain available for restoration.
 - Require only species/form and level when adding a Pokémon. Nickname, current moves,
   and battle stats are optional.
-- Unrecorded moves mean unknown, not absent. Never infer a current moveset from a
-  species learnset.
+- Newly added Pokémon start with up to four distinct moves most recently learned
+  at or below their current level from their selected species/form's level-up learnset.
+  Use dataset entry order for moves learned at the same level. Exclude level-zero
+  special entries. Players can edit this initial default afterward.
+- Apply defaults only on creation; leave existing Pokémon and later level/form
+  updates unchanged. If the learnset is unavailable offline, keep moves unrecorded.
+  Unrecorded moves still mean unknown, not absent.
 - Party cards prioritize level updates, current moves, and upcoming opportunities.
   Individual Pokémon details contain stats and history.
 
 ## Manual updates and catch-up
 
-- Levels, actual evolutions, and current moves are recorded by the player.
+- After creation, levels, actual evolutions, and current moves are updated by the player.
 - After a level increase, offer a skippable catch-up recap of learning and evolution
   opportunities between the old and new levels.
 - Saving a new level does not depend on completing the recap or entering stats.

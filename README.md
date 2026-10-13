@@ -93,16 +93,22 @@ Open **My Pokémon** at `#/my-pokemon` to maintain separate named playthroughs, 
 with its own collection and an ordered party of up to six Pokémon. The active party
 opens first. Add Pokémon from a species detail page or search within the collection.
 Only species/form and level are required; nicknames, current moves, and battle stats
-are optional. Multiple owned Pokémon of the same species remain separate individuals.
+are optional. Newly added Pokémon start with up to four distinct moves most recently
+learned by their current level in the selected species/form's level-up learnset.
+Same-level moves follow dataset order; level-zero special entries are excluded.
+Existing Pokémon are unchanged. If the learnset is unavailable offline, moves remain
+unrecorded. Multiple owned Pokémon of the same species remain separate individuals.
 Removing a party member keeps it in the collection. Removed Pokémon, playthroughs,
 and stat observations can be restored.
 
 Owned species and their moves use type icons and type-tinted surfaces, including
-move selection, upcoming moves, and level-up recaps. Type names remain available
+move selection, upcoming moves, and level-up recaps. Current moves form a compact
+2×2 grid with category icons and power; moves without fixed base power show an em dash.
+Type names remain available
 when icons are missing; saved move names remain visible when reference data is
 unavailable offline.
 
-Levels, moves, and evolutions are recorded manually. Edit the level in the card
+After adding a Pokémon, levels, moves, and evolutions are updated manually. Edit the level in the card
 header by typing or using the up/down arrows. A save button appears to its left
 only when the level changes. Saving an increase offers a skippable recap; select
 learned moves explicitly. Unrecorded moves mean unknown, not an empty moveset. Recording an evolution or form change
