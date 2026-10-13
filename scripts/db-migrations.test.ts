@@ -29,6 +29,7 @@ const migrationFiles = [
     '020_ability_item_descriptions_cs.sql',
     '021_seed_ability_item_descriptions_cs_1.0.4.sql',
     '022_my_pokemon.sql',
+    '023_seed_local_collection.sql',
 ];
 
 const moveDescriptionMigrations = [
@@ -39,6 +40,7 @@ const abilityItemDescriptionMigrations = [
     '020_ability_item_descriptions_cs.sql',
     '021_seed_ability_item_descriptions_cs_1.0.4.sql',
 ];
+const localCollectionSeed = '023_seed_local_collection.sql';
 
 function fakeDatabase(upgraded = false) {
     const columns = new Map<string, Set<string>>();
@@ -342,6 +344,72 @@ void test('a failed ability/item seed retries without reapplying completed Czech
     deepStrictEqual(database.state.history, new Set(['_baseline', ...migrationFiles]));
 });
 
+void test('migration history through 022 receives the local collection seed only once', async () => {
+    const database = fakeDatabase(true);
+    database.state.history = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => file !== localCollectionSeed),
+    ]);
+
+    deepStrictEqual(await database.run(), [localCollectionSeed]);
+    deepStrictEqual(database.state.readFiles, [localCollectionSeed]);
+    deepStrictEqual(database.state.history, new Set(['_baseline', ...migrationFiles]));
+
+    deepStrictEqual(await database.run(), []);
+    deepStrictEqual(database.state.executedFiles, [localCollectionSeed]);
+    deepStrictEqual(database.state.readFiles, [localCollectionSeed]);
+});
+
+void test('existing collection and backup tables do not suppress the local collection seed', async () => {
+    const database = fakeDatabase(true);
+    for (const table of [
+        'collection_users',
+        'collection_sessions',
+        'collections',
+        'local_collection_backups',
+    ]) {
+        database.state.columns.set(`emerald_ex_${table}`, new Set(['user_id']));
+    }
+    database.state.history = new Set(
+        migrationFiles.filter(
+            (file) => file !== '022_my_pokemon.sql' && file !== localCollectionSeed,
+        ),
+    );
+
+    deepStrictEqual(await database.run(), [localCollectionSeed]);
+    deepStrictEqual(database.state.readFiles, [localCollectionSeed]);
+    deepStrictEqual(database.state.history, new Set([...migrationFiles, '_baseline']));
+    strictEqual(
+        database.state.events.indexOf('commit') <
+            database.state.events.indexOf(`apply:${localCollectionSeed}`),
+        true,
+    );
+});
+
+void test('a failed local collection seed remains pending and retries without earlier upgrades', async () => {
+    const database = fakeDatabase(true);
+    const previousHistory = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => file !== localCollectionSeed),
+    ]);
+    database.state.history = new Set(previousHistory);
+    database.state.failMigration = localCollectionSeed;
+
+    await rejects(database.run(), /Migration 023_seed_local_collection.sql failed/);
+    deepStrictEqual(database.state.history, previousHistory);
+    strictEqual(database.state.events.at(-1), 'rollback');
+    deepStrictEqual(database.state.releasedLocks, database.state.acquiredLocks);
+
+    database.state.failMigration = '';
+    deepStrictEqual(await database.run(), [localCollectionSeed]);
+    deepStrictEqual(database.state.readFiles, [localCollectionSeed, localCollectionSeed]);
+    deepStrictEqual(database.state.executedFiles, [localCollectionSeed, localCollectionSeed]);
+    deepStrictEqual(database.state.history, new Set(['_baseline', ...migrationFiles]));
+
+    deepStrictEqual(await database.run(), []);
+    deepStrictEqual(database.state.readFiles, [localCollectionSeed, localCollectionSeed]);
+});
+
 void test('a failed seed remains pending on retry after its column migration succeeded', async () => {
     const database = fakeDatabase();
     database.state.failMigration = '008_seed_move_category_icons.sql';
@@ -375,6 +443,7 @@ void test('existing tables without source markers still receive their data impor
         '020_ability_item_descriptions_cs.sql',
         '021_seed_ability_item_descriptions_cs_1.0.4.sql',
         '022_my_pokemon.sql',
+        '023_seed_local_collection.sql',
     ];
 
     deepStrictEqual(await database.run(), missingImports);

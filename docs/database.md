@@ -44,7 +44,7 @@ administrative account with schema and data write permissions. It accepts only
 `127.0.0.1`, `localhost`, or `::1` and requires the existing `emerald-ex-1.0.4` dataset;
 it does not create a database or run the replacement `002` import.
 
-Upgrades `005` through `021` run in order on one connection. Successful upgrades are
+Upgrades `005` through `023` run in order on one connection. Successful upgrades are
 recorded in `emerald_ex_migrations` and skipped on subsequent runs. A database lock
 prevents two runners from applying the same upgrades concurrently. The runner stops
 on the first error, rolls back the active data transaction, and leaves that upgrade
@@ -63,6 +63,43 @@ runs once to replace only the original Physical/Special PNG defaults with SVGs.
 Upgrade `018` recognizes an existing `description_cs` column. Seed `019` runs once
 unless recorded in migration history; the column alone does not prove it was seeded.
 Upgrades `020`/`021` follow the same rule for ability and item descriptions.
+
+#### Local collection test data
+
+Migration `023_seed_local_collection.sql` imports the collection snapshot exported on
+2026-10-13: one playthrough, six Pokémon, and eight stat observations. Run it with
+`npm run db:migrate` after the collection schema (`022`). This fixture is **local only**;
+do not import it into production. The runner rejects remote database hosts.
+
+The seed matches the exported Google subject to the existing local account, preserving
+its user ID and profile. If the account is missing, it creates one with a new local ID.
+Sign in locally with the same Google account to load the collection; the usual
+[Google sign-in configuration](my-pokemon-sync.md) is still required. Production session
+hashes and CSRF tokens are excluded, and existing local sessions are unchanged.
+
+Before replacing an existing collection, the migration saves its full document,
+revision, and update timestamp in `emerald_ex_local_collection_backups`, keyed by
+migration filename and local user ID. The backup and replacement share one transaction.
+Retries preserve the first backup. Other accounts' collections are unchanged.
+The imported document and timestamp match the export; the revision is at least `30`
+and increases past any existing local revision so stale clients cannot overwrite it.
+Migration history prevents subsequent `npm run db:migrate` runs from resetting edits.
+Executing the SQL file directly replaces the collection again.
+
+To restore the saved local document, close clients using the local collection and run
+this query against the local database, then reload and sync the app:
+
+```sql
+UPDATE emerald_ex_collections AS c
+JOIN emerald_ex_local_collection_backups AS b ON b.user_id = c.user_id
+SET c.document = b.document,
+    c.revision = c.revision + 1,
+    c.updated_at = CURRENT_TIMESTAMP
+WHERE b.migration = '023_seed_local_collection.sql';
+```
+
+Keep the migration-history entry when restoring, so the next migration run keeps
+the restored collection. The backup remains available after restoration.
 
 ### MySQL error 1267: illegal mix of collations
 
