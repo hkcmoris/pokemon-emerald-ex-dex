@@ -28,6 +28,8 @@ exporting or importing their collection.
   species/form are valid and remain distinct.
 - A party contains up to six owned Pokémon from its playthrough's collection.
   Removing a Pokémon from the party does not remove it from the collection.
+- Collection shows active party members first in the same lineup order as the Party
+  view, followed by the remaining Pokémon in their existing collection order.
 - Party members can be reordered or replaced. An always-visible **Release from
   collection** action in each card's footer removes the Pokémon from the collection
   and party. Released Pokémon, removed playthroughs, and stat observations remain

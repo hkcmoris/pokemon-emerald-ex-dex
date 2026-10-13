@@ -9,6 +9,7 @@ import {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { useCollection } from './collectionStore.js';
+import { orderCollectionPokemon } from './collectionOrder.js';
 import { useCollectionOffline } from './collectionOffline.js';
 import { loadCollectionSpecies } from './collectionSpecies.js';
 import { GoogleSignIn } from './GoogleSignIn.js';
@@ -140,7 +141,7 @@ export function MyPokemonPage({
         run?.party
             .map((id) => document.pokemon[id])
             .filter((entry): entry is OwnedPokemon => Boolean(entry && !entry.deleted)) ?? [];
-    const shown = view === 'party' ? party : owned;
+    const shown = view === 'party' ? party : orderCollectionPokemon(owned, run?.party ?? []);
     const picked = selectedSpecies ?? (!seedDismissed ? seededSpecies.data : null);
     const deletedRuns = Object.values(document.playthroughs).filter((entry) => entry.deleted);
     const deletedPokemon = Object.values(document.pokemon).filter(
