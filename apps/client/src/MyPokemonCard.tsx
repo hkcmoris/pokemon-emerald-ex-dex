@@ -35,12 +35,21 @@ function LevelEditor({
     const [level, setLevel] = useState(String(value));
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const nextLevel = Number(level);
+    const valid = Number.isInteger(nextLevel) && nextLevel >= 1 && nextLevel <= 100;
+    const changed = nextLevel !== value;
+    function step(direction: -1 | 1) {
+        const current = valid ? nextLevel : value;
+        setLevel(String(Math.max(1, Math.min(100, current + direction))));
+        setError(null);
+    }
     async function submit(event: SubmitEvent) {
         event.preventDefault();
+        if (disabled || busy || !valid || !changed) return;
         setError(null);
         setBusy(true);
         try {
-            await onSave(Number(level));
+            await onSave(nextLevel);
         } catch {
             setError(
                 t(
@@ -54,32 +63,69 @@ function LevelEditor({
     }
     return (
         <form
-            className="my-level-form"
+            className="my-level-editor"
             onSubmit={(event) => {
                 void submit(event);
             }}
         >
-            <label className="filter-label">
-                {t('Level', 'Úroveň')}
-                <input
-                    className="filter-input"
-                    type="number"
-                    min="1"
-                    max="100"
-                    step="1"
-                    required
-                    value={level}
-                    onChange={(event) => setLevel(event.target.value)}
-                    disabled={disabled || busy}
-                />
-            </label>
-            <button
-                className="page-button"
-                disabled={disabled || busy || Number(level) === value}
-                type="submit"
-            >
-                {t('Update', 'Upravit')}
-            </button>
+            <div className="my-level-controls">
+                {changed && (
+                    <button
+                        className="my-level-save"
+                        disabled={disabled || busy || !valid}
+                        type="submit"
+                        aria-label={t('Save level', 'Uložit úroveň')}
+                        title={t('Save level', 'Uložit úroveň')}
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m5 12 4 4L19 6" />
+                        </svg>
+                    </button>
+                )}
+                <label className="my-level-display">
+                    <span aria-hidden="true">LV.</span>
+                    <input
+                        aria-label={t('Level', 'Úroveň')}
+                        style={{ width: `${Math.max(2, Math.min(3, level.length))}ch` }}
+                        type="number"
+                        inputMode="numeric"
+                        min="1"
+                        max="100"
+                        step="1"
+                        required
+                        value={level}
+                        onChange={(event) => {
+                            setLevel(event.target.value);
+                            setError(null);
+                        }}
+                        disabled={disabled || busy}
+                    />
+                </label>
+                <div className="my-level-arrows">
+                    <button
+                        type="button"
+                        aria-label={t('Increase level', 'Zvýšit úroveň')}
+                        title={t('Increase level', 'Zvýšit úroveň')}
+                        disabled={disabled || busy || (valid && nextLevel >= 100)}
+                        onClick={() => step(1)}
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m6 15 6-6 6 6" />
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        aria-label={t('Decrease level', 'Snížit úroveň')}
+                        title={t('Decrease level', 'Snížit úroveň')}
+                        disabled={disabled || busy || (valid && nextLevel <= 1)}
+                        onClick={() => step(-1)}
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
             {error && <p role="alert">{error}</p>}
         </form>
     );
@@ -369,12 +415,6 @@ export function EvolutionAdvice({
                 <p className="my-evolution-note" key={entry.edgeOrder}>
                     <strong>→ {entry.toName}</strong>
                     <span>{entry.summary}</span>
-                    <small>
-                        {t(
-                            'Check the conditions in-game; level alone does not confirm readiness.',
-                            'Podmínky ověřte ve hře. Samotná úroveň nepotvrzuje připravenost.',
-                        )}
-                    </small>
                     {getEvolutionConditions(pokemon, entry, { party, observations, details }).map(
                         (condition, index) => (
                             <small
@@ -731,10 +771,12 @@ export function MyPokemonCard({
                         </a>
                     </div>
                 </div>
-                <span className="my-level-display">
-                    <small>LV.</small>
-                    {pokemon.state.level}
-                </span>
+                <LevelEditor
+                    key={pokemon.state.level}
+                    value={pokemon.state.level}
+                    disabled={stateConflict}
+                    onSave={levelChange}
+                />
             </div>
             {stateConflict && (
                 <p className="my-advice-highlight" role="status">
@@ -744,12 +786,6 @@ export function MyPokemonCard({
                     )}
                 </p>
             )}
-            <LevelEditor
-                key={pokemon.state.level}
-                value={pokemon.state.level}
-                disabled={stateConflict}
-                onSave={levelChange}
-            />
             {recap && !stateConflict && (
                 <CatchUpRecap
                     {...recap}

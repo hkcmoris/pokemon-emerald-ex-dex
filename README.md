@@ -102,9 +102,10 @@ move selection, upcoming moves, and level-up recaps. Type names remain available
 when icons are missing; saved move names remain visible when reference data is
 unavailable offline.
 
-Levels, moves, and evolutions are recorded manually. Increasing a level saves it
-immediately and offers a skippable recap; select learned moves explicitly. Unrecorded
-moves mean unknown, not an empty moveset. Recording an evolution or form change
+Levels, moves, and evolutions are recorded manually. Edit the level in the card
+header by typing or using the up/down arrows. A save button appears to its left
+only when the level changes. Saving an increase offers a skippable recap; select
+learned moves explicitly. Unrecorded moves mean unknown, not an empty moveset. Recording an evolution or form change
 preserves the Pokémon's identity, existing moves, and previous stat observations.
 Partial stat observations retain their measurement time, level, and species/form.
 Corrections update the original observation. Optional estimates interpolate only

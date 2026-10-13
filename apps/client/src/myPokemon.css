@@ -167,8 +167,7 @@
     padding: 1.25rem;
     margin-bottom: 1.25rem;
 }
-.my-inline-form,
-.my-level-form {
+.my-inline-form {
     display: flex;
     align-items: flex-end;
     flex-wrap: wrap;
@@ -177,10 +176,6 @@
 .my-inline-form label {
     flex: 1 1 180px;
 }
-.my-level-form label {
-    width: 90px;
-}
-.my-level-form p,
 .my-inline-form p {
     width: 100%;
 }
@@ -233,6 +228,18 @@
 .my-pokemon-title h2 {
     font-size: 1.35rem;
 }
+.my-card-heading {
+    gap: 0.5rem;
+}
+.my-level-editor {
+    position: relative;
+    flex-shrink: 0;
+}
+.my-level-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
 .my-level-display {
     display: flex;
     flex-direction: column;
@@ -242,9 +249,72 @@
     line-height: 1.15;
     letter-spacing: -0.03em;
 }
-.my-level-display small {
+.my-level-display > span {
+    color: var(--dex-muted);
     font-size: 0.65rem;
     letter-spacing: 0.1em;
+}
+.my-level-display input {
+    appearance: textfield;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.my-level-display input::-webkit-inner-spin-button,
+.my-level-display input::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+}
+.my-level-arrows {
+    display: grid;
+    gap: 0.15rem;
+}
+.my-level-arrows button,
+.my-level-save {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--dex-border);
+    border-radius: 7px;
+}
+.my-level-arrows button {
+    width: 28px;
+    height: 28px;
+    background: var(--dex-surface-soft);
+    color: var(--dex-muted);
+}
+.my-level-save {
+    width: 32px;
+    height: 36px;
+    background: var(--dex-accent);
+    color: var(--accent-foreground);
+}
+.my-level-controls svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.my-level-editor > p {
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    width: 190px;
+    margin-top: 0.5rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 9px;
+    padding: 0.6rem;
+    background: var(--dex-surface);
+    font-size: 0.8rem;
 }
 .my-current-moves,
 .my-guidance {
@@ -570,5 +640,34 @@
     .my-view-switch button {
         flex: 1;
         justify-content: center;
+    }
+}
+
+@media (max-width: 360px) {
+    .my-card-heading .my-pokemon-title {
+        gap: 0.4rem;
+    }
+    .my-card-heading .species-sprite {
+        max-width: 48px;
+        max-height: 48px;
+    }
+    .my-card-heading .my-pokemon-title h2 {
+        font-size: 1.2rem;
+    }
+    .my-card-heading .eyebrow {
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+    }
+    .my-level-arrows button {
+        width: 24px;
+    }
+    .my-level-display {
+        font-size: 1.7rem;
+    }
+    .my-level-controls {
+        gap: 0.2rem;
+    }
+    .my-level-save {
+        width: 24px;
     }
 }

@@ -265,7 +265,7 @@ void test('evolution condition evidence distinguishes recorded facts from unknow
         method: 'level',
         trigger: 'level_up',
         level: 16,
-        conditions: {},
+        conditions: { knownMove: { moveId: 22, name: 'Vine Whip' } },
         summary: 'Level 16',
         rawParam: 16,
         items: [],
@@ -273,15 +273,20 @@ void test('evolution condition evidence distinguishes recorded facts from unknow
         fromSprite: null,
         toSprite: null,
     };
-    const html = render(
-        createElement(EvolutionAdvice, {
-            pokemon: owned,
-            family: [{ ...species, evolutionLinks: [evolution] }],
-        }),
-    );
-    match(html, /Not met in recorded data/);
-    match(html, /level alone does not confirm readiness/);
-    doesNotMatch(html, /Ready to evolve/);
+    for (const { level, evidence } of [
+        { level: 12, evidence: 'Not met in recorded data' },
+        { level: 16, evidence: 'Recorded evidence' },
+    ]) {
+        const html = render(
+            createElement(EvolutionAdvice, {
+                pokemon: { ...owned, state: { ...owned.state, level } },
+                family: [{ ...species, evolutionLinks: [evolution] }],
+            }),
+        );
+        match(html, new RegExp(evidence + ': Recorded level meets level 16'));
+        match(html, /Unknown \/ check in game: Recorded moves include Vine Whip/);
+        doesNotMatch(html, /Ready to evolve/);
+    }
 });
 
 void test('real Torchic guidance visibly compares waiting for Flamethrower with evolution gains and their deadlines', () => {
