@@ -4,6 +4,7 @@ import { speciesHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { RuleItems } from './ItemIcon.js';
 import { useLanguage } from './language.js';
+import { evolutionSummary } from './evolutionText.js';
 
 interface EvolutionStage {
     speciesId: number;
@@ -125,7 +126,7 @@ export function EvolutionLine({
     currentLabel?: string;
     currentPageSpeciesId?: number;
 }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const stages = evolutionStages(entry, links);
     return (
         <div className="evolution-family">
@@ -182,7 +183,10 @@ export function EvolutionLine({
                                                             {t('From', 'Z')} {link.fromName}
                                                         </p>
                                                         <p className="mt-1 text-sm leading-relaxed">
-                                                            {link.summary}
+                                                            {evolutionSummary(
+                                                                link.summary,
+                                                                language,
+                                                            )}
                                                         </p>
                                                         <EvolutionRuleDetails link={link} />
                                                         <RuleItems items={link.items} />

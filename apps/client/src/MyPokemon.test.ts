@@ -321,4 +321,47 @@ void test('real Torchic guidance visibly compares waiting for Flamethrower with 
     match(czech, /Nové útoky za úrovně po vývoji/);
     match(czech, /TM35, pokud tento přístroj máte/);
     match(czech, /při odkladu vývoje můžete tyto možnosti přeskočit/);
+    match(czech, /Dosáhnout úrovně 16\./);
+    match(czech, /Zaznamenaná úroveň dosahuje úrovně 16/);
+    doesNotMatch(czech, /Reach level|Recorded level/);
+});
+
+void test('Czech collection guidance and recaps translate item and friendship summaries and their condition notes', () => {
+    const eevee = loadCollectionSpeciesFixture([133])[133];
+    const pokemon = { ...owned, state: { ...owned.state, speciesId: 133, level: 20 } };
+    const advice = render(createElement(EvolutionAdvice, { pokemon, family: [eevee] }), 'cs');
+    match(advice, /Použít Thunder Stone\./);
+    match(advice, /Zvýšit úroveň při vysokém přátelství v noci\./);
+    match(advice, /Přátelství: vysoké/);
+    doesNotMatch(advice, /Use Thunder Stone|Level up with|friendship: high|check in game/);
+    const recap = render(
+        createElement(CatchUpRecap, {
+            details: eevee,
+            oldLevel: 19,
+            newLevel: 20,
+            moves: [],
+            onSaveMoves: async () => {},
+            onClose: () => {},
+        }),
+        'cs',
+    );
+    match(recap, /Použít Thunder Stone\./);
+    match(recap, /Zvýšit úroveň při vysokém přátelství v noci\./);
+    match(recap, /Ostatní podmínky je nutné ověřit:/);
+    doesNotMatch(recap, /Use Thunder Stone|Level up with|Other conditions need checking/);
+    const torchic = loadCollectionSpeciesFixture([255])[255];
+    const levelRecap = render(
+        createElement(CatchUpRecap, {
+            details: torchic,
+            oldLevel: 11,
+            newLevel: 16,
+            moves: [],
+            onSaveMoves: async () => {},
+            onClose: () => {},
+        }),
+        'cs',
+    );
+    match(levelRecap, /Dosáhnout úrovně 16\./);
+    match(levelRecap, /Požadované úrovně dosaženo/);
+    doesNotMatch(levelRecap, /Reach level|Level requirement reached/);
 });

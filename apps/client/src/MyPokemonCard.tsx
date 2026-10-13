@@ -14,12 +14,14 @@ import {
 
 import { loadCollectionFamily, loadCollectionSpecies } from './collectionSpecies.js';
 import { useLanguage } from './language.js';
+import { evolutionConditionLabel, evolutionSummary } from './evolutionText.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory } from './MyPokemonHistory.js';
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
 import { TypeBadges } from './TypeBadges.js';
+import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { typeSurfaceStyle } from './theme.js';
 
 function LevelEditor({
@@ -354,7 +356,7 @@ export function EvolutionAdvice({
     party?: readonly OwnedPokemon[];
     observations?: readonly StatObservation[];
 }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const current = family.find((entry) => entry.speciesId === pokemon.state.speciesId);
     const details = Object.fromEntries(family.map((entry) => [entry.speciesId, entry]));
     const guidance = getEvolutionGuidance(pokemon, details);
@@ -414,7 +416,7 @@ export function EvolutionAdvice({
             {evolutions.map((entry) => (
                 <p className="my-evolution-note" key={entry.edgeOrder}>
                     <strong>→ {entry.toName}</strong>
-                    <span>{entry.summary}</span>
+                    <span>{evolutionSummary(entry.summary, language)}</span>
                     {getEvolutionConditions(pokemon, entry, { party, observations, details }).map(
                         (condition, index) => (
                             <small
@@ -429,7 +431,7 @@ export function EvolutionAdvice({
                                             'Zaznamenané údaje nesplňují podmínku',
                                         )
                                       : t('Unknown / check in game', 'Neznámé / ověřte ve hře')}
-                                : {condition.label}
+                                : {evolutionConditionLabel(condition.label, language)}
                             </small>
                         ),
                     )}
@@ -533,7 +535,7 @@ export function CatchUpRecap({
     onSaveMoves: (moves: KnownMove[]) => Promise<void>;
     onClose: () => void;
 }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const recap = getCatchUpRecap(details, oldLevel, newLevel);
     const [selected, setSelected] = useState<KnownMove[]>(moves ?? []);
     const [busy, setBusy] = useState(false);
@@ -646,10 +648,18 @@ export function CatchUpRecap({
                     </button>
                 </>
             )}
-            {recap.evolutions.map(({ evolution, note }, index) => (
+            {recap.evolutions.map(({ evolution, condition, note }, index) => (
                 <p key={index}>
-                    <strong>→ {evolution.toName}</strong> · {evolution.summary}
-                    <small className="my-block">{note}</small>
+                    <strong>→ {evolution.toName}</strong> ·{' '}
+                    {evolutionSummary(evolution.summary, language)}
+                    <small className="my-block">
+                        {t(
+                            note,
+                            condition === 'level-met'
+                                ? 'Požadované úrovně dosaženo; potvrďte, zda vývoj skutečně proběhl.'
+                                : `Ostatní podmínky je nutné ověřit: ${evolutionSummary(evolution.summary, 'cs')}`,
+                        )}
+                    </small>
                 </p>
             ))}
             {recap.evolutions.length > 0 && (
@@ -759,11 +769,14 @@ export function MyPokemonCard({
                         </p>
                         <h2>{pokemon.nickname || name}</h2>
                         {species.data && (
-                            <TypeBadges
-                                types={species.data.types}
-                                iconFiles={species.data.typeIconFiles}
-                                iconOnly
-                            />
+                            <div className="my-pokemon-icons">
+                                <TypeBadges
+                                    types={species.data.types}
+                                    iconFiles={species.data.typeIconFiles}
+                                    iconOnly
+                                />
+                                <OffensiveStatIndicator stats={species.data.stats} />
+                            </div>
                         )}
                         <a className="my-text-button" href={speciesHref(pokemon.state.speciesId)}>
                             {pokemon.nickname ? name : t('View in Pokédex', 'Zobrazit v Pokédexu')}{' '}
@@ -971,19 +984,6 @@ export function MyPokemonCard({
                         family={family}
                         saveObservation={saveObservation}
                     />
-                    <button
-                        className="my-text-button my-danger"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => {
-                            void perform(onRemove);
-                        }}
-                    >
-                        {t(
-                            'Move Pokémon to removed entries',
-                            'Přesunout Pokémona do odstraněných záznamů',
-                        )}
-                    </button>
                 </div>
             </details>
             <div className="my-card-footer">
@@ -1027,6 +1027,16 @@ export function MyPokemonCard({
                         </button>
                     </div>
                 )}
+                <button
+                    className="my-text-button my-danger"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                        void perform(onRemove);
+                    }}
+                >
+                    {t('Release from collection', 'Propustit ze sbírky')}
+                </button>
             </div>
             {error && <p role="alert">{error}</p>}
         </article>

@@ -54,9 +54,12 @@ Type translations are maintained in `apps/client/src/typeNames.ts`; unknown type
 back to their original names. Database/API values, filter values, and type colours keep
 using the original English names. Pokémon, move, item, ability and form names retain
 their original wording. Move, item, and ability descriptions use database-backed Czech
-translations in Czech mode, with the original English description as fallback. Other
-database text keeps its original wording. Switching languages
-preserves the current page and filters.
+translations in Czech mode, with the original English description as fallback.
+Evolution summaries, collection condition notes, and level-up recap text also switch
+to Czech. Their display translations live in `apps/client/src/evolutionText.ts` and
+cover the current dataset's rule templates; unknown future summaries keep their
+original wording. In-game names and raw rule details remain unchanged. Switching
+languages preserves the current page and filters.
 
 Before deploying this release to an existing database, run
 `scripts/sql/018_move_descriptions_cs.sql`, then
@@ -98,11 +101,15 @@ learned by their current level in the selected species/form's level-up learnset.
 Same-level moves follow dataset order; level-zero special entries are excluded.
 Existing Pokémon are unchanged. If the learnset is unavailable offline, moves remain
 unrecorded. Multiple owned Pokémon of the same species remain separate individuals.
-Removing a party member keeps it in the collection. Removed Pokémon, playthroughs,
-and stat observations can be restored.
+Removing a party member keeps it in the collection. **Release from collection** in
+each card's footer removes the Pokémon from both the collection and its party.
+Released Pokémon remain recoverable under **Removed entries** and return to the
+collection when restored. Removed playthroughs and stat observations can also be restored.
 
 Owned species and their moves use type icons and type-tinted surfaces, including
-move selection, upcoming moves, and level-up recaps. Current moves form a compact
+move selection, upcoming moves, and level-up recaps. Owned Pokémon headers show the
+physical, special, or balanced category icon beside their types, based on the species'
+base Attack and Sp. Attack, matching the Pokédex indicator. Current moves form a compact
 2×2 grid with category icons and power; moves without fixed base power show an em dash.
 Type names remain available
 when icons are missing; saved move names remain visible when reference data is

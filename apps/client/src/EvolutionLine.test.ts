@@ -1,4 +1,4 @@
-import { deepStrictEqual, match, strictEqual } from 'node:assert/strict';
+import { deepStrictEqual, doesNotMatch, match, strictEqual } from 'node:assert/strict';
 import { test } from 'node:test';
 
 import type { Pokemon, SpeciesEvolution } from '@pokemon-emerald-ex-dex/shared';
@@ -137,7 +137,7 @@ void test('evolution panels show item icons and links for both use-item and held
     match(render(pikachu, [link]).html, /href="#\/items\/465"/);
 });
 
-void test('Czech evolution UI preserves species, items, methods and database summaries', () => {
+void test('Czech evolution UI translates summaries while preserving names and raw rule details', () => {
     const pikachu = species(25, 'Pikachu');
     const raichu = species(26, 'Raichu');
     const link = {
@@ -157,7 +157,8 @@ void test('Czech evolution UI preserves species, items, methods and database sum
     match(html, /Podrobnosti pravidla/);
     match(html, /Bez požadavku na úroveň/);
     match(html, />level up<\/dd>/);
-    match(html, /Use Thunder Stone\./);
+    match(html, /Použít Thunder Stone\./);
+    doesNotMatch(html, /Use Thunder Stone\./);
     match(html, />Pikachu<\/span>/);
     match(html, />Raichu<\/span>/);
     match(html, />Thunder Stone<\/span>/);

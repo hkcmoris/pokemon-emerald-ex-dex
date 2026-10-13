@@ -221,8 +221,11 @@
     border-radius: 14px;
     background: var(--dex-surface-soft);
 }
-.my-pokemon-title .type-icons {
+.my-pokemon-icons {
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin-top: 0.25rem;
 }
 .my-pokemon-title h2 {
