@@ -16,10 +16,11 @@ import { loadCollectionFamily, loadCollectionSpecies } from './collectionSpecies
 import { useLanguage } from './language.js';
 import { evolutionConditionLabel, evolutionSummary } from './evolutionText.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
-import { speciesHref } from './navigation.js';
+import { ownedPokemonHref, speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory } from './MyPokemonHistory.js';
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
+import { MyPokemonMilestones } from './MyPokemonMilestones.js';
 import { TypeBadges } from './TypeBadges.js';
 import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { typeSurfaceStyle } from './theme.js';
@@ -359,9 +360,7 @@ export function EvolutionAdvice({
     const { t, language } = useLanguage();
     const current = family.find((entry) => entry.speciesId === pokemon.state.speciesId);
     const details = Object.fromEntries(family.map((entry) => [entry.speciesId, entry]));
-    const guidance = getEvolutionGuidance(pokemon, details);
-    const upcoming =
-        current?.learnset.filter((entry) => entry.level > pokemon.state.level).slice(0, 3) ?? [];
+    const guidance = getEvolutionGuidance(pokemon, details, t);
     const evolutions =
         current?.evolutionLinks.filter(
             (entry) => entry.fromSpeciesId === pokemon.state.speciesId && !entry.internalOnly,
@@ -389,30 +388,10 @@ export function EvolutionAdvice({
                 : t('Different timing', 'Jiná úroveň naučení');
     return (
         <section
-            className="my-guidance"
-            aria-label={t('Upcoming opportunities', 'Nadcházející možnosti')}
+            className="my-evolution-advice"
+            aria-label={t('Evolution guidance', 'Doporučení k vývoji')}
         >
-            <h3>{t('Coming up', 'Co vás čeká')}</h3>
-            {upcoming.length > 0 ? (
-                <ul className="my-upcoming">
-                    {upcoming.map((move) => (
-                        <MyPokemonMove
-                            as="li"
-                            key={`${move.moveId}-${move.level}`}
-                            move={move}
-                            reference={move}
-                            prefix={<span className="my-level-badge">Lv. {move.level}</span>}
-                        />
-                    ))}
-                </ul>
-            ) : (
-                <p className="my-muted">
-                    {t(
-                        'No later level-up moves recorded for this form.',
-                        'Pro tuto formu nejsou zaznamenány útoky na vyšších úrovních.',
-                    )}
-                </p>
-            )}
+            {current && <MyPokemonMilestones pokemon={pokemon} details={current} />}
             {evolutions.map((entry) => {
                 const levelOnly =
                     entry.method === 'level' &&
@@ -698,6 +677,7 @@ export function CatchUpRecap({
 
 export function MyPokemonCard({
     pokemon,
+    detail = false,
     observations,
     datasetId,
     partyIndex,
@@ -711,6 +691,7 @@ export function MyPokemonCard({
     onRemove,
 }: {
     pokemon: OwnedPokemon;
+    detail?: boolean;
     observations: readonly StatObservation[];
     datasetId?: string;
     partyIndex: number;
@@ -772,7 +753,7 @@ export function MyPokemonCard({
     }
     return (
         <article
-            className={`my-pokemon-card${species.data ? ' type-surface' : ''}`}
+            className={`my-pokemon-card${detail ? ' my-card-detail' : ' my-card-summary'}${species.data ? ' type-surface' : ''}`}
             style={species.data ? typeSurfaceStyle(species.data.types) : undefined}
         >
             <div className="my-card-heading">
@@ -788,7 +769,22 @@ export function MyPokemonCard({
                                 ? `${t('Party', 'Tým')} ${partyIndex + 1} / 6`
                                 : t('Collection', 'Sbírka')}
                         </p>
-                        <h2>{pokemon.nickname || name}</h2>
+                        <h2>
+                            {detail ? (
+                                pokemon.nickname || name
+                            ) : (
+                                <a
+                                    className="my-card-detail-link"
+                                    href={ownedPokemonHref(pokemon.id)}
+                                    aria-label={t(
+                                        `Open details for ${pokemon.nickname || name}`,
+                                        `Otevřít detail: ${pokemon.nickname || name}`,
+                                    )}
+                                >
+                                    {pokemon.nickname || name}
+                                </a>
+                            )}
+                        </h2>
                         {species.data && (
                             <div className="my-pokemon-icons">
                                 <TypeBadges
@@ -869,14 +865,18 @@ export function MyPokemonCard({
                     onCancel={() => setEditingMoves(false)}
                 />
             )}
-            {!stateConflict && species.data && (
-                <EvolutionAdvice
-                    pokemon={pokemon}
-                    family={family}
-                    party={partyMembers}
-                    observations={observations}
-                />
-            )}
+            {!stateConflict &&
+                species.data &&
+                (detail ? (
+                    <EvolutionAdvice
+                        pokemon={pokemon}
+                        family={family}
+                        party={partyMembers}
+                        observations={observations}
+                    />
+                ) : (
+                    <MyPokemonMilestones pokemon={pokemon} details={species.data} />
+                ))}
             {(species.isError || relatives.isError) && (
                 <p className="my-muted" role="status">
                     {t(
@@ -895,170 +895,185 @@ export function MyPokemonCard({
                     </button>
                 </p>
             )}
-            <details className="my-details my-pokemon-details">
-                <summary>{t('Details, evolution & growth', 'Podrobnosti, vývoj a růst')}</summary>
-                <div className="my-stack">
-                    <NicknameEditor
-                        key={pokemon.nickname}
-                        value={pokemon.nickname}
-                        onSave={async (nickname) => {
-                            await onUpdate((current) => ({ ...current, nickname }));
-                        }}
-                    />
-                    <div>
-                        <button
-                            className="page-button"
-                            type="button"
-                            disabled={stateConflict}
-                            onClick={() => {
-                                setChangingSpecies(!changingSpecies);
-                                setNextSpecies(null);
-                            }}
-                        >
-                            {t('Record evolution / form', 'Zapsat vývoj / formu')}
-                        </button>
-                        <p className="my-muted">
-                            {t(
-                                'Record what happened in your game, or correct the species. Earlier stats keep their original form. Current moves are retained.',
-                                'Zapište změnu ve hře nebo opravte druh. Starší statistiky zůstanou přiřazené k původní formě. Aktuální útoky zůstanou zachovány.',
-                            )}
-                        </p>
-                    </div>
-                    {changingSpecies && !stateConflict && (
-                        <div className="my-inset my-stack">
-                            {nextSpecies ? (
-                                <>
-                                    <h4>
-                                        {name} → {nextSpecies.name}
-                                    </h4>
-                                    <p className="my-muted">
-                                        {t(
-                                            'No evolution date or past level is required. Future stat observations start a new stage record.',
-                                            'Datum vývoje ani minulá úroveň nejsou nutné. Další měření statistik začnou nové období formy.',
-                                        )}
-                                    </p>
-                                    <div className="my-actions">
-                                        <button
-                                            className="my-primary"
-                                            disabled={
-                                                busy ||
-                                                nextSpecies.speciesId === pokemon.state.speciesId
-                                            }
-                                            type="button"
-                                            onClick={() => {
-                                                void perform(async () => {
-                                                    await onUpdate((current) => ({
-                                                        ...current,
-                                                        state: {
-                                                            ...current.state,
-                                                            speciesId: nextSpecies.speciesId,
-                                                            formEpoch: crypto.randomUUID(),
-                                                        },
-                                                    }));
-                                                    setChangingSpecies(false);
-                                                    setNextSpecies(null);
-                                                    setRecap(null);
-                                                });
-                                            }}
-                                        >
-                                            {t('Confirm species / form', 'Potvrdit druh / formu')}
-                                        </button>
-                                        <button
-                                            className="page-button"
-                                            type="button"
-                                            onClick={() => setNextSpecies(null)}
-                                        >
-                                            {t('Choose another', 'Vybrat jiný')}
-                                        </button>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="my-actions">
-                                        {family
-                                            .filter(
-                                                (entry) =>
-                                                    entry.speciesId !== pokemon.state.speciesId,
-                                            )
-                                            .map((entry) => (
+            {detail && (
+                <>
+                    <details className="my-details my-pokemon-details" open>
+                        <summary>
+                            {t('Details, evolution & growth', 'Podrobnosti, vývoj a růst')}
+                        </summary>
+                        <div className="my-stack">
+                            <NicknameEditor
+                                key={pokemon.nickname}
+                                value={pokemon.nickname}
+                                onSave={async (nickname) => {
+                                    await onUpdate((current) => ({ ...current, nickname }));
+                                }}
+                            />
+                            <div>
+                                <button
+                                    className="page-button"
+                                    type="button"
+                                    disabled={stateConflict}
+                                    onClick={() => {
+                                        setChangingSpecies(!changingSpecies);
+                                        setNextSpecies(null);
+                                    }}
+                                >
+                                    {t('Record evolution / form', 'Zapsat vývoj / formu')}
+                                </button>
+                                <p className="my-muted">
+                                    {t(
+                                        'Record what happened in your game, or correct the species. Earlier stats keep their original form. Current moves are retained.',
+                                        'Zapište změnu ve hře nebo opravte druh. Starší statistiky zůstanou přiřazené k původní formě. Aktuální útoky zůstanou zachovány.',
+                                    )}
+                                </p>
+                            </div>
+                            {changingSpecies && !stateConflict && (
+                                <div className="my-inset my-stack">
+                                    {nextSpecies ? (
+                                        <>
+                                            <h4>
+                                                {name} → {nextSpecies.name}
+                                            </h4>
+                                            <p className="my-muted">
+                                                {t(
+                                                    'No evolution date or past level is required. Future stat observations start a new stage record.',
+                                                    'Datum vývoje ani minulá úroveň nejsou nutné. Další měření statistik začnou nové období formy.',
+                                                )}
+                                            </p>
+                                            <div className="my-actions">
+                                                <button
+                                                    className="my-primary"
+                                                    disabled={
+                                                        busy ||
+                                                        nextSpecies.speciesId ===
+                                                            pokemon.state.speciesId
+                                                    }
+                                                    type="button"
+                                                    onClick={() => {
+                                                        void perform(async () => {
+                                                            await onUpdate((current) => ({
+                                                                ...current,
+                                                                state: {
+                                                                    ...current.state,
+                                                                    speciesId:
+                                                                        nextSpecies.speciesId,
+                                                                    formEpoch: crypto.randomUUID(),
+                                                                },
+                                                            }));
+                                                            setChangingSpecies(false);
+                                                            setNextSpecies(null);
+                                                            setRecap(null);
+                                                        });
+                                                    }}
+                                                >
+                                                    {t(
+                                                        'Confirm species / form',
+                                                        'Potvrdit druh / formu',
+                                                    )}
+                                                </button>
                                                 <button
                                                     className="page-button"
-                                                    key={entry.speciesId}
                                                     type="button"
-                                                    onClick={() => setNextSpecies(entry)}
+                                                    onClick={() => setNextSpecies(null)}
                                                 >
-                                                    {entry.name}
+                                                    {t('Choose another', 'Vybrat jiný')}
                                                 </button>
-                                            ))}
-                                    </div>
-                                    <SpeciesPicker
-                                        datasetId={datasetId}
-                                        onSelect={setNextSpecies}
-                                    />
-                                </>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="my-actions">
+                                                {family
+                                                    .filter(
+                                                        (entry) =>
+                                                            entry.speciesId !==
+                                                            pokemon.state.speciesId,
+                                                    )
+                                                    .map((entry) => (
+                                                        <button
+                                                            className="page-button"
+                                                            key={entry.speciesId}
+                                                            type="button"
+                                                            onClick={() => setNextSpecies(entry)}
+                                                        >
+                                                            {entry.name}
+                                                        </button>
+                                                    ))}
+                                            </div>
+                                            <SpeciesPicker
+                                                datasetId={datasetId}
+                                                onSelect={setNextSpecies}
+                                            />
+                                        </>
+                                    )}
+                                </div>
                             )}
+                            <MyPokemonHistory
+                                pokemon={pokemon}
+                                observations={observations}
+                                family={family}
+                                saveObservation={saveObservation}
+                            />
                         </div>
-                    )}
-                    <MyPokemonHistory
-                        pokemon={pokemon}
-                        observations={observations}
-                        family={family}
-                        saveObservation={saveObservation}
-                    />
-                </div>
-            </details>
-            <div className="my-card-footer">
-                <button
-                    className="page-button"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => {
-                        void perform(onParty);
-                    }}
-                >
-                    {partyIndex >= 0
-                        ? t('Remove from party', 'Odebrat z týmu')
-                        : partySize >= 6
-                          ? t('Replace party member', 'Nahradit člena týmu')
-                          : t('Add to party', 'Přidat do týmu')}
-                </button>
-                {partyIndex >= 0 && (
-                    <div className="my-actions">
+                    </details>
+                    <div className="my-card-footer">
                         <button
                             className="page-button"
                             type="button"
-                            disabled={busy || partyIndex === 0}
-                            aria-label={t('Move earlier in party', 'Přesunout v týmu dopředu')}
+                            disabled={busy}
                             onClick={() => {
-                                void perform(() => onMove(-1));
+                                void perform(onParty);
                             }}
                         >
-                            ↑
+                            {partyIndex >= 0
+                                ? t('Remove from party', 'Odebrat z týmu')
+                                : partySize >= 6
+                                  ? t('Replace party member', 'Nahradit člena týmu')
+                                  : t('Add to party', 'Přidat do týmu')}
                         </button>
+                        {partyIndex >= 0 && (
+                            <div className="my-actions">
+                                <button
+                                    className="page-button"
+                                    type="button"
+                                    disabled={busy || partyIndex === 0}
+                                    aria-label={t(
+                                        'Move earlier in party',
+                                        'Přesunout v týmu dopředu',
+                                    )}
+                                    onClick={() => {
+                                        void perform(() => onMove(-1));
+                                    }}
+                                >
+                                    ↑
+                                </button>
+                                <button
+                                    className="page-button"
+                                    type="button"
+                                    disabled={busy || partyIndex === partySize - 1}
+                                    aria-label={t('Move later in party', 'Přesunout v týmu dozadu')}
+                                    onClick={() => {
+                                        void perform(() => onMove(1));
+                                    }}
+                                >
+                                    ↓
+                                </button>
+                            </div>
+                        )}
                         <button
-                            className="page-button"
+                            className="my-text-button my-danger"
                             type="button"
-                            disabled={busy || partyIndex === partySize - 1}
-                            aria-label={t('Move later in party', 'Přesunout v týmu dozadu')}
+                            disabled={busy}
                             onClick={() => {
-                                void perform(() => onMove(1));
+                                void perform(onRemove);
                             }}
                         >
-                            ↓
+                            {t('Release from collection', 'Propustit ze sbírky')}
                         </button>
                     </div>
-                )}
-                <button
-                    className="my-text-button my-danger"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => {
-                        void perform(onRemove);
-                    }}
-                >
-                    {t('Release from collection', 'Propustit ze sbírky')}
-                </button>
-            </div>
+                </>
+            )}
             {error && <p role="alert">{error}</p>}
         </article>
     );

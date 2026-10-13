@@ -61,9 +61,10 @@ function render(content: ReactNode, language: 'en' | 'cs' = 'en'): string {
     );
 }
 
-function card(pokemon = owned, stateConflict = false) {
+function card(pokemon = owned, stateConflict = false, detail = true) {
     return createElement(MyPokemonCard, {
         pokemon,
+        detail,
         observations: [],
         partyIndex: 0,
         partySize: 1,
@@ -314,7 +315,7 @@ void test('real Torchic guidance visibly compares waiting for Flamethrower with 
     doesNotMatch(gain, /Peck|Flamethrower|Lv\. 0/);
     match(html, /Torchic does not learn these by leveling up/);
     match(html, /delaying evolution can skip these opportunities/);
-    match(html, /class="my-upcoming"[\s\S]*?Peck/);
+    match(html, /class="my-upcoming my-milestone-row"[\s\S]*?Peck/);
     match(html, /Tutors and move reminders are excluded/);
     const czech = render(createElement(EvolutionAdvice, { pokemon: torchic, family }), 'cs');
     match(czech, /Naučit před vývojem/);
@@ -401,4 +402,29 @@ void test('custom evolution summaries keep their additional requirements', () =>
     );
     match(html, /Reach level 16 after meeting a special condition\./);
     doesNotMatch(html, /evolves at level 16\./);
+});
+
+void test('summary cards link to the owned Pokémon and reserve extended controls for its detail page', () => {
+    const summary = render(card(owned, false, false));
+    match(summary, /class="my-card-detail-link" href="#\/my-pokemon\/owned"/);
+    match(summary, /Open details for Sprout/);
+    match(summary, /Current moves|Coming up/);
+    match(summary, /aria-label="Increase level"/);
+    match(summary, />Edit<\/button>/);
+    doesNotMatch(
+        summary,
+        /Details, evolution|Record evolution|Release from collection|Remove from party|Nickname/,
+    );
+
+    const detail = render(card());
+    doesNotMatch(detail, /class="my-card-detail-link"/);
+    match(detail, /my-pokemon-details" open=""/);
+    match(detail, /Record evolution|Release from collection|Remove from party/);
+});
+
+void test('Czech summary cards expose a localized owned-detail link', () => {
+    const html = render(card(owned, false, false), 'cs');
+    match(html, /Otevřít detail: Sprout/);
+    match(html, /Aktuální útoky/);
+    doesNotMatch(html, /Zapsat vývoj|Odebrat z týmu|Propustit ze sbírky/);
 });

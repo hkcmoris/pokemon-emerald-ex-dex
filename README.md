@@ -140,8 +140,15 @@ Corrections update the original observation. Optional estimates interpolate only
 between unambiguous recorded values within the same continuous form period; they
 never cross an evolution/form change or predict future levels.
 
-Party cards show upcoming level-up moves and an expandable comparison of full future
-evolution paths. Guidance covers level-up and TM/HM data only; tutors and move
+Party and collection cards show identity, level controls, current moves, and just the next
+two milestones in one row. Level-up moves and evolutions share the same chronological
+list; evolutions use the DNA icon. Reached evolution levels stay visible until the species
+is updated, while evolutions without a known level follow level-based milestones.
+Click a card or focus its name link to open that owned Pokémon at `#/my-pokemon/<id>`.
+The detail page contains evolution comparisons, nickname and form editing, growth history,
+and party/release controls. Back returns to the collection; missing or removed records
+show a not-found message. Level and move controls on the compact card remain independent
+of its detail link. Detailed guidance compares full future evolution paths. Guidance covers level-up and TM/HM data only; tutors and move
 reminders are excluded. Separate highlights show moves to learn before leaving a
 stage and new level-up moves gained by evolving. Shared moves stay in the timing
 comparison, while TM/HM alternatives remain visible beside level-up differences.
@@ -154,6 +161,9 @@ conditions use recorded moves, party members, and measured stats where available
 unknown requirements still need checking in the game. Plain level-only evolutions
 use one concise line, such as “→ Combusken — evolves at level 16.”, without repeating
 the level as a recorded-data status. Rules with additional conditions keep their details.
+Detailed move comparisons follow the selected English or Czech UI language, including
+learning deadlines, special level-zero entries, and TM/HM availability notes.
+Pokémon, move, and machine names retain their in-game spelling.
 
 Guest use starts without registration. Collections are saved in browser storage.
 In production builds, a service worker makes the app reopen offline after a successful

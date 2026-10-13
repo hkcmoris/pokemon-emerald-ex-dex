@@ -1,6 +1,7 @@
 export type DexRoute =
     | { kind: 'dex' }
     | { kind: 'my-pokemon'; addSpeciesId?: number }
+    | { kind: 'owned-pokemon'; id: string }
     | { kind: 'species'; id: number }
     | { kind: 'abilities' }
     | { kind: 'ability'; id: number }
@@ -20,6 +21,10 @@ export function speciesHref(id: number): string {
     return `#/species/${id}`;
 }
 
+export function ownedPokemonHref(id: string): string {
+    return `#/my-pokemon/${encodeURIComponent(id)}`;
+}
+
 export function parseRoute(hash: string): DexRoute {
     if (hash === '' || hash === '#' || hash === '#/') return { kind: 'dex' };
     if (hash === '#/my-pokemon') return { kind: 'my-pokemon' };
@@ -29,6 +34,18 @@ export function parseRoute(hash: string): DexRoute {
         return Number.isInteger(id) && id >= 1 && id <= 65535
             ? { kind: 'my-pokemon', addSpeciesId: id }
             : { kind: 'not-found' };
+    }
+    const ownedPokemon = /^#\/my-pokemon\/([^/?#]+)$/.exec(hash);
+    if (ownedPokemon) {
+        try {
+            const id = decodeURIComponent(ownedPokemon[1]);
+            return /^[A-Za-z0-9_-]{1,80}$/.test(id) &&
+                !['__proto__', 'prototype', 'constructor'].includes(id)
+                ? { kind: 'owned-pokemon', id }
+                : { kind: 'not-found' };
+        } catch {
+            return { kind: 'not-found' };
+        }
     }
     if (hash === '#/abilities') return { kind: 'abilities' };
     const ability = /^#\/abilities\/(\d+)$/.exec(hash);

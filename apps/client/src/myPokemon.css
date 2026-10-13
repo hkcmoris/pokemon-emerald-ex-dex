@@ -235,6 +235,45 @@
     width: 100%;
     min-width: 0;
 }
+.my-card-summary {
+    isolation: isolate;
+}
+.my-card-summary:has(.my-card-detail-link:hover) {
+    border-color: var(--dex-accent);
+}
+.my-card-detail-link {
+    color: inherit;
+    text-decoration: none;
+}
+.my-card-detail-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--radius-panel);
+}
+.my-card-detail-link:focus-visible {
+    outline: none;
+}
+.my-card-detail-link:focus-visible::after {
+    outline: 2px solid var(--dex-accent);
+    outline-offset: 3px;
+}
+.my-card-summary :is(button, input, select, textarea, a:not(.my-card-detail-link)),
+.my-card-summary .my-level-editor,
+.my-card-summary .my-inset,
+.my-card-summary .my-recap {
+    position: relative;
+    z-index: 2;
+}
+.my-owned-detail {
+    max-width: 54rem;
+    margin: 1.5rem auto 0;
+}
+.my-detail-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+}
 .my-party-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -242,6 +281,7 @@
     gap: 1.25rem;
 }
 .my-pokemon-card {
+    position: relative;
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
@@ -367,6 +407,11 @@
     flex-direction: column;
     gap: 0.7rem;
 }
+.my-evolution-advice {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 .my-move {
     display: inline-flex;
     align-items: center;
@@ -453,6 +498,31 @@
     display: flex;
     align-items: center;
     gap: 0.4rem;
+}
+.my-milestone-row {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+}
+.my-milestone-row > .my-move {
+    flex: 0 1 auto;
+    min-width: 0;
+    gap: 0.35rem;
+    padding-inline: 0.5rem;
+    white-space: nowrap;
+}
+.my-milestone-row > .my-move > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.my-milestone-row .my-level-badge,
+.my-evolution-milestone img {
+    flex-shrink: 0;
+}
+.my-evolution-milestone img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 .my-level-badge {
     background: var(--dex-accent-strong);
@@ -761,5 +831,21 @@
     }
     .my-level-save {
         width: 24px;
+    }
+}
+
+@media (max-width: 359px) {
+    .my-milestone-row {
+        gap: 0.35rem;
+    }
+    .my-milestone-row > .my-move {
+        gap: 0.25rem;
+        padding-inline: 0.25rem;
+        font-size: 0.75rem;
+    }
+    .my-milestone-row .type-icon img,
+    .my-milestone-row .my-evolution-milestone img {
+        width: 20px;
+        height: 20px;
     }
 }

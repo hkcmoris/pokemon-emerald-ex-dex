@@ -102,10 +102,12 @@ export function MyPokemonPage({
     version,
     datasetId,
     addSpeciesId,
+    pokemonId,
 }: {
     version: string;
     datasetId?: string;
     addSpeciesId?: number;
+    pokemonId?: string;
 }) {
     const { t } = useLanguage();
     const collection = useCollection();
@@ -133,7 +135,11 @@ export function MyPokemonPage({
         enabled: addSpeciesId !== undefined && !seedDismissed,
     });
     const runs = Object.values(document.playthroughs).filter((run) => !run.deleted);
-    const run = runs.find((entry) => entry.id === selectedRunId) ?? runs[0];
+    const detailPokemon = pokemonId === undefined ? undefined : document.pokemon[pokemonId];
+    const run =
+        pokemonId === undefined
+            ? (runs.find((entry) => entry.id === selectedRunId) ?? runs[0])
+            : runs.find((entry) => entry.id === detailPokemon?.playthroughId);
     const owned = Object.values(document.pokemon).filter(
         (pokemon) => pokemon.playthroughId === run?.id && !pokemon.deleted,
     );
@@ -289,6 +295,184 @@ export function MyPokemonPage({
                 conflict.entity === 'pokemon' &&
                 conflict.entityId === pokemon.id &&
                 (conflict.field === 'state' || conflict.field === '$entity'),
+        );
+    }
+    function renderPokemon(pokemon: OwnedPokemon, detail = false) {
+        if (!run) return null;
+        return (
+            <MyPokemonCard
+                key={pokemon.id}
+                detail={detail}
+                pokemon={pokemon}
+                datasetId={datasetId}
+                observations={Object.values(document.observations).filter(
+                    (entry) => entry.pokemonId === pokemon.id,
+                )}
+                partyIndex={run.party.indexOf(pokemon.id)}
+                partySize={party.length}
+                partyMembers={
+                    party.some(hasStateConflict) ||
+                    collection.conflicts.some(
+                        (conflict) =>
+                            conflict.entity === 'playthroughs' &&
+                            conflict.entityId === run.id &&
+                            (conflict.field === 'party' || conflict.field === '$entity'),
+                    )
+                        ? undefined
+                        : party
+                }
+                stateConflict={hasStateConflict(pokemon)}
+                onUpdate={(updater) => updatePokemon(pokemon.id, updater)}
+                onParty={() => toggleParty(pokemon)}
+                onMove={async (direction) => {
+                    await changeRun((current) => {
+                        const order = [...current.party];
+                        const index = order.indexOf(pokemon.id);
+                        const other = index + direction;
+                        if (index >= 0 && other >= 0 && other < order.length)
+                            [order[index], order[other]] = [order[other], order[index]];
+                        return { ...current, party: order };
+                    });
+                }}
+                saveObservation={async (observation) => {
+                    await update((current: CollectionDocument) => ({
+                        ...current,
+                        observations: {
+                            ...current.observations,
+                            [observation.id]: observation,
+                        },
+                    }));
+                }}
+                onRemove={async () => {
+                    await removePokemon(pokemon.id);
+                    if (detail) {
+                        setReplacement(null);
+                        setSelectedRunId(run.id);
+                        setView('collection');
+                        window.location.hash = '#/my-pokemon';
+                    }
+                }}
+            />
+        );
+    }
+    const replacementPokemon = replacement ? document.pokemon[replacement] : undefined;
+    const partyReplacement = run &&
+        replacementPokemon &&
+        !replacementPokemon.deleted &&
+        replacementPokemon.playthroughId === run.id &&
+        !run.party.includes(replacementPokemon.id) && (
+            <section className="my-panel my-stack" ref={replacementPanel} tabIndex={-1}>
+                <h2>{t('Choose a party member to replace', 'Vyberte člena týmu k nahrazení')}</h2>
+                <p>
+                    {t('Adding', 'Přidáváte')} <PokemonLabel pokemon={replacementPokemon} />.{' '}
+                    {t(
+                        'The replaced Pokémon stays in your collection.',
+                        'Nahrazený Pokémon zůstane ve sbírce.',
+                    )}
+                </p>
+                <div className="my-actions">
+                    {party.map((member) => (
+                        <button
+                            className="page-button"
+                            key={member.id}
+                            disabled={busy}
+                            type="button"
+                            onClick={() => {
+                                void perform(async () => {
+                                    await changeRun((current) => ({
+                                        ...current,
+                                        party: current.party.map((id) =>
+                                            id === member.id ? replacementPokemon.id : id,
+                                        ),
+                                    }));
+                                    setReplacement(null);
+                                });
+                            }}
+                        >
+                            <PokemonLabel pokemon={member} />
+                        </button>
+                    ))}
+                    <button
+                        className="my-text-button"
+                        type="button"
+                        onClick={() => setReplacement(null)}
+                    >
+                        {t('Cancel', 'Zrušit')}
+                    </button>
+                </div>
+            </section>
+        );
+    if (pokemonId !== undefined) {
+        return (
+            <div className="min-h-screen">
+                <DexHeader version={version} />
+                <main className="dex-browse-main my-pokemon-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
+                    <a
+                        className="my-text-button my-detail-back"
+                        href="#/my-pokemon"
+                        onClick={() => {
+                            if (run) {
+                                setSelectedRunId(run.id);
+                                if (detailPokemon && !run.party.includes(detailPokemon.id))
+                                    setView('collection');
+                            }
+                            setReplacement(null);
+                        }}
+                    >
+                        ← {t('Back to my Pokémon', 'Zpět na moje Pokémony')}
+                    </a>
+                    <div className="my-page-heading">
+                        <div>
+                            <p className="eyebrow">
+                                {run?.name ?? t('Your collection', 'Vaše sbírka')}
+                            </p>
+                            <h1>{t('Pokémon details', 'Detail Pokémona')}</h1>
+                        </div>
+                        <span
+                            className={`my-sync-status my-sync-${collection.status}`}
+                            role="status"
+                        >
+                            {syncLabels[collection.status]}
+                        </span>
+                    </div>
+                    {(error || collection.error) && (
+                        <div className="my-error" role="alert">
+                            {error || collection.error}
+                        </div>
+                    )}
+                    {!ready ? (
+                        <p className="my-empty" role="status">
+                            {t('Loading your collection…', 'Načítání vaší sbírky…')}
+                        </p>
+                    ) : (
+                        <>
+                            <MyPokemonConflicts
+                                conflicts={collection.conflicts}
+                                document={document}
+                                resolve={collection.resolve}
+                            />
+                            {detailPokemon && !detailPokemon.deleted && run ? (
+                                <div className="my-owned-detail">
+                                    {partyReplacement}
+                                    {renderPokemon(detailPokemon, true)}
+                                </div>
+                            ) : (
+                                <section className="my-empty" role="status">
+                                    <h2>{t('Pokémon not found', 'Pokémon nenalezen')}</h2>
+                                    <p>
+                                        {t(
+                                            'This Pokémon is not in the current collection, or it or its playthrough has been removed.',
+                                            'Tento Pokémon není v aktuální sbírce, nebo byl odstraněn on či jeho průchod hrou.',
+                                        )}
+                                    </p>
+                                </section>
+                            )}
+                        </>
+                    )}
+                    <DexFooter />
+                </main>
+                <DexNavigation active="my-pokemon" />
+            </div>
         );
     }
     return (
@@ -599,61 +783,7 @@ export function MyPokemonPage({
                                         )}
                                     </section>
                                 )}
-                                {replacement && document.pokemon[replacement] && (
-                                    <section
-                                        className="my-panel my-stack"
-                                        ref={replacementPanel}
-                                        tabIndex={-1}
-                                    >
-                                        <h2>
-                                            {t(
-                                                'Choose a party member to replace',
-                                                'Vyberte člena týmu k nahrazení',
-                                            )}
-                                        </h2>
-                                        <p>
-                                            {t('Adding', 'Přidáváte')}{' '}
-                                            <PokemonLabel pokemon={document.pokemon[replacement]} />
-                                            .{' '}
-                                            {t(
-                                                'The replaced Pokémon stays in your collection.',
-                                                'Nahrazený Pokémon zůstane ve sbírce.',
-                                            )}
-                                        </p>
-                                        <div className="my-actions">
-                                            {party.map((member) => (
-                                                <button
-                                                    className="page-button"
-                                                    key={member.id}
-                                                    disabled={busy}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        void perform(async () => {
-                                                            await changeRun((current) => ({
-                                                                ...current,
-                                                                party: current.party.map((id) =>
-                                                                    id === member.id
-                                                                        ? replacement
-                                                                        : id,
-                                                                ),
-                                                            }));
-                                                            setReplacement(null);
-                                                        });
-                                                    }}
-                                                >
-                                                    <PokemonLabel pokemon={member} />
-                                                </button>
-                                            ))}
-                                            <button
-                                                className="my-text-button"
-                                                type="button"
-                                                onClick={() => setReplacement(null)}
-                                            >
-                                                {t('Cancel', 'Zrušit')}
-                                            </button>
-                                        </div>
-                                    </section>
-                                )}
+                                {partyReplacement}
                                 {shown.length === 0 ? (
                                     <section className="my-empty">
                                         <div className="my-empty-mark" aria-hidden="true">
@@ -690,62 +820,7 @@ export function MyPokemonPage({
                                     </section>
                                 ) : (
                                     <div className="my-party-grid">
-                                        {shown.map((pokemon) => (
-                                            <MyPokemonCard
-                                                key={pokemon.id}
-                                                pokemon={pokemon}
-                                                datasetId={datasetId}
-                                                observations={Object.values(
-                                                    document.observations,
-                                                ).filter((entry) => entry.pokemonId === pokemon.id)}
-                                                partyIndex={run.party.indexOf(pokemon.id)}
-                                                partySize={party.length}
-                                                partyMembers={
-                                                    party.some(hasStateConflict) ||
-                                                    collection.conflicts.some(
-                                                        (conflict) =>
-                                                            conflict.entity === 'playthroughs' &&
-                                                            conflict.entityId === run.id &&
-                                                            (conflict.field === 'party' ||
-                                                                conflict.field === '$entity'),
-                                                    )
-                                                        ? undefined
-                                                        : party
-                                                }
-                                                stateConflict={hasStateConflict(pokemon)}
-                                                onUpdate={(updater) =>
-                                                    updatePokemon(pokemon.id, updater)
-                                                }
-                                                onParty={() => toggleParty(pokemon)}
-                                                onMove={async (direction) => {
-                                                    await changeRun((current) => {
-                                                        const order = [...current.party];
-                                                        const index = order.indexOf(pokemon.id);
-                                                        const other = index + direction;
-                                                        if (
-                                                            index >= 0 &&
-                                                            other >= 0 &&
-                                                            other < order.length
-                                                        )
-                                                            [order[index], order[other]] = [
-                                                                order[other],
-                                                                order[index],
-                                                            ];
-                                                        return { ...current, party: order };
-                                                    });
-                                                }}
-                                                saveObservation={async (observation) => {
-                                                    await update((current: CollectionDocument) => ({
-                                                        ...current,
-                                                        observations: {
-                                                            ...current.observations,
-                                                            [observation.id]: observation,
-                                                        },
-                                                    }));
-                                                }}
-                                                onRemove={() => removePokemon(pokemon.id)}
-                                            />
-                                        ))}
+                                        {shown.map((pokemon) => renderPokemon(pokemon))}
                                     </div>
                                 )}
                             </>

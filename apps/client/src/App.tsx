@@ -65,12 +65,13 @@ export function App() {
         setPage(0);
     }
 
-    if (route.kind === 'my-pokemon') {
+    if (route.kind === 'my-pokemon' || route.kind === 'owned-pokemon') {
         return (
             <MyPokemonPage
                 version={dexMetadata?.version ?? '1.0.4'}
                 datasetId={dexMetadata?.datasetId ?? 'emerald-ex-1.0.4'}
-                addSpeciesId={route.addSpeciesId}
+                addSpeciesId={route.kind === 'my-pokemon' ? route.addSpeciesId : undefined}
+                pokemonId={route.kind === 'owned-pokemon' ? route.id : undefined}
             />
         );
     }

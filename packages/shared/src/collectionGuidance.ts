@@ -1,6 +1,8 @@
 import type { LearnsetEntry, SpeciesDetails, SpeciesEvolution } from './dex.js';
 import type { OwnedPokemon, StatObservation } from './collection.js';
 
+export type CollectionGuidanceTranslate = (english: string, czech: string) => string;
+
 export interface EvolutionConditionEvidence {
     label: string;
     status: 'met' | 'unmet' | 'unknown';
@@ -296,14 +298,20 @@ function moveOpportunities(
     return result;
 }
 
-function machineNote(opportunities: readonly EvolutionMoveOpportunity[]): string {
+function machineNote(
+    opportunities: readonly EvolutionMoveOpportunity[],
+    t: CollectionGuidanceTranslate,
+): string {
     const machines = [
         ...new Set(
             opportunities.flatMap((entry) => (entry.machine === null ? [] : [entry.machine])),
         ),
     ];
     return machines.length
-        ? ` TM/HM alternative: ${machines.join('/')}; check that you have the machine.`
+        ? t(
+              ` TM/HM alternative: ${machines.join('/')}; check that you have the machine.`,
+              ` Alternativa přes TM/HM: ${machines.join('/')}. Ověřte, že příslušný přístroj máte.`,
+          )
         : '';
 }
 
@@ -311,6 +319,7 @@ function evolutionGains(
     pokemon: OwnedPokemon,
     path: readonly FutureStage[],
     details: Readonly<Record<number, SpeciesDetails>>,
+    t: CollectionGuidanceTranslate,
 ): EvolutionMoveAdvice[] {
     const current = details[pokemon.state.speciesId];
     if (!current) return [];
@@ -345,26 +354,52 @@ function evolutionGains(
         const source = details[first.speciesId];
         let message =
             first.move.level === 0
-                ? `${source.name} lists ${first.move.name} as a special learnset entry (raw level 0). Verify its learning trigger in the game.`
-                : `${source.name} learns ${first.move.name} at level ${first.move.level}.`;
+                ? t(
+                      `${source.name} lists ${first.move.name} as a special learnset entry (raw level 0). Verify its learning trigger in the game.`,
+                      `${source.name} má útok ${first.move.name} ve zvláštním záznamu naučitelných útoků (úroveň 0 ve zdrojových datech). Ověřte podmínku naučení ve hře.`,
+                  )
+                : t(
+                      `${source.name} learns ${first.move.name} at level ${first.move.level}.`,
+                      `${source.name} se učí ${first.move.name} na úrovni ${first.move.level}.`,
+                  );
         if (complete)
             message +=
                 first.move.level === 0
-                    ? ` This special entry is absent from ${current.name}'s learnset; its availability after evolution needs in-game confirmation.`
-                    : ` ${current.name} does not learn this move by leveling; this is a move gained along this evolution path.`;
+                    ? t(
+                          ` This special entry is absent from ${current.name}'s learnset; its availability after evolution needs in-game confirmation.`,
+                          ` ${current.name} tento zvláštní záznam v seznamu naučitelných útoků nemá. Dostupnost po vývoji ověřte ve hře.`,
+                      )
+                    : t(
+                          ` ${current.name} does not learn this move by leveling; this is a move gained along this evolution path.`,
+                          ` ${current.name} se tento útok za úrovně neučí. V této vývojové větvi je dostupný po vývoji.`,
+                      );
         if (first.reachable)
-            message += ` Reach ${source.name} in time for that learning level; delaying earlier evolutions past it can miss this opportunity. Evolution requirements still apply.`;
+            message += t(
+                ` Reach ${source.name} in time for that learning level; delaying earlier evolutions past it can miss this opportunity. Evolution requirements still apply.`,
+                ` Vyviňte Pokémona do formy ${source.name} včas pro naučení na uvedené úrovni. Odkladem předchozích vývojů za tuto úroveň můžete možnost přeskočit. Stále platí podmínky vývoje.`,
+            );
         else if (first.move.level !== 0)
-            message +=
-                ' Its listed learning levels would already be past when those forms are reached; this is not an upcoming learning opportunity.';
+            message += t(
+                ' Its listed learning levels would already be past when those forms are reached; this is not an upcoming learning opportunity.',
+                ' Při dosažení těchto forem už budou uvedené úrovně naučení překročeny. Nejde o nadcházející možnost naučení.',
+            );
         if (known)
-            message += ' Already recorded in current moves; no need to evolve just to learn it.';
+            message += t(
+                ' Already recorded in current moves; no need to evolve just to learn it.',
+                ' Útok už je zaznamenán mezi aktuálními útoky. Jen kvůli jeho naučení není třeba Pokémona vyvíjet.',
+            );
         if (!complete)
-            message += ' This path is still missing species data; availability is unconfirmed.';
+            message += t(
+                ' This path is still missing species data; availability is unconfirmed.',
+                ' V této vývojové větvi chybí údaje o některých druzích. Dostupnost útoku není potvrzena.',
+            );
         const currentMachine = current.machines.filter((move) => move.moveId === first.move.moveId);
         if (currentMachine.length)
-            message += ` ${current.name} already has a TM/HM route: ${currentMachine.map((move) => move.machine).join('/')}; check that you have the machine.`;
-        message += machineNote(opportunities);
+            message += t(
+                ` ${current.name} already has a TM/HM route: ${currentMachine.map((move) => move.machine).join('/')}; check that you have the machine.`,
+                ` ${current.name} se útok může naučit už nyní přes TM/HM: ${currentMachine.map((move) => move.machine).join('/')}. Ověřte, že příslušný přístroj máte.`,
+            );
+        message += machineNote(opportunities, t);
         return {
             moveId: first.move.moveId,
             name: first.move.name,
@@ -380,10 +415,13 @@ function evolutionGains(
     });
 }
 
-/** Full-path comparisons of covered sources only. Tutors and move reminders are excluded. */
+/** Full-path comparisons of covered sources only. Tutors and move reminders are excluded.
+ * Descriptions default to English; pass the UI translator to localize them.
+ */
 export function getEvolutionGuidance(
     pokemon: OwnedPokemon,
     details: Readonly<Record<number, SpeciesDetails>>,
+    t: CollectionGuidanceTranslate = (english) => english,
 ): EvolutionMoveAdvice[] {
     const result: EvolutionMoveAdvice[] = [];
     for (const path of paths(pokemon, details)) {
@@ -453,51 +491,104 @@ export function getEvolutionGuidance(
                 if (move.machine !== null && machines.length > 0 && complete) continue;
                 const prefix =
                     move.level === 0
-                        ? `${source.name} lists ${move.name} as a special learnset entry (raw level 0). Verify its learning trigger in the game.`
+                        ? t(
+                              `${source.name} lists ${move.name} as a special learnset entry (raw level 0). Verify its learning trigger in the game.`,
+                              `${source.name} má útok ${move.name} ve zvláštním záznamu naučitelných útoků (úroveň 0 ve zdrojových datech). Ověřte podmínku naučení ve hře.`,
+                          )
                         : move.machine === null
-                          ? `${source.name} learns ${move.name} at level ${move.level}.`
-                          : `${source.name} can learn ${move.name} through ${move.machine}; check that you have the machine.`;
+                          ? t(
+                                `${source.name} learns ${move.name} at level ${move.level}.`,
+                                `${source.name} se učí ${move.name} na úrovni ${move.level}.`,
+                            )
+                          : t(
+                                `${source.name} can learn ${move.name} through ${move.machine}; check that you have the machine.`,
+                                `${source.name} se může naučit ${move.name} přes ${move.machine}. Ověřte, že příslušný přístroj máte.`,
+                            );
                 let kind: EvolutionMoveAdvice['kind'];
                 let message: string;
                 if (!complete) {
                     kind = 'timing';
-                    message = `${prefix} This path is still missing species data; later availability is unconfirmed.`;
+                    message =
+                        prefix +
+                        t(
+                            ' This path is still missing species data; later availability is unconfirmed.',
+                            ' V této vývojové větvi chybí údaje o některých druzích. Pozdější dostupnost útoku není potvrzena.',
+                        );
                 } else if (laterRepertoire.length > 0) {
                     kind = 'timing';
                     const repertoire = laterRepertoire
                         .map((opportunity) =>
                             opportunity.level === 0
-                                ? `${details[opportunity.speciesId].name}: special entry (raw level 0; verify its trigger in game)`
-                                : `${details[opportunity.speciesId].name} at ${opportunity.level}`,
+                                ? t(
+                                      `${details[opportunity.speciesId].name}: special entry (raw level 0; verify its trigger in game)`,
+                                      `${details[opportunity.speciesId].name}: zvláštní záznam (úroveň 0 ve zdrojových datech; podmínku naučení ověřte ve hře)`,
+                                  )
+                                : t(
+                                      `${details[opportunity.speciesId].name} at ${opportunity.level}`,
+                                      `${details[opportunity.speciesId].name} na úrovni ${opportunity.level}`,
+                                  ),
                         )
                         .join(', ');
-                    message = `${prefix} Also listed in later learnsets: ${repertoire}. This is a shared move, not a level-up exclusive.`;
+                    message =
+                        prefix +
+                        t(
+                            ` Also listed in later learnsets: ${repertoire}. This is a shared move, not a level-up exclusive.`,
+                            ` Útok mají v seznamu naučitelných útoků i pozdější formy: ${repertoire}. Jde o společný útok, který se za úrovně neučí jen tato forma.`,
+                        );
                     if (levelMoves.length === 0)
-                        message +=
-                            ' Those later learning levels would already be past when these forms are reached; they are not upcoming learning opportunities.';
+                        message += t(
+                            ' Those later learning levels would already be past when these forms are reached; they are not upcoming learning opportunities.',
+                            ' Při dosažení těchto forem už budou jejich úrovně naučení překročeny. Nejde o nadcházející možnosti naučení.',
+                        );
                     else
-                        message +=
-                            ' Evolution timing and requirements still apply to future learning opportunities.';
-                    message += machineNote(opportunities);
+                        message += t(
+                            ' Evolution timing and requirements still apply to future learning opportunities.',
+                            ' Pro budoucí možnosti naučení stále platí načasování a podmínky vývoje.',
+                        );
+                    message += machineNote(opportunities, t);
                 } else if (move.machine !== null) {
                     kind = 'machine-alternative';
-                    message = `${prefix} No later level-up or TM/HM route is listed on this path. This is a machine compatibility comparison; tutors and move reminders are excluded.`;
+                    message =
+                        prefix +
+                        t(
+                            ' No later level-up or TM/HM route is listed on this path. This is a machine compatibility comparison; tutors and move reminders are excluded.',
+                            ' V této vývojové větvi není uvedeno pozdější naučení za úroveň ani přes TM/HM. Srovnání se týká kompatibility s přístroji. Nezahrnuje učitele útoků ani připomínání útoků.',
+                        );
                 } else if (move.level === 0) {
                     kind = 'timing';
-                    message = `${prefix} This comparison does not confirm its special learning trigger.${machineNote(opportunities)}`;
+                    message =
+                        prefix +
+                        t(
+                            ' This comparison does not confirm its special learning trigger.',
+                            ' Toto srovnání nepotvrzuje zvláštní podmínku naučení útoku.',
+                        ) +
+                        machineNote(opportunities, t);
                 } else {
                     kind = 'check-before-evolving';
-                    message = `${prefix} This is a level-up exclusive compared with later stages on this path.`;
+                    message =
+                        prefix +
+                        t(
+                            ' This is a level-up exclusive compared with later stages on this path.',
+                            ' Pozdější formy v této vývojové větvi se tento útok za úrovně neučí.',
+                        );
                     message +=
                         machines.length > 0
-                            ? machineNote(opportunities)
-                            : ' No later TM/HM route is listed either.';
-                    message += ' Tutors and move reminders are excluded.';
+                            ? machineNote(opportunities, t)
+                            : t(
+                                  ' No later TM/HM route is listed either.',
+                                  ' Není uvedeno ani pozdější naučení přes TM/HM.',
+                              );
+                    message += t(
+                        ' Tutors and move reminders are excluded.',
+                        ' Srovnání nezahrnuje učitele útoků ani připomínání útoků.',
+                    );
                 }
                 if (move.level === 0) {
                     kind = 'timing';
-                    message +=
-                        ' This special entry is not an ordinary level-up opportunity; check recorded moves and its in-game trigger.';
+                    message += t(
+                        ' This special entry is not an ordinary level-up opportunity; check recorded moves and its in-game trigger.',
+                        ' Tento zvláštní záznam není běžnou možností naučení za úroveň. Zkontrolujte zaznamenané útoky a podmínku naučení ve hře.',
+                    );
                 } else if (
                     sourceIndex === 0 &&
                     move.level !== null &&
@@ -506,8 +597,14 @@ export function getEvolutionGuidance(
                     kind = 'timing';
                     message +=
                         move.level === pokemon.state.level
-                            ? ' This is the currently recorded level. Confirm whether the move was learned at this level; waiting longer will not repeat that opportunity.'
-                            : ' This learning level is already past. The comparison does not imply the move can still be learned now; check recorded moves.';
+                            ? t(
+                                  ' This is the currently recorded level. Confirm whether the move was learned at this level; waiting longer will not repeat that opportunity.',
+                                  ' Jde o aktuálně zaznamenanou úroveň. Ověřte, zda se Pokémon na této úrovni útok naučil. Dalším čekáním se tato možnost nezopakuje.',
+                              )
+                            : t(
+                                  ' This learning level is already past. The comparison does not imply the move can still be learned now; check recorded moves.',
+                                  ' Úroveň naučení už byla překročena. Srovnání nepotvrzuje, že se útok lze naučit i nyní. Zkontrolujte zaznamenané útoky.',
+                              );
                 }
                 const known =
                     pokemon.state.moves?.some((entry) => entry.moveId === move.moveId) ?? false;
@@ -520,10 +617,15 @@ export function getEvolutionGuidance(
                     move.level >= stage.earliestLevel &&
                     !known;
                 if (actionable)
-                    message += ` Keep ${source.name} until level ${move.level} to learn it by leveling before evolving further.`;
+                    message += t(
+                        ` Keep ${source.name} until level ${move.level} to learn it by leveling before evolving further.`,
+                        ` Ponechte Pokémona ve formě ${source.name} do úrovně ${move.level}, aby se útok naučil za úroveň ještě před dalším vývojem.`,
+                    );
                 if (known)
-                    message +=
-                        ' Already recorded in current moves; no need to wait just to learn it.';
+                    message += t(
+                        ' Already recorded in current moves; no need to wait just to learn it.',
+                        ' Útok už je zaznamenán mezi aktuálními útoky. Jen kvůli jeho naučení není třeba čekat.',
+                    );
                 result.push({
                     moveId: move.moveId,
                     name: move.name,
@@ -538,7 +640,7 @@ export function getEvolutionGuidance(
                 });
             }
         }
-        result.push(...evolutionGains(pokemon, path, details));
+        result.push(...evolutionGains(pokemon, path, details, t));
     }
     const priority = {
         'check-before-evolving': 0,
