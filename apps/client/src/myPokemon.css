@@ -104,8 +104,12 @@
 .my-panel,
 .my-pokemon-card {
     border: 1px solid var(--dex-border);
-    background: var(--dex-surface);
     border-radius: var(--radius-panel);
+}
+.my-account,
+.my-panel,
+.my-pokemon-card:not(.type-surface) {
+    background: var(--dex-surface);
 }
 .my-account {
     padding: 1rem 1.25rem;
@@ -222,6 +226,10 @@
     border-radius: 14px;
     background: var(--dex-surface-soft);
 }
+.my-pokemon-title .type-icons {
+    display: flex;
+    margin-top: 0.25rem;
+}
 .my-pokemon-title h2 {
     font-size: 1.35rem;
 }
@@ -244,13 +252,31 @@
     flex-direction: column;
     gap: 0.7rem;
 }
-.my-move-chips li,
-.my-move-chips button {
+.my-move {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 100%;
+    text-align: left;
+    overflow-wrap: anywhere;
     border: 1px solid var(--dex-border);
-    background: var(--dex-surface-raised);
     border-radius: 9px;
     padding: 0.35rem 0.6rem;
     font-size: 0.8rem;
+}
+.my-move:not(.type-surface) {
+    background: var(--dex-surface-raised);
+}
+.my-move .type-icons {
+    flex-shrink: 0;
+}
+.my-move-options {
+    display: grid;
+    gap: 0.4rem;
+}
+.my-selected-species {
+    padding: 0.75rem;
+    border-radius: 12px;
 }
 .my-guidance {
     border-top: 1px solid var(--dex-border);
@@ -392,7 +418,6 @@
     padding: 0.4rem;
     border-radius: 12px;
     text-align: left;
-    background: var(--dex-surface-soft);
     border: 1px solid var(--dex-border);
     font-size: 0.85rem;
 }

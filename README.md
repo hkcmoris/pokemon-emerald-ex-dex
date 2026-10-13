@@ -97,6 +97,11 @@ are optional. Multiple owned Pokémon of the same species remain separate indivi
 Removing a party member keeps it in the collection. Removed Pokémon, playthroughs,
 and stat observations can be restored.
 
+Owned species and their moves use type icons and type-tinted surfaces, including
+move selection, upcoming moves, and level-up recaps. Type names remain available
+when icons are missing; saved move names remain visible when reference data is
+unavailable offline.
+
 Levels, moves, and evolutions are recorded manually. Increasing a level saves it
 immediately and offers a skippable recap; select learned moves explicitly. Unrecorded
 moves mean unknown, not an empty moveset. Recording an evolution or form change

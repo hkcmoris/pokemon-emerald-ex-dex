@@ -18,6 +18,9 @@ import { SpeciesSprite } from './SpeciesSprite.js';
 import { speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory } from './MyPokemonHistory.js';
+import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
+import { TypeBadges } from './TypeBadges.js';
+import { typeSurfaceStyle } from './theme.js';
 
 function LevelEditor({
     value,
@@ -186,7 +189,10 @@ function EvolutionTradeoff({
     return (
         <li className="my-tradeoff-move">
             <div className="my-tradeoff-title">
-                <strong>{entry.name}</strong>
+                <MyPokemonMove
+                    move={entry}
+                    reference={findReferenceMove(entry.moveId, Object.values(details))}
+                />
                 <span className="my-level-badge">
                     {name(entry.sourceSpeciesId)} · Lv. {entry.currentLevel}
                 </span>
@@ -342,10 +348,13 @@ export function EvolutionAdvice({
             {upcoming.length > 0 ? (
                 <ul className="my-upcoming">
                     {upcoming.map((move) => (
-                        <li key={`${move.moveId}-${move.level}`}>
-                            <span className="my-level-badge">Lv. {move.level}</span>
-                            <span>{move.name}</span>
-                        </li>
+                        <MyPokemonMove
+                            as="li"
+                            key={`${move.moveId}-${move.level}`}
+                            move={move}
+                            reference={move}
+                            prefix={<span className="my-level-badge">Lv. {move.level}</span>}
+                        />
                     ))}
                 </ul>
             ) : (
@@ -427,7 +436,11 @@ export function EvolutionAdvice({
                         {guidance.map((entry, index) => (
                             <li key={`${entry.moveId}-${index}`}>
                                 <strong>
-                                    {entry.name} · {kindLabel(entry.kind)}
+                                    <MyPokemonMove
+                                        move={entry}
+                                        reference={findReferenceMove(entry.moveId, family)}
+                                    />{' '}
+                                    · {kindLabel(entry.kind)}
                                 </strong>
                                 <p>
                                     {entry.branch
@@ -535,43 +548,51 @@ export function CatchUpRecap({
                     </p>
                     <div className="my-move-chips">
                         {selected.map((move) => (
-                            <button
+                            <MyPokemonMove
+                                as="button"
                                 key={move.moveId}
-                                type="button"
+                                move={move}
+                                reference={findReferenceMove(move.moveId, [details])}
+                                suffix={<span aria-hidden="true">×</span>}
                                 onClick={() =>
                                     setSelected(
                                         selected.filter((entry) => entry.moveId !== move.moveId),
                                     )
                                 }
-                            >
-                                {move.name} ×
-                            </button>
+                            />
                         ))}
                     </div>
                     {recap.moves.map((move) => (
-                        <label className="my-check" key={`${move.moveId}-${move.level}`}>
-                            <input
-                                type="checkbox"
-                                checked={selected.some((entry) => entry.moveId === move.moveId)}
-                                disabled={
-                                    selected.length >= 4 &&
-                                    !selected.some((entry) => entry.moveId === move.moveId)
-                                }
-                                onChange={(event) =>
-                                    setSelected(
-                                        event.target.checked
-                                            ? [
-                                                  ...selected,
-                                                  { moveId: move.moveId, name: move.name },
-                                              ]
-                                            : selected.filter(
-                                                  (entry) => entry.moveId !== move.moveId,
-                                              ),
-                                    )
-                                }
-                            />
-                            Lv. {move.level} · {move.name}
-                        </label>
+                        <MyPokemonMove
+                            as="label"
+                            className="my-check"
+                            key={`${move.moveId}-${move.level}`}
+                            move={move}
+                            reference={move}
+                            prefix={
+                                <input
+                                    type="checkbox"
+                                    checked={selected.some((entry) => entry.moveId === move.moveId)}
+                                    disabled={
+                                        selected.length >= 4 &&
+                                        !selected.some((entry) => entry.moveId === move.moveId)
+                                    }
+                                    onChange={(event) =>
+                                        setSelected(
+                                            event.target.checked
+                                                ? [
+                                                      ...selected,
+                                                      { moveId: move.moveId, name: move.name },
+                                                  ]
+                                                : selected.filter(
+                                                      (entry) => entry.moveId !== move.moveId,
+                                                  ),
+                                        )
+                                    }
+                                />
+                            }
+                            suffix={<span className="my-level-badge">Lv. {move.level}</span>}
+                        />
                     ))}
                     <button
                         className="my-primary"
@@ -679,7 +700,10 @@ export function MyPokemonCard({
             setRecap({ details: species.data, oldLevel: previous, newLevel: level });
     }
     return (
-        <article className="my-pokemon-card">
+        <article
+            className={`my-pokemon-card${species.data ? ' type-surface' : ''}`}
+            style={species.data ? typeSurfaceStyle(species.data.types) : undefined}
+        >
             <div className="my-card-heading">
                 <div className="my-pokemon-title">
                     <SpeciesSprite
@@ -694,6 +718,13 @@ export function MyPokemonCard({
                                 : t('Collection', 'Sbírka')}
                         </p>
                         <h2>{pokemon.nickname || name}</h2>
+                        {species.data && (
+                            <TypeBadges
+                                types={species.data.types}
+                                iconFiles={species.data.typeIconFiles}
+                                iconOnly
+                            />
+                        )}
                         <a className="my-text-button" href={speciesHref(pokemon.state.speciesId)}>
                             {pokemon.nickname ? name : t('View in Pokédex', 'Zobrazit v Pokédexu')}{' '}
                             ↗
@@ -748,7 +779,12 @@ export function MyPokemonCard({
                 ) : (
                     <ul className="my-move-chips">
                         {pokemon.state.moves.map((move) => (
-                            <li key={move.moveId}>{move.name}</li>
+                            <MyPokemonMove
+                                as="li"
+                                key={move.moveId}
+                                move={move}
+                                reference={findReferenceMove(move.moveId, family)}
+                            />
                         ))}
                     </ul>
                 )}

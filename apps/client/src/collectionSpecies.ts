@@ -1,6 +1,12 @@
-import type { Move, PageResponse, Pokemon, SpeciesDetails } from '@pokemon-emerald-ex-dex/shared';
+import type {
+    ApiResponse,
+    Move,
+    PageResponse,
+    Pokemon,
+    SpeciesDetails,
+} from '@pokemon-emerald-ex-dex/shared';
 
-import { fetchSpecies, fetchSpeciesDetails } from './api.js';
+import { ApiRequestError, fetchSpecies, fetchSpeciesDetails } from './api.js';
 import { apiUrl } from './apiUrl.js';
 import {
     changeCollectionRecord,
@@ -10,6 +16,7 @@ import {
 
 const memory = new Map<number, SpeciesDetails>();
 const pending = new Map<number, Promise<SpeciesDetails>>();
+const pendingMoves = new Map<number, Promise<Move>>();
 
 export async function loadCollectionSpecies(id: number): Promise<SpeciesDetails> {
     const cached = memory.get(id) ?? (await readCollectionRecord<SpeciesDetails>(`species:${id}`));
@@ -41,6 +48,36 @@ export async function loadCollectionFamily(id: number): Promise<SpeciesDetails[]
     const results = await Promise.allSettled([...ids].map(loadCollectionSpecies));
     // Partial offline coverage is represented by missing entries, never a fictitious empty learnset.
     return results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []));
+}
+
+export async function loadCollectionMove(id: number): Promise<Move> {
+    for (const details of memory.values()) {
+        const move = [...details.learnset, ...details.machines].find(
+            (entry) => entry.moveId === id,
+        );
+        if (move) return move;
+    }
+    const cached = (await readCollectionRecord<Record<number, Move>>('move-index'))?.[id];
+    if (cached) return cached;
+    let request = pendingMoves.get(id);
+    if (!request) {
+        request = fetch(apiUrl(`v1/moves/${id}`))
+            .then(async (response) => {
+                if (!response.ok) throw new ApiRequestError(response.status);
+                const { data: move } = (await response.json()) as ApiResponse<Move>;
+                await changeCollectionRecord<Record<number, Move>>(
+                    'move-index',
+                    (previous = {}) => ({
+                        ...previous,
+                        [id]: move,
+                    }),
+                );
+                return move;
+            })
+            .finally(() => pendingMoves.delete(id));
+        pendingMoves.set(id, request);
+    }
+    return request;
 }
 
 async function rememberSpecies(entries: readonly Pokemon[]): Promise<void> {

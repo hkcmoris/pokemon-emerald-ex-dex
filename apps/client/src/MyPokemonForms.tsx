@@ -5,6 +5,9 @@ import type { KnownMove, Pokemon, SpeciesDetails } from '@pokemon-emerald-ex-dex
 import { searchCollectionMoves, searchCollectionSpecies } from './collectionSpecies.js';
 import { useLanguage } from './language.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
+import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
+import { TypeBadges } from './TypeBadges.js';
+import { typeSurfaceStyle } from './theme.js';
 
 export function SpeciesPicker({
     onSelect,
@@ -49,7 +52,12 @@ export function SpeciesPicker({
                 <ul className="my-search-results">
                     {search.data.map((entry) => (
                         <li key={entry.speciesId}>
-                            <button type="button" onClick={() => onSelect(entry)}>
+                            <button
+                                className="type-surface"
+                                style={typeSurfaceStyle(entry.types)}
+                                type="button"
+                                onClick={() => onSelect(entry)}
+                            >
                                 <SpeciesSprite
                                     datasetId={datasetId}
                                     file={entry.sprites?.front ?? null}
@@ -58,6 +66,11 @@ export function SpeciesPicker({
                                 <span>
                                     <strong>{entry.name}</strong>
                                     <small>#{entry.speciesId}</small>
+                                    <TypeBadges
+                                        types={entry.types}
+                                        iconFiles={entry.typeIconFiles}
+                                        iconOnly
+                                    />
                                 </span>
                                 <span aria-hidden="true">＋</span>
                             </button>
@@ -118,7 +131,10 @@ export function AddPokemonForm({
                 void submit(event);
             }}
         >
-            <div className="my-pokemon-title">
+            <div
+                className="my-pokemon-title my-selected-species type-surface"
+                style={typeSurfaceStyle(selected.types)}
+            >
                 <SpeciesSprite
                     datasetId={datasetId}
                     file={selected.sprites?.front ?? null}
@@ -127,6 +143,11 @@ export function AddPokemonForm({
                 <div>
                     <p className="eyebrow">{t('Add to collection', 'Přidat do sbírky')}</p>
                     <h3>{selected.name}</h3>
+                    <TypeBadges
+                        types={selected.types}
+                        iconFiles={selected.typeIconFiles}
+                        iconOnly
+                    />
                 </div>
             </div>
             <div className="my-fields">
@@ -194,6 +215,8 @@ export function MovesEditor({
         queryFn: () => searchCollectionMoves(query.trim()),
         enabled: !unknown,
     });
+    const reference = (moveId: number) =>
+        findReferenceMove(moveId, family) ?? search.data?.find((move) => move.moveId === moveId);
     const candidates = new Map<number, KnownMove>();
     for (const details of family)
         for (const move of [...details.learnset, ...details.machines])
@@ -244,17 +267,18 @@ export function MovesEditor({
                     </p>
                     <div className="my-move-chips">
                         {selected.map((move) => (
-                            <button
-                                type="button"
+                            <MyPokemonMove
+                                as="button"
                                 key={move.moveId}
+                                move={move}
+                                reference={reference(move.moveId)}
+                                suffix={<span aria-hidden="true">×</span>}
                                 onClick={() =>
                                     setSelected(
                                         selected.filter((entry) => entry.moveId !== move.moveId),
                                     )
                                 }
-                            >
-                                {move.name} ×
-                            </button>
+                            />
                         ))}
                     </div>
                     <label className="filter-label">
@@ -276,26 +300,34 @@ export function MovesEditor({
                     )}
                     <div className="my-move-options">
                         {matches.map((move) => (
-                            <label className="my-check" key={move.moveId}>
-                                <input
-                                    type="checkbox"
-                                    checked={selected.some((entry) => entry.moveId === move.moveId)}
-                                    disabled={
-                                        selected.length >= 4 &&
-                                        !selected.some((entry) => entry.moveId === move.moveId)
-                                    }
-                                    onChange={(event) =>
-                                        setSelected(
-                                            event.target.checked
-                                                ? [...selected, move]
-                                                : selected.filter(
-                                                      (entry) => entry.moveId !== move.moveId,
-                                                  ),
-                                        )
-                                    }
-                                />
-                                {move.name}
-                            </label>
+                            <MyPokemonMove
+                                as="label"
+                                className="my-check"
+                                key={move.moveId}
+                                move={move}
+                                reference={reference(move.moveId)}
+                                prefix={
+                                    <input
+                                        type="checkbox"
+                                        checked={selected.some(
+                                            (entry) => entry.moveId === move.moveId,
+                                        )}
+                                        disabled={
+                                            selected.length >= 4 &&
+                                            !selected.some((entry) => entry.moveId === move.moveId)
+                                        }
+                                        onChange={(event) =>
+                                            setSelected(
+                                                event.target.checked
+                                                    ? [...selected, move]
+                                                    : selected.filter(
+                                                          (entry) => entry.moveId !== move.moveId,
+                                                      ),
+                                            )
+                                        }
+                                    />
+                                }
+                            />
                         ))}
                     </div>
                 </>
