@@ -28,8 +28,8 @@ export function AbilityDetails({ ability }: { ability: Ability }) {
         >
             <div className="section-heading">
                 <p className="eyebrow">
-                    {t('ROM ability', 'Schopnost v ROM')} #
-                    {String(ability.abilityId).padStart(3, '0')}
+                    {t('ROM ability', 'Schopnost v ROM')}{' '}
+                    <span className="font-mono">#{String(ability.abilityId).padStart(3, '0')}</span>
                 </p>
                 <h2>{ability.name}</h2>
             </div>

@@ -34,7 +34,8 @@ export function ItemDetails({ item }: { item: Item }) {
         <section className="species-section" aria-label={t('Item details', 'Podrobnosti předmětu')}>
             <div className="section-heading">
                 <p className="eyebrow">
-                    {t('ROM item', 'Předmět v ROM')} #{String(item.itemId).padStart(4, '0')}
+                    {t('ROM item', 'Předmět v ROM')}{' '}
+                    <span className="font-mono">#{String(item.itemId).padStart(4, '0')}</span>
                 </p>
                 <h2 className="flex items-center gap-3">
                     <ItemIcon file={item.iconFile} name={item.name} />

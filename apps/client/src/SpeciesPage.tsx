@@ -79,7 +79,11 @@ function MoveTable({
                                 {acquisition === 'Level'
                                     ? t('Level', 'Úroveň')
                                     : t('Machine', 'TM / HM')}{' '}
-                                <span>{'machine' in move ? move.machine : move.level}</span>
+                                {'machine' in move ? (
+                                    <span className="font-mono">{move.machine}</span>
+                                ) : (
+                                    move.level
+                                )}
                             </p>
                             <p className="move-description">
                                 {t(move.description, move.descriptionCs || move.description) ||
@@ -233,7 +237,7 @@ export function StatsPanel({ entry, version }: { entry: Pokemon; version: string
                                 )}
                             </dt>
                             <dd className="stat-measure">
-                                <span className="stat-value font-mono tabular-nums">
+                                <span className="stat-value tabular-nums">
                                     {entry.stats[key]}
                                     {isHighest && (
                                         <span className="sr-only">

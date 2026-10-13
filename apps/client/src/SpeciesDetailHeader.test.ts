@@ -74,7 +74,7 @@ void test('appearance selection renders one matching sprite and retains the disp
         /<button type="button" aria-pressed="true"><span aria-hidden="true">✦<\/span> Shiny/,
     );
 
-    match(markup, /<p class="eyebrow">#1093<\/p>/);
+    match(markup, /<p class="eyebrow font-mono">#1093<\/p>/);
     match(markup, />Zen Darmanitan<\/h1>/);
     doesNotMatch(markup, /<select|<option/);
 

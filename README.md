@@ -43,6 +43,8 @@ Labeled bottom navigation links Pokémon, Items, Abilities, and My Pokémon. A t
 between dark emerald and light mineral surfaces and remembers the choice locally.
 Pagination stays visible at the bottom of the viewport while browsing Pokémon, Items,
 and Abilities, with space above the bottom navigation on mobile.
+The interface uses DM Sans, with monospace reserved for identifiers such as species,
+item and ability IDs and TM/HM codes.
 The header language selector switches the interface between English and Čeština and
 remembers the selection in the browser. Without a saved choice, the interface uses the
 first supported language from the browser's preferred languages, including regional

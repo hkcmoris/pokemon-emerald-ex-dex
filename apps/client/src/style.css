@@ -163,7 +163,6 @@ button:disabled {
 }
 .version-tag {
     color: var(--dex-muted);
-    font-family: var(--font-mono);
     font-size: 0.65rem;
     letter-spacing: 0.025em;
 }
@@ -235,7 +234,6 @@ button:disabled {
 }
 .eyebrow {
     color: var(--dex-muted);
-    font-family: var(--font-mono);
     font-size: 0.65rem;
     letter-spacing: 0.13em;
     text-transform: uppercase;
@@ -263,7 +261,6 @@ button:disabled {
 }
 .dex-species-count strong {
     color: var(--dex-accent);
-    font-family: var(--font-mono);
     font-size: 1.15rem;
     font-weight: 400;
 }
@@ -436,7 +433,6 @@ thead {
     color: var(--dex-muted);
 }
 thead th {
-    font-family: var(--font-mono);
     font-size: 0.65rem;
     font-weight: 400;
     white-space: nowrap;
@@ -870,7 +866,6 @@ tbody tr:hover {
 }
 .stat-total-number {
     color: var(--dex-accent);
-    font-family: var(--font-mono);
     font-size: 1.65rem;
     line-height: 1.2;
 }
@@ -915,7 +910,6 @@ tbody tr:hover {
     grid-template-columns: 3ch minmax(0, 1fr);
     align-items: center;
     gap: 0.45rem;
-    font-family: var(--font-mono);
     text-align: right;
 }
 .stat-track {
@@ -955,7 +949,6 @@ tbody tr:hover {
 .count-label {
     margin-left: 0.35rem;
     color: var(--dex-muted);
-    font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 400;
     vertical-align: middle;
@@ -1119,6 +1112,7 @@ tbody tr:hover {
     overflow-wrap: anywhere;
     border-left: 2px solid var(--dex-border);
     padding-left: 0.75rem;
+    font-family: var(--font-sans);
     font-size: 0.7rem;
     white-space: pre-wrap;
 }
@@ -1167,9 +1161,6 @@ tbody tr:hover {
     font-size: 0.65rem;
     font-weight: 400;
 }
-.move-acquisition span {
-    font-family: var(--font-mono);
-}
 .move-description {
     margin-top: 0.5rem;
     color: var(--dex-muted);
@@ -1182,7 +1173,6 @@ tbody tr:hover {
     gap: 0.3rem;
 }
 .move-stats dd {
-    font-family: var(--font-mono);
     text-align: right;
 }
 .move-power {
@@ -1458,13 +1448,11 @@ tbody tr:hover {
         text-align: right;
     }
     .pokemon-card-stat strong {
-        font-family: var(--font-mono);
         font-size: 1rem;
         font-weight: 400;
     }
     .pokemon-card-stat > span {
         color: var(--dex-muted);
-        font-family: var(--font-mono);
         font-size: 0.55rem;
         text-transform: uppercase;
     }
