@@ -151,6 +151,7 @@ offline changes merge automatically; conflicting values, removals, or party line
 show both alternatives for an explicit choice. Pending edits sync while the app is
 open and connected, and signing out keeps account data separate from guest data.
 The sync status shares one compact row with the expandable account controls.
+This panel sits beside the page heading on desktop and below it on smaller screens.
 
 Google sign-in still needs deployment configuration: apply
 `scripts/sql/022_my_pokemon.sql`, create a Google OAuth Web client, and configure its

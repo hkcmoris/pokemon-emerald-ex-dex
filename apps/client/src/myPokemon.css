@@ -1,7 +1,6 @@
 .my-pokemon-main {
     padding-bottom: 6rem;
 }
-.my-page-heading,
 .my-card-heading,
 .my-section-heading,
 .my-card-footer,
@@ -14,8 +13,14 @@
     gap: 1rem;
 }
 .my-page-heading {
+    display: grid;
+    align-items: center;
+    gap: 1.5rem;
     margin-bottom: 1.5rem;
-    flex-wrap: wrap;
+}
+.my-page-heading > div {
+    min-width: 0;
+    align-self: start;
 }
 .my-page-heading h1 {
     margin: 0.2rem 0 0.4rem;
@@ -121,8 +126,8 @@
     background: var(--dex-surface);
 }
 .my-account {
+    min-width: 0;
     padding: 0.75rem 1rem;
-    margin-bottom: 1.5rem;
 }
 .my-account > summary {
     display: flex;
@@ -153,8 +158,9 @@
 }
 .my-account-content {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: 2rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    overflow-wrap: anywhere;
     padding-top: 1rem;
     font-size: 0.875rem;
     line-height: 1.65;
@@ -694,14 +700,15 @@
     margin-top: auto;
     white-space: normal;
 }
+@media (min-width: 960px) {
+    .my-page-heading {
+        grid-template-columns: minmax(0, 1fr) minmax(20rem, 28rem);
+    }
+}
 @media (max-width: 800px) {
     .my-party-grid,
-    .my-account-content,
     .my-conflict-options {
         grid-template-columns: minmax(0, 1fr);
-    }
-    .my-account-content {
-        gap: 1.25rem;
     }
 }
 @media (max-width: 480px) {

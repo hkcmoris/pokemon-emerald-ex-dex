@@ -307,116 +307,120 @@ export function MyPokemonPage({
                             )}
                         </p>
                     </div>
-                </div>
-                <details className="my-account my-details">
-                    <summary>
-                        <span className="my-account-label" title={collection.user?.name}>
-                            {collection.user?.name ?? t('Sync & account', 'Synchronizace a účet')}
-                        </span>
-                        <span
-                            className={`my-sync-status my-sync-${collection.status}`}
-                            role="status"
-                            title={syncLabels[collection.status]}
-                        >
-                            <span aria-hidden="true">{syncBadgeLabels[collection.status]}</span>
-                            <span className="sr-only">{syncLabels[collection.status]}</span>
-                        </span>
-                    </summary>
-                    <div className="my-account-content">
-                        <div>
-                            <p>
-                                {t(
-                                    'Google signs you in. Your collection is saved in this app’s database and cached on each connected device for offline editing.',
-                                    'Google slouží k přihlášení. Sbírka je uložená v databázi této aplikace a v připojených zařízeních pro úpravy offline.',
-                                )}
-                            </p>
-                            <p className="my-muted">
-                                {t(
-                                    'Sign in once on each device. Guest playthroughs upload automatically as separate runs. Sync runs while the app is open and connected.',
-                                    'Na každém zařízení se přihlaste jednou. Místní průchody se automaticky nahrají jako samostatné záznamy. Synchronizace probíhá v otevřené aplikaci s připojením.',
-                                )}
-                            </p>
-                            <p className="my-muted" role="status">
-                                {offlineStatus === 'ready'
-                                    ? t('Ready for offline use.', 'Připraveno k používání offline.')
-                                    : offlineStatus === 'preparing'
-                                      ? t(
-                                            'Available offline after initial loading.',
-                                            'Po úvodním načtení bude aplikace dostupná offline.',
-                                        )
-                                      : offlineStatus === 'development'
-                                        ? t(
-                                              'Offline reload is enabled in production builds. Keep this development tab open for offline edits.',
-                                              'Otevření offline je dostupné v produkčním sestavení. Pro úpravy offline ponechte tuto vývojovou kartu otevřenou.',
-                                          )
-                                        : t(
-                                              'Keep this tab open for offline edits; offline reload is unavailable in this browser.',
-                                              'Pro úpravy offline ponechte tuto kartu otevřenou. Opětovné otevření offline není v tomto prohlížeči dostupné.',
-                                          )}
-                            </p>
-                        </div>
-                        <div className="my-stack">
-                            {collection.user && (
-                                <>
-                                    <p>{collection.user.email}</p>
-                                    <div className="my-actions">
-                                        <button
-                                            className="page-button"
-                                            disabled={busy || collection.status === 'syncing'}
-                                            type="button"
-                                            onClick={() => {
-                                                void perform(collection.sync);
-                                            }}
-                                        >
-                                            {t('Sync now', 'Synchronizovat')}
-                                        </button>
-                                        <button
-                                            className="page-button"
-                                            disabled={busy}
-                                            type="button"
-                                            onClick={() => {
-                                                void perform(collection.logout);
-                                            }}
-                                        >
-                                            {t('Sign out', 'Odhlásit se')}
-                                        </button>
-                                    </div>
-                                    <p className="my-muted">
-                                        {t(
-                                            'Signing out keeps account data separate from guest playthroughs.',
-                                            'Po odhlášení zůstanou data účtu oddělená od místních průchodů.',
-                                        )}
-                                    </p>
-                                </>
-                            )}
-                            {collection.needsSignIn && (
-                                <p role="status">
+                    <details className="my-account my-details">
+                        <summary>
+                            <span className="my-account-label" title={collection.user?.name}>
+                                {collection.user?.name ??
+                                    t('Sync & account', 'Synchronizace a účet')}
+                            </span>
+                            <span
+                                className={`my-sync-status my-sync-${collection.status}`}
+                                role="status"
+                                title={syncLabels[collection.status]}
+                            >
+                                <span aria-hidden="true">{syncBadgeLabels[collection.status]}</span>
+                                <span className="sr-only">{syncLabels[collection.status]}</span>
+                            </span>
+                        </summary>
+                        <div className="my-account-content">
+                            <div>
+                                <p>
                                     {t(
-                                        'Sign in again to this account to resume syncing. Offline edits are kept.',
-                                        'Pro obnovení synchronizace se znovu přihlaste k tomuto účtu. Úpravy offline zůstávají uložené.',
+                                        'Google signs you in. Your collection is saved in this app’s database and cached on each connected device for offline editing.',
+                                        'Google slouží k přihlášení. Sbírka je uložená v databázi této aplikace a v připojených zařízeních pro úpravy offline.',
                                     )}
                                 </p>
-                            )}
-                            {(!collection.user || collection.needsSignIn) &&
-                                (collection.googleClientId && collection.nonce ? (
-                                    <GoogleSignIn
-                                        clientId={collection.googleClientId}
-                                        nonce={collection.nonce}
-                                        onCredential={(credential) => {
-                                            void perform(() => collection.login(credential));
-                                        }}
-                                    />
-                                ) : (
-                                    <p className="my-muted">
+                                <p className="my-muted">
+                                    {t(
+                                        'Sign in once on each device. Guest playthroughs upload automatically as separate runs. Sync runs while the app is open and connected.',
+                                        'Na každém zařízení se přihlaste jednou. Místní průchody se automaticky nahrají jako samostatné záznamy. Synchronizace probíhá v otevřené aplikaci s připojením.',
+                                    )}
+                                </p>
+                                <p className="my-muted" role="status">
+                                    {offlineStatus === 'ready'
+                                        ? t(
+                                              'Ready for offline use.',
+                                              'Připraveno k používání offline.',
+                                          )
+                                        : offlineStatus === 'preparing'
+                                          ? t(
+                                                'Available offline after initial loading.',
+                                                'Po úvodním načtení bude aplikace dostupná offline.',
+                                            )
+                                          : offlineStatus === 'development'
+                                            ? t(
+                                                  'Offline reload is enabled in production builds. Keep this development tab open for offline edits.',
+                                                  'Otevření offline je dostupné v produkčním sestavení. Pro úpravy offline ponechte tuto vývojovou kartu otevřenou.',
+                                              )
+                                            : t(
+                                                  'Keep this tab open for offline edits; offline reload is unavailable in this browser.',
+                                                  'Pro úpravy offline ponechte tuto kartu otevřenou. Opětovné otevření offline není v tomto prohlížeči dostupné.',
+                                              )}
+                                </p>
+                            </div>
+                            <div className="my-stack">
+                                {collection.user && (
+                                    <>
+                                        <p>{collection.user.email}</p>
+                                        <div className="my-actions">
+                                            <button
+                                                className="page-button"
+                                                disabled={busy || collection.status === 'syncing'}
+                                                type="button"
+                                                onClick={() => {
+                                                    void perform(collection.sync);
+                                                }}
+                                            >
+                                                {t('Sync now', 'Synchronizovat')}
+                                            </button>
+                                            <button
+                                                className="page-button"
+                                                disabled={busy}
+                                                type="button"
+                                                onClick={() => {
+                                                    void perform(collection.logout);
+                                                }}
+                                            >
+                                                {t('Sign out', 'Odhlásit se')}
+                                            </button>
+                                        </div>
+                                        <p className="my-muted">
+                                            {t(
+                                                'Signing out keeps account data separate from guest playthroughs.',
+                                                'Po odhlášení zůstanou data účtu oddělená od místních průchodů.',
+                                            )}
+                                        </p>
+                                    </>
+                                )}
+                                {collection.needsSignIn && (
+                                    <p role="status">
                                         {t(
-                                            'Google sign-in is currently unavailable. You can keep using your collection on this device.',
-                                            'Přihlášení Google nyní není dostupné. Sbírku můžete dál používat v tomto zařízení.',
+                                            'Sign in again to this account to resume syncing. Offline edits are kept.',
+                                            'Pro obnovení synchronizace se znovu přihlaste k tomuto účtu. Úpravy offline zůstávají uložené.',
                                         )}
                                     </p>
-                                ))}
+                                )}
+                                {(!collection.user || collection.needsSignIn) &&
+                                    (collection.googleClientId && collection.nonce ? (
+                                        <GoogleSignIn
+                                            clientId={collection.googleClientId}
+                                            nonce={collection.nonce}
+                                            onCredential={(credential) => {
+                                                void perform(() => collection.login(credential));
+                                            }}
+                                        />
+                                    ) : (
+                                        <p className="my-muted">
+                                            {t(
+                                                'Google sign-in is currently unavailable. You can keep using your collection on this device.',
+                                                'Přihlášení Google nyní není dostupné. Sbírku můžete dál používat v tomto zařízení.',
+                                            )}
+                                        </p>
+                                    ))}
+                            </div>
                         </div>
-                    </div>
-                </details>
+                    </details>
+                </div>
                 {(error || collection.error) && (
                     <div className="my-error" role="alert">
                         {error || collection.error}
