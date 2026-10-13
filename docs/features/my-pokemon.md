@@ -45,6 +45,25 @@ exporting or importing their collection.
   Unrecorded moves still mean unknown, not absent.
 - Party cards prioritize level updates, current moves, and upcoming opportunities.
   Individual Pokémon details contain stats and history.
+- Party, Collection, and individual detail cards show the current species/form's base
+  stat total beneath its sprite, labeled **Base total** for quick comparison. This is
+  separate from recorded individual battle stats; unavailable reference data shows a dash.
+- **Current total** appears above the base total and sums all six battle stats from the
+  latest recorded observation for that individual at its current level, species/form,
+  and continuous form period. A newer same-level observation supersedes older measurements.
+  Show a dash if the latest observation is incomplete, equally recent observations disagree,
+  or the Pokémon's state or stat observations have unresolved sync conflicts. Never combine
+  partial observations or substitute older levels, earlier forms, base stats, or estimates.
+- A two-button control beneath the sprite uses the same segmented styling as the shiny
+  sprite toggle. Switch between the current total and a full-card-width progression graph;
+  the base total remains visible. The graph plots all six recorded battle stats against
+  level, with a legend and measurement details on each point. It excludes removed records,
+  omits unknown values, and does not connect lines across species/form periods or through
+  contradictory values at the same level. Empty history explains how to record stats;
+  a single observation is shown as points. Unresolved stat/state conflicts pause the graph.
+- The graph legend uses a two-column grid, with each stat's current recorded value beside
+  its label. Values use the latest observation at the current level and form; missing or
+  contradictory values show a dash without filling gaps from older observations.
 
 ## Manual updates and catch-up
 

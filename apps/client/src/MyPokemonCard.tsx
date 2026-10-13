@@ -1,4 +1,4 @@
-import { useState, type SubmitEvent } from 'react';
+import { useId, useState, type SubmitEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     getCatchUpRecap,
@@ -13,12 +13,14 @@ import {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { loadCollectionFamily, loadCollectionSpecies } from './collectionSpecies.js';
+import { getCurrentStatTotal } from './collectionStats.js';
 import { useLanguage } from './language.js';
 import { evolutionConditionLabel, evolutionSummary } from './evolutionText.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { ownedPokemonHref, speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory } from './MyPokemonHistory.js';
+import { MyPokemonStatsGraph } from './MyPokemonStatsGraph.js';
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
 import { MyPokemonMilestones } from './MyPokemonMilestones.js';
 import { TypeBadges } from './TypeBadges.js';
@@ -684,6 +686,7 @@ export function MyPokemonCard({
     partySize,
     partyMembers,
     stateConflict,
+    observationConflict = false,
     onUpdate,
     onParty,
     onMove,
@@ -698,6 +701,7 @@ export function MyPokemonCard({
     partySize: number;
     partyMembers?: readonly OwnedPokemon[];
     stateConflict: boolean;
+    observationConflict?: boolean;
     onUpdate: (updater: (pokemon: OwnedPokemon) => OwnedPokemon) => Promise<void>;
     onParty: () => Promise<void>;
     onMove: (direction: -1 | 1) => Promise<void>;
@@ -714,6 +718,8 @@ export function MyPokemonCard({
         queryFn: () => loadCollectionFamily(pokemon.state.speciesId),
     });
     const family = relatives.data ?? (species.data ? [species.data] : []);
+    const statsPanelId = useId();
+    const [showStatsGraph, setShowStatsGraph] = useState(false);
     const [editingMoves, setEditingMoves] = useState(false);
     const [changingSpecies, setChangingSpecies] = useState(false);
     const [nextSpecies, setNextSpecies] = useState<Pokemon | null>(null);
@@ -725,6 +731,8 @@ export function MyPokemonCard({
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const name = species.data?.name ?? `#${pokemon.state.speciesId}`;
+    const statsConflict = stateConflict || observationConflict;
+    const currentStatTotal = statsConflict ? null : getCurrentStatTotal(pokemon, observations);
     async function perform(action: () => Promise<void>) {
         setBusy(true);
         setError(null);
@@ -758,11 +766,43 @@ export function MyPokemonCard({
         >
             <div className="my-card-heading">
                 <div className="my-pokemon-title">
-                    <SpeciesSprite
-                        datasetId={datasetId}
-                        file={species.data?.sprites?.front ?? null}
-                        name={name}
-                    />
+                    <div className="my-pokemon-portrait">
+                        <SpeciesSprite
+                            datasetId={datasetId}
+                            file={species.data?.sprites?.front ?? null}
+                            name={name}
+                        />
+                        <div
+                            className="appearance-toggle my-stat-view-toggle"
+                            role="group"
+                            aria-label={t('Battle stats view', 'Zobrazení bojových statistik')}
+                        >
+                            <button
+                                type="button"
+                                aria-pressed={!showStatsGraph}
+                                aria-controls={statsPanelId}
+                                aria-label={t('Current stats', 'Aktuální statistiky')}
+                                title={t('Current stats', 'Aktuální statistiky')}
+                                onClick={() => setShowStatsGraph(false)}
+                            >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 4v16M9 6h10M9 12h7M9 18h4" />
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                aria-pressed={showStatsGraph}
+                                aria-controls={statsPanelId}
+                                aria-label={t('Stats progression', 'Vývoj statistik')}
+                                title={t('Stats progression', 'Vývoj statistik')}
+                                onClick={() => setShowStatsGraph(true)}
+                            >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 4v16h16M7 15l4-5 4 2 5-7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div>
                         <p className="eyebrow">
                             {partyIndex >= 0
@@ -801,13 +841,65 @@ export function MyPokemonCard({
                         </a>
                     </div>
                 </div>
-                <LevelEditor
-                    key={pokemon.state.level}
-                    value={pokemon.state.level}
-                    disabled={stateConflict}
-                    onSave={levelChange}
-                />
+                <div className="flex flex-col justify-between">
+                    <LevelEditor
+                        key={pokemon.state.level}
+                        value={pokemon.state.level}
+                        disabled={stateConflict}
+                        onSave={levelChange}
+                    />
+                    <div className="flex justify-between">
+                        <div
+                            id={statsPanelId}
+                            className="my-pokemon-stat-total"
+                            title={
+                                statsConflict
+                                    ? t(
+                                          'Resolve conflicting updates to show the current stat total.',
+                                          'Pro zobrazení aktuálního součtu vyřešte konfliktní úpravy.',
+                                      )
+                                    : currentStatTotal === null
+                                      ? t(
+                                            'Record or correct all six battle stats at the current level in Growth history to show this total.',
+                                            'Pro zobrazení součtu zapište nebo opravte v historii růstu všech šest bojových statistik na aktuální úrovni.',
+                                        )
+                                      : t(
+                                            'Total of the latest recorded battle stats at the current level and form.',
+                                            'Součet naposledy zaznamenaných bojových statistik na aktuální úrovni a v aktuální formě.',
+                                        )
+                            }
+                        >
+                            <strong>{currentStatTotal ?? '—'}</strong>
+                            <span>{t('Curr.', 'Nyní')}</span>
+                        </div>
+                        <div
+                            className="my-pokemon-stat-total"
+                            title={t('Base stat total', 'Součet základních statistik')}
+                        >
+                            <strong>{species.data?.baseStatTotal ?? '—'}</strong>
+                            <span>{t('Base', 'Základ')}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+            {showStatsGraph && (
+                <div className="my-stat-graph-panel" id={statsPanelId}>
+                    {statsConflict ? (
+                        <p className="my-muted" role="status">
+                            {t(
+                                'Resolve conflicting updates to view stat progression.',
+                                'Pro zobrazení vývoje statistik vyřešte konfliktní úpravy.',
+                            )}
+                        </p>
+                    ) : (
+                        <MyPokemonStatsGraph
+                            pokemon={pokemon}
+                            observations={observations}
+                            family={family}
+                        />
+                    )}
+                </div>
+            )}
             {stateConflict && (
                 <p className="my-advice-highlight" role="status">
                     {t(

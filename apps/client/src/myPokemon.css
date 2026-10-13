@@ -12,6 +12,9 @@
     justify-content: space-between;
     gap: 1rem;
 }
+.my-card-heading {
+    align-items: stretch;
+}
 .my-page-heading {
     display: grid;
     align-items: center;
@@ -261,6 +264,7 @@
 }
 .my-card-summary :is(button, input, select, textarea, a:not(.my-card-detail-link)),
 .my-card-summary .my-level-editor,
+.my-card-summary .my-stat-graph-panel,
 .my-card-summary .my-inset,
 .my-card-summary .my-recap {
     position: relative;
@@ -297,6 +301,119 @@
 .my-pokemon-title > div {
     min-width: 0;
     overflow-wrap: anywhere;
+}
+.my-pokemon-portrait {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+}
+.my-pokemon-stat-total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+    text-align: center;
+}
+.my-pokemon-stat-total strong {
+    font-size: 1.2rem;
+    font-variant-numeric: tabular-nums;
+}
+.my-pokemon-stat-total span {
+    color: var(--dex-muted);
+    font-size: 0.65rem;
+}
+.appearance-toggle.my-stat-view-toggle {
+    width: auto;
+    gap: 0.125rem;
+    padding: 0.2rem;
+}
+.appearance-toggle.my-stat-view-toggle button {
+    display: grid;
+    place-items: center;
+    min-width: 30px;
+    min-height: 32px;
+    padding: 0.3rem;
+}
+.my-stat-view-toggle svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.my-stat-graph-panel {
+    min-width: 0;
+    border-top: 1px solid var(--dex-border);
+    padding-top: 0.85rem;
+}
+.my-stats-graph {
+    --stat-hp: #f28b9a;
+    --stat-attack: #f6b26b;
+    --stat-defense: #dfcf6e;
+    --stat-sp-attack: #83b5ff;
+    --stat-sp-defense: #be9aeb;
+    --stat-speed: #6cdbb0;
+    margin: 0;
+    display: grid;
+    gap: 0.65rem;
+    min-width: 0;
+}
+:root.light .my-stats-graph {
+    --stat-hp: #ad2341;
+    --stat-attack: #9a4909;
+    --stat-defense: #756300;
+    --stat-sp-attack: #235ba6;
+    --stat-sp-defense: #7942ad;
+    --stat-speed: #09734e;
+}
+.my-stats-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+.my-stats-axis {
+    fill: var(--dex-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+.my-stats-gridline {
+    stroke: var(--dex-border);
+    stroke-dasharray: 3 4;
+}
+.my-stats-legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 0.85rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.75rem;
+    color: var(--dex-muted);
+}
+.my-stats-legend li {
+    display: grid;
+    grid-template-columns: 0.6rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.35rem;
+}
+.my-stats-legend strong {
+    color: var(--dex-text);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+.my-stats-legend li > span:first-child {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+}
+@media (max-width: 600px) {
+    .my-stats-axis {
+        font-size: 15px;
+    }
 }
 .my-pokemon-title .species-sprite {
     flex-shrink: 0;

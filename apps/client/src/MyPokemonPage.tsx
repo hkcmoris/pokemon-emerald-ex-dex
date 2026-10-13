@@ -322,6 +322,11 @@ export function MyPokemonPage({
                         : party
                 }
                 stateConflict={hasStateConflict(pokemon)}
+                observationConflict={collection.conflicts.some(
+                    (conflict) =>
+                        conflict.entity === 'observations' &&
+                        document.observations[conflict.entityId]?.pokemonId === pokemon.id,
+                )}
                 onUpdate={(updater) => updatePokemon(pokemon.id, updater)}
                 onParty={() => toggleParty(pokemon)}
                 onMove={async (direction) => {
