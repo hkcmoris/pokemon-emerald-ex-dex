@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { defineConfig, loadEnv, transformWithOxc, type Plugin } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
@@ -11,7 +11,16 @@ function collectionOfflinePlugin(): Plugin {
         apply: 'build',
         enforce: 'post',
         async generateBundle(_options, bundle) {
-            const files = Object.keys(bundle).filter((file) => /\.(js|css|woff2?|ttf)$/.test(file));
+            const publicRoot = new URL('./public/', import.meta.url);
+            const publicFiles = (await readdir(publicRoot)).filter((file) =>
+                /^(?:favicon(?:-\d+x\d+)?\.(?:svg|ico|png)|apple-touch-icon(?:-\d+x\d+)?\.png|(?:android-chrome|maskable-icon|mstile)-\d+x\d+\.png|safari-pinned-tab\.svg|browserconfig\.xml|site\.webmanifest)$/.test(
+                    file,
+                ),
+            );
+            const files = [
+                ...Object.keys(bundle).filter((file) => /\.(js|css|woff2?|ttf)$/.test(file)),
+                ...publicFiles,
+            ].sort();
             const index = bundle['index.html'];
             if (!index || index.type !== 'asset')
                 throw new Error('Offline shell requires the built index.html.');
@@ -19,11 +28,11 @@ function collectionOfflinePlugin(): Plugin {
                 typeof index.source === 'string'
                     ? index.source
                     : new TextDecoder().decode(index.source);
-            const version = createHash('sha256')
-                .update(JSON.stringify(files))
-                .update(html)
-                .digest('hex')
-                .slice(0, 16);
+            const hash = createHash('sha256').update(JSON.stringify(files)).update(html);
+            // Public icon filenames are stable, so their bytes must also invalidate the shell.
+            for (const file of publicFiles.sort())
+                hash.update(await readFile(new URL(file, publicRoot)));
+            const version = hash.digest('hex').slice(0, 16);
             const source = await readFile(
                 new URL('./src/collectionWorker.ts', import.meta.url),
                 'utf8',

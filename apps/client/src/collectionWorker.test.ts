@@ -5,7 +5,14 @@ import { runInNewContext } from 'node:vm';
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
 
 const scope = 'https://dex.example/pokemon-emerald-ex-dex/';
-const files = ['assets/app-current.js', 'assets/app-current.css'];
+const files = [
+    'assets/app-current.js',
+    'assets/app-current.css',
+    'site.webmanifest',
+    'favicon.svg',
+    'favicon.ico',
+    'android-chrome-192x192.png',
+];
 const html =
     '<!doctype html><html><script src="/pokemon-emerald-ex-dex/assets/app-current.js"></script><link rel="stylesheet" href="/pokemon-emerald-ex-dex/assets/app-current.css"></html>';
 const prefix = 'emerald-ex-shell:/pokemon-emerald-ex-dex/:';

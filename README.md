@@ -90,6 +90,21 @@ such as `#/species/1` can be bookmarked; returning to the list preserves its fil
 during the session. JSON exports in `docs/` are import inputs and test fixtures;
 neither the client nor the server reads them at runtime.
 
+## Favicons and installation
+
+The supplied emerald SVG is preserved in `apps/client/public/favicon.svg`.
+The same artwork supplies the multi-size ICO (16/32/48), PNG browser icons
+(16/32/48/96), Apple touch icons (120/152/167/180), Android icons (192/512),
+opaque maskable icons (192/512/1024), Safari pinned-tab mask, and Windows tiles.
+Apple and maskable icons use the light mineral background; the maskable artwork
+has extra padding for system icon shapes.
+
+`apps/client/public/site.webmanifest` provides the Emerald EX app name, standalone
+display, theme colours, and installation icons. Relative manifest URLs and Vite's
+base-aware HTML links support both root hosting and `/pokemon-emerald-ex-dex/`.
+The production offline shell caches these files and refreshes them when their
+contents change. The Webzdarma package includes them automatically.
+
 ## My Pokémon
 
 Open **My Pokémon** at `#/my-pokemon` to maintain separate named playthroughs, each

@@ -20,11 +20,20 @@ if (str_starts_with($relative, '/api/')) {
 }
 $root = realpath($_SERVER['DOCUMENT_ROOT']);
 $file = realpath($root . ($relative === '/' ? '/index.html' : $relative));
+$mime = [
+    'html' => 'text/html; charset=utf-8',
+    'js' => 'text/javascript',
+    'css' => 'text/css',
+    'png' => 'image/png',
+    'svg' => 'image/svg+xml',
+    'ico' => 'image/x-icon',
+    'xml' => 'application/xml',
+    'webmanifest' => 'application/manifest+json',
+];
 if ($file === false || !is_file($file) || !str_starts_with($file, $root . DIRECTORY_SEPARATOR)
-    || str_contains($relative, '/.') || !in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), ['html', 'js', 'css', 'png'], true)) {
+    || str_contains($relative, '/.') || !isset($mime[strtolower(pathinfo($file, PATHINFO_EXTENSION))])) {
     http_response_code(404);
     exit;
 }
-$mime = ['html' => 'text/html; charset=utf-8', 'js' => 'text/javascript', 'css' => 'text/css', 'png' => 'image/png'];
 header('Content-Type: ' . $mime[strtolower(pathinfo($file, PATHINFO_EXTENSION))]);
 readfile($file);

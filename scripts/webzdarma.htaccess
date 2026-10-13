@@ -1,3 +1,8 @@
+AddType application/manifest+json .webmanifest
+AddType image/svg+xml .svg
+AddType image/x-icon .ico
+AddType application/xml .xml
+
 RewriteEngine On
 # Deny hidden files and directories without changing hosting-wide Options settings.
 RewriteRule (^|/)\. - [F,L]

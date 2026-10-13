@@ -1,6 +1,6 @@
 import { deepStrictEqual, match, strictEqual } from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cp, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
@@ -156,5 +156,34 @@ void test(
             ).status,
             200,
         );
+    },
+);
+
+void test(
+    'PHP preview serves public manifest and favicon assets with their MIME types',
+    { skip: available && Number(version.stdout) >= 80000 ? false : 'Requires PHP 8.0 CLI' },
+    async (t) => {
+        const root = await mkdtemp(join(tmpdir(), 'emerald-php-public-'));
+        strictEqual(dirname(root), resolve(tmpdir()));
+        t.after(() => rm(root, { recursive: true, force: true }));
+        await mkdir(join(root, 'api'));
+        // This fixture keeps static routing independent of the PHP 8.4 database API.
+        await writeFile(join(root, 'api/index.php'), `<?php echo '{"ok":true}';`);
+        const publicAssets = [
+            ['site.webmanifest', 'application/manifest+json', '{"name":"Emerald EX"}'],
+            ['favicon.svg', 'image/svg+xml', '<svg xmlns="http://www.w3.org/2000/svg"/>'],
+            ['favicon.ico', 'image/x-icon', 'icon bytes'],
+            ['browserconfig.xml', 'application/xml', '<browserconfig/>'],
+            ['apple-touch-icon.png', 'image/png', 'png bytes'],
+        ];
+        for (const [file, , contents] of publicAssets) await writeFile(join(root, file), contents);
+        const server = await startPhpTestServer(root);
+        t.after(server.close);
+        for (const [file, mime, contents] of publicAssets) {
+            const response = await fetch(new URL(file, server.url.replace(/api$/, '')));
+            strictEqual(response.status, 200, file);
+            strictEqual(response.headers.get('content-type'), mime, file);
+            strictEqual(await response.text(), contents, file);
+        }
     },
 );
