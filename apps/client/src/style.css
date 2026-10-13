@@ -690,7 +690,7 @@ tbody tr:hover {
     padding: 1.5rem 2rem;
 }
 .species-detail-heading {
-    align-self: center;
+    align-self: flex-end;
     min-width: 0;
 }
 .species-detail-heading h1 {
@@ -973,7 +973,7 @@ tbody tr:hover {
     border: 1px solid var(--dex-border);
     border-radius: 10px;
     background: var(--dex-surface);
-    padding: 0.55rem 0.9rem;
+    padding: 0.75rem 0.45rem;
     color: var(--dex-text);
     font-size: 0.75rem;
 }

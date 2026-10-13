@@ -45,7 +45,7 @@ export function SpeciesDetailHeader({
                 </h1>
                 <TypeBadges types={entry.types} iconFiles={entry.typeIconFiles} />
                 <a
-                    className="page-button mt-3 inline-flex"
+                    className="page-button mt-6 inline-flex"
                     href={`#/my-pokemon?add=${entry.speciesId}`}
                 >
                     + {t('Add to My Pokémon', 'Přidat do mých Pokémonů')}
