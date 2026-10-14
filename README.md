@@ -129,6 +129,8 @@ move selection, upcoming moves, and level-up recaps. Owned Pokémon headers show
 physical, special, or balanced category icon beside their types, based on the species'
 base Attack and Sp. Attack, matching the Pokédex indicator. Current moves form a compact
 2×2 grid with category icons and power; moves without fixed base power show an em dash.
+Category and power also appear in **Coming up**, saved wishes, wishlist choices,
+and learning-plan steps. Missing reference data shows a question mark.
 Unused move slots have dashed borders and 45° stripes, keeping the move grid the same
 height for zero to four moves. Unrecorded moves retain an explicit unknown label.
 The toggle below the sprite switches between current moves and the recorded stat graph.

@@ -9,7 +9,7 @@ import {
     type SpeciesDetails,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
+import { MyPokemonMove, MyPokemonMoveStats, findReferenceMove } from './MyPokemonMove.js';
 import { useLanguage, type Translate } from './language.js';
 import { evolutionSummary } from './evolutionText.js';
 import { setWishlistMove } from './moveWishlistActions.js';
@@ -244,6 +244,7 @@ export function MyPokemonWishlist({
                                             <MyPokemonMove
                                                 move={move}
                                                 reference={findReferenceMove(move.moveId, family)}
+                                                showStats
                                             />
                                             <span className="my-wishlist-status">{label}</span>
                                             <button
@@ -307,6 +308,12 @@ export function MyPokemonWishlist({
                                                             `Naučit ${step.name}`,
                                                         )}
                                                     </strong>
+                                                    <MyPokemonMoveStats
+                                                        move={findReferenceMove(
+                                                            step.moveId,
+                                                            family,
+                                                        )}
+                                                    />
                                                     <p className="my-muted">
                                                         {sourceLabel(step.source, family, t)}
                                                     </p>
@@ -399,6 +406,7 @@ export function MyPokemonWishlist({
                                                         move.moveId,
                                                         family,
                                                     )}
+                                                    showStats
                                                 />
                                             </label>
                                             <p

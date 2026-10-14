@@ -223,6 +223,7 @@ export function MyPokemonMilestones({
                                     key={`${milestone.kind}:${evolution?.toSpeciesId ?? details.speciesId}:${milestone.move.moveId}:${milestone.level}`}
                                     move={milestone.move}
                                     reference={milestone.move}
+                                    showStats
                                     prefix={
                                         <span
                                             className="my-level-badge"

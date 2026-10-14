@@ -786,6 +786,20 @@
     padding-inline: 0.5rem;
     white-space: nowrap;
 }
+.my-milestone-row > .my-move-detailed {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.my-milestone-row .my-move-heading {
+    flex: 1;
+}
+.my-milestone-row .my-move-stats {
+    order: 1;
+    flex-basis: 100%;
+}
+.my-milestone-row .my-wishlist-feedback {
+    order: 2;
+}
 .my-milestone-row .my-move-name,
 .my-milestone-row .my-milestone-name {
     min-width: 0;

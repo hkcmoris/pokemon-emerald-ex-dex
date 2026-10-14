@@ -21,6 +21,32 @@ export function findReferenceMove(
     return undefined;
 }
 
+export function MyPokemonMoveStats({ move }: { move?: Move }) {
+    const { t } = useLanguage();
+    return (
+        <span className="my-move-stats">
+            {move ? (
+                <MoveCategory category={move.category} iconFile={move.categoryIconFile} iconOnly />
+            ) : (
+                <span title={t('Category unavailable', 'Kategorie není dostupná')}>?</span>
+            )}
+            <span
+                className="my-move-power"
+                title={
+                    !move
+                        ? t('Power unavailable', 'Síla není dostupná')
+                        : move.power === 0
+                          ? t('No fixed base power', 'Bez pevné základní síly')
+                          : undefined
+                }
+            >
+                <span>{t('Power', 'Síla')}</span>
+                <strong>{move ? move.power || '—' : '?'}</strong>
+            </span>
+        </span>
+    );
+}
+
 export function MyPokemonMove({
     move,
     reference,
@@ -69,32 +95,7 @@ export function MyPokemonMove({
             {showStats ? (
                 <>
                     <span className="my-move-heading">{heading}</span>
-                    <span className="my-move-stats">
-                        {details ? (
-                            <MoveCategory
-                                category={details.category}
-                                iconFile={details.categoryIconFile}
-                                iconOnly
-                            />
-                        ) : (
-                            <span title={t('Category unavailable', 'Kategorie není dostupná')}>
-                                ?
-                            </span>
-                        )}
-                        <span
-                            className="my-move-power"
-                            title={
-                                !details
-                                    ? t('Power unavailable', 'Síla není dostupná')
-                                    : details.power === 0
-                                      ? t('No fixed base power', 'Bez pevné základní síly')
-                                      : undefined
-                            }
-                        >
-                            <span>{t('Power', 'Síla')}</span>
-                            <strong>{details ? details.power || '—' : '?'}</strong>
-                        </span>
-                    </span>
+                    <MyPokemonMoveStats move={details} />
                 </>
             ) : (
                 heading
