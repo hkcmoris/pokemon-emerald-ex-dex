@@ -39,8 +39,9 @@ by speed shows Speed instead. Desktop retains the dense
 base-stat table. The HeroUI v3 filter sheet offers one type at a time and a sort
 order while retaining the visible results during updates. Remove the selected type
 chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.
-Labeled bottom navigation links Pokémon, Items, Abilities, and My Pokémon. A theme control switches
-between dark emerald and light mineral surfaces and remembers the choice locally.
+Labeled navigation links Pokémon, Items, Abilities, and My Pokémon. It stays visible
+at the top of the viewport on desktop and at the bottom on mobile. A theme control
+switches between dark emerald and light mineral surfaces and remembers the choice locally.
 Pagination stays visible at the bottom of the viewport while browsing Pokémon, Items,
 and Abilities, with space above the bottom navigation on mobile.
 The interface uses DM Sans, with monospace reserved for identifiers such as species,

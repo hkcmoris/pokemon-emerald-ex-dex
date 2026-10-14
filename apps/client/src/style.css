@@ -191,7 +191,7 @@ button:disabled {
     color: var(--dex-accent);
 }
 .dex-navigation {
-    position: absolute;
+    position: fixed;
     z-index: 20;
     top: 15px;
     left: 50%;
