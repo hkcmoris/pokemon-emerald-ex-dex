@@ -33,6 +33,15 @@ export function conflictValueLabel(
                   )
                   .join(' → ');
     if ('moveId' in value && typeof value.name === 'string') return value.name;
+    if (field === 'moveWishlist') {
+        const wanted = Array.isArray(value.moves) ? value.moves : [];
+        const learned = Array.isArray(value.learnedMoveIds) ? value.learnedMoveIds : [];
+        return [
+            `${t('Wanted moves', 'Požadované útoky')}: ${conflictValueLabel(wanted, 'moves', document, t)}`,
+            `${t('Learned', 'Naučeno')}: ${learned.length}`,
+            `${t('Target evolution', 'Cílový vývoj')}: ${typeof value.targetSpeciesId === 'number' ? `#${value.targetSpeciesId}` : t('Automatic / choose branch', 'Automaticky / vybrat větev')}`,
+        ].join(' · ');
+    }
     if ('state' in value)
         return [
             value.deleted === true
@@ -40,6 +49,9 @@ export function conflictValueLabel(
                 : t('Kept Pokémon', 'Zachovaný Pokémon'),
             typeof value.nickname === 'string' ? value.nickname : '',
             conflictValueLabel(value.state, 'state', document, t),
+            value.moveWishlist
+                ? conflictValueLabel(value.moveWishlist, 'moveWishlist', document, t)
+                : '',
         ]
             .filter(Boolean)
             .join(' · ');
@@ -143,11 +155,13 @@ export function MyPokemonConflicts({
                                   ? t('Party lineup', 'Sestava týmu')
                                   : conflict.field === 'state'
                                     ? t('Species, level and moves', 'Druh, úroveň a útoky')
-                                    : conflict.field === 'nickname'
-                                      ? t('Nickname', 'Přezdívka')
-                                      : conflict.field === 'name'
-                                        ? t('Name', 'Název')
-                                        : t('Recorded values', 'Zaznamenané hodnoty')}
+                                    : conflict.field === 'moveWishlist'
+                                      ? t('Move wishlist', 'Seznam požadovaných útoků')
+                                      : conflict.field === 'nickname'
+                                        ? t('Nickname', 'Přezdívka')
+                                        : conflict.field === 'name'
+                                          ? t('Name', 'Název')
+                                          : t('Recorded values', 'Zaznamenané hodnoty')}
                         </h3>
                         <div className="my-conflict-options">
                             {(['local', 'remote'] as const).map((choice) => (

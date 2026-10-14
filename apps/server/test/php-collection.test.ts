@@ -127,6 +127,30 @@ void test(
                 '{"version":1,"playthroughs":{"__proto__":{"id":"__proto__","name":"Bad","party":[],"deleted":false}},"pokemon":{},"observations":{}}',
             ),
         );
+        const wishlist = {
+            moves: Array.from({ length: 6 }, (_, index) => ({ moveId: index + 1, name: 'Move' })),
+            learnedMoveIds: [1, 20],
+            targetSpeciesId: null,
+        };
+        for (const moveWishlist of [
+            wishlist,
+            { ...wishlist, targetSpeciesId: 2 },
+            null,
+            {},
+            { ...wishlist, extra: true },
+            { ...wishlist, targetSpeciesId: 0 },
+            { ...wishlist, moves: [...wishlist.moves, wishlist.moves[0]] },
+            { ...wishlist, learnedMoveIds: [1, 1] },
+            { ...wishlist, learnedMoveIds: [0] },
+            { ...wishlist, moves: [{ moveId: 1, name: '' }] },
+        ]) {
+            documents.push({
+                ...document,
+                pokemon: {
+                    owned: { ...document.pokemon.owned, moveWishlist },
+                },
+            });
+        }
         const validToken = token();
         const parts = validToken.split('.');
         const tampered = `${parts[0]}.${Buffer.from(JSON.stringify({ ...claims, sub: 'intruder' })).toString('base64url')}.${parts[2]}`;

@@ -37,14 +37,14 @@ const species: SpeciesDetails = {
     forms: null,
     formChanges: [],
 };
-const owned: OwnedPokemon = {
+const owned = {
     id: 'owned',
     playthroughId: 'run',
     nickname: 'Sprout',
     state: { speciesId: 1, level: 12, moves: null, formEpoch: 'stage-one' },
     deleted: false,
     createdAt: '2026-10-12T12:00:00.000Z',
-};
+} satisfies OwnedPokemon;
 
 function render(content: ReactNode, language: 'en' | 'cs' = 'en'): string {
     const client = new QueryClient({
@@ -61,7 +61,7 @@ function render(content: ReactNode, language: 'en' | 'cs' = 'en'): string {
     );
 }
 
-function card(pokemon = owned, stateConflict = false, detail = true) {
+function card(pokemon: OwnedPokemon = owned, stateConflict = false, detail = true) {
     return createElement(MyPokemonCard, {
         pokemon,
         detail,

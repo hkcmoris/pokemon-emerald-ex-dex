@@ -59,8 +59,27 @@ function validateCollectionDocument(mixed $document): bool
         }
     }
     foreach ($document->pokemon as $pokemon) {
-        if (!collectionKeys($pokemon, ['id', 'playthroughId', 'nickname', 'state', 'deleted', 'createdAt']) || !collectionId($pokemon->playthroughId) || !isset($document->playthroughs->{$pokemon->playthroughId}) || !collectionText($pokemon->nickname, 40) || !collectionDate($pokemon->createdAt) ||
+        $pokemonKeys = ['id', 'playthroughId', 'nickname', 'state', 'deleted', 'createdAt'];
+        if (property_exists($pokemon, 'moveWishlist')) { $pokemonKeys[] = 'moveWishlist'; }
+        if (!collectionKeys($pokemon, $pokemonKeys) || !collectionId($pokemon->playthroughId) || !isset($document->playthroughs->{$pokemon->playthroughId}) || !collectionText($pokemon->nickname, 40) || !collectionDate($pokemon->createdAt) ||
             !collectionKeys($pokemon->state, ['speciesId', 'level', 'moves', 'formEpoch']) || !collectionInteger($pokemon->state->speciesId, 1, 100000) || !collectionInteger($pokemon->state->level, 1, 100) || !collectionId($pokemon->state->formEpoch)) { return false; }
+        if (property_exists($pokemon, 'moveWishlist')) {
+            $wishlist = $pokemon->moveWishlist;
+            if (!collectionKeys($wishlist, ['moves', 'learnedMoveIds', 'targetSpeciesId']) ||
+                ($wishlist->targetSpeciesId !== null && !collectionInteger($wishlist->targetSpeciesId, 1, 100000)) ||
+                !is_array($wishlist->moves) || count($wishlist->moves) > 1000 ||
+                !is_array($wishlist->learnedMoveIds) || count($wishlist->learnedMoveIds) > 100000) { return false; }
+            $seen = [];
+            foreach ($wishlist->moves as $move) {
+                if (!collectionKeys($move, ['moveId', 'name']) || !collectionInteger($move->moveId, 1, 100000) || !collectionText($move->name, 80) || trim($move->name) === '' || isset($seen[$move->moveId])) { return false; }
+                $seen[$move->moveId] = true;
+            }
+            $seen = [];
+            foreach ($wishlist->learnedMoveIds as $moveId) {
+                if (!collectionInteger($moveId, 1, 100000) || isset($seen[$moveId])) { return false; }
+                $seen[$moveId] = true;
+            }
+        }
         $moves = $pokemon->state->moves;
         if ($moves !== null) {
             if (!is_array($moves) || count($moves) > 4) { return false; }

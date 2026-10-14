@@ -694,3 +694,101 @@ void test('unresolved deletion and lineup conflicts preserve the complete remote
         true,
     );
 });
+
+void test('saving current moves records wishlist learning before and after replacing moves', async () => {
+    const document = fixture();
+    document.pokemon.one.moveWishlist = {
+        moves: [
+            { moveId: 1, name: 'One' },
+            { moveId: 2, name: 'Two' },
+        ],
+        learnedMoveIds: [],
+        targetSpeciesId: null,
+    };
+    document.pokemon.one.state.moves = [{ moveId: 1, name: 'One' }];
+    const store = memory(saved(document));
+    const engine = new CollectionEngine(
+        store,
+        transport(document).api,
+        () => false,
+        () => 'new',
+    );
+    await engine.initialize();
+    await engine.update((next) => {
+        next.pokemon.one.state.moves = [{ moveId: 2, name: 'Two' }];
+        return next;
+    });
+    deepStrictEqual(engine.getSnapshot().document.pokemon.one.moveWishlist!.learnedMoveIds, [1, 2]);
+    await engine.update((next) => {
+        next.pokemon.one.state.moves = [];
+        next.pokemon.one.state.speciesId = 2;
+        next.pokemon.one.state.formEpoch = 'evolved';
+        next.pokemon.one.moveWishlist = { moves: [], learnedMoveIds: [], targetSpeciesId: 2 };
+        return next;
+    });
+    const reloaded = new CollectionEngine(
+        store,
+        transport(document).api,
+        () => false,
+        () => 'new',
+    );
+    await reloaded.initialize();
+    deepStrictEqual(
+        reloaded.getSnapshot().document.pokemon.one.moveWishlist!.learnedMoveIds,
+        [1, 2],
+    );
+});
+
+void test('sync records a learned wish when compatible changes combine a wishlist and current moves', () => {
+    const base = fixture();
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    local.pokemon.one.moveWishlist = {
+        moves: [{ moveId: 1, name: 'One' }],
+        learnedMoveIds: [],
+        targetSpeciesId: null,
+    };
+    remote.pokemon.one.state.moves = [{ moveId: 1, name: 'One' }];
+    const merged = prepareCollectionSync(
+        { user, document: local, base, revision: 1, conflicts: [] },
+        { revision: 2, document: remote },
+    );
+    deepStrictEqual(merged.conflicts, []);
+    deepStrictEqual(merged.document.pokemon.one.moveWishlist!.learnedMoveIds, [1]);
+    deepStrictEqual(merged.upload.pokemon.one.moveWishlist!.learnedMoveIds, [1]);
+});
+
+void test('converged wishlist choices do not retain a conflict over learned history alone', () => {
+    const base = fixture();
+    base.pokemon.one.moveWishlist = {
+        moves: [{ moveId: 1, name: 'One' }],
+        learnedMoveIds: [],
+        targetSpeciesId: null,
+    };
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    local.pokemon.one.moveWishlist!.moves.push({ moveId: 2, name: 'Two' });
+    local.pokemon.one.moveWishlist!.learnedMoveIds = [1];
+    remote.pokemon.one.moveWishlist!.targetSpeciesId = 2;
+    const first = prepareCollectionSync(
+        { user, document: local, base, revision: 1, conflicts: [] },
+        { revision: 2, document: remote },
+    );
+    strictEqual(first.conflicts.length, 1);
+    first.document.pokemon.one.moveWishlist = {
+        ...remote.pokemon.one.moveWishlist!,
+        learnedMoveIds: [1],
+    };
+    const next = prepareCollectionSync(
+        {
+            user,
+            document: first.document,
+            base: first.upload,
+            revision: 2,
+            conflicts: first.conflicts,
+        },
+        { revision: 2, document: remote },
+    );
+    deepStrictEqual(next.conflicts, []);
+    deepStrictEqual(next.document.pokemon.one.moveWishlist!.learnedMoveIds, [1]);
+});

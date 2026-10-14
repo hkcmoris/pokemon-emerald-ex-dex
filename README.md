@@ -172,6 +172,35 @@ Detailed move comparisons follow the selected English or Czech UI language, incl
 learning deadlines, special level-zero entries, and TM/HM availability notes.
 Pokémon, move, and machine names retain their in-game spelling.
 
+### Move wishlists
+
+Each owned Pokémon has a **Wanted moves** wishlist, hidden by default even when
+it contains saved wishes. Open or close it with the wish icon beside **Edit** in
+**Current moves**, on a collection card or its detail page. Select any number of
+moves from its evolution family, and choose the final evolution when the family
+branches. The planner starts at the recorded form and level, compares all wishes
+together, and shows an ordered learn/evolve timeline. It prefers natural level-up
+learning; a TM/HM route is clearly conditional on obtaining the machine. Blocked
+choices explain the timing or branch conflict and name the conflicting wishes.
+
+Recording a wanted move among **Current moves** completes that wish automatically.
+Completion remains saved after replacing the move, evolving, or removing and later
+re-adding the wish. The app trusts the recorded current moves, including the initial
+suggested moves; correct those if they do not match your game. Changing levels,
+forms, targets, or wishes recalculates the plan. Missed goals remain visible for
+review rather than being silently deleted. Wishlist choices and learned history
+use the same browser persistence and account sync as the Pokémon; divergent
+wishlist edits require an explicit sync-conflict choice. Existing collections need
+no data migration; deploy the updated client and Node/PHP API validators together.
+
+**Move Reminder alternatives remain disabled.** The creator's available sources
+do not establish the exact Emerald EX 1.0.4 rules. See the
+[verification evidence and enabling criteria](docs/move-reminder-rules.md).
+Level-zero entries and learning immediately upon evolution at the same level are
+also not assumed. A “no verified route” result refers to the supported planning
+rules, not a claim that all in-game acquisition methods are impossible. Missing
+reference data pauses confirmation of a plan; saved wishes remain accessible.
+
 Guest use starts without registration. Collections are saved in browser storage.
 In production builds, a service worker makes the app reopen offline after a successful
 first visit; previously loaded collection reference data remains available, while

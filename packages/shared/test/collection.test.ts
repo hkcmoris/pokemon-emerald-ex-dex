@@ -6,6 +6,7 @@ import {
     interpolateStats,
     mergeCollections,
     readConflictValue,
+    recordLearnedWishlistMoves,
     validateCollectionDocument,
     type CollectionDocument,
     type StatObservation,
@@ -322,4 +323,137 @@ void test('different observed values at the same level are retained, with no arb
         estimates.map((estimate) => [estimate.level, estimate.stats.attack]),
         [[24, 41]],
     );
+});
+
+void test('legacy collections remain valid and wishlist data is strictly validated', () => {
+    const document = fixture();
+    ok(validateCollectionDocument(document));
+    const moves = Array.from({ length: 6 }, (_, index) => ({ moveId: index + 1, name: 'Move' }));
+    const wishlist = { moves, learnedMoveIds: [1, 20], targetSpeciesId: null };
+    document.pokemon.mon.moveWishlist = wishlist;
+    ok(validateCollectionDocument(document));
+    for (const invalid of [
+        null,
+        {},
+        { ...wishlist, unexpected: true },
+        { ...wishlist, targetSpeciesId: 0 },
+        { ...wishlist, moves: [...moves, moves[0]] },
+        { ...wishlist, moves: [{ moveId: 1, name: '' }] },
+        { ...wishlist, learnedMoveIds: [1, 1] },
+        { ...wishlist, learnedMoveIds: [0] },
+    ]) {
+        equal(
+            validateCollectionDocument({
+                ...document,
+                pokemon: {
+                    mon: { ...document.pokemon.mon, moveWishlist: invalid },
+                },
+            }),
+            false,
+        );
+    }
+});
+
+void test('wishlist learning survives replacement, evolution, and removing then readding the wish', () => {
+    const pokemon = fixture().pokemon.mon;
+    pokemon.moveWishlist = {
+        moves: [{ moveId: 1, name: 'Move' }],
+        learnedMoveIds: [],
+        targetSpeciesId: null,
+    };
+    pokemon.state.moves = [{ moveId: 1, name: 'Move' }];
+    const learned = recordLearnedWishlistMoves(pokemon);
+    deepStrictEqual(learned.moveWishlist?.learnedMoveIds, [1]);
+    deepStrictEqual(pokemon.moveWishlist.learnedMoveIds, []);
+    const removed = recordLearnedWishlistMoves({
+        ...learned,
+        state: { ...learned.state, speciesId: 2, moves: [], formEpoch: 'evolved' },
+        moveWishlist: { ...learned.moveWishlist, moves: [] },
+    });
+    const restored = recordLearnedWishlistMoves({
+        ...removed,
+        moveWishlist: { ...removed.moveWishlist!, moves: [{ moveId: 1, name: 'Move' }] },
+    });
+    deepStrictEqual(restored.moveWishlist?.learnedMoveIds, [1]);
+});
+
+void test('optional wishlist additions merge from either device and survive deletion conflicts', () => {
+    const base = fixture();
+    const withWishlist = structuredClone(base);
+    withWishlist.pokemon.mon.moveWishlist = {
+        moves: [{ moveId: 1, name: 'Move' }],
+        learnedMoveIds: [],
+        targetSpeciesId: 2,
+    };
+    for (const [local, remote] of [
+        [base, withWishlist],
+        [withWishlist, base],
+    ]) {
+        const merged = mergeCollections(base, local, remote);
+        equal(merged.conflicts.length, 0);
+        deepStrictEqual(
+            merged.document.pokemon.mon.moveWishlist,
+            withWishlist.pokemon.mon.moveWishlist,
+        );
+        ok(validateCollectionDocument(merged.document));
+    }
+    const deleted = structuredClone(base);
+    deleted.pokemon.mon.deleted = true;
+    deleted.playthroughs.run.party = [];
+    for (const [local, remote] of [
+        [deleted, withWishlist],
+        [withWishlist, deleted],
+    ]) {
+        const merged = mergeCollections(base, local, remote);
+        const conflict = merged.conflicts.find((item) => item.kind === 'delete-edit')!;
+        ok(conflict);
+        for (const choice of ['local', 'remote'] as const) {
+            const resolved = applyConflictChoice(merged.document, conflict, choice);
+            deepStrictEqual(
+                resolved.pokemon.mon.moveWishlist,
+                withWishlist.pokemon.mon.moveWishlist,
+            );
+            ok(validateCollectionDocument(resolved));
+        }
+    }
+});
+
+void test('conflicting wishlist choices retain both alternatives and combine permanent learning', () => {
+    const base = fixture();
+    base.pokemon.mon.moveWishlist = {
+        moves: [{ moveId: 1, name: 'One' }],
+        learnedMoveIds: [],
+        targetSpeciesId: null,
+    };
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    local.pokemon.mon.moveWishlist!.moves.push({ moveId: 2, name: 'Two' });
+    local.pokemon.mon.moveWishlist!.learnedMoveIds = [1];
+    remote.pokemon.mon.moveWishlist!.targetSpeciesId = 2;
+    remote.pokemon.mon.moveWishlist!.learnedMoveIds = [2];
+    const merged = mergeCollections(base, local, remote);
+    equal(merged.conflicts.length, 1);
+    equal(merged.conflicts[0].field, 'moveWishlist');
+    merged.document.pokemon.mon.moveWishlist!.learnedMoveIds.push(3);
+    for (const choice of ['local', 'remote'] as const) {
+        const resolved = applyConflictChoice(merged.document, merged.conflicts[0], choice);
+        deepStrictEqual(resolved.pokemon.mon.moveWishlist!.learnedMoveIds, [1, 2, 3]);
+        ok(validateCollectionDocument(resolved));
+    }
+    deepStrictEqual(base.pokemon.mon.moveWishlist.learnedMoveIds, []);
+    deepStrictEqual(local.pokemon.mon.moveWishlist!.learnedMoveIds, [1]);
+});
+
+void test('an absent optional wishlist conflict choice removes the property instead of storing null', () => {
+    const base = fixture();
+    base.pokemon.mon.moveWishlist = { moves: [], learnedMoveIds: [], targetSpeciesId: null };
+    const local = structuredClone(base);
+    delete local.pokemon.mon.moveWishlist;
+    const remote = structuredClone(base);
+    remote.pokemon.mon.moveWishlist!.targetSpeciesId = 2;
+    const merged = mergeCollections(base, local, remote);
+    equal(merged.conflicts.length, 1);
+    const resolved = applyConflictChoice(merged.document, merged.conflicts[0], 'local');
+    equal(Object.hasOwn(resolved.pokemon.mon, 'moveWishlist'), false);
+    ok(validateCollectionDocument(resolved));
 });

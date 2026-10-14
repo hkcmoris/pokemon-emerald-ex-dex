@@ -5,6 +5,13 @@ export interface KnownMove {
     name: string;
 }
 
+export interface MoveWishlist {
+    moves: KnownMove[];
+    /** Permanent acquisition history, including wishes later removed from the list. */
+    learnedMoveIds: number[];
+    targetSpeciesId: number | null;
+}
+
 export interface PokemonState {
     speciesId: number;
     level: number;
@@ -25,8 +32,25 @@ export interface OwnedPokemon {
     playthroughId: string;
     nickname: string;
     state: PokemonState;
+    /** Absent in collections saved before move planning was introduced. */
+    moveWishlist?: MoveWishlist;
     deleted: boolean;
     createdAt: string;
+}
+
+/** Remember recorded acquisitions; replacing a current move never undoes learning it. */
+export function recordLearnedWishlistMoves(pokemon: OwnedPokemon): OwnedPokemon {
+    const wishlist = pokemon.moveWishlist;
+    if (!wishlist) return pokemon;
+    const current = new Set(pokemon.state.moves?.map((move) => move.moveId));
+    const learnedMoveIds = [
+        ...new Set([
+            ...wishlist.learnedMoveIds,
+            ...wishlist.moves.filter((move) => current.has(move.moveId)).map((move) => move.moveId),
+        ]),
+    ].sort((a, b) => a - b);
+    if (equal(learnedMoveIds, wishlist.learnedMoveIds)) return pokemon;
+    return { ...pokemon, moveWishlist: { ...wishlist, learnedMoveIds } };
 }
 
 export interface StatObservation {
@@ -141,6 +165,28 @@ function validState(value: unknown): boolean {
     );
 }
 
+function validWishlist(value: unknown): boolean {
+    return (
+        record(value) &&
+        keys(value, ['moves', 'learnedMoveIds', 'targetSpeciesId']) &&
+        (value.targetSpeciesId === null || integer(value.targetSpeciesId, 1, 100000)) &&
+        Array.isArray(value.moves) &&
+        value.moves.length <= 1000 &&
+        value.moves.every(
+            (move: unknown) =>
+                record(move) &&
+                keys(move, ['moveId', 'name']) &&
+                integer(move.moveId, 1, 100000) &&
+                text(move.name, 80, false),
+        ) &&
+        new Set(value.moves.map((move: KnownMove) => move.moveId)).size === value.moves.length &&
+        Array.isArray(value.learnedMoveIds) &&
+        value.learnedMoveIds.length <= 100000 &&
+        value.learnedMoveIds.every((moveId: unknown) => integer(moveId, 1, 100000)) &&
+        new Set(value.learnedMoveIds).size === value.learnedMoveIds.length
+    );
+}
+
 /** Validate persisted/untrusted documents without coercion or prototype-sensitive keys. */
 export function validateCollectionDocument(value: unknown): value is CollectionDocument {
     if (
@@ -178,12 +224,21 @@ export function validateCollectionDocument(value: unknown): value is CollectionD
         if (
             !id(key) ||
             !record(owned) ||
-            !keys(owned, ['id', 'playthroughId', 'nickname', 'state', 'deleted', 'createdAt']) ||
+            !keys(owned, [
+                'id',
+                'playthroughId',
+                'nickname',
+                'state',
+                'deleted',
+                'createdAt',
+                ...(Object.hasOwn(owned, 'moveWishlist') ? ['moveWishlist'] : []),
+            ]) ||
             owned.id !== key ||
             !id(owned.playthroughId) ||
             !Object.hasOwn(playthroughs, owned.playthroughId) ||
             !text(owned.nickname, 40) ||
             !validState(owned.state) ||
+            (Object.hasOwn(owned, 'moveWishlist') && !validWishlist(owned.moveWishlist)) ||
             typeof owned.deleted !== 'boolean' ||
             !timestamp(owned.createdAt)
         )
@@ -303,6 +358,18 @@ export function mergeCollections(
     local: CollectionDocument,
     remote: CollectionDocument,
 ): CollectionMerge {
+    const remember = (input: CollectionDocument): CollectionDocument => ({
+        ...input,
+        pokemon: Object.fromEntries(
+            Object.entries(input.pokemon).map(([id, pokemon]) => [
+                id,
+                recordLearnedWishlistMoves(pokemon),
+            ]),
+        ),
+    });
+    base = remember(base);
+    local = remember(local);
+    remote = remember(remote);
     const document = emptyCollection();
     const conflicts: CollectionConflict[] = [];
     for (const entity of ['playthroughs', 'pokemon', 'observations'] as const) {
@@ -315,11 +382,29 @@ export function mergeCollections(
             ]),
         ].sort();
         for (const entityId of ids) {
-            const ancestor = base[entity][entityId] as unknown as
+            const ancestor = structuredClone(base[entity][entityId]) as unknown as
                 Record<string, unknown> | undefined;
-            const ours = local[entity][entityId] as unknown as Record<string, unknown> | undefined;
-            const theirs = remote[entity][entityId] as unknown as
+            const ours = structuredClone(local[entity][entityId]) as unknown as
                 Record<string, unknown> | undefined;
+            const theirs = structuredClone(remote[entity][entityId]) as unknown as
+                Record<string, unknown> | undefined;
+            if (entity === 'pokemon') {
+                // Acquisition history is monotonic; only wishlist choices need conflict resolution.
+                const versions = [ancestor, ours, theirs];
+                const learned = [
+                    ...new Set(
+                        versions.flatMap((version) =>
+                            record(version?.moveWishlist)
+                                ? (version.moveWishlist.learnedMoveIds as number[])
+                                : [],
+                        ),
+                    ),
+                ].sort((a, b) => a - b);
+                for (const version of versions) {
+                    if (version && record(version.moveWishlist))
+                        version.moveWishlist = { ...version.moveWishlist, learnedMoveIds: learned };
+                }
+            }
             if (!ours && !theirs) continue;
             if (!ours || !theirs) {
                 // Entries use tombstones, so absence only normally occurs for a new ID.
@@ -362,11 +447,18 @@ export function mergeCollections(
                         Object.assign(remoteAlternative, editedSide, { deleted: theirs.deleted });
                     }
                 } else {
-                    for (const field of Object.keys(ours).filter((field) => field !== 'deleted')) {
+                    for (const field of [
+                        ...new Set([...Object.keys(ours), ...Object.keys(theirs)]),
+                    ].filter((field) => field !== 'deleted')) {
                         if (equal(ours[field], ancestor?.[field]))
                             localAlternative[field] = theirs[field];
                         if (equal(theirs[field], ancestor?.[field]))
                             remoteAlternative[field] = ours[field];
+                    }
+                }
+                for (const alternative of [localAlternative, remoteAlternative]) {
+                    for (const field of Object.keys(alternative)) {
+                        if (alternative[field] === undefined) delete alternative[field];
                     }
                 }
                 destination[entityId] = structuredClone(localAlternative);
@@ -395,7 +487,7 @@ export function mergeCollections(
                 continue;
             }
             const merged: Record<string, unknown> = {};
-            for (const field of Object.keys(ours)) {
+            for (const field of new Set([...Object.keys(ours), ...Object.keys(theirs)])) {
                 if (equal(ours[field], theirs[field]) || equal(theirs[field], ancestor?.[field]))
                     merged[field] = structuredClone(ours[field]);
                 else if (equal(ours[field], ancestor?.[field]))
@@ -415,9 +507,14 @@ export function mergeCollections(
                     );
                 }
             }
+            for (const field of Object.keys(merged)) {
+                if (merged[field] === undefined) delete merged[field];
+            }
             destination[entityId] = merged;
         }
     }
+    for (const [id, pokemon] of Object.entries(document.pokemon))
+        document.pokemon[id] = recordLearnedWishlistMoves(pokemon);
     for (const run of Object.values(document.playthroughs)) {
         const validParty = validLineup(document, run.id, run.party);
         if (!equal(validParty, run.party)) {
@@ -472,7 +569,11 @@ export function applyConflictChoice(
             // Use a tombstone instead of destroying the recoverable record or its history.
             if (entities[item.entityId]) entities[item.entityId].deleted = true;
         } else entities[item.entityId] = selected as Record<string, unknown>;
-    } else if (entities[item.entityId]) entities[item.entityId][item.field] = selected;
+    } else if (entities[item.entityId]) {
+        if (item.entity === 'pokemon' && item.field === 'moveWishlist' && selected === null)
+            delete entities[item.entityId][item.field];
+        else entities[item.entityId][item.field] = selected;
+    }
     if (item.entity === 'playthroughs' && (item.field === 'party' || item.field === '$entity')) {
         const run = next.playthroughs[item.entityId];
         if (run && !equal(run.party, validLineup(next, run.id, run.party))) {
@@ -480,6 +581,17 @@ export function applyConflictChoice(
                 'Resolve related removed Pokémon first, then choose this party lineup. Your alternatives are still available.',
             );
         }
+    }
+    for (const [id, pokemon] of Object.entries(next.pokemon)) {
+        if (pokemon.moveWishlist) {
+            pokemon.moveWishlist.learnedMoveIds = [
+                ...new Set([
+                    ...(document.pokemon[id]?.moveWishlist?.learnedMoveIds ?? []),
+                    ...pokemon.moveWishlist.learnedMoveIds,
+                ]),
+            ];
+        }
+        next.pokemon[id] = recordLearnedWishlistMoves(pokemon);
     }
     for (const run of Object.values(next.playthroughs))
         run.party = validLineup(next, run.id, run.party);

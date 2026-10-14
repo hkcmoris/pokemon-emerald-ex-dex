@@ -8,6 +8,8 @@ export default defineConfig(
         ignores: [
             '**/dist/**',
             'coverage/**',
+            'output/playwright/**',
+            '.playwright-cli/**',
             'node_modules/**',
             'assets/pokemon_emerald_ex_1.0.4_battle_sprites/**',
         ],

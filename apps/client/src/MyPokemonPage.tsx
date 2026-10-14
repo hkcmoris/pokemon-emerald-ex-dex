@@ -322,6 +322,12 @@ export function MyPokemonPage({
                         : party
                 }
                 stateConflict={hasStateConflict(pokemon)}
+                wishlistConflict={collection.conflicts.some(
+                    (conflict) =>
+                        conflict.entity === 'pokemon' &&
+                        conflict.entityId === pokemon.id &&
+                        conflict.field === 'moveWishlist',
+                )}
                 observationConflict={collection.conflicts.some(
                     (conflict) =>
                         conflict.entity === 'observations' &&

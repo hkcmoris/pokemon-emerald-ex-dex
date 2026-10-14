@@ -3,9 +3,11 @@ import {
     emptyCollection,
     mergeCollections,
     readConflictValue,
+    recordLearnedWishlistMoves,
     validateCollectionDocument,
     type CollectionConflict,
     type CollectionDocument,
+    type JsonValue,
 } from '@pokemon-emerald-ex-dex/shared';
 
 export interface CollectionUser {
@@ -182,7 +184,15 @@ function retainConflicts(
         if (conflicts.has(conflict.id)) continue;
         const localValue = readConflictValue(local, conflict);
         const remoteValue = readConflictValue(remote, conflict);
-        if (!sameCollectionValue(localValue, remoteValue))
+        const choices = (value: JsonValue): JsonValue =>
+            conflict.entity === 'pokemon' &&
+            conflict.field === 'moveWishlist' &&
+            value !== null &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+                ? { ...value, learnedMoveIds: [] }
+                : value;
+        if (!sameCollectionValue(choices(localValue), choices(remoteValue)))
             conflicts.set(conflict.id, { ...conflict, local: localValue, remote: remoteValue });
     }
     return [...conflicts.values()];
@@ -402,11 +412,25 @@ export class CollectionEngine {
                 if (state.activeOwner !== owner)
                     throw new Error('The active account changed in another tab. Try again.');
                 const current = state.partitions[owner];
-                const document = update(structuredClone(current.document));
+                const previous = structuredClone(current.document);
+                for (const [id, pokemon] of Object.entries(previous.pokemon))
+                    previous.pokemon[id] = recordLearnedWishlistMoves(pokemon);
+                const document = update(structuredClone(previous));
                 if (!validateCollectionDocument(document))
                     throw new Error(
                         'Check the Pokémon, level, moves, stats, and party before saving.',
                     );
+                for (const [id, pokemon] of Object.entries(document.pokemon)) {
+                    if (pokemon.moveWishlist) {
+                        pokemon.moveWishlist.learnedMoveIds = [
+                            ...new Set([
+                                ...(previous.pokemon[id]?.moveWishlist?.learnedMoveIds ?? []),
+                                ...pokemon.moveWishlist.learnedMoveIds,
+                            ]),
+                        ];
+                    }
+                    document.pokemon[id] = recordLearnedWishlistMoves(pokemon);
+                }
                 current.document = document;
                 current.pristine = false;
                 current.conflicts = current.conflicts

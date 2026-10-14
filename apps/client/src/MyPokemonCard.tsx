@@ -23,6 +23,7 @@ import { MyPokemonHistory } from './MyPokemonHistory.js';
 import { MyPokemonStatsGraph } from './MyPokemonStatsGraph.js';
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
 import { MyPokemonMilestones } from './MyPokemonMilestones.js';
+import { MyPokemonWishlist } from './MyPokemonWishlist.js';
 import { TypeBadges } from './TypeBadges.js';
 import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { typeSurfaceStyle } from './theme.js';
@@ -687,6 +688,7 @@ export function MyPokemonCard({
     partyMembers,
     stateConflict,
     observationConflict = false,
+    wishlistConflict = false,
     onUpdate,
     onParty,
     onMove,
@@ -702,6 +704,7 @@ export function MyPokemonCard({
     partyMembers?: readonly OwnedPokemon[];
     stateConflict: boolean;
     observationConflict?: boolean;
+    wishlistConflict?: boolean;
     onUpdate: (updater: (pokemon: OwnedPokemon) => OwnedPokemon) => Promise<void>;
     onParty: () => Promise<void>;
     onMove: (direction: -1 | 1) => Promise<void>;
@@ -721,6 +724,8 @@ export function MyPokemonCard({
     const statsPanelId = useId();
     const [showStatsGraph, setShowStatsGraph] = useState(false);
     const [editingMoves, setEditingMoves] = useState(false);
+    const wishlistPanelId = useId();
+    const [showWishlist, setShowWishlist] = useState(false);
     const [changingSpecies, setChangingSpecies] = useState(false);
     const [nextSpecies, setNextSpecies] = useState<Pokemon | null>(null);
     const [recap, setRecap] = useState<{
@@ -910,14 +915,35 @@ export function MyPokemonCard({
                 >
                     <div className="my-section-heading">
                         <h3>{t('Current moves', 'Aktuální útoky')}</h3>
-                        <button
-                            className="my-text-button"
-                            type="button"
-                            disabled={stateConflict}
-                            onClick={() => setEditingMoves(!editingMoves)}
-                        >
-                            {t('Edit', 'Upravit')}
-                        </button>
+                        <div className="my-actions">
+                            <button
+                                className="my-text-button"
+                                type="button"
+                                disabled={stateConflict}
+                                onClick={() => {
+                                    setEditingMoves(!editingMoves);
+                                    setShowWishlist(false);
+                                }}
+                            >
+                                {t('Edit', 'Upravit')}
+                            </button>
+                            <button
+                                className="my-wishlist-toggle"
+                                type="button"
+                                aria-label={t('Wanted moves', 'Požadované útoky')}
+                                title={t('Wanted moves', 'Požadované útoky')}
+                                aria-expanded={showWishlist}
+                                aria-controls={wishlistPanelId}
+                                onClick={() => {
+                                    setShowWishlist(!showWishlist);
+                                    setEditingMoves(false);
+                                }}
+                            >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 8V21M12 8H7.5C6.83696 8 6.20107 7.73661 5.73223 7.26777C5.26339 6.79893 5 6.16304 5 5.5C5 4.83696 5.26339 4.20107 5.73223 3.73223C6.20107 3.26339 6.83696 3 7.5 3C11 3 12 8 12 8ZM12 8H16.5C17.163 8 17.7989 7.73661 18.2678 7.26777C18.7366 6.79893 19 6.16304 19 5.5C19 4.83696 18.7366 4.20107 18.2678 3.73223C17.7989 3.26339 17.163 3 16.5 3C13 3 12 8 12 8ZM3 14H21M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V11.2C21 10.0799 21 9.51984 20.782 9.09202C20.5903 8.71569 20.2843 8.40973 19.908 8.21799C19.4802 8 18.9201 8 17.8 8H6.2C5.0799 8 4.51984 8 4.09202 8.21799C3.71569 8.40973 3.40973 8.71569 3.21799 9.09202C3 9.51984 3 10.0799 3 11.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <ul
                         className="my-move-grid"
@@ -990,6 +1016,16 @@ export function MyPokemonCard({
                     />
                 </div>
             )}
+            <div id={wishlistPanelId} hidden={!showWishlist || showStatsGraph}>
+                {showWishlist && (
+                    <MyPokemonWishlist
+                        pokemon={pokemon}
+                        family={family}
+                        paused={stateConflict || wishlistConflict}
+                        onUpdate={onUpdate}
+                    />
+                )}
+            </div>
             {!stateConflict &&
                 species.data &&
                 (detail ? (

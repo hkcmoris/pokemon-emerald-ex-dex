@@ -4,6 +4,7 @@ export function add(a: number, b: number): number {
 export * from './collection.js';
 export * from './collectionGuidance.js';
 export * from './collectionMoves.js';
+export * from './movePlanner.js';
 export type {
     Ability,
     AbilityFlags,
