@@ -114,10 +114,10 @@ export function MyPokemonStatsGraph({
             ),
         ),
     ];
-    const left = 60;
-    const right = 386;
+    const left = 76;
+    const right = compact ? 306 : 386;
     const top = 12;
-    const bottom = compact ? 112 : 192;
+    const bottom = compact ? 172 : 192;
     const x = (level: number): number =>
         firstLevel === lastLevel
             ? (left + right) / 2
@@ -134,7 +134,7 @@ export function MyPokemonStatsGraph({
         <figure className="my-stats-graph">
             <svg
                 className="my-stats-chart"
-                viewBox={`0 0 400 ${compact ? 160 : 240}`}
+                viewBox={compact ? '0 0 320 220' : '0 0 400 240'}
                 role="img"
                 aria-labelledby={`${id}-title ${id}-description`}
             >

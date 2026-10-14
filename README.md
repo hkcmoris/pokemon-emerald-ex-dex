@@ -135,6 +135,7 @@ Unused move slots have dashed borders and 45° stripes, keeping the move grid th
 height for zero to four moves. Unrecorded moves retain an explicit unknown label.
 The toggle below the sprite switches between current moves and the recorded stat graph.
 On desktop, both views occupy the same space so switching keeps collection cards aligned.
+The graph legend sits in a single column on the right, leaving more vertical room for the plot.
 Upcoming milestones remain below either view.
 Type names remain available
 when icons are missing; saved move names remain visible when reference data is

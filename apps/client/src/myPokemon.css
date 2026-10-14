@@ -370,8 +370,14 @@
     --stat-speed: #6cdbb0;
     margin: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: center;
     gap: 0.65rem;
     min-width: 0;
+    container-type: inline-size;
+}
+.my-stats-graph figcaption {
+    grid-column: 1 / -1;
 }
 :root.light .my-stats-graph {
     --stat-hp: #ad2341;
@@ -383,6 +389,7 @@
 }
 .my-stats-chart {
     display: block;
+    min-width: 0;
     width: 100%;
     height: auto;
     overflow: visible;
@@ -398,8 +405,9 @@
 }
 .my-stats-legend {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.4rem 0.85rem;
+    margin: 0;
     padding: 0;
     list-style: none;
     font-size: 0.75rem;
@@ -435,8 +443,8 @@
     }
     .my-card-summary .my-stats-graph {
         height: 100%;
-        grid-template-rows: minmax(0, 1fr) auto auto;
-        gap: 0.35rem;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 0.35rem 0.65rem;
     }
     .my-card-summary .my-stats-chart {
         height: 100%;
@@ -446,7 +454,6 @@
         font-size: 14px;
     }
     .my-card-summary .my-stats-legend {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 0.25rem 0.65rem;
     }
     .my-card-summary .my-stats-graph figcaption {
@@ -457,6 +464,11 @@
 @media (max-width: 600px) {
     .my-stats-axis {
         font-size: 15px;
+    }
+}
+@container (max-width: 400px) {
+    .my-stats-chart .my-stats-axis {
+        font-size: 20px;
     }
 }
 .my-pokemon-title .species-sprite {
