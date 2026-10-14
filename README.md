@@ -183,6 +183,15 @@ branches. The planner starts at the recorded form and level, compares all wishes
 together, and shows an ordered learn/evolve timeline. It prefers natural level-up
 learning; a TM/HM route is clearly conditional on obtaining the machine. Blocked
 choices explain the timing or branch conflict and name the conflicting wishes.
+The wish buttons in **Learn before evolving**, **New level-up moves after evolving**,
+and **Coming up** add moves directly using the same checks; a checkmark means the
+move is already tracked, and clicking it removes the wish. **Coming up** follows
+the wishlist's evolution schedule and explains when to wait, including required
+moves and conditional TM/HM access. It pauses evolution advice when a wishlist
+plan cannot be confirmed, rather than suggesting the species' minimum level.
+Desktop collection cards keep a compact plan note beside the **Coming up** heading;
+open it for the full explanation without changing card height. Mobile and detail
+pages show the full note inline.
 
 Recording a wanted move among **Current moves** completes that wish automatically.
 Completion remains saved after replacing the move, evolving, or removing and later

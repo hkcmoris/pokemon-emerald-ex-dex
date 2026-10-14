@@ -12,6 +12,7 @@ import {
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
 import { useLanguage, type Translate } from './language.js';
 import { evolutionSummary } from './evolutionText.js';
+import { setWishlistMove } from './moveWishlistActions.js';
 
 function sourceLabel(
     source: MovePlanSource,
@@ -94,35 +95,11 @@ export function MyPokemonWishlist({
         }
     }
     function remove(moveId: number) {
-        void change((current) => ({
-            ...current,
-            moveWishlist: {
-                moves: (current.moveWishlist?.moves ?? []).filter((move) => move.moveId !== moveId),
-                learnedMoveIds: current.moveWishlist?.learnedMoveIds ?? [],
-                targetSpeciesId: current.moveWishlist?.targetSpeciesId ?? null,
-            },
-        }));
+        const move = wishlist.find((entry) => entry.moveId === moveId);
+        if (move) void change((current) => setWishlistMove(current, details, move, false, t));
     }
     function add(move: KnownMove) {
-        void change((current) => {
-            const assessment = assessMoveWishlistAddition(current, details, move, { t });
-            if (!assessment.allowed)
-                throw new Error(
-                    assessment.reason ?? t('This move cannot be added.', 'Útok nelze přidat.'),
-                );
-            const previous = current.moveWishlist;
-            return {
-                ...current,
-                moveWishlist: {
-                    moves: [
-                        ...(previous?.moves ?? []).filter((entry) => entry.moveId !== move.moveId),
-                        move,
-                    ],
-                    learnedMoveIds: previous?.learnedMoveIds ?? [],
-                    targetSpeciesId: previous?.targetSpeciesId ?? null,
-                },
-            };
-        });
+        void change((current) => setWishlistMove(current, details, move, true, t));
     }
     const learned = plan.moves.filter((move) => move.status === 'learned').length;
     const staleTarget = pokemon.moveWishlist?.targetSpeciesId;

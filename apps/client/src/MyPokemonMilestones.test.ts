@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createElement } from 'react';
+import { createElement, type ComponentProps } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { OwnedPokemon, SpeciesDetails } from '@pokemon-emerald-ex-dex/shared';
@@ -24,6 +24,7 @@ function renderMilestones(
     details: SpeciesDetails = torchic,
     level: number = 11,
     language: 'en' | 'cs' = 'en',
+    options: Partial<ComponentProps<typeof MyPokemonMilestones>> = {},
 ): string {
     return renderToStaticMarkup(
         createElement(
@@ -35,6 +36,7 @@ function renderMilestones(
                 createElement(MyPokemonMilestones, {
                     pokemon: { ...pokemon, state: { ...pokemon.state, level } },
                     details,
+                    ...options,
                 }),
             ),
         ),
@@ -140,4 +142,138 @@ void test('keeps additional evolution conditions when its required level is reac
     );
     assert.match(markup, /aria-label="Evolution: Combusken — Reach level 16 at night\."/);
     assert.doesNotMatch(markup, /ready|level.met/i);
+});
+
+const family = Object.values(species);
+function wishing(names: string[], level = 11): OwnedPokemon {
+    return {
+        ...pokemon,
+        state: { ...pokemon.state, level },
+        moveWishlist: {
+            moves: names.map((name) => {
+                const move = family
+                    .flatMap((entry) => entry.learnset)
+                    .find((move) => move.name === name)!;
+                return { moveId: move.moveId, name: move.name };
+            }),
+            learnedMoveIds: [],
+            targetSpeciesId: null,
+        },
+    };
+}
+
+void test('the real Torchic wishlist visibly delays evolution to 46 even before the next two moves', () => {
+    const owned = wishing(['Flame Burst', 'Flamethrower']);
+    const markup = renderMilestones(torchic, 11, 'en', { pokemon: owned, family });
+    assert.match(
+        markup,
+        /Keep Torchic unevolved until Lv\. 46 to learn Flame Burst, Flamethrower, then evolve into Combusken/,
+    );
+    assert.match(markup, /Peck/);
+    assert.match(markup, /Fire Spin/);
+    assert.doesNotMatch(markup, /Evolution: Combusken \(Lv\. 16\)/);
+    const late = {
+        ...owned,
+        state: { ...owned.state, level: 45 },
+        moveWishlist: {
+            ...owned.moveWishlist!,
+            learnedMoveIds: [owned.moveWishlist!.moves[0].moveId],
+        },
+    };
+    const lateMarkup = renderMilestones(torchic, 45, 'en', { pokemon: late, family });
+    assert.match(lateMarkup, /Lv\. 46<\/span>.*Flamethrower/);
+    assert.match(lateMarkup, /aria-label="Evolution: Combusken \(Lv\. 46\)"/);
+    assert.ok(lateMarkup.indexOf('>Flamethrower<') < lateMarkup.indexOf('aria-label="Evolution:'));
+    assert.match(lateMarkup, /aria-label="Flamethrower is wishlisted"/);
+});
+
+void test('current moves and remembered learning release the evolution hold', () => {
+    const owned = wishing(['Flame Burst', 'Flamethrower']);
+    for (const completed of [
+        { ...owned, state: { ...owned.state, moves: owned.moveWishlist!.moves } },
+        {
+            ...owned,
+            moveWishlist: {
+                ...owned.moveWishlist!,
+                learnedMoveIds: owned.moveWishlist!.moves.map((move) => move.moveId),
+            },
+        },
+    ]) {
+        const markup = renderMilestones(torchic, 11, 'en', { pokemon: completed, family });
+        assert.match(markup, /aria-label="Evolution: Combusken \(Lv\. 16\)"/);
+        assert.doesNotMatch(markup, /Keep Torchic unevolved|Lv\. 46/);
+    }
+});
+
+void test('coming up excludes current-form moves that occur after planned evolution', () => {
+    const owned = wishing(['Peck'], 16);
+    owned.moveWishlist!.learnedMoveIds = [owned.moveWishlist!.moves[0].moveId];
+    const markup = renderMilestones(torchic, 16, 'en', { pokemon: owned, family });
+    assert.match(markup, /aria-label="Evolution: Combusken \(Lv\. 17\)"/);
+    assert.doesNotMatch(markup, /Fire Spin|Flame Burst|Flamethrower/);
+});
+
+void test('a schedule using a TM explicitly conditions the coming evolution on access', () => {
+    const owned = wishing(['Flamethrower', 'Flame Charge']);
+    const markup = renderMilestones(torchic, 11, 'en', { pokemon: owned, family });
+    assert.match(markup, /Flamethrower \(TM35\)/);
+    assert.match(markup, /Confirm access to these machines before evolving/);
+    assert.match(markup, /aria-label="Evolution: Combusken \(Lv\. 16\)"/);
+    assert.doesNotMatch(markup, /Keep Torchic unevolved/);
+});
+
+void test('missing data, impossible wishes and schedule conflicts suppress evolution advice', () => {
+    const naturalOnly = family.map((entry) => ({ ...entry, machines: [] }));
+    const examples = [
+        { pokemon: wishing(['Flamethrower']), family: [torchic] },
+        { pokemon: wishing(['Flame Burst'], 29), family },
+        {
+            pokemon: wishing(['Flamethrower', 'Flame Charge']),
+            family: naturalOnly,
+            details: naturalOnly[0],
+        },
+    ];
+    for (const options of examples) {
+        const markup = renderMilestones(torchic, 11, 'en', options);
+        assert.match(markup, /Evolution timing cannot yet be confirmed from the wishlist/);
+        assert.doesNotMatch(markup, /evolution-dna\.svg|aria-label="Evolution:/);
+    }
+    assert.match(renderMilestones(torchic, 11, 'en', examples[0]), /family data is incomplete/);
+    assert.match(renderMilestones(torchic, 11, 'en', examples[1]), /Flame Burst/);
+});
+
+void test('an unchosen branch and sync conflicts pause evolution guidance', () => {
+    const eeveeFamily = loadCollectionSpeciesFixture([133, 134, 135, 136, 196, 197, 470, 471, 700]);
+    const eevee = {
+        ...wishing(['Peck']),
+        state: { ...pokemon.state, speciesId: 133 },
+    };
+    const branchMarkup = renderMilestones(eeveeFamily[133], 11, 'en', {
+        pokemon: eevee,
+        family: Object.values(eeveeFamily),
+    });
+    assert.match(branchMarkup, /Choose a final evolution branch/);
+    assert.doesNotMatch(branchMarkup, /evolution-dna\.svg/);
+    const pausedMarkup = renderMilestones(torchic, 11, 'en', {
+        pokemon: wishing(['Flamethrower']),
+        family,
+        wishlistPaused: true,
+    });
+    assert.match(pausedMarkup, /Resolve conflicting Pokémon or wishlist changes/);
+    assert.doesNotMatch(pausedMarkup, /evolution-dna\.svg|Keep Torchic unevolved/);
+});
+
+void test('Czech coming up explains the hold and offers a checked tracked-move action', () => {
+    const markup = renderMilestones(torchic, 27, 'cs', {
+        pokemon: wishing(['Flame Burst', 'Flamethrower'], 27),
+        family,
+        onUpdate: async () => {},
+    });
+    assert.match(markup, /Ponechte Torchic bez vývoje do úrovně 46/);
+    assert.match(markup, /Poté jej vyviňte na Combusken/);
+    assert.match(
+        markup,
+        /aria-label="Odebrat Flame Burst z požadovaných útoků"[^>]*aria-pressed="true"/,
+    );
+    assert.doesNotMatch(markup, /Keep Torchic|Evolution:/);
 });

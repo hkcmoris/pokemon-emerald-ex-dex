@@ -661,6 +661,108 @@
     border-top: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
     padding-top: 1rem;
 }
+.my-milestone-note-details {
+    display: none;
+}
+@media (min-width: 801px) {
+    .my-party-grid {
+        align-items: stretch;
+    }
+    .my-card-summary > .my-milestones {
+        margin-top: auto;
+    }
+    .my-card-summary .my-milestone-row,
+    .my-card-summary .my-milestones > .my-muted {
+        min-height: 2.625rem;
+    }
+    .my-card-summary .my-milestone-row {
+        align-items: center;
+    }
+    .my-card-summary .my-milestone-row:not(:has(.my-wishlist-feedback)) {
+        flex-wrap: nowrap;
+    }
+    .my-card-summary .my-milestones-heading {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-height: 1.5rem;
+    }
+    .my-card-summary .my-milestones-heading > h3 {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+    .my-card-summary .my-milestone-notes-inline {
+        display: none;
+    }
+    .my-card-summary .my-milestone-note-details {
+        display: block;
+        flex: 1;
+        min-width: 0;
+    }
+    .my-milestone-note-details > summary {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.3rem;
+        min-height: 1.5rem;
+        color: var(--dex-accent);
+        font-size: 0.72rem;
+        line-height: 1.4;
+        list-style: none;
+    }
+    .my-milestone-note-details > summary::-webkit-details-marker {
+        display: none;
+    }
+    .my-milestone-note-details > summary > span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .my-milestone-note-details svg {
+        flex-shrink: 0;
+        width: 14px;
+        height: 14px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+    }
+    .my-milestone-note-details[open] svg {
+        transform: rotate(180deg);
+    }
+    .my-milestone-note-popover {
+        position: absolute;
+        inset-inline: 0;
+        top: calc(100% + 0.5rem);
+        max-height: 16rem;
+        overflow-y: auto;
+        border: 1px solid var(--dex-border);
+        border-radius: 10px;
+        padding: 0.75rem;
+        background: var(--dex-surface);
+        box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+    }
+    .my-milestone-note-popover .my-milestone-plan {
+        margin: 0;
+    }
+    .my-milestone-note-popover > p + p {
+        margin-top: 0.65rem;
+    }
+    .my-card-summary:has(.my-milestone-note-details[open]) {
+        z-index: 3;
+    }
+}
+.my-milestone-plan {
+    margin-block: 0.65rem;
+    border-inline-start: 3px solid var(--dex-accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.65rem 0.8rem;
+    background: var(--dex-surface-raised);
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
 .my-upcoming {
     display: flex;
     flex-wrap: wrap;
@@ -673,17 +775,19 @@
     gap: 0.4rem;
 }
 .my-milestone-row {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 0.5rem;
 }
 .my-milestone-row > .my-move {
     flex: 0 1 auto;
+    max-width: 100%;
     min-width: 0;
     gap: 0.35rem;
     padding-inline: 0.5rem;
     white-space: nowrap;
 }
-.my-milestone-row > .my-move > span:last-child {
+.my-milestone-row .my-move-name,
+.my-milestone-row .my-milestone-name {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -776,7 +880,7 @@
     margin-bottom: 0.9rem;
 }
 .my-pokemon-details {
-    border-top: 1px solid var(--dex-border);
+    border-top: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
     padding-top: 0.75rem;
 }
 .my-inset,
@@ -835,7 +939,7 @@
     display: block;
 }
 .my-card-footer {
-    border-top: 1px solid var(--dex-border);
+    border-top: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
     padding-top: 1rem;
     flex-wrap: wrap;
 }
@@ -857,10 +961,17 @@
 .my-history-table td {
     padding: 0.6rem;
     text-align: left;
-    border-bottom: 1px solid var(--dex-border);
+    border-bottom: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
+}
+.my-history-table tbody tr:last-child > th,
+.my-history-table tbody tr:last-child > td {
+    border-bottom: 0;
 }
 .my-history-table thead {
     color: var(--dex-muted);
+}
+.my-history-table thead th {
+    border-bottom: 1px solid var(--dex-border);
 }
 .my-history-table small {
     display: block;
@@ -874,9 +985,12 @@
 }
 .my-comparison-list > li {
     padding: 0.8rem 0;
-    border-bottom: 1px solid var(--dex-border);
+    border-bottom: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
     font-size: 0.8rem;
     line-height: 1.65;
+}
+.my-comparison-list > li:last-child {
+    border-bottom: 0;
 }
 .my-comparison-list ul {
     padding-left: 1rem;
@@ -1036,11 +1150,13 @@
 .my-wishlist-toggle:hover {
     border-color: var(--dex-accent);
 }
-.my-wishlist-toggle[aria-expanded='true'] {
+.my-wishlist-toggle[aria-expanded='true'],
+.my-wishlist-toggle[aria-pressed='true'] {
     background: var(--dex-accent);
     color: var(--accent-foreground);
 }
-.my-wishlist-toggle svg {
+.my-wishlist-toggle svg,
+.my-wishlist-tracked svg {
     width: 20px;
     height: 20px;
     fill: none;
@@ -1048,6 +1164,39 @@
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+.my-wishlist-move-toggle {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+}
+.my-wishlist-move-toggle svg,
+.my-wishlist-tracked svg {
+    width: 18px;
+    height: 18px;
+}
+.my-wishlist-tracked {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--dex-accent);
+}
+.my-tradeoff-title > .my-move {
+    max-width: 100%;
+}
+.my-wishlist-feedback {
+    flex-basis: 100%;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.my-move:has(> .my-wishlist-feedback),
+.my-milestone-row:has(.my-wishlist-feedback) {
+    flex-wrap: wrap;
+}
+.my-milestone-row > .my-move:has(> .my-wishlist-feedback) {
+    flex: 1 1 100%;
 }
 .my-wishlist {
     border-inline-start: 3px solid var(--dex-accent);

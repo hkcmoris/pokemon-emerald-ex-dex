@@ -52,7 +52,7 @@ export function MyPokemonMove({
             {details && (
                 <TypeBadges types={[details.type]} iconFiles={[details.typeIconFile]} iconOnly />
             )}
-            <span>{move.name}</span>
+            <span className="my-move-name">{move.name}</span>
         </>
     );
     return (
