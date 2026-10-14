@@ -49,21 +49,57 @@ a wishlisted move is application history, not evidence that the game can relearn
 | --- | --- |
 | Current species only, or previous evolution stages too? | No |
 | Moves at or below the current level, or future levels too? | No |
-| Whether raw level-zero entries are reminder/evolution moves? | No |
+| Meaning of raw level-zero learnset entries? | Evolution marker in upstream source; adopted for all species |
 | Whether egg, tutor, TM/HM, or previously known moves qualify? | No |
 | NPC location, progression requirement, payment, and repeat cost? | No |
-| Moves offered immediately after an evolution at the same level? | No |
+| Ordinary moves matching the level at evolution? | Supported upstream; not yet included in the planner |
 
-The planner therefore treats level-zero entries as unverified and requires a
-future form to be reached before that form's ordinary level-up move deadline.
+### Evolution learning is separate from the Move Reminder
+
+The upstream engine explicitly checks for raw **level 0** entries when a Pokémon
+evolves. It also offers ordinary moves matching the Pokémon's current level. It
+does not offer every level-1 move just because the species evolved:
+
+- [Expansion 1.8.0 evolution-learning implementation](https://github.com/rh-hideout/pokeemerald-expansion/blob/expansion/1.8.0/src/pokemon.c#L5927-L5950)
+  checks `learnset.level == 0 || learnset.level == currentLevel`.
+- [Current pinned upstream implementation](https://github.com/rh-hideout/pokeemerald-expansion/blob/73b3fbeb574327cd9420c89e56bef5aa3c08fead/src/pokemon.c#L5854-L5878)
+  retains that distinction. Its additional level-1 configuration only concerns
+  Pokémon whose actual level is 1 when evolving.
+- The creator's release thread above identifies Emerald EX as built on
+  `pokeemerald-expansion`. The custom game's exact source revision remains
+  unavailable, so this establishes the upstream data convention, not an audit
+  of every mechanic in the release-matched binary.
+
+The app uses this convention consistently: `getEvolutionMoves` selects and
+deduplicates all raw level-zero entries, without species or move exceptions. The
+milestones, wishlist, and comparisons offer them when entering the evolved
+species, including delayed evolution. The species page labels them **On evolution**
+and keeps their raw value in additional data. A level-1 duplicate is neither a
+second evolution move nor proof that the Move Reminder can recover it.
+
+The local Emerald EX 1.0.4 export contains:
+
+| Species | Move | Raw levels | Evolution marker? |
+| --- | --- | --- | --- |
+| Combusken | Double Kick | 0, 1 | Yes |
+| Blaziken | Blaze Kick | 0, 1 | Yes |
+| Sceptile | Leaf Blade | 0 | Yes; a level-1 duplicate is not required |
+| Fearow | Drill Run | 1, 45 | No |
+
+Fearow's level-1 listing does not demonstrate that it learns Drill Run when
+Spearow evolves. Classifying it as an evolution move would require additional
+release-specific evidence beyond that listing. Existing evolved Pokémon are not
+assumed to recover earlier evolution moves. Ordinary same-level learning at the
+point of evolution remains outside the planner's supported routes; this patch
+addresses the explicit level-zero marker.
 
 ## Enabling reminder alternatives later
 
 Require either release-matched source/configuration or reproducible observations
 from the ROM with the hash above. Record the NPC/access/payment requirements and
 test current versus future levels, previous-stage-only moves, level-zero moves,
-and egg/tutor/TM moves separately. Verify same-level evolution learning separately
-from the reminder menu.
+and egg/tutor/TM moves separately. Verify ordinary same-level evolution learning
+separately from the reminder menu.
 
 Keep reminder access explicit in the resulting plan, including the form and any
 minimum level at which the NPC must be visited. Do not assume that a reminder in

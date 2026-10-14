@@ -33,7 +33,7 @@ function MoveTable({
         <table className="move-table w-full text-sm" role="table">
             <caption className="sr-only">
                 {acquisition === 'Level'
-                    ? t('Level-up moves', 'Útoky získané postupem na vyšší úroveň')
+                    ? t('Level-up and evolution moves', 'Útoky získané za úrovně a při vývoji')
                     : t('Compatible machines', 'Kompatibilní TM / HM')}
                 {'. '}
                 {t(
@@ -76,13 +76,19 @@ function MoveTable({
                                 </span>
                             </div>
                             <p className="move-acquisition">
-                                {acquisition === 'Level'
-                                    ? t('Level', 'Úroveň')
-                                    : t('Machine', 'TM / HM')}{' '}
-                                {'machine' in move ? (
-                                    <span className="font-mono">{move.machine}</span>
+                                {!('machine' in move) && move.level === 0 ? (
+                                    t('On evolution', 'Při vývoji')
                                 ) : (
-                                    move.level
+                                    <>
+                                        {acquisition === 'Level'
+                                            ? t('Level', 'Úroveň')
+                                            : t('Machine', 'TM / HM')}{' '}
+                                        {'machine' in move ? (
+                                            <span className="font-mono">{move.machine}</span>
+                                        ) : (
+                                            move.level
+                                        )}
+                                    </>
                                 )}
                             </p>
                             <p className="move-description">
@@ -133,15 +139,26 @@ function MoveTable({
                                             </dd>
                                         </div>
                                     ) : (
-                                        <div>
-                                            <dt>
-                                                {t(
-                                                    'Learnset entry order',
-                                                    'Pořadí v seznamu útoků',
-                                                )}
-                                            </dt>
-                                            <dd>{move.entryOrder}</dd>
-                                        </div>
+                                        <>
+                                            <div>
+                                                <dt>
+                                                    {t(
+                                                        'Raw learning level',
+                                                        'Úroveň naučení v ROM',
+                                                    )}
+                                                </dt>
+                                                <dd>{move.level}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>
+                                                    {t(
+                                                        'Learnset entry order',
+                                                        'Pořadí v seznamu útoků',
+                                                    )}
+                                                </dt>
+                                                <dd>{move.entryOrder}</dd>
+                                            </div>
+                                        </>
                                     )}
                                 </dl>
                             </details>
@@ -482,8 +499,8 @@ export function SpeciesPage({
                                         <div className="section-heading">
                                             <p className="eyebrow">
                                                 {t(
-                                                    'Level-up learnset',
-                                                    'Útoky získané postupem na vyšší úroveň',
+                                                    'Level-up and evolution moves',
+                                                    'Útoky získané za úrovně a při vývoji',
                                                 )}
                                             </p>
                                             <h2 id="learnset-title">

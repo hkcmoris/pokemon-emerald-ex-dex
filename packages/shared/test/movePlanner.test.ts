@@ -13,6 +13,7 @@ import {
     planMoveWishlist,
 } from '../src/movePlanner.js';
 import { loadCollectionSpeciesFixture } from './fixtures/collectionSpecies.js';
+import { getEvolutionMoves } from '../src/evolutionMoves.js';
 
 function move(moveId: number, level: number): LearnsetEntry {
     return {
@@ -113,6 +114,177 @@ function torchicMove(name: string): KnownMove {
     if (!result) throw new Error(`Missing fixture move ${name}`);
     return { moveId: result.moveId, name: result.name };
 }
+
+void test('raw level-zero entries are exposed without duplicate level-one moves', () => {
+    const combusken = torchicFamily[256];
+    const doubleKick = combusken.learnset.find((move) => move.moveId === 24 && move.level === 0)!;
+    deepStrictEqual(
+        getEvolutionMoves({ ...combusken, learnset: [...combusken.learnset, doubleKick] }).map(
+            (move) => [move.moveId, move.level],
+        ),
+        [[24, 0]],
+    );
+    deepStrictEqual(getEvolutionMoves(torchicFamily[255]), []);
+    deepStrictEqual(
+        getEvolutionMoves(torchicFamily[257]).map((move) => move.moveId),
+        [299],
+    );
+    deepStrictEqual(
+        getEvolutionMoves({
+            ...combusken,
+            learnset: combusken.learnset.filter((move) => move.level !== 0),
+        }),
+        [],
+    );
+});
+
+void test('Torchic can wishlist Double Kick and learns it immediately after evolving at level 16', () => {
+    const result = assessMoveWishlistAddition(
+        owned(255, 14, []),
+        torchicFamily,
+        torchicMove('Double Kick'),
+    );
+    equal(result.allowed, true);
+    equal(result.plan.status, 'ready');
+    equal(result.status, 'natural');
+    deepStrictEqual(result.plan.moves[0].source, {
+        kind: 'evolution',
+        speciesId: 256,
+        level: 16,
+        machine: null,
+        requirement: null,
+    });
+    deepStrictEqual(
+        result.plan.steps.map((step) => [
+            step.kind,
+            step.level,
+            step.kind === 'learn' ? step.name : step.toSpeciesId,
+        ]),
+        [
+            ['evolve', 16, 256],
+            ['learn', 16, 'Double Kick'],
+            ['evolve', 36, 257],
+        ],
+    );
+});
+
+void test('Double Kick remains available after waiting for Torchic Flamethrower', () => {
+    const plan = planMoveWishlist(
+        owned(255, 14, ['Flamethrower', 'Double Kick'].map(torchicMove)),
+        torchicFamily,
+    );
+    equal(plan.status, 'ready');
+    ok(plan.moves.every((move) => move.status === 'natural'));
+    deepStrictEqual(
+        plan.steps.map((step) => [
+            step.kind,
+            step.level,
+            step.kind === 'learn' ? step.name : step.toSpeciesId,
+        ]),
+        [
+            ['learn', 46, 'Flamethrower'],
+            ['evolve', 46, 256],
+            ['learn', 46, 'Double Kick'],
+            ['evolve', 47, 257],
+        ],
+    );
+});
+
+void test('recorded Combusken cannot recover Double Kick from its past evolution', () => {
+    const result = assessMoveWishlistAddition(
+        owned(256, 16, []),
+        torchicFamily,
+        torchicMove('Double Kick'),
+    );
+    equal(result.allowed, false);
+    equal(result.status, 'unreachable');
+    ok(result.plan.steps.every((step) => step.kind !== 'learn' || step.moveId !== 24));
+});
+
+void test('Blaziken Blaze Kick is learned from its own evolution entry', () => {
+    const result = assessMoveWishlistAddition(
+        owned(255, 14, []),
+        torchicFamily,
+        torchicMove('Blaze Kick'),
+    );
+    equal(result.allowed, true);
+    equal(result.status, 'natural');
+    deepStrictEqual(result.plan.moves[0].source, {
+        kind: 'evolution',
+        speciesId: 257,
+        level: 36,
+        machine: null,
+        requirement: null,
+    });
+    equal(MOVE_REMINDER_ALTERNATIVES_ENABLED, false);
+});
+
+void test('evolution moves use raw data for arbitrary species and move IDs', () => {
+    const edges = [edge(9001, 9002, 30)];
+    const evolutionMove = move(9003, 0);
+    const family = {
+        9001: species(9001, [], edges),
+        9002: species(
+            9002,
+            [evolutionMove, { ...evolutionMove, entryOrder: 1 }, move(9004, 1)],
+            edges,
+        ),
+    };
+    deepStrictEqual(
+        getEvolutionMoves(family[9002]).map((entry) => entry.moveId),
+        [9003],
+    );
+    const plan = planMoveWishlist(owned(9001, 20, [evolutionMove]), family);
+    equal(plan.status, 'ready');
+    equal(plan.moves[0].source?.kind, 'evolution');
+    deepStrictEqual(
+        plan.steps.map((step) => [step.kind, step.level]),
+        [
+            ['evolve', 30],
+            ['learn', 30],
+        ],
+    );
+});
+
+void test('Sceptile Leaf Blade is offered on evolution without a duplicate level-one entry', () => {
+    const family = loadCollectionSpeciesFixture([253, 254]);
+    const leafBlade = family[254].learnset.find(
+        (move) => move.name === 'Leaf Blade' && move.level === 0,
+    )!;
+    equal(
+        family[254].learnset.some((move) => move.moveId === leafBlade.moveId && move.level === 1),
+        false,
+    );
+    deepStrictEqual(
+        getEvolutionMoves(family[254]).map((move) => move.moveId),
+        [leafBlade.moveId],
+    );
+    const result = assessMoveWishlistAddition(owned(253, 35, []), family, leafBlade);
+    equal(result.allowed, true);
+    deepStrictEqual(result.plan.moves[0].source, {
+        kind: 'evolution',
+        speciesId: 254,
+        level: 36,
+        machine: null,
+        requirement: null,
+    });
+});
+
+void test('Fearow Drill Run is a level-45 opportunity, not an evolution move inferred from level one', () => {
+    const family = loadCollectionSpeciesFixture([21, 22]);
+    const drillRun = family[22].learnset.find((move) => move.name === 'Drill Run')!;
+    deepStrictEqual(
+        family[22].learnset
+            .filter((move) => move.moveId === drillRun.moveId)
+            .map((move) => move.level),
+        [1, 45],
+    );
+    deepStrictEqual(getEvolutionMoves(family[22]), []);
+    const result = assessMoveWishlistAddition(owned(21, 19, []), family, drillRun);
+    equal(result.allowed, true);
+    equal(result.plan.moves[0].source?.kind, 'level-up');
+    equal(result.plan.moves[0].source?.level, 45);
+});
 
 void test('Torchic keeps Flamethrower until 46, evolves once per level, then learns Brave Bird at 50', () => {
     const wishes = ['Flamethrower', 'Brave Bird'].map(torchicMove);
@@ -230,19 +402,23 @@ void test('missing intermediate family data stays unknown and cannot block a mov
     deepStrictEqual(result.plan.missingSpeciesIds, [2]);
 });
 
-void test('same-level target learning and level-zero entries are not silently enabled', () => {
+void test('raw evolution moves are supported without enabling ordinary same-level target learning', () => {
     const edges = [edge(1, 2, 16)];
     const family = {
         1: species(1, [], edges),
         2: species(2, [move(10, 16), move(11, 0), move(12, 17)], edges),
     };
     const pokemon = owned(1, 15, []);
-    for (const id of [10, 11]) {
+    for (const id of [10]) {
         const result = assessMoveWishlistAddition(pokemon, family, move(id, 0));
         equal(result.allowed, false);
         equal(result.status, 'unreachable');
         match(result.reason!, /No verified learning route/);
     }
+    const onEvolution = assessMoveWishlistAddition(pokemon, family, move(11, 0));
+    equal(onEvolution.allowed, true);
+    equal(onEvolution.plan.moves[0].source?.kind, 'evolution');
+    equal(onEvolution.plan.moves[0].source?.level, 16);
     equal(assessMoveWishlistAddition(pokemon, family, move(12, 17)).allowed, true);
     equal(MOVE_REMINDER_ALTERNATIVES_ENABLED, false);
 });

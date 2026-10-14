@@ -111,3 +111,20 @@ void test('branching evolutions require an explicit target before selecting new 
     match(html, /type="checkbox"[^>]*disabled=""/);
     doesNotMatch(html, /Learning &amp; evolution plan/);
 });
+
+void test('the wishlist labels Double Kick as an evolution move and orders it after evolving', () => {
+    const owned = {
+        ...pokemon,
+        state: { ...pokemon.state, level: 14 },
+        moveWishlist: { ...pokemon.moveWishlist!, moves: [wanted('Double Kick')] },
+    };
+    const html = render(owned);
+    match(html, /data-status="natural"/);
+    match(html, /Combusken · on evolution at Lv\. 16/);
+    match(html, /On evolution/);
+    strictEqual(html.indexOf('Evolve:') < html.indexOf('Learn Double Kick'), true);
+    const czech = render(owned, family, 'cs');
+    match(czech, /Combusken · při vývoji na Lv\. 16/);
+    match(czech, /Při vývoji/);
+    doesNotMatch(czech, /on evolution|On evolution/);
+});

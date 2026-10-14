@@ -1,5 +1,6 @@
 import type { LearnsetEntry, SpeciesDetails, SpeciesEvolution } from './dex.js';
 import type { OwnedPokemon, StatObservation } from './collection.js';
+import { getEvolutionMoves } from './evolutionMoves.js';
 
 export type CollectionGuidanceTranslate = (english: string, czech: string) => string;
 
@@ -198,7 +199,7 @@ export interface EvolutionMoveAdvice {
     /** Ordered species IDs from the currently owned form to one terminal evolution. */
     branch: number[];
     kind: 'check-before-evolving' | 'evolution-gain' | 'machine-alternative' | 'timing';
-    /** True only for an unrecorded, reachable positive-level move tradeoff with complete path data. */
+    /** True only for an unrecorded, verified reachable learning opportunity with complete path data. */
     actionable: boolean;
     message: string;
     opportunities: EvolutionMoveOpportunity[];
@@ -271,7 +272,9 @@ function moveOpportunities(
     for (const stage of stages) {
         const species = details[stage.speciesId];
         if (!species) continue;
+        const evolutionMoves = new Set(getEvolutionMoves(species).map((move) => move.moveId));
         for (const move of species.learnset) {
+            const onEvolution = move.level === 0 && evolutionMoves.has(move.moveId);
             if (
                 move.moveId === moveId &&
                 (move.level === 0 ||
@@ -279,10 +282,13 @@ function moveOpportunities(
             )
                 result.push({
                     speciesId: stage.speciesId,
-                    level: move.level,
+                    level: onEvolution ? stage.earliestLevel : move.level,
                     machine: null,
-                    conditional:
-                        move.level === 0 || stage.conditional || move.level === stage.earliestLevel,
+                    conditional: onEvolution
+                        ? stage.conditional
+                        : move.level === 0 ||
+                          stage.conditional ||
+                          move.level === stage.earliestLevel,
                 });
         }
         for (const machine of species.machines) {
@@ -326,15 +332,27 @@ function evolutionGains(
     const currentMoves = new Set(current.learnset.map((entry) => entry.moveId));
     const candidates = new Map<
         number,
-        { speciesId: number; move: LearnsetEntry; reachable: boolean }[]
+        {
+            speciesId: number;
+            move: LearnsetEntry;
+            reachable: boolean;
+            evolutionLevel: number | null;
+        }[]
     >();
     for (const stage of path.slice(1)) {
-        for (const move of details[stage.speciesId]?.learnset ?? []) {
+        const species = details[stage.speciesId];
+        if (!species) continue;
+        const evolutionMoves = new Set(getEvolutionMoves(species).map((move) => move.moveId));
+        for (const move of species.learnset) {
             if (currentMoves.has(move.moveId)) continue;
+            const onEvolution = move.level === 0 && evolutionMoves.has(move.moveId);
             const candidate = {
                 speciesId: stage.speciesId,
                 move,
-                reachable: move.level > pokemon.state.level && move.level >= stage.earliestLevel,
+                reachable: onEvolution
+                    ? stage.earliestLevel <= 100
+                    : move.level > pokemon.state.level && move.level >= stage.earliestLevel,
+                evolutionLevel: onEvolution ? stage.earliestLevel : null,
             };
             candidates.set(move.moveId, [...(candidates.get(move.moveId) ?? []), candidate]);
         }
@@ -353,27 +371,26 @@ function evolutionGains(
         const opportunities = moveOpportunities(first.move.moveId, path.slice(1), pokemon, details);
         const source = details[first.speciesId];
         let message =
-            first.move.level === 0
+            first.evolutionLevel !== null
                 ? t(
-                      `${source.name} lists ${first.move.name} as a special learnset entry (raw level 0). Verify its learning trigger in the game.`,
-                      `${source.name} má útok ${first.move.name} ve zvláštním záznamu naučitelných útoků (úroveň 0 ve zdrojových datech). Ověřte podmínku naučení ve hře.`,
+                      `${source.name} learns ${first.move.name} when evolving into it (earliest level ${first.evolutionLevel}).`,
+                      `${source.name} se učí útok ${first.move.name} při vývoji do této formy (nejdříve na úrovni ${first.evolutionLevel}).`,
                   )
                 : t(
                       `${source.name} learns ${first.move.name} at level ${first.move.level}.`,
                       `${source.name} se učí ${first.move.name} na úrovni ${first.move.level}.`,
                   );
         if (complete)
-            message +=
-                first.move.level === 0
-                    ? t(
-                          ` This special entry is absent from ${current.name}'s learnset; its availability after evolution needs in-game confirmation.`,
-                          ` ${current.name} tento zvláštní záznam v seznamu naučitelných útoků nemá. Dostupnost po vývoji ověřte ve hře.`,
-                      )
-                    : t(
-                          ` ${current.name} does not learn this move by leveling; this is a move gained along this evolution path.`,
-                          ` ${current.name} se tento útok za úrovně neučí. V této vývojové větvi je dostupný po vývoji.`,
-                      );
-        if (first.reachable)
+            message += t(
+                ` ${current.name} does not learn this move by leveling; this is a move gained along this evolution path.`,
+                ` ${current.name} se tento útok za úrovně neučí. V této vývojové větvi je dostupný po vývoji.`,
+            );
+        if (first.evolutionLevel !== null)
+            message += t(
+                ' This move remains available when evolution is delayed. Evolution requirements still apply.',
+                ' Útok zůstává dostupný i při odložení vývoje. Stále platí podmínky vývoje.',
+            );
+        else if (first.reachable)
             message += t(
                 ` Reach ${source.name} in time for that learning level; delaying earlier evolutions past it can miss this opportunity. Evolution requirements still apply.`,
                 ` Vyviňte Pokémona do formy ${source.name} včas pro naučení na uvedené úrovni. Odkladem předchozích vývojů za tuto úroveň můžete možnost přeskočit. Stále platí podmínky vývoje.`,
@@ -404,7 +421,7 @@ function evolutionGains(
             moveId: first.move.moveId,
             name: first.move.name,
             sourceSpeciesId: first.speciesId,
-            currentLevel: first.move.level,
+            currentLevel: first.evolutionLevel ?? first.move.level,
             sourceMachine: null,
             branch: path.map((stage) => stage.speciesId),
             kind: 'evolution-gain',
@@ -436,7 +453,10 @@ export function getEvolutionGuidance(
                 number,
                 { moveId: number; name: string; level: number | null; machine: string | null }
             >();
+            const evolutionMoves = new Set(getEvolutionMoves(source).map((move) => move.moveId));
             for (const move of [...source.learnset].sort((a, b) => a.level - b.level)) {
+                // Data-marked evolution gains are handled separately, not as level-up deadlines.
+                if (move.level <= 1 && evolutionMoves.has(move.moveId)) continue;
                 if (
                     sourceIndex > 0 &&
                     move.level !== 0 &&
@@ -490,20 +510,15 @@ export function getEvolutionGuidance(
                     continue;
                 if (move.machine !== null && machines.length > 0 && complete) continue;
                 const prefix =
-                    move.level === 0
+                    move.machine === null
                         ? t(
-                              `${source.name} lists ${move.name} as a special learnset entry (raw level 0). Verify its learning trigger in the game.`,
-                              `${source.name} má útok ${move.name} ve zvláštním záznamu naučitelných útoků (úroveň 0 ve zdrojových datech). Ověřte podmínku naučení ve hře.`,
+                              `${source.name} learns ${move.name} at level ${move.level}.`,
+                              `${source.name} se učí ${move.name} na úrovni ${move.level}.`,
                           )
-                        : move.machine === null
-                          ? t(
-                                `${source.name} learns ${move.name} at level ${move.level}.`,
-                                `${source.name} se učí ${move.name} na úrovni ${move.level}.`,
-                            )
-                          : t(
-                                `${source.name} can learn ${move.name} through ${move.machine}; check that you have the machine.`,
-                                `${source.name} se může naučit ${move.name} přes ${move.machine}. Ověřte, že příslušný přístroj máte.`,
-                            );
+                        : t(
+                              `${source.name} can learn ${move.name} through ${move.machine}; check that you have the machine.`,
+                              `${source.name} se může naučit ${move.name} přes ${move.machine}. Ověřte, že příslušný přístroj máte.`,
+                          );
                 let kind: EvolutionMoveAdvice['kind'];
                 let message: string;
                 if (!complete) {
@@ -520,8 +535,8 @@ export function getEvolutionGuidance(
                         .map((opportunity) =>
                             opportunity.level === 0
                                 ? t(
-                                      `${details[opportunity.speciesId].name}: special entry (raw level 0; verify its trigger in game)`,
-                                      `${details[opportunity.speciesId].name}: zvláštní záznam (úroveň 0 ve zdrojových datech; podmínku naučení ověřte ve hře)`,
+                                      `${details[opportunity.speciesId].name}: on evolution`,
+                                      `${details[opportunity.speciesId].name}: při vývoji`,
                                   )
                                 : t(
                                       `${details[opportunity.speciesId].name} at ${opportunity.level}`,
@@ -554,15 +569,6 @@ export function getEvolutionGuidance(
                             ' No later level-up or TM/HM route is listed on this path. This is a machine compatibility comparison; tutors and move reminders are excluded.',
                             ' V této vývojové větvi není uvedeno pozdější naučení za úroveň ani přes TM/HM. Srovnání se týká kompatibility s přístroji. Nezahrnuje učitele útoků ani připomínání útoků.',
                         );
-                } else if (move.level === 0) {
-                    kind = 'timing';
-                    message =
-                        prefix +
-                        t(
-                            ' This comparison does not confirm its special learning trigger.',
-                            ' Toto srovnání nepotvrzuje zvláštní podmínku naučení útoku.',
-                        ) +
-                        machineNote(opportunities, t);
                 } else {
                     kind = 'check-before-evolving';
                     message =
@@ -583,17 +589,7 @@ export function getEvolutionGuidance(
                         ' Srovnání nezahrnuje učitele útoků ani připomínání útoků.',
                     );
                 }
-                if (move.level === 0) {
-                    kind = 'timing';
-                    message += t(
-                        ' This special entry is not an ordinary level-up opportunity; check recorded moves and its in-game trigger.',
-                        ' Tento zvláštní záznam není běžnou možností naučení za úroveň. Zkontrolujte zaznamenané útoky a podmínku naučení ve hře.',
-                    );
-                } else if (
-                    sourceIndex === 0 &&
-                    move.level !== null &&
-                    move.level <= pokemon.state.level
-                ) {
+                if (sourceIndex === 0 && move.level !== null && move.level <= pokemon.state.level) {
                     kind = 'timing';
                     message +=
                         move.level === pokemon.state.level

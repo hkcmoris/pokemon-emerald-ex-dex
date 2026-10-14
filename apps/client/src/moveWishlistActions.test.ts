@@ -179,7 +179,7 @@ void test('both evolution trade-off panels expose Czech tracking actions and che
         'cs',
     );
     const before = panel(html, 'Naučit před vývojem');
-    const after = panel(html, 'Nové útoky za úrovně po vývoji');
+    const after = panel(html, 'Nové útoky po vývoji');
     for (const [markup, name] of [
         [before, 'Flamethrower'],
         [after, 'Brave Bird'],
@@ -203,7 +203,7 @@ void test('paused advice keeps tracked status visible and disables edits in both
         }),
     );
     const before = panel(html, 'Learn before evolving');
-    const after = panel(html, 'New level-up moves after evolving');
+    const after = panel(html, 'New moves after evolving');
     for (const [markup, name] of [
         [before, 'Flamethrower'],
         [after, 'Brave Bird'],
@@ -230,4 +230,23 @@ void test('read-only wishlist actions show a labelled checkmark for tracked move
         createElement(MyPokemonWishlistAction, { pokemon, family, move: move('Flame Charge') }),
     );
     strictEqual(untracked, '');
+});
+
+void test('the Double Kick milestone action adds a usable evolution wish without changing current moves', () => {
+    const original = owned();
+    original.state.level = 14;
+    const current = setWishlistMove(original, details, move('Double Kick'), true, english);
+    deepStrictEqual(current.moveWishlist?.moves, [move('Double Kick')]);
+    deepStrictEqual(current.state, original.state);
+    strictEqual(original.moveWishlist, undefined);
+    const plan = planMoveWishlist(current, details);
+    strictEqual(plan.status, 'ready');
+    strictEqual(plan.moves[0].source?.kind, 'evolution');
+    deepStrictEqual(
+        plan.steps.slice(0, 2).map((step) => [step.kind, step.level]),
+        [
+            ['evolve', 16],
+            ['learn', 16],
+        ],
+    );
 });

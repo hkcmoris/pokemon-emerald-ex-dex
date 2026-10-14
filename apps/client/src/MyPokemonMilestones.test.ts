@@ -277,3 +277,83 @@ void test('Czech coming up explains the hold and offers a checked tracked-move a
     );
     assert.doesNotMatch(markup, /Keep Torchic|Evolution:/);
 });
+
+void test('level-14 Torchic shows Double Kick after Combusken evolution, with or without a wishlist', () => {
+    for (const options of [{ family }, { family, pokemon: wishing(['Double Kick'], 14) }]) {
+        const markup = renderMilestones(torchic, 14, 'cs', {
+            ...options,
+            onUpdate: async () => {},
+        });
+        assert.equal((markup.match(/<li\b/g) ?? []).length, 2);
+        assert.match(markup, /Lv\. 16<\/span>.*evolution-dna\.svg.*Combusken/);
+        assert.match(markup, /title="Při vývoji na Combusken">Při vývoji<\/span>.*Double Kick/);
+        assert.ok(markup.indexOf('my-evolution-milestone') < markup.indexOf('>Double Kick<'));
+        assert.match(
+            markup,
+            /aria-label="(?:Sledovat Double Kick|Odebrat Double Kick z požadovaných útoků)"/,
+        );
+        assert.doesNotMatch(markup, /Lv\. 0|Fire Spin/);
+    }
+});
+
+void test('evolution moves follow delayed evolution instead of the raw learning level', () => {
+    const markup = renderMilestones(torchic, 20, 'en', {
+        family,
+        pokemon: wishing(['Double Kick'], 20),
+    });
+    assert.match(markup, /aria-label="Evolution: Combusken \(Lv\. 21\)"/);
+    assert.match(markup, /On evolution<\/span>.*Double Kick/);
+    assert.doesNotMatch(markup, /Lv\. 0|Lv\. 1<|Lv\. 16|Flamethrower/);
+});
+
+void test('evolution move previews deduplicate entries and require an available target and active evolution', () => {
+    const combusken = species[256];
+    const kick = combusken.learnset.find((move) => move.moveId === 24 && move.level === 0)!;
+    const markup = renderMilestones(torchic, 14, 'en', {
+        family: family.map((entry) =>
+            entry.speciesId === 256
+                ? { ...entry, learnset: [...entry.learnset, { ...kick, entryOrder: 999 }] }
+                : entry,
+        ),
+    });
+    assert.equal((markup.match(/>Double Kick</g) ?? []).length, 1);
+    assert.doesNotMatch(renderMilestones(torchic, 14), /Double Kick/);
+    assert.doesNotMatch(
+        renderMilestones(torchic, 14, 'en', { family, wishlistPaused: true }),
+        /Double Kick/,
+    );
+    assert.doesNotMatch(
+        renderMilestones(torchic, 29, 'en', {
+            family,
+            pokemon: wishing(['Flame Burst'], 29),
+        }),
+        /Double Kick/,
+    );
+    assert.doesNotMatch(
+        renderMilestones(combusken, 16, 'en', {
+            family,
+            pokemon: { ...pokemon, state: { ...pokemon.state, speciesId: 256, level: 16 } },
+        }),
+        /Double Kick/,
+    );
+});
+
+void test('evolution milestones include other species without per-species exceptions', () => {
+    const markup = renderMilestones(species[256], 36, 'en', {
+        family,
+        pokemon: { ...pokemon, state: { ...pokemon.state, speciesId: 256, level: 36 } },
+    });
+    assert.match(markup, /evolution-dna\.svg.*Blaziken/);
+    assert.match(markup, /On evolution<\/span>.*Blaze Kick/);
+    assert.doesNotMatch(markup, /Double Kick|Lv\. 0/);
+});
+
+void test('a level-one-only move is not presented as an evolution milestone', () => {
+    const relatives = loadCollectionSpeciesFixture([21, 22]);
+    const markup = renderMilestones(relatives[21], 19, 'en', {
+        family: Object.values(relatives),
+        pokemon: { ...pokemon, state: { ...pokemon.state, speciesId: 21, level: 19 } },
+    });
+    assert.match(markup, /Fearow/);
+    assert.doesNotMatch(markup, /Drill Run|On evolution/);
+});

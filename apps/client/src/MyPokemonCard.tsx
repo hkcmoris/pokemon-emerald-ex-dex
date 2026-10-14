@@ -336,20 +336,20 @@ function EvolutionTradeoffGroup({
             className={`my-tradeoff-group ${gained ? 'my-tradeoff-gain' : 'my-tradeoff-delay'}`}
             aria-label={
                 gained
-                    ? t('New level-up moves after evolving', 'Nové útoky za úrovně po vývoji')
+                    ? t('New moves after evolving', 'Nové útoky po vývoji')
                     : t('Learn before evolving', 'Naučit před vývojem')
             }
         >
             <h4>
                 {gained
-                    ? t('New level-up moves after evolving', 'Nové útoky za úrovně po vývoji')
+                    ? t('New moves after evolving', 'Nové útoky po vývoji')
                     : t('Learn before evolving', 'Naučit před vývojem')}
             </h4>
             <p className="my-muted">
                 {gained
                     ? t(
-                          `${currentName} does not learn these by leveling up. Evolve into the listed form before its learning level: delaying evolution can skip these opportunities. Evolution conditions still apply.`,
-                          `${currentName} se tyto útoky za úrovně neučí. Vyviňte ho do uvedené formy před úrovní naučení: při odkladu vývoje můžete tyto možnosti přeskočit. Stále platí podmínky vývoje.`,
+                          `${currentName} does not learn these by leveling up. For level-up moves, reach the listed form before its learning level. Evolution moves remain available if evolution is delayed. Evolution conditions still apply.`,
+                          `${currentName} se tyto útoky za úrovně neučí. U útoků za úrovně dosáhněte uvedené formy před úrovní naučení. Útoky při vývoji zůstávají dostupné i při odložení vývoje. Stále platí podmínky vývoje.`,
                       )
                     : t(
                           'Later forms on the listed path do not learn these moves by leveling up. Learn them before leaving that stage; TM/HM alternatives are noted below.',

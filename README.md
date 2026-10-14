@@ -150,7 +150,10 @@ never cross an evolution/form change or predict future levels.
 
 Party and collection cards show identity, level controls, current moves, and just the next
 two milestones in one row. Level-up moves and evolutions share the same chronological
-list; evolutions use the DNA icon. Reached evolution levels stay visible until the species
+list; evolutions use the DNA icon. Moves marked with raw level 0 follow their evolution with an
+“On evolution” badge. Torchic therefore shows Combusken and Double Kick together at level 14,
+when its next planned evolution is at level 16, including with an active wishlist.
+Reached evolution levels stay visible until the species
 is updated, while evolutions without a known level follow level-based milestones.
 Click a card or focus its name link to open that owned Pokémon at `#/my-pokemon/<id>`.
 The detail page contains evolution comparisons, nickname and form editing, growth history,
@@ -164,7 +167,10 @@ For example, Torchic's level-46 Flamethrower is highlighted with the evolved for
 TM35 alternative. Delaying evolution can pass the learning levels of newly unlocked
 moves. The comparison does not claim permanent loss. Entries
 whose learning level has passed are not presented as future opportunities. Raw
-level-zero entries are conditional special entries to verify in the game. Evolution
+level-zero entries are evolution moves, following the upstream engine’s learnset convention.
+They remain available when evolution is delayed. Level-1 entries alone do not indicate
+evolution learning. The species page labels raw level 0 as “On evolution” and preserves
+the raw value under additional data. Evolution
 conditions use recorded moves, party members, and measured stats where available;
 unknown requirements still need checking in the game. Plain level-only evolutions
 use one concise line, such as “→ Combusken — evolves at level 16.”, without repeating
@@ -180,10 +186,11 @@ it contains saved wishes. Open or close it with the wish icon beside **Edit** in
 **Current moves**, on a collection card or its detail page. Select any number of
 moves from its evolution family, and choose the final evolution when the family
 branches. The planner starts at the recorded form and level, compares all wishes
-together, and shows an ordered learn/evolve timeline. It prefers natural level-up
+together, and shows an ordered learn/evolve timeline. Level-zero evolution moves are
+learned immediately after the corresponding evolution. It prefers natural level-up
 learning; a TM/HM route is clearly conditional on obtaining the machine. Blocked
 choices explain the timing or branch conflict and name the conflicting wishes.
-The wish buttons in **Learn before evolving**, **New level-up moves after evolving**,
+The wish buttons in **Learn before evolving**, **New moves after evolving**,
 and **Coming up** add moves directly using the same checks; a checkmark means the
 move is already tracked, and clicking it removes the wish. **Coming up** follows
 the wishlist's evolution schedule and explains when to wait, including required
@@ -206,8 +213,10 @@ no data migration; deploy the updated client and Node/PHP API validators togethe
 **Move Reminder alternatives remain disabled.** The creator's available sources
 do not establish the exact Emerald EX 1.0.4 rules. See the
 [verification evidence and enabling criteria](docs/move-reminder-rules.md).
-Level-zero entries and learning immediately upon evolution at the same level are
-also not assumed. A “no verified route” result refers to the supported planning
+Evolution moves use the raw level-zero marker for every species, without a per-species
+allowlist. A duplicate at level 1 does not create a relearning route. Ordinary level-up
+learning at the exact evolution level remains outside the planner’s supported routes.
+A “no verified route” result refers to the supported planning
 rules, not a claim that all in-game acquisition methods are impossible. Missing
 reference data pauses confirmation of a plan; saved wishes remain accessible.
 

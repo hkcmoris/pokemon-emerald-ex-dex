@@ -22,6 +22,11 @@ function sourceLabel(
     const name =
         family.find((species) => species.speciesId === source.speciesId)?.name ??
         `#${source.speciesId}`;
+    if (source.kind === 'evolution')
+        return t(
+            `${name} · on evolution at Lv. ${source.level}`,
+            `${name} · při vývoji na Lv. ${source.level}`,
+        );
     return source.kind === 'machine'
         ? t(
               `${name} · ${source.machine}, if you have it`,
@@ -223,7 +228,9 @@ export function MyPokemonWishlist({
                                     status === 'learned'
                                         ? t('Learned', 'Naučeno')
                                         : status === 'natural'
-                                          ? t('Level-up route', 'Naučení za úrovně')
+                                          ? result?.source?.kind === 'evolution'
+                                              ? t('On evolution', 'Při vývoji')
+                                              : t('Level-up route', 'Naučení za úrovně')
                                           : status === 'conditional'
                                             ? t('Conditional route', 'Podmíněná možnost')
                                             : status === 'conflict'

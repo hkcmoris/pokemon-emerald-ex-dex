@@ -232,3 +232,26 @@ void test('moves without either description use the localized empty message', ()
     match(renderSpecies('cs', details), /Popis není uveden\./);
     match(renderSpecies('en', details), /No description recorded\./);
 });
+
+for (const language of ['en', 'cs'] as const) {
+    void test(`species pages distinguish evolution entries from level-one moves (${language})`, () => {
+        const move = entry.learnset[0];
+        const html = renderSpecies(language, {
+            ...entry,
+            learnset: [{ ...move, entryOrder: 0, level: 0 }, move],
+        });
+        const labels = Array.from(
+            html.matchAll(/<p class="move-acquisition">([^<]*)<\/p>/g),
+            ([, label]) => label,
+        );
+        deepStrictEqual(
+            labels,
+            language === 'cs' ? ['Při vývoji', 'Úroveň 1'] : ['On evolution', 'Level 1'],
+        );
+        match(
+            html,
+            language === 'cs' ? /Úroveň naučení v ROM<\/dt><dd>0/ : /Raw learning level<\/dt><dd>0/,
+        );
+        doesNotMatch(html, /class="move-acquisition">(?:Level|Úroveň) 0/);
+    });
+}

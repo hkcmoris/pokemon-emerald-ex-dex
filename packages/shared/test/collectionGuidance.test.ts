@@ -197,7 +197,7 @@ void test('a machine available now remains in comparisons when its earlier level
     equal(advice[0].sourceMachine, 'TM01');
 });
 
-void test('raw level-zero entries remain conditional special alternatives, never ordinary passed levels', () => {
+void test('raw level-zero entries are future evolution opportunities only before entering the target form', () => {
     const edges = [edge(1, 2, 25), edge(2, 3, 35)];
     const advice = getEvolutionGuidance(owned, {
         1: species(1, [move(10, 28), move(11, 0)], edges),
@@ -207,14 +207,17 @@ void test('raw level-zero entries remain conditional special alternatives, never
     const comparison = advice.find((entry) => entry.sourceSpeciesId === 1 && entry.moveId === 10)!;
     equal(comparison.kind, 'timing');
     deepStrictEqual(comparison.opportunities, [
-        { speciesId: 2, level: 0, machine: null, conditional: true },
+        { speciesId: 2, level: 25, machine: null, conditional: false },
     ]);
-    match(comparison.message, /special entry \(raw level 0; verify/);
-    const rawSource = advice.find((entry) => entry.sourceSpeciesId === 1 && entry.moveId === 11)!;
-    equal(rawSource.kind, 'timing');
-    match(rawSource.message, /not an ordinary level-up/);
-    equal(rawSource.message.includes('learning level is already past'), false);
-    ok(advice.some((entry) => entry.sourceSpeciesId === 2 && entry.moveId === 10));
+    match(comparison.message, /on evolution/);
+    equal(
+        advice.some((entry) => entry.sourceSpeciesId === 1 && entry.moveId === 11),
+        false,
+    );
+    equal(
+        advice.some((entry) => entry.sourceSpeciesId === 2 && entry.moveId === 10),
+        false,
+    );
 });
 
 void test('intermediate stages are compared too and cycles never recurse forever', () => {
@@ -257,10 +260,10 @@ void test('duplicate level-zero and level-one entries do not hide reachable evol
     });
     equal(advice.length, 1);
     equal(advice[0].kind, 'evolution-gain');
-    equal(advice[0].currentLevel, 63);
+    equal(advice[0].currentLevel, 25);
     equal(advice[0].actionable, true);
     deepStrictEqual(advice[0].opportunities, [
-        { speciesId: 2, level: 0, machine: null, conditional: true },
+        { speciesId: 2, level: 25, machine: null, conditional: false },
         { speciesId: 2, level: 63, machine: null, conditional: false },
     ]);
 });
@@ -303,13 +306,34 @@ void test('real Torchic learnsets compare Flamethrower waiting against evolution
     const doubleKick = advice.find(
         (entry) => entry.name === 'Double Kick' && entry.kind === 'evolution-gain',
     )!;
-    equal(doubleKick.actionable, false);
-    equal(doubleKick.currentLevel, 0);
-    match(doubleKick.message, /special learnset entry/);
+    equal(doubleKick.actionable, true);
+    equal(doubleKick.currentLevel, 16);
+    match(doubleKick.message, /when evolving into it/);
+    equal(doubleKick.message.includes('Verify'), false);
+    equal(doubleKick.opportunities.find((entry) => entry.speciesId === 256)?.level, 16);
+    equal(doubleKick.opportunities.find((entry) => entry.speciesId === 256)?.conditional, false);
+    ok(
+        advice
+            .filter((entry) => entry.name === 'Double Kick')
+            .every((entry) => !entry.message.includes('special learnset entry')),
+    );
+    const blazeKick = advice.find(
+        (entry) => entry.name === 'Blaze Kick' && entry.kind === 'evolution-gain',
+    )!;
+    equal(blazeKick.actionable, true);
+    equal(blazeKick.currentLevel, 36);
+    match(blazeKick.message, /when evolving into it/);
 });
 
 void test('waiting until Torchic level 46 misses early evolved-form gains while later moves remain possible', () => {
     const advice = getEvolutionGuidance(torchic(46), torchicFamily);
+    const doubleKick = advice.find(
+        (entry) => entry.name === 'Double Kick' && entry.kind === 'evolution-gain',
+    )!;
+    equal(doubleKick.actionable, true);
+    equal(doubleKick.currentLevel, 47);
+    match(doubleKick.message, /remains available when evolution is delayed/);
+    equal(doubleKick.message.includes('delaying earlier evolutions past it can miss'), false);
     for (const name of ['Flame Charge', 'Bulk Up']) {
         const gain = advice.find(
             (entry) => entry.name === name && entry.kind === 'evolution-gain',

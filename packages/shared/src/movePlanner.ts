@@ -1,5 +1,6 @@
 import type { KnownMove, OwnedPokemon } from './collection.js';
 import type { SpeciesDetails, SpeciesEvolution } from './dex.js';
+import { getEvolutionMoves } from './evolutionMoves.js';
 
 /** Emerald EX 1.0.4 reminder eligibility has no verified game-specific evidence. */
 export const MOVE_REMINDER_ALTERNATIVES_ENABLED = false;
@@ -8,7 +9,7 @@ export type MovePlanMoveStatus =
     'learned' | 'natural' | 'conditional' | 'unreachable' | 'conflict' | 'unknown';
 
 export interface MovePlanSource {
-    kind: 'level-up' | 'machine';
+    kind: 'level-up' | 'evolution' | 'machine';
     speciesId: number;
     level: number;
     machine: string | null;
@@ -159,9 +160,26 @@ function collectSources(
     wanted: ReadonlySet<number>,
     prior: ReadonlyMap<number, MovePlanSource>,
     t: Translate,
+    enteredViaEvolution: boolean,
     locked: ReadonlySet<number> = new Set(),
 ): Map<number, MovePlanSource> {
     const result = new Map(prior);
+    if (enteredViaEvolution) {
+        for (const move of getEvolutionMoves(species)) {
+            if (
+                wanted.has(move.moveId) &&
+                !locked.has(move.moveId) &&
+                (!result.has(move.moveId) || result.get(move.moveId)?.kind === 'machine')
+            )
+                result.set(move.moveId, {
+                    kind: 'evolution',
+                    speciesId: species.speciesId,
+                    level: entryLevel,
+                    machine: null,
+                    requirement: null,
+                });
+        }
+    }
     for (const machine of species.machines) {
         if (wanted.has(machine.moveId) && !result.has(machine.moveId))
             result.set(machine.moveId, {
@@ -176,11 +194,12 @@ function collectSources(
             });
     }
     for (const move of species.learnset) {
-        // Learning occurs before evolution. Level 0 and equal-entry-level learning
-        // are not verified alternatives for this ROM.
+        // Level-zero moves are collected above when entering the evolved form.
+        // Ordinary learning at the same entry level remains outside this planner.
         if (
             wanted.has(move.moveId) &&
             !locked.has(move.moveId) &&
+            result.get(move.moveId)?.kind !== 'evolution' &&
             move.level > entryLevel &&
             move.level <= exitLevel &&
             (result.get(move.moveId)?.kind !== 'level-up' ||
@@ -300,7 +319,16 @@ function findRoutes(
             const locked = new Set(prerequisites.keys());
             const edge = path.edges[stage];
             if (!edge) {
-                const allSources = collectSources(species, entry, 100, targets, prior, t, locked);
+                const allSources = collectSources(
+                    species,
+                    entry,
+                    100,
+                    targets,
+                    prior,
+                    t,
+                    stage > 0,
+                    locked,
+                );
                 const sources = new Map([...allSources].filter(([id]) => wanted.has(id)));
                 for (const id of sources.keys()) result.possibleMoveIds.add(id);
                 const route = { path, sources, evolutionLevels, prerequisites };
@@ -323,7 +351,16 @@ function findRoutes(
             ]);
             const requirement = requirements[stage];
             for (const exit of [...exits].sort((a, b) => a - b)) {
-                const sources = collectSources(species, entry, exit, targets, prior, t, locked);
+                const sources = collectSources(
+                    species,
+                    entry,
+                    exit,
+                    targets,
+                    prior,
+                    t,
+                    stage > 0,
+                    locked,
+                );
                 if (!requirement || requirement.moves.some((move) => equipped.has(move.moveId))) {
                     visit(stage + 1, exit, sources, [...evolutionLevels, exit], prerequisites);
                     continue;
@@ -531,8 +568,8 @@ export function planMoveWishlist(
             ...base,
             status: 'unreachable',
             reason: t(
-                'No verified learning route from this form and level on the selected branch. Move Reminder and special evolution learning are not assumed.',
-                'Z této formy a úrovně není na zvolené větvi ověřená možnost naučení. Připomenutí útoků ani zvláštní naučení při vývoji nejsou potvrzené alternativy.',
+                'No verified learning route from this form and level on the selected branch. Move Reminder is not an enabled alternative.',
+                'Z této formy a úrovně není na zvolené větvi ověřená možnost naučení. Připomenutí útoků není povolená alternativa.',
             ),
         };
     });

@@ -1,4 +1,5 @@
 import {
+    getEvolutionMoves,
     planMoveWishlist,
     type OwnedPokemon,
     type SpeciesDetails,
@@ -14,6 +15,12 @@ const evolutionIcon = new URL('./assets/evolution-dna.svg', import.meta.url).hre
 
 type Milestone =
     | { kind: 'move'; level: number; move: SpeciesDetails['learnset'][number] }
+    | {
+          kind: 'evolution-move';
+          level: number | null;
+          move: SpeciesDetails['learnset'][number];
+          evolution: SpeciesDetails['evolutionLinks'][number];
+      }
     | {
           kind: 'evolution';
           level: number | null;
@@ -106,11 +113,29 @@ export function MyPokemonMilestones({
             milestones.push({ kind: 'evolution', level: evolution.level, evolution });
         }
     }
+    const seenEvolutionMoves = new Set<string>();
+    for (const milestone of [...milestones]) {
+        if (milestone.kind !== 'evolution') continue;
+        const target = family.find((entry) => entry.speciesId === milestone.evolution.toSpeciesId);
+        if (!target) continue;
+        for (const move of getEvolutionMoves(target)) {
+            const key = `${target.speciesId}:${move.moveId}:${milestone.level}`;
+            if (seenEvolutionMoves.has(key)) continue;
+            seenEvolutionMoves.add(key);
+            milestones.push({
+                kind: 'evolution-move',
+                level: milestone.level,
+                move,
+                evolution: milestone.evolution,
+            });
+        }
+    }
+    const order = { move: 0, evolution: 1, 'evolution-move': 2 };
     milestones.sort((left, right) => {
         const leftLevel = left.level ?? Infinity;
         const rightLevel = right.level ?? Infinity;
         if (leftLevel !== rightLevel) return leftLevel - rightLevel;
-        return left.kind === right.kind ? 0 : left.kind === 'move' ? -1 : 1;
+        return order[left.kind] - order[right.kind];
     });
 
     const notes: { summary: string; message: string; highlight: boolean }[] = [];
@@ -189,16 +214,30 @@ export function MyPokemonMilestones({
             ) : (
                 <ul className="my-upcoming my-milestone-row">
                     {milestones.slice(0, 2).map((milestone) => {
-                        if (milestone.kind === 'move') {
+                        if (milestone.kind !== 'evolution') {
+                            const evolution =
+                                milestone.kind === 'evolution-move' ? milestone.evolution : null;
                             return (
                                 <MyPokemonMove
                                     as="li"
-                                    key={`move:${milestone.move.moveId}:${milestone.level}`}
+                                    key={`${milestone.kind}:${evolution?.toSpeciesId ?? details.speciesId}:${milestone.move.moveId}:${milestone.level}`}
                                     move={milestone.move}
                                     reference={milestone.move}
                                     prefix={
-                                        <span className="my-level-badge">
-                                            Lv. {milestone.level}
+                                        <span
+                                            className="my-level-badge"
+                                            title={
+                                                evolution
+                                                    ? t(
+                                                          `On evolution into ${evolution.toName}`,
+                                                          `Při vývoji na ${evolution.toName}`,
+                                                      )
+                                                    : undefined
+                                            }
+                                        >
+                                            {evolution
+                                                ? t('On evolution', 'Při vývoji')
+                                                : `Lv. ${milestone.level}`}
                                         </span>
                                     }
                                     suffix={
