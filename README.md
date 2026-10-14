@@ -141,7 +141,10 @@ unavailable offline.
 After adding a Pokémon, levels, moves, and evolutions are updated manually. Edit the level in the card
 header by typing or using the up/down arrows. A save button appears to its left
 only when the level changes. Saving an increase offers a skippable recap; select
-learned moves explicitly. Unrecorded moves mean unknown, not an empty moveset. Recording an evolution or form change
+learned moves explicitly. **Record stats** opens stat entry directly in the recap,
+with the current level filled in, on both collection cards and the detail page.
+Saving or cancelling stat entry leaves the recap open. Unrecorded moves mean unknown,
+not an empty moveset. Recording an evolution or form change
 preserves the Pokémon's identity, existing moves, and previous stat observations.
 Partial stat observations retain their measurement time, level, and species/form.
 Corrections update the original observation. Optional estimates interpolate only

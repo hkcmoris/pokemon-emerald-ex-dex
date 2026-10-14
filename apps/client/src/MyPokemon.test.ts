@@ -121,11 +121,16 @@ void test('catch-up recap saves nothing automatically and keeps the recap skippa
     };
     const html = render(
         createElement(CatchUpRecap, {
+            pokemon: owned,
             details: { ...species, learnset: [move] },
             oldLevel: 12,
             newLevel: 15,
             moves: null,
             onSaveMoves: () => {
+                saves++;
+                return Promise.resolve();
+            },
+            saveObservation: () => {
                 saves++;
                 return Promise.resolve();
             },
@@ -339,11 +344,13 @@ void test('Czech collection guidance and recaps translate item and friendship su
     doesNotMatch(advice, /Use Thunder Stone|Level up with|friendship: high|check in game/);
     const recap = render(
         createElement(CatchUpRecap, {
+            pokemon: { ...owned, state: { ...owned.state, speciesId: eevee.speciesId, level: 20 } },
             details: eevee,
             oldLevel: 19,
             newLevel: 20,
             moves: [],
             onSaveMoves: async () => {},
+            saveObservation: async () => {},
             onClose: () => {},
         }),
         'cs',
@@ -355,11 +362,16 @@ void test('Czech collection guidance and recaps translate item and friendship su
     const torchic = loadCollectionSpeciesFixture([255])[255];
     const levelRecap = render(
         createElement(CatchUpRecap, {
+            pokemon: {
+                ...owned,
+                state: { ...owned.state, speciesId: torchic.speciesId, level: 16 },
+            },
             details: torchic,
             oldLevel: 11,
             newLevel: 16,
             moves: [],
             onSaveMoves: async () => {},
+            saveObservation: async () => {},
             onClose: () => {},
         }),
         'cs',

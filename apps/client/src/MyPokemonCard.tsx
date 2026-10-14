@@ -19,7 +19,7 @@ import { evolutionConditionLabel, evolutionSummary } from './evolutionText.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { ownedPokemonHref, speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
-import { MyPokemonHistory } from './MyPokemonHistory.js';
+import { MyPokemonHistory, ObservationForm } from './MyPokemonHistory.js';
 import { MyPokemonStatsGraph } from './MyPokemonStatsGraph.js';
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
 import { MyPokemonMilestones } from './MyPokemonMilestones.js';
@@ -566,22 +566,28 @@ export function EvolutionAdvice({
 }
 
 export function CatchUpRecap({
+    pokemon,
     details,
     oldLevel,
     newLevel,
     moves,
     onSaveMoves,
+    saveObservation,
     onClose,
 }: {
+    pokemon: OwnedPokemon;
     details: SpeciesDetails;
     oldLevel: number;
     newLevel: number;
     moves: KnownMove[] | null;
     onSaveMoves: (moves: KnownMove[]) => Promise<void>;
+    saveObservation: (observation: StatObservation) => Promise<void>;
     onClose: () => void;
 }) {
     const { t, language } = useLanguage();
     const recap = getCatchUpRecap(details, oldLevel, newLevel);
+    const statsFormId = useId();
+    const [recordingStats, setRecordingStats] = useState(false);
     const [selected, setSelected] = useState<KnownMove[]>(moves ?? []);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -602,13 +608,37 @@ export function CatchUpRecap({
             className="my-recap my-stack"
             aria-label={t('Optional catch-up recap', 'Volitelný přehled změn')}
         >
-            <div className="my-section-heading">
+            <div className="my-section-heading flex-wrap">
                 <h3>
                     {t('Level saved', 'Úroveň uložena')} · {oldLevel} → {newLevel}
                 </h3>
-                <button className="my-text-button" type="button" onClick={onClose}>
-                    {t('Skip recap', 'Přeskočit přehled')}
-                </button>
+                <div className="my-actions">
+                    <button
+                        className="page-button"
+                        type="button"
+                        aria-expanded={recordingStats}
+                        aria-controls={statsFormId}
+                        onClick={() => setRecordingStats(!recordingStats)}
+                    >
+                        {t('Record stats', 'Zapsat statistiky')}
+                    </button>
+                    <button className="my-text-button" type="button" onClick={onClose}>
+                        {t('Skip recap', 'Přeskočit přehled')}
+                    </button>
+                </div>
+            </div>
+            <div id={statsFormId} hidden={!recordingStats}>
+                {recordingStats && (
+                    <ObservationForm
+                        key={`${pokemon.state.speciesId}-${pokemon.state.formEpoch}-${pokemon.state.level}`}
+                        pokemon={pokemon}
+                        onSave={async (entry) => {
+                            await saveObservation(entry);
+                            setRecordingStats(false);
+                        }}
+                        onCancel={() => setRecordingStats(false)}
+                    />
+                )}
             </div>
             <p className="my-muted">
                 {t(
@@ -943,8 +973,10 @@ export function MyPokemonCard({
             {recap && !stateConflict && (
                 <CatchUpRecap
                     {...recap}
+                    pokemon={pokemon}
                     moves={pokemon.state.moves}
                     onSaveMoves={saveMoves}
+                    saveObservation={saveObservation}
                     onClose={() => setRecap(null)}
                 />
             )}
