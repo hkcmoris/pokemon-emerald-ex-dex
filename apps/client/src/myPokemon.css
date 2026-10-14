@@ -345,6 +345,17 @@
     stroke-linecap: round;
     stroke-linejoin: round;
 }
+.my-stat-view-toggle .my-moves-view-icon {
+    fill: currentColor;
+    stroke: none;
+}
+.my-card-view {
+    position: relative;
+    min-width: 0;
+}
+.my-current-moves[data-hidden='true'] {
+    display: none;
+}
 .my-stat-graph-panel {
     min-width: 0;
     border-top: 1px solid var(--dex-border);
@@ -409,6 +420,39 @@
     width: 0.6rem;
     height: 0.6rem;
     border-radius: 50%;
+}
+@media (min-width: 801px) {
+    /* Keep the moves' intrinsic height as the graph's sizing reference. */
+    .my-card-summary .my-card-view > .my-current-moves[data-hidden='true'] {
+        display: flex;
+        visibility: hidden;
+    }
+    .my-card-summary .my-card-view > .my-stat-graph-panel {
+        position: absolute;
+        inset: 0;
+        border: 0;
+        padding: 0;
+    }
+    .my-card-summary .my-stats-graph {
+        height: 100%;
+        grid-template-rows: minmax(0, 1fr) auto auto;
+        gap: 0.35rem;
+    }
+    .my-card-summary .my-stats-chart {
+        height: 100%;
+        min-height: 0;
+    }
+    .my-card-summary .my-stats-axis {
+        font-size: 14px;
+    }
+    .my-card-summary .my-stats-legend {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.25rem 0.65rem;
+    }
+    .my-card-summary .my-stats-graph figcaption {
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
 }
 @media (max-width: 600px) {
     .my-stats-axis {

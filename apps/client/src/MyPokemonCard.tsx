@@ -775,18 +775,22 @@ export function MyPokemonCard({
                         <div
                             className="appearance-toggle my-stat-view-toggle"
                             role="group"
-                            aria-label={t('Battle stats view', 'Zobrazení bojových statistik')}
+                            aria-label={t('Card view', 'Zobrazení karty')}
                         >
                             <button
                                 type="button"
                                 aria-pressed={!showStatsGraph}
                                 aria-controls={statsPanelId}
-                                aria-label={t('Current stats', 'Aktuální statistiky')}
-                                title={t('Current stats', 'Aktuální statistiky')}
+                                aria-label={t('Current moves', 'Aktuální útoky')}
+                                title={t('Current moves', 'Aktuální útoky')}
                                 onClick={() => setShowStatsGraph(false)}
                             >
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M5 4v16M9 6h10M9 12h7M9 18h4" />
+                                <svg
+                                    className="my-moves-view-icon"
+                                    viewBox="0 0 512 512"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M280.762 21.63c-15.912-.117-32 1.523-47.983 5.08-42.948 9.563-58.997 38.668-57.135 66.495 9.325.534 19.01 1.876 28.914 3.988 28.983 6.18 59.948 19.074 89.05 38.418 100.28-25.29 162.228 51.005 184.7 152.18 49.7-147.744-67.984-265.215-197.548-266.16zm-112.535 90.128c-16.8-.114-31.245 2.938-41.717 8.74l-.04-.074c-14.14 7.645-23.816 19.428-29.15 32.687 14.63 4.844 28.782 13.83 41.955 25.466 17.72 15.652 33.85 36.317 47.06 59.662 116.927 2.378 161.504 103.39 150.673 215.26 79.5-106.87 42.174-229.74-43.856-295.404-29.984-21.936-62.82-36.296-92.492-42.623-11.425-2.436-22.354-3.644-32.433-3.712zM75.29 167.963C21.077 166.605-10.09 248.77 47.966 276.21c104.435 49.363 94.912 140.96 34.844 222.71 115.134-47.87 134.337-172.24 81.997-260.066l.152-.01c-11.28-18.202-24.378-34.178-38.056-46.26-14.62-12.914-29.74-21.183-43.76-23.836-2.664-.454-5.287-.72-7.855-.785z" />
                                 </svg>
                             </button>
                             <button
@@ -850,7 +854,6 @@ export function MyPokemonCard({
                     />
                     <div className="flex justify-between">
                         <div
-                            id={statsPanelId}
                             className="my-pokemon-stat-total"
                             title={
                                 statsConflict
@@ -882,24 +885,6 @@ export function MyPokemonCard({
                     </div>
                 </div>
             </div>
-            {showStatsGraph && (
-                <div className="my-stat-graph-panel" id={statsPanelId}>
-                    {statsConflict ? (
-                        <p className="my-muted" role="status">
-                            {t(
-                                'Resolve conflicting updates to view stat progression.',
-                                'Pro zobrazení vývoje statistik vyřešte konfliktní úpravy.',
-                            )}
-                        </p>
-                    ) : (
-                        <MyPokemonStatsGraph
-                            pokemon={pokemon}
-                            observations={observations}
-                            family={family}
-                        />
-                    )}
-                </div>
-            )}
             {stateConflict && (
                 <p className="my-advice-highlight" role="status">
                     {t(
@@ -916,64 +901,94 @@ export function MyPokemonCard({
                     onClose={() => setRecap(null)}
                 />
             )}
-            <div className="my-current-moves">
-                <div className="my-section-heading">
-                    <h3>{t('Current moves', 'Aktuální útoky')}</h3>
-                    <button
-                        className="my-text-button"
-                        type="button"
-                        disabled={stateConflict}
-                        onClick={() => setEditingMoves(!editingMoves)}
-                    >
-                        {t('Edit', 'Upravit')}
-                    </button>
-                </div>
-                <ul
-                    className="my-move-grid"
-                    aria-label={
-                        pokemon.state.moves?.length === 0
-                            ? t(
-                                  'No moves recorded as known',
-                                  'Žádné útoky nejsou označeny jako známé',
-                              )
-                            : undefined
-                    }
+            <div className="my-card-view" id={statsPanelId}>
+                <div
+                    className="my-current-moves"
+                    data-hidden={showStatsGraph}
+                    aria-hidden={showStatsGraph}
+                    inert={showStatsGraph}
                 >
-                    {Array.from({ length: 4 }, (_, slot) => {
-                        const move = pokemon.state.moves?.[slot];
-                        return move ? (
-                            <MyPokemonMove
-                                as="li"
-                                key={slot}
-                                move={move}
-                                reference={findReferenceMove(move.moveId, family)}
-                                showStats
-                            />
+                    <div className="my-section-heading">
+                        <h3>{t('Current moves', 'Aktuální útoky')}</h3>
+                        <button
+                            className="my-text-button"
+                            type="button"
+                            disabled={stateConflict}
+                            onClick={() => setEditingMoves(!editingMoves)}
+                        >
+                            {t('Edit', 'Upravit')}
+                        </button>
+                    </div>
+                    <ul
+                        className="my-move-grid"
+                        aria-label={
+                            pokemon.state.moves?.length === 0
+                                ? t(
+                                      'No moves recorded as known',
+                                      'Žádné útoky nejsou označeny jako známé',
+                                  )
+                                : undefined
+                        }
+                    >
+                        {Array.from({ length: 4 }, (_, slot) => {
+                            const move = pokemon.state.moves?.[slot];
+                            return move ? (
+                                <MyPokemonMove
+                                    as="li"
+                                    key={slot}
+                                    move={move}
+                                    reference={findReferenceMove(move.moveId, family)}
+                                    showStats
+                                />
+                            ) : (
+                                <li className="my-move my-move-detailed my-move-empty" key={slot}>
+                                    <span
+                                        className={
+                                            pokemon.state.moves === null ? undefined : 'sr-only'
+                                        }
+                                    >
+                                        {pokemon.state.moves === null
+                                            ? t('Not recorded', 'Nezaznamenány')
+                                            : t(
+                                                  'Free move slot ' + (slot + 1),
+                                                  'Volné místo pro útok ' + (slot + 1),
+                                              )}
+                                    </span>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
+                {showStatsGraph && (
+                    <div className="my-stat-graph-panel">
+                        {statsConflict ? (
+                            <p className="my-muted" role="status">
+                                {t(
+                                    'Resolve conflicting updates to view stat progression.',
+                                    'Pro zobrazení vývoje statistik vyřešte konfliktní úpravy.',
+                                )}
+                            </p>
                         ) : (
-                            <li className="my-move my-move-detailed my-move-empty" key={slot}>
-                                <span
-                                    className={pokemon.state.moves === null ? undefined : 'sr-only'}
-                                >
-                                    {pokemon.state.moves === null
-                                        ? t('Not recorded', 'Nezaznamenány')
-                                        : t(
-                                              'Free move slot ' + (slot + 1),
-                                              'Volné místo pro útok ' + (slot + 1),
-                                          )}
-                                </span>
-                            </li>
-                        );
-                    })}
-                </ul>
+                            <MyPokemonStatsGraph
+                                pokemon={pokemon}
+                                observations={observations}
+                                family={family}
+                                compact={!detail}
+                            />
+                        )}
+                    </div>
+                )}
             </div>
             {editingMoves && !stateConflict && (
-                <MovesEditor
-                    key={JSON.stringify(pokemon.state.moves)}
-                    moves={pokemon.state.moves}
-                    family={family}
-                    onSave={saveMoves}
-                    onCancel={() => setEditingMoves(false)}
-                />
+                <div hidden={showStatsGraph}>
+                    <MovesEditor
+                        key={JSON.stringify(pokemon.state.moves)}
+                        moves={pokemon.state.moves}
+                        family={family}
+                        onSave={saveMoves}
+                        onCancel={() => setEditingMoves(false)}
+                    />
+                </div>
             )}
             {!stateConflict &&
                 species.data &&

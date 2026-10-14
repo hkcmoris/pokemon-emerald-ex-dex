@@ -130,6 +130,9 @@ base Attack and Sp. Attack, matching the Pokédex indicator. Current moves form 
 2×2 grid with category icons and power; moves without fixed base power show an em dash.
 Unused move slots have dashed borders and 45° stripes, keeping the move grid the same
 height for zero to four moves. Unrecorded moves retain an explicit unknown label.
+The toggle below the sprite switches between current moves and the recorded stat graph.
+On desktop, both views occupy the same space so switching keeps collection cards aligned.
+Upcoming milestones remain below either view.
 Type names remain available
 when icons are missing; saved move names remain visible when reference data is
 unavailable offline.
