@@ -928,25 +928,43 @@ export function MyPokemonCard({
                         {t('Edit', 'Upravit')}
                     </button>
                 </div>
-                {pokemon.state.moves === null ? (
-                    <p className="my-muted">{t('Not recorded', 'Nezaznamenány')}</p>
-                ) : pokemon.state.moves.length === 0 ? (
-                    <p className="my-muted">
-                        {t('No moves recorded as known', 'Žádné útoky nejsou označeny jako známé')}
-                    </p>
-                ) : (
-                    <ul className="my-move-grid">
-                        {pokemon.state.moves.map((move) => (
+                <ul
+                    className="my-move-grid"
+                    aria-label={
+                        pokemon.state.moves?.length === 0
+                            ? t(
+                                  'No moves recorded as known',
+                                  'Žádné útoky nejsou označeny jako známé',
+                              )
+                            : undefined
+                    }
+                >
+                    {Array.from({ length: 4 }, (_, slot) => {
+                        const move = pokemon.state.moves?.[slot];
+                        return move ? (
                             <MyPokemonMove
                                 as="li"
-                                key={move.moveId}
+                                key={slot}
                                 move={move}
                                 reference={findReferenceMove(move.moveId, family)}
                                 showStats
                             />
-                        ))}
-                    </ul>
-                )}
+                        ) : (
+                            <li className="my-move my-move-detailed my-move-empty" key={slot}>
+                                <span
+                                    className={pokemon.state.moves === null ? undefined : 'sr-only'}
+                                >
+                                    {pokemon.state.moves === null
+                                        ? t('Not recorded', 'Nezaznamenány')
+                                        : t(
+                                              'Free move slot ' + (slot + 1),
+                                              'Volné místo pro útok ' + (slot + 1),
+                                          )}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ul>
             </div>
             {editingMoves && !stateConflict && (
                 <MovesEditor

@@ -120,7 +120,7 @@
 .my-account,
 .my-panel,
 .my-pokemon-card {
-    border: 1px solid var(--dex-border);
+    border: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
     border-radius: var(--radius-panel);
 }
 .my-account,
@@ -242,7 +242,7 @@
     isolation: isolate;
 }
 .my-card-summary:has(.my-card-detail-link:hover) {
-    border-color: var(--dex-accent);
+    border-color: color-mix(in srgb, var(--type-primary) 48%, var(--dex-accent));
 }
 .my-card-detail-link {
     color: inherit;
@@ -536,7 +536,7 @@
     max-width: 100%;
     text-align: left;
     overflow-wrap: anywhere;
-    border: 1px solid var(--dex-border);
+    border: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
     border-radius: 9px;
     padding: 0.35rem 0.6rem;
     font-size: 0.8rem;
@@ -550,7 +550,19 @@
 .my-move-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(4.5rem, 1fr);
     gap: 0.5rem;
+}
+.my-move.my-move-empty {
+    align-items: center;
+    justify-content: center;
+    border-style: dashed;
+    color: var(--dex-muted);
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent 0 6px,
+        color-mix(in srgb, var(--dex-muted) 8%, transparent) 6px 12px
+    );
 }
 .my-move-detailed {
     flex-direction: column;
@@ -602,7 +614,7 @@
     border-radius: 12px;
 }
 .my-guidance {
-    border-top: 1px solid var(--dex-border);
+    border-top: 1px solid color-mix(in srgb, var(--type-primary) 24%, var(--dex-border));
     padding-top: 1rem;
 }
 .my-upcoming {
