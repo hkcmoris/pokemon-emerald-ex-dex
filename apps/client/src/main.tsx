@@ -7,6 +7,8 @@ import { LanguageProvider } from './language.js';
 import { applyTheme, readTheme } from './theme.js';
 import { registerCollectionOffline } from './collectionOffline.js';
 import './style.css';
+import './MoveEffectBadges.css';
+import './MoveAffinity.css';
 
 applyTheme(readTheme());
 registerCollectionOffline();

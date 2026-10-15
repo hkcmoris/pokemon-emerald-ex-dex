@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import {
     statKeys,
     type BaseStats,
@@ -64,6 +64,23 @@ export function MyPokemonStatsGraph({
 }) {
     const { t, locale } = useLanguage();
     const id = useId();
+    const plotRef = useRef<HTMLDivElement>(null);
+    const [hint, setHint] = useState<{ key: string; pinned: boolean } | null>(null);
+    useEffect(() => {
+        const dismissOutside = (event: globalThis.PointerEvent): void => {
+            if (event.target instanceof Node && !plotRef.current?.contains(event.target))
+                setHint(null);
+        };
+        const dismissWithEscape = (event: KeyboardEvent): void => {
+            if (event.key === 'Escape') setHint(null);
+        };
+        document.addEventListener('pointerdown', dismissOutside);
+        document.addEventListener('keydown', dismissWithEscape);
+        return () => {
+            document.removeEventListener('pointerdown', dismissOutside);
+            document.removeEventListener('keydown', dismissWithEscape);
+        };
+    }, []);
     const currentStats = getCurrentStats(pokemon, observations);
     const active = observations
         .filter(
@@ -123,6 +140,31 @@ export function MyPokemonStatsGraph({
             ? (left + right) / 2
             : left + ((level - firstLevel) / (lastLevel - firstLevel)) * (right - left);
     const y = (value: number): number => bottom - (value / ceiling) * (bottom - top);
+    const width = compact ? 320 : 400;
+    const height = compact ? 220 : 240;
+    const points = active.flatMap((entry) =>
+        statKeys.flatMap((stat) => {
+            const value = entry.stats[stat];
+            return value === undefined ? [] : [{ key: `${entry.id}:${stat}`, entry, stat, value }];
+        }),
+    );
+    const selected = points.find((point) => point.key === hint?.key);
+    // Compare in screen pixels so a nearby point stays easy to select at any chart size.
+    const nearestPoint = (event: MouseEvent<SVGSVGElement>): string | null => {
+        const bounds = event.currentTarget.getBoundingClientRect();
+        let nearest: string | null = null;
+        let distance = 16 ** 2;
+        for (const point of points) {
+            const dx = bounds.left + (x(point.entry.level) / width) * bounds.width - event.clientX;
+            const dy = bounds.top + (y(point.value) / height) * bounds.height - event.clientY;
+            const candidate = dx * dx + dy * dy;
+            if (candidate <= distance) {
+                nearest = point.key;
+                distance = candidate;
+            }
+        }
+        return nearest;
+    };
     const speciesName = (speciesId: number): string =>
         family.find((entry) => entry.speciesId === speciesId)?.name ?? `#${speciesId}`;
     const description = t(
@@ -132,105 +174,177 @@ export function MyPokemonStatsGraph({
 
     return (
         <figure className="my-stats-graph">
-            <svg
-                className="my-stats-chart"
-                viewBox={compact ? '0 0 320 220' : '0 0 400 240'}
-                role="img"
-                aria-labelledby={`${id}-title ${id}-description`}
+            <div
+                className="my-stats-plot"
+                ref={plotRef}
+                onPointerLeave={() => setHint((current) => (current?.pinned ? current : null))}
+                onBlur={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) setHint(null);
+                }}
             >
-                <title id={`${id}-title`}>
-                    {t('Stat progression over levels', 'Průběh statistik podle úrovně')}
-                </title>
-                <desc id={`${id}-description`}>{description}</desc>
-                {yTicks.map((value) => (
-                    <g key={value}>
-                        <line
-                            className="my-stats-gridline"
-                            x1={left}
-                            x2={right}
-                            y1={y(value)}
-                            y2={y(value)}
-                        />
-                        <text
-                            className="my-stats-axis"
-                            x={left - 8}
-                            y={y(value)}
-                            textAnchor="end"
-                            dominantBaseline="middle"
-                        >
-                            {value}
-                        </text>
-                    </g>
-                ))}
-                {xTicks.map((level) => (
-                    <text
-                        className="my-stats-axis"
-                        key={level}
-                        x={x(level)}
-                        y={bottom + 18}
-                        textAnchor="middle"
+                <div className="my-stats-plot-content">
+                    <svg
+                        className="my-stats-chart"
+                        viewBox={`0 0 ${width} ${height}`}
+                        role="group"
+                        aria-labelledby={`${id}-title`}
+                        aria-describedby={`${id}-description`}
+                        onPointerMove={(event) => {
+                            if (event.pointerType === 'touch') return;
+                            const key = nearestPoint(event);
+                            if (key)
+                                setHint((current) =>
+                                    current?.key === key ? current : { key, pinned: false },
+                                );
+                        }}
+                        onClick={(event) => {
+                            const key = nearestPoint(event);
+                            setHint(key ? { key, pinned: true } : null);
+                        }}
                     >
-                        {level}
-                    </text>
-                ))}
-                <text
-                    className="my-stats-axis"
-                    x={(left + right) / 2}
-                    y={bottom + 42}
-                    textAnchor="middle"
-                >
-                    {t('Level', 'Úroveň')}
-                </text>
-                <text
-                    className="my-stats-axis"
-                    transform={`translate(12 ${(top + bottom) / 2}) rotate(-90)`}
-                    textAnchor="middle"
-                >
-                    {t('Stat value', 'Hodnota statistiky')}
-                </text>
-                {[...periods].map(([period, entries]) => (
-                    <g
-                        key={period}
-                        data-species-id={entries[0].speciesId}
-                        data-form-epoch={entries[0].formEpoch}
-                    >
-                        {statKeys.map((stat) => (
-                            <g key={stat} data-stat={stat}>
-                                {statSegments(entries, stat).map((segment, index) => (
-                                    <polyline
-                                        key={index}
-                                        points={segment
-                                            .map((point) => `${x(point.level)},${y(point.value)}`)
-                                            .join(' ')}
-                                        fill="none"
-                                        stroke={statColors[stat]}
-                                        strokeWidth="2"
-                                        strokeLinejoin="round"
-                                        vectorEffect="non-scaling-stroke"
-                                    />
-                                ))}
-                                {entries.flatMap((entry) => {
-                                    const value = entry.stats[stat];
-                                    if (value === undefined) return [];
-                                    return [
-                                        <circle
-                                            key={entry.id}
-                                            cx={x(entry.level)}
-                                            cy={y(value)}
-                                            r="3.5"
-                                            fill={statColors[stat]}
-                                        >
-                                            <title>
-                                                {`${statName(stat, t)}: ${value} · ${t('Level', 'Úroveň')} ${entry.level} · ${speciesName(entry.speciesId)} · ${new Date(entry.recordedAt).toLocaleString(locale)}`}
-                                            </title>
-                                        </circle>,
-                                    ];
-                                })}
+                        <title id={`${id}-title`}>
+                            {t('Stat progression over levels', 'Průběh statistik podle úrovně')}
+                        </title>
+                        <desc id={`${id}-description`}>{description}</desc>
+                        {yTicks.map((value) => (
+                            <g key={value}>
+                                <line
+                                    className="my-stats-gridline"
+                                    x1={left}
+                                    x2={right}
+                                    y1={y(value)}
+                                    y2={y(value)}
+                                />
+                                <text
+                                    className="my-stats-axis"
+                                    x={left - 8}
+                                    y={y(value)}
+                                    textAnchor="end"
+                                    dominantBaseline="middle"
+                                >
+                                    {value}
+                                </text>
                             </g>
                         ))}
-                    </g>
-                ))}
-            </svg>
+                        {xTicks.map((level) => (
+                            <text
+                                className="my-stats-axis"
+                                key={level}
+                                x={x(level)}
+                                y={bottom + 18}
+                                textAnchor="middle"
+                            >
+                                {level}
+                            </text>
+                        ))}
+                        <text
+                            className="my-stats-axis"
+                            x={(left + right) / 2}
+                            y={bottom + 42}
+                            textAnchor="middle"
+                        >
+                            {t('Level', 'Úroveň')}
+                        </text>
+                        <text
+                            className="my-stats-axis"
+                            transform={`translate(12 ${(top + bottom) / 2}) rotate(-90)`}
+                            textAnchor="middle"
+                        >
+                            {t('Stat value', 'Hodnota statistiky')}
+                        </text>
+                        {[...periods].map(([period, entries]) => (
+                            <g
+                                key={period}
+                                data-species-id={entries[0].speciesId}
+                                data-form-epoch={entries[0].formEpoch}
+                            >
+                                {statKeys.map((stat) => (
+                                    <g key={stat} data-stat={stat}>
+                                        {statSegments(entries, stat).map((segment, index) => (
+                                            <polyline
+                                                key={index}
+                                                points={segment
+                                                    .map(
+                                                        (point) =>
+                                                            `${x(point.level)},${y(point.value)}`,
+                                                    )
+                                                    .join(' ')}
+                                                fill="none"
+                                                stroke={statColors[stat]}
+                                                strokeWidth="2"
+                                                strokeLinejoin="round"
+                                                vectorEffect="non-scaling-stroke"
+                                            />
+                                        ))}
+                                        {entries.flatMap((entry) => {
+                                            const value = entry.stats[stat];
+                                            if (value === undefined) return [];
+                                            const key = `${entry.id}:${stat}`;
+                                            return [
+                                                <circle
+                                                    key={entry.id}
+                                                    className="my-stats-point"
+                                                    cx={x(entry.level)}
+                                                    cy={y(value)}
+                                                    r="3.5"
+                                                    fill={statColors[stat]}
+                                                    stroke="transparent"
+                                                    strokeWidth="16"
+                                                    vectorEffect="non-scaling-stroke"
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    aria-label={`${statName(stat, t)}: ${value} · ${t('Level', 'Úroveň')} ${entry.level} · ${speciesName(entry.speciesId)} · ${new Date(entry.recordedAt).toLocaleString(locale)}`}
+                                                    aria-describedby={
+                                                        selected?.key === key
+                                                            ? `${id}-hint`
+                                                            : undefined
+                                                    }
+                                                    data-active={selected?.key === key || undefined}
+                                                    onFocus={() => setHint({ key, pinned: true })}
+                                                    onClick={(event) => {
+                                                        if (event.detail === 0) {
+                                                            event.stopPropagation();
+                                                            setHint({ key, pinned: true });
+                                                        }
+                                                    }}
+                                                    onKeyDown={(event) => {
+                                                        if (
+                                                            event.key === 'Enter' ||
+                                                            event.key === ' '
+                                                        ) {
+                                                            event.preventDefault();
+                                                            setHint({ key, pinned: true });
+                                                        }
+                                                    }}
+                                                />,
+                                            ];
+                                        })}
+                                    </g>
+                                ))}
+                            </g>
+                        ))}
+                    </svg>
+                    {selected && (
+                        <div
+                            className="my-stats-hint"
+                            id={`${id}-hint`}
+                            role="tooltip"
+                            style={{
+                                left: `clamp(0px, calc(${(x(selected.entry.level) / width) * 100}% - 4.5rem), max(0px, calc(100% - 9rem)))`,
+                                top: `${(y(selected.value) / height) * 100}%`,
+                                borderColor: statColors[selected.stat],
+                            }}
+                        >
+                            <strong>
+                                {statName(selected.stat, t)}: {selected.value}
+                            </strong>
+                            <span>
+                                {t('Level', 'Úroveň')} {selected.entry.level}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            </div>
             <ul className="my-stats-legend" aria-label={t('Current stats', 'Aktuální statistiky')}>
                 {statKeys.map((stat) => (
                     <li key={stat} data-stat={stat}>

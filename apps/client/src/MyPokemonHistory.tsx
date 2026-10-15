@@ -1,4 +1,4 @@
-import { useState, type SubmitEvent } from 'react';
+import { useId, useState, type SubmitEvent } from 'react';
 import {
     interpolateStats,
     type BaseStats,
@@ -8,6 +8,7 @@ import {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { useLanguage, type Translate } from './language.js';
+import { predictStats } from './collectionStats.js';
 
 const statKeys: readonly (keyof BaseStats)[] = [
     'hp',
@@ -38,11 +39,15 @@ function localDateTime(iso: string): string {
 export function ObservationForm({
     pokemon,
     observation,
+    observations = [],
+    predictionsEnabled = true,
     onSave,
     onCancel,
 }: {
     pokemon: OwnedPokemon;
     observation?: StatObservation;
+    observations?: readonly StatObservation[];
+    predictionsEnabled?: boolean;
     onSave: (value: StatObservation) => Promise<void>;
     onCancel: () => void;
 }) {
@@ -56,14 +61,25 @@ export function ObservationForm({
             Object.entries(observation?.stats ?? {}).map(([key, value]) => [key, String(value)]),
         ),
     );
+    const predictionHintId = useId();
+    const predictions =
+        !observation && predictionsEnabled
+            ? predictStats(pokemon, observations, Number(level))
+            : {};
+    const isPredicted = (key: keyof BaseStats): boolean =>
+        stats[key] === undefined && predictions[key] !== undefined;
+    const hasPredictions = statKeys.some(isPredicted);
+    // Explicit edits, including clearing a field, always win over changing predictions.
+    const statValue = (key: keyof BaseStats): string =>
+        stats[key] ?? (predictions[key] === undefined ? '' : String(predictions[key]));
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     async function submit(event: SubmitEvent) {
         event.preventDefault();
         const measured: Partial<BaseStats> = {};
         for (const key of statKeys) {
-            const value = stats[key];
-            if (value !== undefined && value !== '') measured[key] = Number(value);
+            const value = statValue(key);
+            if (value !== '') measured[key] = Number(value);
         }
         if (Object.keys(measured).length === 0) {
             setError(
@@ -116,6 +132,14 @@ export function ObservationForm({
                     'Zadejte hodnoty zobrazené ve hře. Neznámé statistiky nechte prázdné.',
                 )}
             </p>
+            {hasPredictions && (
+                <p className="my-muted" id={predictionHintId}>
+                    {t(
+                        'Prefilled values are estimates from your last two recorded levels in this form. Check them against the game before saving.',
+                        'Předvyplněné hodnoty jsou odhady ze dvou posledních zaznamenaných úrovní této formy. Před uložením je ověřte ve hře.',
+                    )}
+                </p>
+            )}
             <div className="my-fields">
                 <label className="filter-label">
                     {t('Observed level', 'Úroveň při měření')}
@@ -145,13 +169,20 @@ export function ObservationForm({
                 {statKeys.map((key) => (
                     <label className="filter-label" key={key}>
                         {statName(key, t)}
+                        {isPredicted(key) && (
+                            <>
+                                {' '}
+                                <small className="my-muted">{t('Estimate', 'Odhad')}</small>
+                            </>
+                        )}
                         <input
                             className="filter-input"
                             type="number"
                             min="1"
                             max="65535"
                             step="1"
-                            value={stats[key] ?? ''}
+                            value={statValue(key)}
+                            aria-describedby={isPredicted(key) ? predictionHintId : undefined}
                             onChange={(event) => setStats({ ...stats, [key]: event.target.value })}
                         />
                     </label>
@@ -325,11 +356,13 @@ export function MyPokemonHistory({
     observations,
     family,
     saveObservation,
+    predictionsEnabled = true,
 }: {
     pokemon: OwnedPokemon;
     observations: readonly StatObservation[];
     family: readonly SpeciesDetails[];
     saveObservation: (observation: StatObservation) => Promise<void>;
+    predictionsEnabled?: boolean;
 }) {
     const { t } = useLanguage();
     const [editing, setEditing] = useState<StatObservation | 'new' | null>(null);
@@ -361,8 +394,8 @@ export function MyPokemonHistory({
             </div>
             <p className="my-muted">
                 {t(
-                    'Estimates fill gaps between measurements of the same continuous species/form stage. They are not measured stats and never predict future levels.',
-                    'Odhady vyplňují mezery mezi měřeními ve stejném souvislém období druhu či formy. Nejde o naměřené statistiky ani o předpovědi dalších úrovní.',
+                    'Table estimates fill gaps between measurements of the same continuous species/form stage. They are not measured stats. Predictions for a new level appear only in the entry form until you save them.',
+                    'Odhady v tabulce vyplňují mezery mezi měřeními ve stejném souvislém období druhu či formy. Nejde o naměřené statistiky. Předpovědi pro novou úroveň se do uložení zobrazují pouze ve formuláři.',
                 )}
             </p>
             <label className="my-check">
@@ -375,9 +408,15 @@ export function MyPokemonHistory({
             </label>
             {editing && (
                 <ObservationForm
-                    key={editing === 'new' ? 'new' : editing.id}
+                    key={
+                        editing === 'new'
+                            ? `new-${pokemon.state.speciesId}-${pokemon.state.formEpoch}-${pokemon.state.level}`
+                            : editing.id
+                    }
                     pokemon={pokemon}
                     observation={editing === 'new' ? undefined : editing}
+                    observations={observations}
+                    predictionsEnabled={predictionsEnabled}
                     onSave={async (entry) => {
                         await saveObservation(entry);
                         setEditing(null);

@@ -131,12 +131,30 @@ base Attack and Sp. Attack, matching the Pokédex indicator. Current moves form 
 2×2 grid with category icons and power; moves without fixed base power show an em dash.
 Category and power also appear in **Coming up**, saved wishes, wishlist choices,
 and learning-plan steps. Missing reference data shows a question mark.
+Labeled SVG effect badges show status conditions, stat changes, healing, drain, and recoil
+in move cards, wishlist choices, and the species move tables. They identify the affected
+side and possible or conditional effects; no secondary-effect percentages are inferred.
+The audited Emerald EX 1.0.4 mapping and its limits are described in [Move effects](docs/move-effects.md).
+Matching physical/special moves have a gently pulsing border, using the same base Attack
+versus Sp. Attack comparison as the Pokémon's category icon. Equal stats highlight both
+damaging categories; status moves are excluded. Reduced-motion preferences keep a static border.
 Unused move slots have dashed borders and 45° stripes, keeping the move grid the same
 height for zero to four moves. Unrecorded moves retain an explicit unknown label.
-The toggle below the sprite switches between current moves and the recorded stat graph.
-On desktop, both views occupy the same space so switching keeps collection cards aligned.
+The toggle below the sprite has two rows: current moves and the recorded stat graph,
+then weaknesses and resistances/immunities. New controls extend downward, keeping the
+portrait width unchanged. Each view grows the card vertically as needed, with wrapping
+type badges and no fixed-height overlay.
 The graph legend sits in a single column on the right, leaving more vertical room for the plot.
-Upcoming milestones remain below either view.
+Hover near a chart point, tap it, or focus it with the keyboard to show its recorded value
+and level above the point. Tapped hints stay visible until another point is selected,
+you tap elsewhere, or press Escape; Enter and Space also keep a focused hint open.
+Upcoming milestones remain below every view. Type defenses use the seeded 18-type chart
+from `024_type_effectiveness.sql` and `025_seed_type_effectiveness.sql` through
+`GET /api/v1/type-effectiveness` on both Node and PHP. Dual types multiply: Water/Ground
+takes 4× Grass damage, Bug/Poison takes ¼×, and an immunity keeps the result at 0×.
+The view excludes neutral damage and accounts for typing only, not abilities, held items,
+or battle effects. The chart is cached per dataset for offline use after its first load;
+missing or unknown matchup data is shown as unavailable.
 Type names remain available
 when icons are missing; saved move names remain visible when reference data is
 unavailable offline.
@@ -146,6 +164,15 @@ header by typing or using the up/down arrows. A save button appears to its left
 only when the level changes. Saving an increase offers a skippable recap; select
 learned moves explicitly. **Record stats** opens stat entry directly in the recap,
 with the current level filled in, on both collection cards and the detail page.
+When the current form has observations at two earlier levels, the new-stat form
+prefills each supported stat by extending its growth between the two latest recorded
+levels, rounded to a whole number. These values are labeled **Estimate** and must be
+checked against the game before saving. Missing or conflicting readings, decreasing
+stats, evolution/form changes, and unresolved sync conflicts do not produce predictions.
+Editing or clearing a field keeps that choice even if the observed level changes;
+only untouched estimates recalculate. Corrections retain their original recorded values.
+Predictions are available from both the level-up recap and **Growth history** and are
+not added to the history or graph until the form is submitted.
 Saving or cancelling stat entry leaves the recap open. Unrecorded moves mean unknown,
 not an empty moveset. Recording an evolution or form change
 preserves the Pokémon's identity, existing moves, and previous stat observations.

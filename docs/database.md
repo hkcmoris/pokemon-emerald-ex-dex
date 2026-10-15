@@ -9,7 +9,7 @@ Target versions: MySQL 8.0.16+ or MariaDB 10.11+. Tables use InnoDB, foreign key
 the SQL client or hosting control panel. The scripts do not create, alter, drop, or
 select a database, and do not require permission to create one.
 
-All 24 dex tables use the `emerald_ex_` prefix, for example `emerald_ex_species` and
+All dex tables use the `emerald_ex_` prefix, for example `emerald_ex_species` and
 `emerald_ex_moves`. Explicitly named constraints and indexes use the same prefix to avoid
 constraint-name collisions with other projects in the shared database. Imports and
 queries reference only these prefixed tables; other projects' tables are untouched.
@@ -27,8 +27,10 @@ the database still enforces the restoration/FK semantics.
 2. `scripts/sql/002_import_emerald_ex_1.0.4.sql` — prepared data import.
 3. `scripts/sql/008_seed_move_category_icons.sql` — initial category icon filenames.
 4. `scripts/sql/010_seed_type_icons.sql` — initial type icon filenames.
-5. `scripts/sql/003_verify_import.sql` — counts and representative records.
-6. `scripts/sql/004_api_query_examples.sql` — example queries for the API.
+5. `scripts/sql/024_type_effectiveness.sql` — directed type-matchup table.
+6. `scripts/sql/025_seed_type_effectiveness.sql` — complete 18-type matchup chart.
+7. `scripts/sql/003_verify_import.sql` — counts and representative records.
+8. `scripts/sql/004_api_query_examples.sql` — example queries for the API.
 
 ### Local migrations
 
@@ -44,7 +46,7 @@ administrative account with schema and data write permissions. It accepts only
 `127.0.0.1`, `localhost`, or `::1` and requires the existing `emerald-ex-1.0.4` dataset;
 it does not create a database or run the replacement `002` import.
 
-Upgrades `005` through `023` run in order on one connection. Successful upgrades are
+Upgrades `005` through `025` run in order on one connection. Successful upgrades are
 recorded in `emerald_ex_migrations` and skipped on subsequent runs. A database lock
 prevents two runners from applying the same upgrades concurrently. The runner stops
 on the first error, rolls back the active data transaction, and leaves that upgrade
@@ -63,6 +65,7 @@ runs once to replace only the original Physical/Special PNG defaults with SVGs.
 Upgrade `018` recognizes an existing `description_cs` column. Seed `019` runs once
 unless recorded in migration history; the column alone does not prove it was seeded.
 Upgrades `020`/`021` follow the same rule for ability and item descriptions.
+Upgrades `024`/`025` apply the same rule to the type-effectiveness table and its seed.
 
 #### Local collection test data
 
@@ -657,3 +660,60 @@ work on schemas predating `020`. `014` preserves existing Czech item text on upd
 `016` replaces ability definitions, so rerun `021` after it to restore translations.
 Apply `021` directly after changing translations, because migration history causes
 `db:migrate` to skip an already recorded seed.
+
+## Type weaknesses and resistances
+
+Apply these scripts in order to an existing database before deploying the updated
+API and owned Pokémon cards:
+
+1. `scripts/sql/024_type_effectiveness.sql` creates `emerald_ex_type_effectiveness`.
+2. `scripts/sql/025_seed_type_effectiveness.sql` seeds all 324 directed pairs for
+   `emerald-ex-1.0.4`, including explicit neutral matches.
+
+For local development, `npm run db:migrate` applies both upgrades. Production imports
+use an administrative SQL client with stop-on-error handling; issue `ROLLBACK` if
+the seed fails. The API account needs SELECT on the new table.
+
+The supplied standard chart covers 18 types, including Fairy. Each row identifies
+an attacking type, a defending type, and an exact multiplier (`0`, `0.5`, `1`, or `2`).
+Both type IDs reference the same dataset's type catalog. The primary key prevents
+duplicate pairs, and a defender index supports defensive lookups. Mystery (type ID
+`9`) is excluded because the supplied chart does not define it; absent matchups are
+unknown, not neutral.
+
+For a dual-type defender, multiply the incoming attack's factors for its two types.
+Grass therefore deals `4×` to Water/Ground and `¼×` to Bug/Poison. Immunity remains
+`0×` when multiplied by a weakness or resistance. The chart describes type matchups
+only; abilities, held items, weather, and other battle modifiers are not included.
+
+`GET /api/v1/type-effectiveness` returns the type catalog and directed matchups under
+`data.types` and `data.matchups`. A missing or incomplete chart returns HTTP 503 with
+`type_effectiveness_unavailable`, so the card does not display fabricated neutral
+damage multipliers when its data is unavailable.
+
+Both scripts are repeatable. The seed upserts the 324 known pairs in one transaction
+and leaves other datasets unchanged. Rerunning it directly restores the supplied
+chart, including any pairs edited manually. A table detected during migration
+baselining does not suppress the seed; only its migration-history entry does.
+
+A full replacement import (`002`) deletes type definitions and cascades to this
+table. Run `025_seed_type_effectiveness.sql` again afterward to restore the chart,
+even if `db:migrate` already recorded it. Fresh installs also need `024`/`025` after
+`001`/`002`; the original schema and import do not contain the type chart.
+
+Verify the seed with:
+
+```sql
+SELECT COUNT(*) AS matchup_count
+FROM emerald_ex_type_effectiveness
+WHERE dataset_id = 'emerald-ex-1.0.4';
+-- Expected: 324.
+
+SELECT attacking_type_id, defending_type_id, multiplier
+FROM emerald_ex_type_effectiveness
+WHERE dataset_id = 'emerald-ex-1.0.4'
+  AND attacking_type_id = 12
+  AND defending_type_id IN (11, 4, 6, 3)
+ORDER BY defending_type_id;
+-- Grass attacks Poison (3): 0.5; Ground (4): 2; Bug (6): 0.5; Water (11): 2.
+```

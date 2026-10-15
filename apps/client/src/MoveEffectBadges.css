@@ -1,0 +1,80 @@
+.move-effects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    min-width: 0;
+    width: 100%;
+    margin-top: 0.2rem;
+}
+.move-effect-badge {
+    --effect-color: var(--dex-accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    max-width: 100%;
+    padding: 0.2rem 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--effect-color) 40%, transparent);
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, var(--dex-surface) 88%, var(--effect-color));
+    color: var(--dex-text);
+    font-size: 0.65rem;
+    font-weight: 500;
+    line-height: 1.35;
+    white-space: normal;
+}
+.move-effect-badge svg {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: var(--effect-color);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.move-effect-badge[data-effect='poison'],
+.move-effect-badge[data-effect='bad-poison'],
+.move-effect-badge[data-effect='confusion'] {
+    --effect-color: #cf9af3;
+}
+.move-effect-badge[data-effect='burn'],
+.move-effect-badge[data-effect='recoil'],
+.move-effect-badge[data-direction='down'] {
+    --effect-color: #ffa06e;
+}
+.move-effect-badge[data-effect='paralysis'],
+.move-effect-badge[data-effect='flinch'] {
+    --effect-color: #f0d06b;
+}
+.move-effect-badge[data-effect='sleep'],
+.move-effect-badge[data-effect='drowsy'],
+.move-effect-badge[data-effect='freeze'],
+.move-effect-badge[data-effect='frostbite'] {
+    --effect-color: #89ccfa;
+}
+:root.light .move-effect-badge[data-effect='poison'],
+:root.light .move-effect-badge[data-effect='bad-poison'],
+:root.light .move-effect-badge[data-effect='confusion'] {
+    --effect-color: #8431a2;
+}
+:root.light .move-effect-badge[data-effect='burn'],
+:root.light .move-effect-badge[data-effect='recoil'],
+:root.light .move-effect-badge[data-direction='down'] {
+    --effect-color: #a74016;
+}
+:root.light .move-effect-badge[data-effect='paralysis'],
+:root.light .move-effect-badge[data-effect='flinch'] {
+    --effect-color: #886608;
+}
+:root.light .move-effect-badge[data-effect='sleep'],
+:root.light .move-effect-badge[data-effect='drowsy'],
+:root.light .move-effect-badge[data-effect='freeze'],
+:root.light .move-effect-badge[data-effect='frostbite'] {
+    --effect-color: #24698e;
+}
+.my-move:not(.my-move-detailed):has(.move-effects) {
+    flex-wrap: wrap;
+}
+.my-milestone-row > .my-move > .move-effects {
+    order: 1;
+}

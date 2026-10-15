@@ -250,3 +250,22 @@ preserving `api/private/config.local.php`. Verify `descriptionCs` in ability and
 API responses and Czech descriptions in their catalogs, details, and species ability
 slots. English mode retains the original ROM descriptions. No additional grants are
 needed beyond SELECT on the existing ability and item tables.
+
+## Type weaknesses and resistances update
+
+Before uploading the updated API and client, select the existing production database
+in phpMyAdmin and import `scripts/sql/024_type_effectiveness.sql`, followed by
+`scripts/sql/025_seed_type_effectiveness.sql`. Use an administrative account and
+stop-on-error handling; roll back a failed seed transaction. Local development uses
+`npm run db:migrate`. Grant SELECT on `emerald_ex_type_effectiveness` when the API
+account uses individual table grants. The seed supplies 324 matchups for the standard
+18 types, including Fairy; see [database details](database.md#type-weaknesses-and-resistances).
+
+Rebuild with `npm run build:webzdarma` and upload the client assets and PHP API files,
+preserving `api/private/config.local.php`. Verify
+`/pokemon-emerald-ex-dex/api/v1/type-effectiveness` returns 18 types and 324 matchups.
+An incomplete or missing chart returns HTTP 503 with `type_effectiveness_unavailable`;
+apply both migrations before serving this release. On an owned Pokémon card, switch among
+moves, stat history, and type weaknesses/resistances. The selector grows vertically
+beneath the sprite. Verify Grass shows `4×` against Water/Ground and `¼×` against
+Bug/Poison, and that Electric shows immunity against Water/Ground.

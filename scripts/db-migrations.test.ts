@@ -30,6 +30,8 @@ const migrationFiles = [
     '021_seed_ability_item_descriptions_cs_1.0.4.sql',
     '022_my_pokemon.sql',
     '023_seed_local_collection.sql',
+    '024_type_effectiveness.sql',
+    '025_seed_type_effectiveness.sql',
 ];
 
 const moveDescriptionMigrations = [
@@ -41,6 +43,10 @@ const abilityItemDescriptionMigrations = [
     '021_seed_ability_item_descriptions_cs_1.0.4.sql',
 ];
 const localCollectionSeed = '023_seed_local_collection.sql';
+const typeEffectivenessMigrations = [
+    '024_type_effectiveness.sql',
+    '025_seed_type_effectiveness.sql',
+];
 
 function fakeDatabase(upgraded = false) {
     const columns = new Map<string, Set<string>>();
@@ -136,6 +142,9 @@ function fakeDatabase(upgraded = false) {
                 columns.get('emerald_ex_abilities')?.add('description_cs');
                 columns.get('emerald_ex_items')?.add('description_cs');
             }
+            if (file === '024_type_effectiveness.sql') {
+                addTables('type_effectiveness');
+            }
             return [];
         }
         throw new Error(`Unexpected query: ${sql}`);
@@ -220,6 +229,54 @@ void test('registers every numbered SQL upgrade in the migration runner', async 
     const database = fakeDatabase();
 
     deepStrictEqual(await database.run(), upgradeFiles);
+});
+
+void test('existing migration history receives the type-effectiveness table before its seed', async () => {
+    const database = fakeDatabase(true);
+    database.state.history = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => !typeEffectivenessMigrations.includes(file)),
+    ]);
+
+    deepStrictEqual(await database.run(), typeEffectivenessMigrations);
+    deepStrictEqual(database.state.executedFiles, typeEffectivenessMigrations);
+    strictEqual(database.state.columns.has('emerald_ex_type_effectiveness'), true);
+    deepStrictEqual(await database.run(), []);
+});
+
+void test('an existing type-effectiveness table does not suppress its seed', async () => {
+    const database = fakeDatabase(true);
+    database.state.columns.set('emerald_ex_type_effectiveness', new Set(['multiplier']));
+    database.state.history = new Set(
+        migrationFiles.filter((file) => !typeEffectivenessMigrations.includes(file)),
+    );
+
+    deepStrictEqual(await database.run(), ['025_seed_type_effectiveness.sql']);
+    deepStrictEqual(database.state.readFiles, ['025_seed_type_effectiveness.sql']);
+    deepStrictEqual(database.state.history, new Set([...migrationFiles, '_baseline']));
+});
+
+void test('a failed type-effectiveness seed retries after its table migration succeeds', async () => {
+    const database = fakeDatabase(true);
+    database.state.history = new Set([
+        '_baseline',
+        ...migrationFiles.filter((file) => !typeEffectivenessMigrations.includes(file)),
+    ]);
+    database.state.failMigration = '025_seed_type_effectiveness.sql';
+
+    await rejects(database.run(), /Migration 025_seed_type_effectiveness.sql failed/);
+    strictEqual(database.state.columns.has('emerald_ex_type_effectiveness'), true);
+    strictEqual(database.state.history.has('024_type_effectiveness.sql'), true);
+    strictEqual(database.state.history.has('025_seed_type_effectiveness.sql'), false);
+    strictEqual(database.state.events.at(-1), 'rollback');
+
+    database.state.failMigration = '';
+    deepStrictEqual(await database.run(), ['025_seed_type_effectiveness.sql']);
+    deepStrictEqual(database.state.executedFiles, [
+        ...typeEffectivenessMigrations,
+        '025_seed_type_effectiveness.sql',
+    ]);
+    deepStrictEqual(await database.run(), []);
 });
 
 void test('existing migration history receives the Czech description column and seed in order', async () => {
@@ -444,6 +501,7 @@ void test('existing tables without source markers still receive their data impor
         '021_seed_ability_item_descriptions_cs_1.0.4.sql',
         '022_my_pokemon.sql',
         '023_seed_local_collection.sql',
+        ...typeEffectivenessMigrations,
     ];
 
     deepStrictEqual(await database.run(), missingImports);

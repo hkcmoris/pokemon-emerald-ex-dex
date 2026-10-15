@@ -143,9 +143,23 @@ void test('a single recorded level has finite coordinates and an accessible loca
     const svg = plot(html);
     strictEqual((svg.match(/<circle /g) ?? []).length, 1);
     doesNotMatch(svg, /NaN|Infinity|<polyline /);
-    match(svg, /role="img" aria-labelledby="[^"]+-title [^"]+-description"/);
+    match(svg, /role="group" aria-labelledby="[^"]+-title" aria-describedby="[^"]+-description"/);
     match(svg, /Průběh statistik podle úrovně/);
     match(svg, /Útok: 40 · Úroveň 20/);
     match(svg, />Hodnota statistiky<\/text>/);
     match(html, /Zaznamenaný průběh statistik/);
+});
+
+void test('each recorded point is keyboard reachable and names its exact observation', () => {
+    const svg = plot(
+        render([
+            observation('a', 10, { stats: { hp: 30, attack: 20 } }),
+            observation('b', 10, { stats: { hp: 31 } }),
+        ]),
+    );
+    strictEqual((svg.match(/role="button" tabindex="0"/g) ?? []).length, 3);
+    match(svg, /aria-label="HP: 30 · Level 10 · #1 · [^"]+"/);
+    match(svg, /aria-label="HP: 31 · Level 10 · #1 · [^"]+"/);
+    match(svg, /aria-label="Attack: 20 · Level 10 · #1 · [^"]+"/);
+    doesNotMatch(svg, /data-active|role="tooltip"/);
 });

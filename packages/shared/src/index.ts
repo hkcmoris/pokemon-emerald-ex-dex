@@ -6,6 +6,8 @@ export * from './collectionGuidance.js';
 export * from './collectionMoves.js';
 export * from './evolutionMoves.js';
 export * from './movePlanner.js';
+export * from './typeEffectiveness.js';
+export * from './moveEffects.js';
 export type {
     Ability,
     AbilityFlags,

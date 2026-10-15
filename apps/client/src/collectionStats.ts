@@ -47,3 +47,55 @@ export function getCurrentStatTotal(
     }
     return total;
 }
+
+/** Extrapolate a later level from the latest two recorded levels in the current form. */
+export function predictStats(
+    pokemon: OwnedPokemon,
+    observations: readonly StatObservation[],
+    targetLevel: number = pokemon.state.level,
+): Partial<BaseStats> {
+    if (!Number.isInteger(targetLevel) || targetLevel < 1 || targetLevel > 100) return {};
+
+    const latestByLevel = new Map<number, StatObservation[]>();
+    for (const entry of observations) {
+        if (
+            entry.deleted ||
+            entry.pokemonId !== pokemon.id ||
+            entry.speciesId !== pokemon.state.speciesId ||
+            entry.formEpoch !== pokemon.state.formEpoch
+        )
+            continue;
+        const previous = latestByLevel.get(entry.level);
+        const time = Date.parse(entry.recordedAt);
+        const previousTime = previous ? Date.parse(previous[0].recordedAt) : -Infinity;
+        if (time > previousTime) latestByLevel.set(entry.level, [entry]);
+        else if (time === previousTime) previous?.push(entry);
+    }
+
+    const [latestLevel, previousLevel] = [...latestByLevel.keys()].sort((a, b) => b - a);
+    if (previousLevel === undefined || latestLevel >= targetLevel) return {};
+    const latest = latestByLevel.get(latestLevel)!;
+    const previous = latestByLevel.get(previousLevel)!;
+    // A lower level measured later does not describe chronological level-up growth.
+    if (Date.parse(latest[0].recordedAt) < Date.parse(previous[0].recordedAt)) return {};
+
+    const predicted: Partial<BaseStats> = {};
+    for (const key of statKeys) {
+        const from = previous[0].stats[key];
+        const to = latest[0].stats[key];
+        // Never bridge missing or conflicting values with an older measurement.
+        if (
+            from === undefined ||
+            to === undefined ||
+            !previous.every((entry) => entry.stats[key] === from) ||
+            !latest.every((entry) => entry.stats[key] === to) ||
+            to < from
+        )
+            continue;
+        const value = Math.round(
+            to + ((to - from) * (targetLevel - latestLevel)) / (latestLevel - previousLevel),
+        );
+        if (Number.isInteger(value) && value >= 1 && value <= 65535) predicted[key] = value;
+    }
+    return predicted;
+}

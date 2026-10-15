@@ -62,6 +62,8 @@ void test('PHP 8.4 API matches the Node API against the imported local database'
     await t.test('dataset, type icons, and every paginated species and move match', async () => {
         await compare('dataset');
         await compare('types');
+        await compare('type-effectiveness');
+        await compare('type-effectiveness?unknown=1', 400);
         for (let page = 1; page <= 7; page++) await compare(`species?page=${page}&pageSize=250`);
         for (let page = 1; page <= 5; page++) await compare(`moves?page=${page}&pageSize=250`);
     });

@@ -443,3 +443,24 @@ void test('Czech summary cards expose a localized owned-detail link', () => {
     match(html, /Aktuální útoky/);
     doesNotMatch(html, /Zapsat vývoj|Odebrat z týmu|Propustit ze sbírky/);
 });
+
+void test('card view selector exposes all four views with one selected and a shared panel', () => {
+    const html = render(card());
+    const toggle = html.slice(
+        html.indexOf('role="group"'),
+        html.indexOf('</div>', html.indexOf('role="group"')),
+    );
+    strictEqual((toggle.match(/aria-pressed="true"/g) ?? []).length, 1);
+    strictEqual((toggle.match(/aria-pressed="false"/g) ?? []).length, 3);
+    match(toggle, /aria-label="Current moves"/);
+    match(toggle, /aria-label="Stats progression"/);
+    match(toggle, /aria-label="Weaknesses"/);
+    match(toggle, /aria-label="Resistances &amp; immunities"/);
+    const panelIds = [...toggle.matchAll(/aria-controls="([^"]+)"/g)].map((entry) => entry[1]);
+    strictEqual(panelIds.length, 4);
+    strictEqual(new Set(panelIds).size, 1);
+    match(html, new RegExp(`class="my-card-view" id="${panelIds[0]}"`));
+    const czech = render(card(), 'cs');
+    match(czech, /aria-label="Slabiny"/);
+    match(czech, /aria-label="Odolnosti a imunity"/);
+});

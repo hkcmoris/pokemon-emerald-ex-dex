@@ -7,6 +7,8 @@ import { TypeBadges } from './TypeBadges.js';
 import { MoveCategory } from './MoveCategory.js';
 import { useLanguage } from './language.js';
 import { typeSurfaceStyle } from './theme.js';
+import { MoveEffectBadges } from './MoveEffectBadges.js';
+import { moveAffinityLabel, useMoveAffinity } from './MoveAffinity.js';
 
 export function findReferenceMove(
     moveId: number,
@@ -24,26 +26,33 @@ export function findReferenceMove(
 export function MyPokemonMoveStats({ move }: { move?: Move }) {
     const { t } = useLanguage();
     return (
-        <span className="my-move-stats">
-            {move ? (
-                <MoveCategory category={move.category} iconFile={move.categoryIconFile} iconOnly />
-            ) : (
-                <span title={t('Category unavailable', 'Kategorie není dostupná')}>?</span>
-            )}
-            <span
-                className="my-move-power"
-                title={
-                    !move
-                        ? t('Power unavailable', 'Síla není dostupná')
-                        : move.power === 0
-                          ? t('No fixed base power', 'Bez pevné základní síly')
-                          : undefined
-                }
-            >
-                <span>{t('Power', 'Síla')}</span>
-                <strong>{move ? move.power || '—' : '?'}</strong>
+        <>
+            <span className="my-move-stats">
+                {move ? (
+                    <MoveCategory
+                        category={move.category}
+                        iconFile={move.categoryIconFile}
+                        iconOnly
+                    />
+                ) : (
+                    <span title={t('Category unavailable', 'Kategorie není dostupná')}>?</span>
+                )}
+                <span
+                    className="my-move-power"
+                    title={
+                        !move
+                            ? t('Power unavailable', 'Síla není dostupná')
+                            : move.power === 0
+                              ? t('No fixed base power', 'Bez pevné základní síly')
+                              : undefined
+                    }
+                >
+                    <span>{t('Power', 'Síla')}</span>
+                    <strong>{move ? move.power || '—' : '?'}</strong>
+                </span>
             </span>
-        </span>
+            <MoveEffectBadges move={move} />
+        </>
     );
 }
 
@@ -73,6 +82,10 @@ export function MyPokemonMove({
         enabled: !reference,
     });
     const details = reference ?? lookup.data;
+    const affinity = useMoveAffinity(details);
+    const affinityDescription = moveAffinityLabel(affinity, t);
+    const description =
+        details && t(details.description, details.descriptionCs || details.description);
     const heading = (
         <>
             {details && (
@@ -83,7 +96,9 @@ export function MyPokemonMove({
     );
     return (
         <Element
-            className={`my-move ${className}${details ? ' type-surface' : ''}${showStats ? ' my-move-detailed' : ''}`}
+            className={`my-move ${className}${details ? ' type-surface' : ''}${showStats ? ' my-move-detailed' : ''}${affinity ? ' my-move-affinity' : ''}`}
+            data-affinity={affinity ?? undefined}
+            title={[description, affinityDescription].filter(Boolean).join('\n') || undefined}
             style={details ? typeSurfaceStyle([details.type]) : undefined}
             type={Element === 'button' ? 'button' : undefined}
             aria-label={
@@ -98,8 +113,12 @@ export function MyPokemonMove({
                     <MyPokemonMoveStats move={details} />
                 </>
             ) : (
-                heading
+                <>
+                    {heading}
+                    <MoveEffectBadges move={details} />
+                </>
             )}
+            {affinityDescription && <span className="sr-only">{affinityDescription}</span>}
             {suffix}
         </Element>
     );

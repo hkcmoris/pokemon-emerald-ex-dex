@@ -23,7 +23,10 @@ import type {
     Item,
     ItemPocket,
     RuleItem,
+    TypeEffectivenessChart,
+    TypeMatchup,
 } from '@pokemon-emerald-ex-dex/shared';
+import { isTypeEffectivenessChart } from '@pokemon-emerald-ex-dex/shared';
 
 import type { Database, SqlParameter } from './database.js';
 
@@ -146,6 +149,24 @@ export class DexRepository {
             'SELECT type_id AS typeId, name, icon_file AS iconFile FROM emerald_ex_types WHERE dataset_id = ? ORDER BY name',
             [this.datasetId],
         );
+    }
+
+    async getTypeEffectiveness(): Promise<TypeEffectivenessChart | undefined> {
+        const [types, rows] = await Promise.all([
+            this.getTypes(),
+            this.database.query<Omit<TypeMatchup, 'multiplier'> & { multiplier: number | string }>(
+                `SELECT attacking_type_id AS attackingTypeId, defending_type_id AS defendingTypeId, multiplier
+                 FROM emerald_ex_type_effectiveness WHERE dataset_id = ?
+                 ORDER BY attacking_type_id, defending_type_id`,
+                [this.datasetId],
+            ),
+        ]);
+        const chart: TypeEffectivenessChart = {
+            // The ROM's Mystery placeholder is not a battle type.
+            types: types.filter((type) => type.typeId !== 9),
+            matchups: rows.map((row) => ({ ...row, multiplier: Number(row.multiplier) })),
+        };
+        return isTypeEffectivenessChart(chart) ? chart : undefined;
     }
 
     async listSpecies(query: SpeciesQuery): Promise<PageResponse<Pokemon>> {

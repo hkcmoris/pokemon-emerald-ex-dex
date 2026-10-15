@@ -21,6 +21,7 @@ import { ownedPokemonHref, speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory, ObservationForm } from './MyPokemonHistory.js';
 import { MyPokemonStatsGraph } from './MyPokemonStatsGraph.js';
+import { MyPokemonTypeDefenses } from './MyPokemonTypeDefenses.js';
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
 import { MyPokemonMilestones } from './MyPokemonMilestones.js';
 import { MyPokemonWishlist } from './MyPokemonWishlist.js';
@@ -28,6 +29,7 @@ import { MyPokemonWishlistAction } from './MyPokemonWishlistAction.js';
 import { WishIcon } from './WishIcon.js';
 import { TypeBadges } from './TypeBadges.js';
 import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
+import { MoveAffinityProvider } from './MoveAffinity.js';
 import { typeSurfaceStyle } from './theme.js';
 
 function LevelEditor({
@@ -567,6 +569,8 @@ export function EvolutionAdvice({
 
 export function CatchUpRecap({
     pokemon,
+    observations = [],
+    predictionsEnabled = true,
     details,
     oldLevel,
     newLevel,
@@ -576,6 +580,8 @@ export function CatchUpRecap({
     onClose,
 }: {
     pokemon: OwnedPokemon;
+    observations?: readonly StatObservation[];
+    predictionsEnabled?: boolean;
     details: SpeciesDetails;
     oldLevel: number;
     newLevel: number;
@@ -632,6 +638,8 @@ export function CatchUpRecap({
                     <ObservationForm
                         key={`${pokemon.state.speciesId}-${pokemon.state.formEpoch}-${pokemon.state.level}`}
                         pokemon={pokemon}
+                        observations={observations}
+                        predictionsEnabled={predictionsEnabled}
                         onSave={async (entry) => {
                             await saveObservation(entry);
                             setRecordingStats(false);
@@ -793,8 +801,8 @@ export function MyPokemonCard({
         queryFn: () => loadCollectionFamily(pokemon.state.speciesId),
     });
     const family = relatives.data ?? (species.data ? [species.data] : []);
-    const statsPanelId = useId();
-    const [showStatsGraph, setShowStatsGraph] = useState(false);
+    const viewPanelId = useId();
+    const [view, setView] = useState<'moves' | 'stats' | 'weaknesses' | 'resistances'>('moves');
     const [editingMoves, setEditingMoves] = useState(false);
     const wishlistPanelId = useId();
     const [showWishlist, setShowWishlist] = useState(false);
@@ -836,7 +844,7 @@ export function MyPokemonCard({
         if (level > previous && species.data)
             setRecap({ details: species.data, oldLevel: previous, newLevel: level });
     }
-    return (
+    const card = (
         <article
             className={`my-pokemon-card${detail ? ' my-card-detail' : ' my-card-summary'}${species.data ? ' type-surface' : ''}`}
             style={species.data ? typeSurfaceStyle(species.data.types) : undefined}
@@ -856,11 +864,11 @@ export function MyPokemonCard({
                         >
                             <button
                                 type="button"
-                                aria-pressed={!showStatsGraph}
-                                aria-controls={statsPanelId}
+                                aria-pressed={view === 'moves'}
+                                aria-controls={viewPanelId}
                                 aria-label={t('Current moves', 'Aktuální útoky')}
                                 title={t('Current moves', 'Aktuální útoky')}
-                                onClick={() => setShowStatsGraph(false)}
+                                onClick={() => setView('moves')}
                             >
                                 <svg
                                     className="my-moves-view-icon"
@@ -872,14 +880,40 @@ export function MyPokemonCard({
                             </button>
                             <button
                                 type="button"
-                                aria-pressed={showStatsGraph}
-                                aria-controls={statsPanelId}
+                                aria-pressed={view === 'stats'}
+                                aria-controls={viewPanelId}
                                 aria-label={t('Stats progression', 'Vývoj statistik')}
                                 title={t('Stats progression', 'Vývoj statistik')}
-                                onClick={() => setShowStatsGraph(true)}
+                                onClick={() => setView('stats')}
                             >
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M4 4v16h16M7 15l4-5 4 2 5-7" />
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                aria-pressed={view === 'weaknesses'}
+                                aria-controls={viewPanelId}
+                                aria-label={t('Weaknesses', 'Slabiny')}
+                                title={t('Weaknesses', 'Slabiny')}
+                                onClick={() => setView('weaknesses')}
+                            >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z" />
+                                    <path d="m13 6-3 6h4l-3 6" />
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                aria-pressed={view === 'resistances'}
+                                aria-controls={viewPanelId}
+                                aria-label={t('Resistances & immunities', 'Odolnosti a imunity')}
+                                title={t('Resistances & immunities', 'Odolnosti a imunity')}
+                                onClick={() => setView('resistances')}
+                            >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z" />
+                                    <path d="m8 12 3 3 5-6" />
                                 </svg>
                             </button>
                         </div>
@@ -974,19 +1008,16 @@ export function MyPokemonCard({
                 <CatchUpRecap
                     {...recap}
                     pokemon={pokemon}
+                    observations={observations}
+                    predictionsEnabled={!statsConflict}
                     moves={pokemon.state.moves}
                     onSaveMoves={saveMoves}
                     saveObservation={saveObservation}
                     onClose={() => setRecap(null)}
                 />
             )}
-            <div className="my-card-view" id={statsPanelId}>
-                <div
-                    className="my-current-moves"
-                    data-hidden={showStatsGraph}
-                    aria-hidden={showStatsGraph}
-                    inert={showStatsGraph}
-                >
+            <div className="my-card-view" id={viewPanelId}>
+                <div className="my-current-moves" hidden={view !== 'moves'}>
                     <div className="my-section-heading">
                         <h3>{t('Current moves', 'Aktuální útoky')}</h3>
                         <div className="my-actions">
@@ -1057,7 +1088,7 @@ export function MyPokemonCard({
                         })}
                     </ul>
                 </div>
-                {showStatsGraph && (
+                {view === 'stats' && (
                     <div className="my-stat-graph-panel">
                         {statsConflict ? (
                             <p className="my-muted" role="status">
@@ -1076,9 +1107,17 @@ export function MyPokemonCard({
                         )}
                     </div>
                 )}
+                {(view === 'weaknesses' || view === 'resistances') && (
+                    <MyPokemonTypeDefenses
+                        species={species.data}
+                        datasetId={datasetId}
+                        mode={view}
+                        conflict={stateConflict}
+                    />
+                )}
             </div>
             {editingMoves && !stateConflict && (
-                <div hidden={showStatsGraph}>
+                <div hidden={view !== 'moves'}>
                     <MovesEditor
                         key={JSON.stringify(pokemon.state.moves)}
                         moves={pokemon.state.moves}
@@ -1088,7 +1127,7 @@ export function MyPokemonCard({
                     />
                 </div>
             )}
-            <div id={wishlistPanelId} hidden={!showWishlist || showStatsGraph}>
+            <div id={wishlistPanelId} hidden={!showWishlist || view !== 'moves'}>
                 {showWishlist && (
                     <MyPokemonWishlist
                         pokemon={pokemon}
@@ -1253,6 +1292,7 @@ export function MyPokemonCard({
                             <MyPokemonHistory
                                 pokemon={pokemon}
                                 observations={observations}
+                                predictionsEnabled={!statsConflict}
                                 family={family}
                                 saveObservation={saveObservation}
                             />
@@ -1317,5 +1357,10 @@ export function MyPokemonCard({
             )}
             {error && <p role="alert">{error}</p>}
         </article>
+    );
+    return (
+        <MoveAffinityProvider stats={stateConflict ? undefined : species.data?.stats}>
+            {card}
+        </MoveAffinityProvider>
     );
 }

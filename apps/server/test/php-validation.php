@@ -34,6 +34,8 @@ validateEndpoint('/v1/species/914/forms', []);
 validateEndpoint('/v1/moves/0/type', []);
 validateEndpoint('/v1/items/0', []);
 validateEndpoint('/v1/item-pockets', []);
+validateEndpoint('/v1/type-effectiveness', []);
+expectError(static fn() => validateEndpoint('/v1/type-effectiveness', ['unknown' => '1']), 400);
 validateEndpoint('/v1/items', requestQuery('q=%230300&pocket=Items&page=1'));
 foreach (['q=a&q=b', 'pageSize=251', 'pocket[]=Items', 'extra=1'] as $query) { expectError(static fn() => validateEndpoint('/v1/items', requestQuery($query)), 400); }
 expectError(static fn() => validateEndpoint('/v1/items/-1', []), 400);

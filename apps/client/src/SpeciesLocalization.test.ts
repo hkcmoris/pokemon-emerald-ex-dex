@@ -126,6 +126,33 @@ void test('Czech species UI translates types, ability and move descriptions whil
     doesNotMatch(html, /Base stats|Normal ability 1|Moves learned/);
 });
 
+void test('species learnset and machine tables show effects and only matching damaging categories glow', () => {
+    const details: SpeciesDetails = {
+        ...entry,
+        stats: { ...entry.stats, attack: 40, spAttack: 70 },
+        learnset: [{ ...entry.learnset[0], effectId: 1 }],
+        machines: [
+            {
+                ...entry.learnset[0],
+                machine: 'TM01',
+                kind: 'TM',
+                number: 1,
+                moveId: 28,
+                name: 'Sand Attack',
+                effectId: 20,
+                categoryId: 2,
+                category: 'Status',
+                power: 0,
+            },
+        ],
+    };
+    const html = renderSpecies('en', details);
+    match(html, /May: Target: Paralysis/);
+    match(html, /Target: Accuracy ↓/);
+    strictEqual((html.match(/data-affinity="special"/g) ?? []).length, 1);
+    doesNotMatch(html, /data-affinity="physical"/);
+});
+
 for (const { language, labels } of [
     { language: 'en', labels: ['Stats', 'Abilities', 'Evolutions', 'Moves'] },
     { language: 'cs', labels: ['Statistiky', 'Schopnosti', 'Evoluce', 'Útoky'] },

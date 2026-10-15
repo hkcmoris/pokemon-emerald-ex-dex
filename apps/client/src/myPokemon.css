@@ -325,6 +325,8 @@
     font-size: 0.65rem;
 }
 .appearance-toggle.my-stat-view-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     width: auto;
     gap: 0.125rem;
     padding: 0.2rem;
@@ -353,7 +355,7 @@
     position: relative;
     min-width: 0;
 }
-.my-current-moves[data-hidden='true'] {
+.my-current-moves[hidden] {
     display: none;
 }
 .my-stat-graph-panel {
@@ -387,12 +389,53 @@
     --stat-sp-defense: #7942ad;
     --stat-speed: #09734e;
 }
+.my-stats-plot {
+    min-width: 0;
+    padding-top: 3.5rem;
+}
+.my-stats-plot-content {
+    position: relative;
+    min-width: 0;
+}
 .my-stats-chart {
     display: block;
     min-width: 0;
     width: 100%;
     height: auto;
     overflow: visible;
+}
+.my-stats-point {
+    cursor: pointer;
+    pointer-events: all;
+    outline: none;
+}
+.my-stats-point:focus-visible {
+    outline: 2px solid var(--dex-text);
+    outline-offset: 2px;
+}
+.my-stats-point[data-active] {
+    filter: drop-shadow(0 0 3px var(--dex-text));
+}
+.my-stats-hint {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    width: 9rem;
+    max-width: 100%;
+    padding: 0.35rem 0.5rem;
+    transform: translateY(calc(-100% - 0.6rem));
+    border: 1px solid;
+    border-radius: 0.5rem;
+    background: var(--dex-surface);
+    color: var(--dex-text);
+    box-shadow: 0 2px 8px #0003;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.my-stats-hint span {
+    color: var(--dex-muted);
+    font-size: 0.7rem;
 }
 .my-stats-axis {
     fill: var(--dex-muted);
@@ -429,37 +472,57 @@
     height: 0.6rem;
     border-radius: 50%;
 }
-@media (min-width: 801px) {
-    /* Keep the moves' intrinsic height as the graph's sizing reference. */
-    .my-card-summary .my-card-view > .my-current-moves[data-hidden='true'] {
-        display: flex;
-        visibility: hidden;
-    }
-    .my-card-summary .my-card-view > .my-stat-graph-panel {
-        position: absolute;
-        inset: 0;
-        border: 0;
-        padding: 0;
-    }
-    .my-card-summary .my-stats-graph {
-        height: 100%;
-        grid-template-rows: minmax(0, 1fr) auto;
-        gap: 0.35rem 0.65rem;
-    }
-    .my-card-summary .my-stats-chart {
-        height: 100%;
-        min-height: 0;
-    }
-    .my-card-summary .my-stats-axis {
-        font-size: 14px;
-    }
-    .my-card-summary .my-stats-legend {
-        gap: 0.25rem 0.65rem;
-    }
-    .my-card-summary .my-stats-graph figcaption {
-        font-size: 0.75rem;
-        line-height: 1.4;
-    }
+.my-type-defenses {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-width: 0;
+    border-top: 1px solid var(--dex-border);
+    padding-top: 0.85rem;
+}
+.my-type-defenses h3,
+.my-type-defenses p {
+    margin: 0;
+}
+.my-type-matchups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin: 0;
+}
+.my-type-matchup-row {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--dex-background) 45%, transparent);
+}
+.my-type-matchup-row dt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-variant-numeric: tabular-nums;
+}
+.my-type-matchup-row dt strong {
+    font-size: 1.2rem;
+}
+.my-type-matchup-row dt span {
+    color: var(--dex-muted);
+    font-size: 0.7rem;
+}
+.my-type-matchup-row dd {
+    min-width: 0;
+    margin: 0;
+}
+.my-type-matchup-row .type-badge img {
+    margin-top: 0;
+}
+.my-type-matchup-note {
+    font-size: 0.75rem;
+    line-height: 1.5;
 }
 @media (max-width: 600px) {
     .my-stats-axis {

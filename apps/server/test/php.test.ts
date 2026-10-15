@@ -92,6 +92,8 @@ void test(
         deepStrictEqual(await (await fetch(`${server.url}/health`)).json(), { ok: true });
         for (const [path, status] of [
             ['/v1/species', 503],
+            ['/v1/type-effectiveness', 503],
+            ['/v1/type-effectiveness?unknown=1', 400],
             ['/v1/species?pageSize=251', 400],
             ['/v1/species?q=a&q=b', 400],
             ['/v1/species?sort=injected', 400],

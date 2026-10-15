@@ -92,6 +92,11 @@ const migrations: readonly Migration[] = [
             hasTables(state, 'collection_users', 'collection_sessions', 'collections'),
     },
     { file: '023_seed_local_collection.sql', isPresent: () => false },
+    {
+        file: '024_type_effectiveness.sql',
+        isPresent: (state) => hasTables(state, 'type_effectiveness'),
+    },
+    { file: '025_seed_type_effectiveness.sql', isPresent: () => false },
 ];
 
 export type MigrationConnection = Pick<

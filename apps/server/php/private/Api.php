@@ -69,6 +69,10 @@ function requestQuery(string $queryString): array
 
 function validateEndpoint(string $path, array $query): void
 {
+    if ($path === '/v1/type-effectiveness') {
+        queryKeys($query, []);
+        return;
+    }
     if ($path === '/v1/dataset' || $path === '/v1/types' || $path === '/v1/item-pockets') {
         return;
     }
@@ -114,6 +118,13 @@ function dispatch(DexRepository $repository, string $path, array $query): array
     }
     if ($path === '/v1/types') {
         return ['data' => $repository->getTypes()];
+    }
+    if ($path === '/v1/type-effectiveness') {
+        $chart = $repository->getTypeEffectiveness();
+        if ($chart === null) {
+            throw new HttpError(503, 'type_effectiveness_unavailable', 'Type effectiveness data is unavailable');
+        }
+        return ['data' => $chart];
     }
     if ($path === '/v1/species') {
         return $repository->listSpecies([

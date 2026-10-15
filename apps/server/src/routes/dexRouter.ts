@@ -80,6 +80,19 @@ export function createDexRouter(repository: DexRepository): Router {
         res.json({ data: await repository.getTypes() });
     });
 
+    router.get('/type-effectiveness', async (req, res) => {
+        checkQueryKeys(req.query, []);
+        const chart = await repository.getTypeEffectiveness();
+        if (!chart) {
+            throw new HttpError(
+                503,
+                'type_effectiveness_unavailable',
+                'Type effectiveness data is unavailable',
+            );
+        }
+        res.json({ data: chart });
+    });
+
     router.get('/species', async (req, res) => {
         checkQueryKeys(req.query, ['q', 'type', 'sort', 'page', 'pageSize']);
         res.json(

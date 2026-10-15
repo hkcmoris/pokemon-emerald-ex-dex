@@ -1,0 +1,23 @@
+.my-move-affinity[data-affinity] {
+    border-color: var(--dex-accent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dex-accent) 45%, transparent);
+    animation: my-move-affinity-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes my-move-affinity-pulse {
+    0%,
+    100% {
+        border-color: color-mix(in srgb, var(--dex-accent) 60%, var(--dex-border));
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dex-accent) 15%, transparent);
+    }
+    50% {
+        border-color: var(--dex-accent);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dex-accent) 60%, transparent);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .my-move-affinity[data-affinity] {
+        animation: none;
+    }
+}

@@ -10,6 +10,7 @@ import type {
     SpeciesEvolution,
     Item,
     ItemPocket,
+    TypeEffectivenessChart,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { apiUrl } from './apiUrl.js';
@@ -34,6 +35,12 @@ export async function fetchSpeciesDetails(
 ): Promise<SpeciesDetails> {
     const response = await get<ApiResponse<SpeciesDetails>>(`species/${id}/details`, signal);
     return response.data;
+}
+
+export async function fetchTypeEffectiveness(
+    signal?: AbortSignal,
+): Promise<TypeEffectivenessChart> {
+    return (await get<ApiResponse<TypeEffectivenessChart>>('type-effectiveness', signal)).data;
 }
 
 export async function fetchSpeciesEvolutions(

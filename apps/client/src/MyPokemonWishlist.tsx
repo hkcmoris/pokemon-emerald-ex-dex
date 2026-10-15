@@ -1,9 +1,10 @@
-import { useId, useMemo, useState } from 'react';
+import { useId, useMemo, useState, type ReactNode } from 'react';
 import {
     assessMoveWishlistAddition,
     planMoveWishlist,
     recordLearnedWishlistMoves,
     type KnownMove,
+    type Move,
     type MovePlanSource,
     type OwnedPokemon,
     type SpeciesDetails,
@@ -13,6 +14,23 @@ import { MyPokemonMove, MyPokemonMoveStats, findReferenceMove } from './MyPokemo
 import { useLanguage, type Translate } from './language.js';
 import { evolutionSummary } from './evolutionText.js';
 import { setWishlistMove } from './moveWishlistActions.js';
+import { moveAffinityLabel, useMoveAffinity } from './MoveAffinity.js';
+
+function WishlistTimelineStep({ move, children }: { move?: Move; children: ReactNode }) {
+    const { t } = useLanguage();
+    const affinity = useMoveAffinity(move);
+    const label = moveAffinityLabel(affinity, t);
+    return (
+        <li
+            className={affinity ? 'my-move-affinity' : undefined}
+            data-affinity={affinity ?? undefined}
+            title={label}
+        >
+            {label && <span className="sr-only">{label}</span>}
+            {children}
+        </li>
+    );
+}
 
 function sourceLabel(
     source: MovePlanSource,
@@ -133,6 +151,12 @@ export function MyPokemonWishlist({
                 </p>
             ) : (
                 <>
+                    <p className="my-muted">
+                        {t(
+                            'Highlighted borders mark moves suited to the higher base Attack or Sp. Attack. Equal stats highlight both categories.',
+                            'Zvýrazněný okraj označuje útoky vhodné pro vyšší základní statistiku Útok nebo Speciální útok. Při shodě hodnot se zvýrazní obě kategorie.',
+                        )}
+                    </p>
                     {plan.branches.length > 1 ||
                     (staleTarget &&
                         !plan.branches.some((branch) => branch.speciesId === staleTarget)) ? (
@@ -297,7 +321,14 @@ export function MyPokemonWishlist({
                             </p>
                             <ol>
                                 {plan.steps.map((step, index) => (
-                                    <li key={index}>
+                                    <WishlistTimelineStep
+                                        key={index}
+                                        move={
+                                            step.kind === 'learn'
+                                                ? findReferenceMove(step.moveId, family)
+                                                : undefined
+                                        }
+                                    >
                                         <span className="my-level-badge">Lv. {step.level}</span>
                                         <div>
                                             {step.kind === 'learn' ? (
@@ -351,7 +382,7 @@ export function MyPokemonWishlist({
                                                 </>
                                             )}
                                         </div>
-                                    </li>
+                                    </WishlistTimelineStep>
                                 ))}
                             </ol>
                         </div>

@@ -47,7 +47,7 @@ final class DexRepository
     ];
 
     private const NUMERIC_FIELDS = [
-        'abilityId', 'aiRating',
+        'abilityId', 'aiRating', 'attackingTypeId', 'defendingTypeId',
         'speciesId', 'speciesFormCount', 'total', 'hp', 'attack', 'defense', 'spAttack',
         'spDefense', 'speed', 'baseStatTotal', 'typeId', 'slot', 'frontFrameCount',
         'moveId', 'categoryId', 'power', 'accuracy', 'pp', 'priority', 'effectId', 'targetId',
@@ -105,6 +105,29 @@ final class DexRepository
     {
         return $this->query('SELECT type_id AS typeId, name, icon_file AS iconFile
             FROM emerald_ex_types WHERE dataset_id = ? ORDER BY name', [$this->datasetId]);
+    }
+
+    public function getTypeEffectiveness(): ?array
+    {
+        // The ROM's Mystery placeholder is not a battle type.
+        $types = array_values(array_filter($this->getTypes(), static fn(array $type): bool => $type['typeId'] !== 9));
+        $matchups = $this->query('SELECT attacking_type_id AS attackingTypeId, defending_type_id AS defendingTypeId, multiplier
+            FROM emerald_ex_type_effectiveness WHERE dataset_id = ?
+            ORDER BY attacking_type_id, defending_type_id', [$this->datasetId]);
+        if ($types === [] || count($matchups) !== count($types) * count($types)) { return null; }
+        $typeIds = array_column($types, 'typeId');
+        $pairs = [];
+        foreach ($matchups as &$matchup) {
+            $matchup['multiplier'] = (float) $matchup['multiplier'];
+            $key = $matchup['attackingTypeId'] . ':' . $matchup['defendingTypeId'];
+            if (!in_array($matchup['attackingTypeId'], $typeIds, true)
+                || !in_array($matchup['defendingTypeId'], $typeIds, true)
+                || !in_array($matchup['multiplier'], [0.0, 0.5, 1.0, 2.0], true)
+                || isset($pairs[$key])) { return null; }
+            $pairs[$key] = true;
+        }
+        unset($matchup);
+        return ['types' => $types, 'matchups' => $matchups];
     }
 
     public function listSpecies(array $query): array

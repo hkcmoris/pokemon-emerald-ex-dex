@@ -51,6 +51,7 @@ void test('invalid IDs, query values and unknown resources are rejected before q
             'species?type[x]=Fire',
             `species?q=${'x'.repeat(101)}`,
             'moves?pageSize=0',
+            'type-effectiveness?unknown=1',
         ]) {
             const response = await fetch(`${server.url}/api/v1/${path}`);
             strictEqual(response.status, 400, path);
