@@ -38,13 +38,15 @@ function render(content: ReactNode, language: 'en' | 'cs' = 'en'): string {
     );
 }
 
-void test('poison badges show possible effect and target with inline SVG and readable text', () => {
+void test('effect icons keep an accessible name while their text is hidden until the hint opens', () => {
     const html = render(createElement(MoveEffectBadges, { move: move() }));
     match(html, /role="list" aria-label="Move effects"/);
     match(html, /data-effect="poison"/);
     match(html, /May: Target: Poison/);
     match(html, /<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">/);
-    doesNotMatch(html, /<button|<input|<img|\d+%/);
+    match(html, /<button[^>]*type="button"[^>]*aria-label="May: Target: Poison"/);
+    doesNotMatch(html, /<input|<img|\d+%|role="tooltip"/);
+    strictEqual(html.replace(/<[^>]*>/g, ''), '');
 });
 
 void test('accuracy reduction and self boosts have distinct labels and arrows', () => {
@@ -89,7 +91,7 @@ void test('draining describes recovery for the user rather than self-inflicted d
     doesNotMatch(html, /Recoil|Self: HP drain/);
 });
 
-void test('Czech labels are visible without hover and unknown references invent no badges', () => {
+void test('Czech icons retain localized accessible labels and unknown references invent no badges', () => {
     const html = render(createElement(MoveEffectBadges, { move: move() }), 'cs');
     match(html, /Účinky útoku/);
     match(html, /Může: Cíl: Otrava/);
@@ -122,8 +124,38 @@ void test('damaging move cards combine effects and affinity without nested inter
         match(html, /class="[^"]*my-move-affinity/);
         match(html, /data-affinity="physical"/);
         match(html, /May: Target: Poison/);
-        strictEqual((html.match(/<button/g) ?? []).length, 1);
+        strictEqual((html.match(/<button/g) ?? []).length, 2);
+        for (const [, contents] of html.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/g))
+            doesNotMatch(contents, /<button/);
         match(html, /aria-label="Remove Poison Sting"/);
+        strictEqual(html.indexOf('my-move-name') < html.indexOf('move-effects'), true);
+        strictEqual(html.indexOf('move-effects') < html.indexOf('my-move-stats'), true);
+    } finally {
+        client.clear();
+    }
+});
+
+void test('effect hint buttons are outside the checkbox selection label', () => {
+    const client = new QueryClient();
+    const reference = move();
+    try {
+        const html = render(
+            createElement(
+                QueryClientProvider,
+                { client },
+                createElement(MyPokemonMove, {
+                    move: reference,
+                    reference,
+                    as: 'label',
+                    prefix: createElement('input', { type: 'checkbox', disabled: true }),
+                }),
+            ),
+        );
+        const selection = html.match(/<label\b[^>]*>([\s\S]*?)<\/label>/)?.[1] ?? '';
+        match(selection, /type="checkbox" disabled=""/);
+        match(selection, /Poison Sting/);
+        doesNotMatch(selection, /<button/);
+        match(html, /<button[^>]*aria-label="May: Target: Poison"/);
     } finally {
         client.clear();
     }

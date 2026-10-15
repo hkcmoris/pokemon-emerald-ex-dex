@@ -15,6 +15,7 @@ import { useLanguage, type Translate } from './language.js';
 import { evolutionSummary } from './evolutionText.js';
 import { setWishlistMove } from './moveWishlistActions.js';
 import { moveAffinityLabel, useMoveAffinity } from './MoveAffinity.js';
+import { MoveEffectBadges } from './MoveEffectBadges.js';
 
 function WishlistTimelineStep({ move, children }: { move?: Move; children: ReactNode }) {
     const { t } = useLanguage();
@@ -333,12 +334,20 @@ export function MyPokemonWishlist({
                                         <div>
                                             {step.kind === 'learn' ? (
                                                 <>
-                                                    <strong>
-                                                        {t(
-                                                            `Learn ${step.name}`,
-                                                            `Naučit ${step.name}`,
-                                                        )}
-                                                    </strong>
+                                                    <span className="my-move-heading">
+                                                        <strong>
+                                                            {t(
+                                                                `Learn ${step.name}`,
+                                                                `Naučit ${step.name}`,
+                                                            )}
+                                                        </strong>
+                                                        <MoveEffectBadges
+                                                            move={findReferenceMove(
+                                                                step.moveId,
+                                                                family,
+                                                            )}
+                                                        />
+                                                    </span>
                                                     <MyPokemonMoveStats
                                                         move={findReferenceMove(
                                                             step.moveId,
@@ -423,23 +432,21 @@ export function MyPokemonWishlist({
                                             : t('Already learned', 'Již naučeno'));
                                     return (
                                         <li key={move.moveId}>
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={false}
-                                                    disabled={busy || !assessment.allowed}
-                                                    aria-describedby={`${id}-move-${move.moveId}`}
-                                                    onChange={() => add(move)}
-                                                />
-                                                <MyPokemonMove
-                                                    move={move}
-                                                    reference={findReferenceMove(
-                                                        move.moveId,
-                                                        family,
-                                                    )}
-                                                    showStats
-                                                />
-                                            </label>
+                                            <MyPokemonMove
+                                                as="label"
+                                                move={move}
+                                                reference={findReferenceMove(move.moveId, family)}
+                                                showStats
+                                                prefix={
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={false}
+                                                        disabled={busy || !assessment.allowed}
+                                                        aria-describedby={`${id}-move-${move.moveId}`}
+                                                        onChange={() => add(move)}
+                                                    />
+                                                }
+                                            />
                                             <p
                                                 id={`${id}-move-${move.moveId}`}
                                                 className="my-muted"

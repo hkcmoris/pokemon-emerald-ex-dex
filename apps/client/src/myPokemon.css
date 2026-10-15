@@ -693,14 +693,53 @@
 }
 .my-move-heading {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 0.4rem;
     min-width: 0;
     font-weight: 600;
     line-height: 1.25;
 }
-.my-move-heading > span:last-child {
+.my-move-heading .my-move-name {
     min-width: 0;
+}
+.my-move-heading > .move-effects {
+    min-width: 24px;
+}
+.my-move-interactive {
+    position: relative;
+}
+.my-move .my-move-heading > .my-move-primary {
+    /* Stretch the primary action across the chip without covering effect buttons. */
+    position: static;
+    z-index: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    max-width: 100%;
+    text-align: inherit;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+.my-move-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 9px;
+}
+.my-move-primary:focus-visible {
+    outline: none;
+}
+.my-move-primary:focus-visible::after {
+    outline: 2px solid var(--dex-accent);
+    outline-offset: 3px;
+}
+.my-move .my-move-primary:has(input:disabled) {
+    opacity: 0.7;
+    cursor: default;
 }
 .my-move-stats,
 .my-move-power {
@@ -1387,9 +1426,6 @@
 }
 .my-wishlist-candidates .my-move {
     overflow-wrap: anywhere;
-}
-.my-wishlist-candidates label:has(input:disabled) {
-    opacity: 0.7;
 }
 .my-wishlist-warnings {
     margin: 0;

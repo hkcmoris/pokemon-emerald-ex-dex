@@ -131,9 +131,11 @@ base Attack and Sp. Attack, matching the Pokédex indicator. Current moves form 
 2×2 grid with category icons and power; moves without fixed base power show an em dash.
 Category and power also appear in **Coming up**, saved wishes, wishlist choices,
 and learning-plan steps. Missing reference data shows a question mark.
-Labeled SVG effect badges show status conditions, stat changes, healing, drain, and recoil
-in move cards, wishlist choices, and the species move tables. They identify the affected
-side and possible or conditional effects; no secondary-effect percentages are inferred.
+SVG effect icons beside move names summarize status conditions, stat changes, healing,
+drain, and recoil in move cards, wishlist choices, and species move tables. Hover, focus,
+or tap an icon to show its explanation; tap elsewhere or press Escape to dismiss it.
+The hints identify the affected side and possible or conditional effects; no secondary-effect
+percentages are inferred. Opening a hint never selects or removes a move.
 The audited Emerald EX 1.0.4 mapping and its limits are described in [Move effects](docs/move-effects.md).
 Matching physical/special moves have a gently pulsing border, using the same base Attack
 versus Sp. Attack comparison as the Pokémon's category icon. Equal stats highlight both

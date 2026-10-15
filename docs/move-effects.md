@@ -1,8 +1,9 @@
 # Move effect badges
 
-The move badges summarize supported status effects, stat changes, healing, draining,
-and recoil. They supplement the full move description. An absent badge means no
-supported, sufficiently clear classification is available; it does not mean that
+The SVG icons beside move names summarize supported status effects, stat changes,
+healing, draining, and recoil. Their text appears in hover, keyboard-focus, and tap
+hints, without selecting or removing the move. They supplement the full move description.
+An absent icon means no supported, sufficiently clear classification is available; it does not mean that
 the move has no effect.
 
 ## Source audit

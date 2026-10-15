@@ -85,6 +85,7 @@ function MoveTable({
                                     />
                                     <span className="move-title">
                                         <span className="move-name">{move.name}</span>{' '}
+                                        <MoveEffectBadges move={move} />{' '}
                                         <MoveCategory
                                             category={move.category}
                                             iconFile={move.categoryIconFile}
@@ -92,7 +93,6 @@ function MoveTable({
                                         />
                                     </span>
                                 </div>
-                                <MoveEffectBadges move={move} />
                                 <p className="move-acquisition">
                                     {!('machine' in move) && move.level === 0 ? (
                                         t('On evolution', 'Při vývoji')

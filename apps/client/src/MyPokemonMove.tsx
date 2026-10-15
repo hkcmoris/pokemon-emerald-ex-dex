@@ -26,40 +26,33 @@ export function findReferenceMove(
 export function MyPokemonMoveStats({ move }: { move?: Move }) {
     const { t } = useLanguage();
     return (
-        <>
-            <span className="my-move-stats">
-                {move ? (
-                    <MoveCategory
-                        category={move.category}
-                        iconFile={move.categoryIconFile}
-                        iconOnly
-                    />
-                ) : (
-                    <span title={t('Category unavailable', 'Kategorie není dostupná')}>?</span>
-                )}
-                <span
-                    className="my-move-power"
-                    title={
-                        !move
-                            ? t('Power unavailable', 'Síla není dostupná')
-                            : move.power === 0
-                              ? t('No fixed base power', 'Bez pevné základní síly')
-                              : undefined
-                    }
-                >
-                    <span>{t('Power', 'Síla')}</span>
-                    <strong>{move ? move.power || '—' : '?'}</strong>
-                </span>
+        <span className="my-move-stats">
+            {move ? (
+                <MoveCategory category={move.category} iconFile={move.categoryIconFile} iconOnly />
+            ) : (
+                <span title={t('Category unavailable', 'Kategorie není dostupná')}>?</span>
+            )}
+            <span
+                className="my-move-power"
+                title={
+                    !move
+                        ? t('Power unavailable', 'Síla není dostupná')
+                        : move.power === 0
+                          ? t('No fixed base power', 'Bez pevné základní síly')
+                          : undefined
+                }
+            >
+                <span>{t('Power', 'Síla')}</span>
+                <strong>{move ? move.power || '—' : '?'}</strong>
             </span>
-            <MoveEffectBadges move={move} />
-        </>
+        </span>
     );
 }
 
 export function MyPokemonMove({
     move,
     reference,
-    as: Element = 'span',
+    as = 'span',
     className = '',
     showStats = false,
     prefix,
@@ -86,7 +79,9 @@ export function MyPokemonMove({
     const affinityDescription = moveAffinityLabel(affinity, t);
     const description =
         details && t(details.description, details.descriptionCs || details.description);
-    const heading = (
+    const interactive = as === 'button' || as === 'label';
+    const Element = interactive ? 'span' : as;
+    const name = (
         <>
             {details && (
                 <TypeBadges types={[details.type]} iconFiles={[details.typeIconFile]} iconOnly />
@@ -96,28 +91,34 @@ export function MyPokemonMove({
     );
     return (
         <Element
-            className={`my-move ${className}${details ? ' type-surface' : ''}${showStats ? ' my-move-detailed' : ''}${affinity ? ' my-move-affinity' : ''}`}
+            className={`my-move ${className}${details ? ' type-surface' : ''}${showStats ? ' my-move-detailed' : ''}${affinity ? ' my-move-affinity' : ''}${interactive ? ' my-move-interactive' : ''}`}
             data-affinity={affinity ?? undefined}
             title={[description, affinityDescription].filter(Boolean).join('\n') || undefined}
             style={details ? typeSurfaceStyle([details.type]) : undefined}
-            type={Element === 'button' ? 'button' : undefined}
-            aria-label={
-                Element === 'button' ? t(`Remove ${move.name}`, `Odebrat ${move.name}`) : undefined
-            }
-            onClick={onClick}
+            onClick={interactive ? undefined : onClick}
         >
-            {prefix}
-            {showStats ? (
-                <>
-                    <span className="my-move-heading">{heading}</span>
-                    <MyPokemonMoveStats move={details} />
-                </>
-            ) : (
-                <>
-                    {heading}
-                    <MoveEffectBadges move={details} />
-                </>
-            )}
+            {as !== 'label' && prefix}
+            <span className="my-move-heading">
+                {as === 'button' ? (
+                    <button
+                        type="button"
+                        className="my-move-primary"
+                        aria-label={t(`Remove ${move.name}`, `Odebrat ${move.name}`)}
+                        onClick={onClick}
+                    >
+                        {name}
+                    </button>
+                ) : as === 'label' ? (
+                    <label className="my-move-primary" onClick={onClick}>
+                        {prefix}
+                        {name}
+                    </label>
+                ) : (
+                    name
+                )}
+                <MoveEffectBadges move={details} />
+            </span>
+            {showStats && <MyPokemonMoveStats move={details} />}
             {affinityDescription && <span className="sr-only">{affinityDescription}</span>}
             {suffix}
         </Element>

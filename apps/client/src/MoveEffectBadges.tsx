@@ -1,5 +1,6 @@
 import { getMoveEffects, type Move, type MoveEffect } from '@pokemon-emerald-ex-dex/shared';
-import type { ReactNode } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 import { useLanguage } from './language.js';
 
@@ -181,28 +182,143 @@ export function MoveEffectIcon({ effect }: { effect: MoveEffect }) {
     );
 }
 
+function MoveEffectBadge({ effect }: { effect: MoveEffect }) {
+    const { t } = useLanguage();
+    const label = effectLabel(effect, t);
+    const id = useId();
+    const trigger = useRef<HTMLButtonElement>(null);
+    const tooltip = useRef<HTMLSpanElement>(null);
+    const dismissTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const [hint, setHint] = useState<{
+        center: number;
+        top: number;
+        above: boolean;
+        pinned: boolean;
+    } | null>(null);
+    const cancelDismiss = useCallback(() => clearTimeout(dismissTimer.current), []);
+    const close = useCallback(() => {
+        cancelDismiss();
+        setHint(null);
+    }, [cancelDismiss]);
+    const show = useCallback(
+        (pinned: boolean): void => {
+            cancelDismiss();
+            const bounds = trigger.current?.getBoundingClientRect();
+            if (!bounds) return;
+            const above = bounds.top >= 80;
+            setHint((current) => ({
+                center: bounds.left + bounds.width / 2,
+                top: above ? bounds.top - 6 : bounds.bottom + 6,
+                above,
+                pinned: pinned || current?.pinned === true,
+            }));
+        },
+        [cancelDismiss],
+    );
+    const leave = (): void => {
+        if (!hint?.pinned) dismissTimer.current = setTimeout(close, 150);
+    };
+    const isOpen = hint !== null;
+    useEffect(() => cancelDismiss, [cancelDismiss]);
+    useEffect(() => {
+        if (!isOpen) return;
+        const outside = (event: PointerEvent): void => {
+            if (
+                event.target instanceof Node &&
+                !trigger.current?.contains(event.target) &&
+                !tooltip.current?.contains(event.target)
+            )
+                close();
+        };
+        const escape = (event: KeyboardEvent): void => {
+            if (event.key === 'Escape') close();
+        };
+        const scroll = (event: Event): void => {
+            const bounds = trigger.current?.getBoundingClientRect();
+            const viewport =
+                event.target instanceof Element
+                    ? event.target.getBoundingClientRect()
+                    : { top: 0, bottom: window.innerHeight };
+            if (
+                document.activeElement !== trigger.current ||
+                !bounds ||
+                bounds.bottom <= viewport.top ||
+                bounds.top >= viewport.bottom
+            ) {
+                close();
+                return;
+            }
+            // Keyboard focus can scroll the icon into view after its focus event.
+            show(true);
+        };
+        document.addEventListener('pointerdown', outside);
+        document.addEventListener('keydown', escape);
+        window.addEventListener('scroll', scroll, true);
+        window.addEventListener('resize', close);
+        return () => {
+            document.removeEventListener('pointerdown', outside);
+            document.removeEventListener('keydown', escape);
+            window.removeEventListener('scroll', scroll, true);
+            window.removeEventListener('resize', close);
+        };
+    }, [isOpen, close, show]);
+    return (
+        <span className="move-effect-item" role="listitem">
+            <button
+                ref={trigger}
+                type="button"
+                className="move-effect-badge"
+                aria-label={label}
+                aria-describedby={hint ? `${id}-hint` : undefined}
+                title=""
+                data-effect={effect.kind === 'status' ? effect.status : effect.kind}
+                data-direction={effect.kind === 'stat' ? effect.direction : undefined}
+                onPointerEnter={(event) => {
+                    if (event.pointerType !== 'touch') show(false);
+                }}
+                onPointerLeave={leave}
+                onFocus={() => show(true)}
+                onBlur={close}
+                onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    show(true);
+                }}
+            >
+                <MoveEffectIcon effect={effect} />
+            </button>
+            {hint &&
+                createPortal(
+                    <span
+                        ref={tooltip}
+                        id={`${id}-hint`}
+                        role="tooltip"
+                        className="move-effect-hint"
+                        style={{
+                            left: `clamp(8px, calc(${hint.center}px - 8rem), calc(100vw - 16rem - 8px))`,
+                            top: hint.top,
+                            transform: hint.above ? 'translateY(-100%)' : undefined,
+                        }}
+                        onPointerEnter={cancelDismiss}
+                        onPointerLeave={leave}
+                    >
+                        {label}
+                    </span>,
+                    document.body,
+                )}
+        </span>
+    );
+}
+
 export function MoveEffectBadges({ move }: { move?: Move }) {
     const { t } = useLanguage();
     const effects = move ? getMoveEffects(move) : [];
     if (effects.length === 0) return null;
     return (
         <span className="move-effects" role="list" aria-label={t('Move effects', 'Účinky útoku')}>
-            {effects.map((effect, index) => {
-                const label = effectLabel(effect, t);
-                return (
-                    <span
-                        key={index}
-                        className="move-effect-badge"
-                        role="listitem"
-                        title={label}
-                        data-effect={effect.kind === 'status' ? effect.status : effect.kind}
-                        data-direction={effect.kind === 'stat' ? effect.direction : undefined}
-                    >
-                        <MoveEffectIcon effect={effect} />
-                        <span>{label}</span>
-                    </span>
-                );
-            })}
+            {effects.map((effect, index) => (
+                <MoveEffectBadge key={index} effect={effect} />
+            ))}
         </span>
     );
 }
