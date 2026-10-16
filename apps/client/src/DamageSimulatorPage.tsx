@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { pokemonNatures, getNatureStatEffect } from '@pokemon-emerald-ex-dex/shared';
 import type {
@@ -13,6 +13,7 @@ import type {
 
 import { NatureStat } from './NatureStat.js';
 import { BattleTypeMatchups } from './BattleTypeMatchups.js';
+import { SimulatorParty } from './SimulatorParty.js';
 import { getAbilityChoices, getSelectedAbility } from './pokemonTraits.js';
 import { useCollection } from './collectionStore.js';
 import { getCurrentStats } from './collectionStats.js';
@@ -34,6 +35,13 @@ import { typeSurfaceStyle } from './theme.js';
 
 type AttackStat = 'attack' | 'spAttack' | 'defense';
 type EnemyStat = 'hp' | 'defense' | 'spDefense';
+interface EnemySetup {
+    pokemon: Pokemon | null;
+    level: string;
+    picking: boolean;
+    overrides: Record<EnemyStat, string>;
+}
+
 const attackKeys: readonly AttackStat[] = ['attack', 'spAttack', 'defense'];
 const enemyKeys: readonly EnemyStat[] = ['hp', 'defense', 'spDefense'];
 const statLabels = {
@@ -276,6 +284,10 @@ function SimulatorScenario({
     natureId,
     abilityConflict,
     datasetId,
+    enemySetup,
+    setEnemySetup,
+    chart,
+    chartStatus,
 }: {
     pokemon: OwnedPokemon;
     species: SpeciesDetails;
@@ -284,28 +296,25 @@ function SimulatorScenario({
     natureId?: number | null;
     abilityConflict: boolean;
     datasetId?: string;
+    enemySetup: EnemySetup;
+    setEnemySetup: Dispatch<SetStateAction<EnemySetup>>;
+    chart: TypeEffectivenessChart | undefined;
+    chartStatus: 'pending' | 'error' | 'success';
 }) {
     const { t } = useLanguage();
-    const [enemy, setEnemy] = useState<Pokemon | null>(null);
-    const [enemyLevel, setEnemyLevel] = useState(String(pokemon.state.level));
-    const [pickingEnemy, setPickingEnemy] = useState(true);
+    const {
+        pokemon: enemy,
+        level: enemyLevel,
+        picking: pickingEnemy,
+        overrides: enemyOverrides,
+    } = enemySetup;
     const [ownOverrides, setOwnOverrides] = useState<Record<AttackStat, string>>({
         attack: '',
         spAttack: '',
         defense: '',
     });
-    const [enemyOverrides, setEnemyOverrides] = useState<Record<EnemyStat, string>>({
-        hp: '',
-        defense: '',
-        spDefense: '',
-    });
     const [previewIds, setPreviewIds] = useState<number[]>([]);
     const [moveSearch, setMoveSearch] = useState('');
-    const chart = useQuery({
-        queryKey: ['collection-type-effectiveness', datasetId],
-        queryFn: () => loadCollectionTypeEffectiveness(datasetId!),
-        enabled: Boolean(datasetId),
-    });
     const parsedEnemyLevel = integerInput(enemyLevel, 100);
     const automatic =
         enemy && parsedEnemyLevel !== undefined
@@ -344,7 +353,7 @@ function SimulatorScenario({
         typeIds: species.typeIds,
         enemyStats,
         enemyTypeIds: enemy?.typeIds,
-        chart: chart.data,
+        chart,
     };
     const ownName = pokemon.nickname || species.name;
     const nature = pokemonNatures.find((entry) => entry.id === natureId);
@@ -354,7 +363,10 @@ function SimulatorScenario({
         : (getSelectedAbility(pokemon, species) ??
           (abilityChoices.length === 1 ? abilityChoices[0] : null));
     function resetEnemyStats() {
-        setEnemyOverrides({ hp: '', defense: '', spDefense: '' });
+        setEnemySetup((previous) => ({
+            ...previous,
+            overrides: { hp: '', defense: '', spDefense: '' },
+        }));
     }
     return (
         <>
@@ -369,7 +381,7 @@ function SimulatorScenario({
                                 <BattleTypeMatchups
                                     defendingTypeIds={enemy.typeIds}
                                     attackingTypeIds={species.typeIds}
-                                    chart={chart.data}
+                                    chart={chart}
                                     defenderName={enemy.name}
                                 />
                             )}
@@ -437,7 +449,7 @@ function SimulatorScenario({
                                 <BattleTypeMatchups
                                     defendingTypeIds={species.typeIds}
                                     attackingTypeIds={enemy.typeIds}
-                                    chart={chart.data}
+                                    chart={chart}
                                     defenderName={ownName}
                                 />
                             )}
@@ -511,7 +523,12 @@ function SimulatorScenario({
                             <button
                                 type="button"
                                 className="my-text-button"
-                                onClick={() => setPickingEnemy((value) => !value)}
+                                onClick={() =>
+                                    setEnemySetup((previous) => ({
+                                        ...previous,
+                                        picking: !previous.picking,
+                                    }))
+                                }
                             >
                                 {pickingEnemy
                                     ? t('Close search', 'Zavřít hledání')
@@ -523,10 +540,12 @@ function SimulatorScenario({
                         <SpeciesPicker
                             datasetId={datasetId}
                             onSelect={(selected) => {
-                                setEnemy(selected);
-                                setEnemyLevel(String(pokemon.state.level));
-                                resetEnemyStats();
-                                setPickingEnemy(false);
+                                setEnemySetup({
+                                    pokemon: selected,
+                                    level: String(pokemon.state.level),
+                                    overrides: { hp: '', defense: '', spDefense: '' },
+                                    picking: false,
+                                });
                             }}
                         />
                     )}
@@ -551,8 +570,12 @@ function SimulatorScenario({
                                     maxLength={3}
                                     aria-invalid={parsedEnemyLevel === undefined}
                                     onChange={(event) => {
-                                        setEnemyLevel(event.target.value);
-                                        resetEnemyStats();
+                                        const level = event.target.value;
+                                        setEnemySetup((previous) => ({
+                                            ...previous,
+                                            level,
+                                            overrides: { hp: '', defense: '', spDefense: '' },
+                                        }));
                                     }}
                                 />
                                 {parsedEnemyLevel === undefined && (
@@ -584,9 +607,9 @@ function SimulatorScenario({
                                         }
                                         prefix={t('Opponent', 'Soupeř')}
                                         onChange={(value) =>
-                                            setEnemyOverrides((previous) => ({
+                                            setEnemySetup((previous) => ({
                                                 ...previous,
-                                                [stat]: value,
+                                                overrides: { ...previous.overrides, [stat]: value },
                                             }))
                                         }
                                     />
@@ -609,7 +632,7 @@ function SimulatorScenario({
                     )}
                 </section>
             </div>
-            {(!datasetId || chart.isError) && (
+            {(!datasetId || chartStatus === 'error') && (
                 <p className="sim-notice" role="status">
                     {t(
                         'Type matchup data is unavailable. Reconnect to calculate damage.',
@@ -617,7 +640,7 @@ function SimulatorScenario({
                     )}
                 </p>
             )}
-            {datasetId && chart.isPending && (
+            {datasetId && chartStatus === 'pending' && (
                 <p className="my-muted" role="status">
                     {t('Loading type matchups…', 'Načítání účinnosti typů…')}
                 </p>
@@ -756,8 +779,8 @@ function SimulatorScenario({
                 </p>
                 <p>
                     {t(
-                        'No changes are saved to your collection. Switching the attacker, form or recorded level starts a fresh scenario.',
-                        'Žádné změny se neukládají do sbírky. Změna útočníka, formy nebo zaznamenané úrovně zahájí nový scénář.',
+                        'No changes are saved to your collection. Switching the attacker, form or recorded level keeps the opponent and clears your temporary stats and move previews. Leaving the simulator clears the scenario.',
+                        'Žádné změny se neukládají do sbírky. Změna útočníka, formy nebo zaznamenané úrovně zachová soupeře a vymaže vaše dočasné statistiky a náhledy útoků. Odchod ze simulátoru vymaže scénář.',
                     )}
                 </p>
             </details>
@@ -803,6 +826,18 @@ export function DamageSimulatorView({
     ready: boolean;
 }) {
     const { t } = useLanguage();
+    // This state belongs to the simulator page, above the keyed attacker scenario.
+    const [enemySetup, setEnemySetup] = useState<EnemySetup>({
+        pokemon: null,
+        level: '',
+        picking: true,
+        overrides: { hp: '', defense: '', spDefense: '' },
+    });
+    const chart = useQuery({
+        queryKey: ['collection-type-effectiveness', datasetId],
+        queryFn: () => loadCollectionTypeEffectiveness(datasetId!),
+        enabled: ready && Boolean(datasetId),
+    });
     const pokemon = document.pokemon[pokemonId];
     const run = pokemon ? document.playthroughs[pokemon.playthroughId] : undefined;
     const missing = !pokemon || pokemon.deleted || !run || run.deleted;
@@ -890,6 +925,17 @@ export function DamageSimulatorView({
                         </label>
                     )}
                 </div>
+                {ready && !missing && (
+                    <SimulatorParty
+                        document={document}
+                        run={run}
+                        selectedPokemonId={pokemonId}
+                        enemy={enemySetup.pokemon}
+                        datasetId={datasetId}
+                        chart={chart.data}
+                        conflicts={conflicts}
+                    />
+                )}
                 {!ready ? (
                     <p className="my-panel" role="status">
                         {t('Loading collection…', 'Načítání sbírky…')}
@@ -946,6 +992,10 @@ export function DamageSimulatorView({
                         )}
                         observationConflict={observationConflict}
                         datasetId={datasetId}
+                        enemySetup={enemySetup}
+                        setEnemySetup={setEnemySetup}
+                        chart={chart.data}
+                        chartStatus={chart.status}
                     />
                 )}
                 <DexFooter />

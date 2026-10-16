@@ -27,8 +27,11 @@ target-independent comparison.
   game-specific acquisition rules remain unverified in
   [the source review](../move-reminder-rules.md).
 - Scenario inputs and previews are local component state. They never update the
-  saved collection, known moves, level, observations, wishlist or history. Changing
-  attacker/form/recorded level or leaving the page starts a fresh scenario.
+  saved collection, known moves, level, observations, wishlist or history. Switching
+  attackers in the simulator (including party links, the collection selector, and
+  browser history) preserves the selected enemy, its level and stat overrides.
+  Changing attacker/form/recorded level clears only the attacker's temporary stats
+  and move previews. Leaving the simulator or switching datasets clears the scenario.
 
 The simulator also displays the attacker’s saved nature and selected ability.
 Nature highlights current attacking stats; recorded values already include its
@@ -40,6 +43,15 @@ of the enemy and right of your Pokémon. Only non-neutral matchups against the
 other combatant’s own types appear, including immunities. Both defensive types
 multiply; these hints do not assume the enemy’s moves or include ability effects.
 They update when either combatant changes and stay hidden without verified type data.
+
+The party strip follows the current playthrough's saved party order and switches
+attackers without changing the opponent. Green means at least one of a member's
+own types is super effective against the enemy. Red means every own type is resisted
+(or blocked by immunity); a neutral option keeps the card neutral. The label and
+multiplier use the best own attacking type against both enemy types. This is type
+coverage guidance, not a prediction from recorded moves, stats, level or abilities.
+Missing or conflicting data produces no effectiveness claim. The selected attacker
+has a separate outline so selection remains distinguishable from effectiveness.
 
 ## Damage calculation
 

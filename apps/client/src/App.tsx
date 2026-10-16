@@ -69,7 +69,7 @@ export function App() {
     if (route.kind === 'damage-simulator') {
         return (
             <DamageSimulatorPage
-                key={route.id}
+                key={dexMetadata?.datasetId ?? 'emerald-ex-1.0.4'}
                 pokemonId={route.id}
                 version={dexMetadata?.version ?? '1.0.4'}
                 datasetId={dexMetadata?.datasetId ?? 'emerald-ex-1.0.4'}
