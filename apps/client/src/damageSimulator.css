@@ -1,9 +1,11 @@
 .sim-main {
     --sim-error: #db6952;
+    --sim-weakness: #ff9d9d;
     --sim-soft-accent: color-mix(in srgb, var(--dex-accent) 10%, transparent);
 }
 :root.light .sim-main {
     --sim-error: #ad3a28;
+    --sim-weakness: #a62135;
 }
 .sim-page-heading {
     grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
@@ -61,18 +63,20 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    max-width: 90%;
+    width: calc(100% - 2.8rem);
 }
 .sim-enemy {
     top: 34px;
     right: 1.4rem;
     text-align: right;
+    justify-content: flex-end;
 }
 .sim-own {
     bottom: 1.1rem;
     left: 1.4rem;
 }
 .sim-combatant-label {
+    flex: 0 1 auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -465,5 +469,69 @@
     .sim-candidate-action {
         grid-column: 2;
         grid-row: 1 / 3;
+    }
+}
+
+.sim-battle-matchups {
+    flex: 0 0 auto;
+    max-width: 108px;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--dex-surface) 72%, transparent);
+    text-align: center;
+}
+.sim-battle-matchups ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.sim-battle-matchups li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+}
+.sim-matchup-label {
+    color: var(--dex-muted);
+    font-size: 0.6rem;
+    line-height: 1.2;
+}
+.sim-matchup-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+.sim-matchup-value strong {
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+}
+.sim-battle-matchups [data-matchup='weak'] strong {
+    color: var(--sim-weakness);
+}
+.sim-battle-matchups [data-matchup='resistant'] strong,
+.sim-battle-matchups [data-matchup='immune'] strong {
+    color: var(--dex-accent);
+}
+@media (max-width: 480px) {
+    .sim-combatant {
+        width: calc(100% - 0.8rem);
+        gap: 0.45rem;
+    }
+    .sim-combatant:has(.sim-battle-matchups) .sim-sprite-platform {
+        width: 100px;
+        height: 106px;
+    }
+    .sim-combatant:has(.sim-battle-matchups) .species-sprite {
+        max-width: 96px;
+        max-height: 96px;
+    }
+    .sim-battle-matchups {
+        max-width: 78px;
+        padding: 0.4rem;
     }
 }

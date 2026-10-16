@@ -12,6 +12,7 @@ import type {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { NatureStat } from './NatureStat.js';
+import { BattleTypeMatchups } from './BattleTypeMatchups.js';
 import { getAbilityChoices, getSelectedAbility } from './pokemonTraits.js';
 import { useCollection } from './collectionStore.js';
 import { getCurrentStats } from './collectionStats.js';
@@ -364,6 +365,14 @@ function SimulatorScenario({
                             {t('DAMAGE LAB', 'SIMULACE POŠKOZENÍ')}
                         </span>
                         <div className="sim-combatant sim-enemy">
+                            {enemy && (
+                                <BattleTypeMatchups
+                                    defendingTypeIds={enemy.typeIds}
+                                    attackingTypeIds={species.typeIds}
+                                    chart={chart.data}
+                                    defenderName={enemy.name}
+                                />
+                            )}
                             <div className="sim-combatant-label">
                                 <small>{t('Opponent', 'Soupeř')}</small>
                                 <strong>
@@ -424,6 +433,14 @@ function SimulatorScenario({
                                     iconOnly
                                 />
                             </div>
+                            {enemy && (
+                                <BattleTypeMatchups
+                                    defendingTypeIds={species.typeIds}
+                                    attackingTypeIds={enemy.typeIds}
+                                    chart={chart.data}
+                                    defenderName={ownName}
+                                />
+                            )}
                         </div>
                     </div>
                     <div className="sim-own-stats">

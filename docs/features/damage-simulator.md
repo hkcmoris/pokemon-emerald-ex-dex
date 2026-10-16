@@ -35,6 +35,12 @@ Nature highlights current attacking stats; recorded values already include its
 effect and are never multiplied again. Ability effects remain excluded from damage.
 Change these saved choices on the collection card; simulator controls stay temporary.
 
+The battle preview shows relevant incoming type matchups beside each name: left
+of the enemy and right of your Pokémon. Only non-neutral matchups against the
+other combatant’s own types appear, including immunities. Both defensive types
+multiply; these hints do not assume the enemy’s moves or include ability effects.
+They update when either combatant changes and stay hidden without verified type data.
+
 ## Damage calculation
 
 The prominent result is a **minimum–maximum HP damage range**, with the percentage
