@@ -168,10 +168,12 @@ versus Sp. Attack comparison as the Pokémon's category icon. Equal stats highli
 damaging categories; status moves are excluded. Reduced-motion preferences keep a static border.
 Unused move slots have dashed borders and 45° stripes, keeping the move grid the same
 height for zero to four moves. Unrecorded moves retain an explicit unknown label.
-The toggle below the sprite has two rows: current moves and the recorded stat graph,
-then weaknesses and resistances/immunities. New controls extend downward, keeping the
-portrait width unchanged. Each view grows the card vertically as needed, with wrapping
-type badges and no fixed-height overlay.
+A shared four-button selector switches all party and collection cards between current
+moves, the recorded stat graph, weaknesses, and resistances/immunities. It is centered
+in the party/collection toolbar on desktop and placed below that row on mobile.
+The selected view stays the same when switching between party and collection.
+The individual detail page keeps the same selector above its card. Each view grows
+the card vertically as needed, with wrapping type badges and no fixed-height overlay.
 The graph legend sits in a single column on the right, leaving more vertical room for the plot.
 Hover near a chart point, tap it, or focus it with the keyboard to show its recorded value
 and level above the point. Tapped hints stay visible until another point is selected,

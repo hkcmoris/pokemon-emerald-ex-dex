@@ -121,6 +121,7 @@ function card(
 ) {
     return createElement(MyPokemonCard, {
         pokemon,
+        view: 'moves',
         observations,
         partyIndex: 0,
         partySize: 1,

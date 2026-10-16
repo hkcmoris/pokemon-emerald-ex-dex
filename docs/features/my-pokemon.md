@@ -54,9 +54,12 @@ exporting or importing their collection.
   Show a dash if the latest observation is incomplete, equally recent observations disagree,
   or the Pokémon's state or stat observations have unresolved sync conflicts. Never combine
   partial observations or substitute older levels, earlier forms, base stats, or estimates.
-- A two-button control beneath the sprite uses the same segmented styling as the shiny
-  sprite toggle. Switch between the current total and a full-card-width progression graph;
-  the base total remains visible. The graph plots all six recorded battle stats against
+- A shared four-button selector controls all party and collection cards: current moves,
+  stat progression, weaknesses, and resistances/immunities. It sits in the center of the
+  party/collection toolbar on desktop and below that row on mobile. Switching between
+  party and collection preserves the selected view. The detail page places the same
+  selector above its card. Current and base stat totals remain visible in every view.
+  The graph plots all six recorded battle stats against
   level, with a legend and measurement details on each point. It excludes removed records,
   omits unknown values, and does not connect lines across species/form periods or through
   contradictory values at the same level. Empty history explains how to record stats;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type SubmitEvent } from 'react';
+import { useEffect, useId, useRef, useState, type SubmitEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     getDefaultMoves,
@@ -18,6 +18,7 @@ import { DexFooter } from './DexFooter.js';
 import { DexNavigation } from './DexNavigation.js';
 import { useLanguage } from './language.js';
 import { MyPokemonCard } from './MyPokemonCard.js';
+import { MyPokemonViewToggle, type MyPokemonView } from './MyPokemonViewToggle.js';
 import { MyPokemonConflicts } from './MyPokemonConflicts.js';
 import { AddPokemonForm, SpeciesPicker } from './MyPokemonForms.js';
 import './myPokemon.css';
@@ -115,6 +116,8 @@ export function MyPokemonPage({
     const { document, update, ready } = collection;
     const [selectedRunId, setSelectedRunId] = useState('');
     const [view, setView] = useState<'party' | 'collection'>('party');
+    const [cardView, setCardView] = useState<MyPokemonView>('moves');
+    const cardsId = useId();
     const [runEditor, setRunEditor] = useState<'new' | 'rename' | null>(null);
     const [adding, setAdding] = useState(addSpeciesId !== undefined);
     const [selectedSpecies, setSelectedSpecies] = useState<Pokemon | null>(null);
@@ -305,6 +308,7 @@ export function MyPokemonPage({
             <MyPokemonCard
                 key={pokemon.id}
                 detail={detail}
+                view={cardView}
                 pokemon={pokemon}
                 datasetId={datasetId}
                 observations={Object.values(document.observations).filter(
@@ -479,7 +483,14 @@ export function MyPokemonPage({
                             {detailPokemon && !detailPokemon.deleted && run ? (
                                 <div className="my-owned-detail">
                                     {partyReplacement}
-                                    {renderPokemon(detailPokemon, true)}
+                                    <div className="my-detail-view-toolbar">
+                                        <MyPokemonViewToggle
+                                            view={cardView}
+                                            onViewChange={setCardView}
+                                            controlsId={cardsId}
+                                        />
+                                    </div>
+                                    <div id={cardsId}>{renderPokemon(detailPokemon, true)}</div>
                                 </div>
                             ) : (
                                 <section className="my-empty" role="status">
@@ -762,6 +773,11 @@ export function MyPokemonPage({
                                             </button>
                                         ))}
                                     </div>
+                                    <MyPokemonViewToggle
+                                        view={cardView}
+                                        onViewChange={setCardView}
+                                        controlsId={cardsId}
+                                    />
                                     <button
                                         className="my-primary"
                                         type="button"
@@ -810,7 +826,7 @@ export function MyPokemonPage({
                                 )}
                                 {partyReplacement}
                                 {shown.length === 0 ? (
-                                    <section className="my-empty">
+                                    <section className="my-empty" id={cardsId}>
                                         <div className="my-empty-mark" aria-hidden="true">
                                             ◇
                                         </div>
@@ -844,7 +860,7 @@ export function MyPokemonPage({
                                         )}
                                     </section>
                                 ) : (
-                                    <div className="my-party-grid">
+                                    <div className="my-party-grid" id={cardsId}>
                                         {shown.map((pokemon) => renderPokemon(pokemon))}
                                     </div>
                                 )}

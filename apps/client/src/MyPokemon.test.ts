@@ -12,6 +12,7 @@ import {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { MyPokemonCard, CatchUpRecap, EvolutionAdvice } from './MyPokemonCard.js';
+import { MyPokemonViewToggle, type MyPokemonView } from './MyPokemonViewToggle.js';
 import { AddPokemonForm } from './MyPokemonForms.js';
 import { GrowthTable, ObservationForm } from './MyPokemonHistory.js';
 import { MyPokemonConflicts, conflictValueLabel } from './MyPokemonConflicts.js';
@@ -61,10 +62,16 @@ function render(content: ReactNode, language: 'en' | 'cs' = 'en'): string {
     );
 }
 
-function card(pokemon: OwnedPokemon = owned, stateConflict = false, detail = true) {
+function card(
+    pokemon: OwnedPokemon = owned,
+    stateConflict = false,
+    detail = true,
+    view: MyPokemonView = 'moves',
+) {
     return createElement(MyPokemonCard, {
         pokemon,
         detail,
+        view,
         observations: [],
         partyIndex: 0,
         partySize: 1,
@@ -444,23 +451,54 @@ void test('Czech summary cards expose a localized owned-detail link', () => {
     doesNotMatch(html, /Zapsat vývoj|Odebrat z týmu|Propustit ze sbírky/);
 });
 
-void test('card view selector exposes all four views with one selected and a shared panel', () => {
-    const html = render(card());
-    const toggle = html.slice(
-        html.indexOf('role="group"'),
-        html.indexOf('</div>', html.indexOf('role="group"')),
-    );
+void test('global card view selector exposes all four views and controls the shared card region', () => {
+    const selector = createElement(MyPokemonViewToggle, {
+        view: 'stats',
+        onViewChange: () => {},
+        controlsId: 'pokemon-cards',
+    });
+    const toggle = render(selector);
     strictEqual((toggle.match(/aria-pressed="true"/g) ?? []).length, 1);
     strictEqual((toggle.match(/aria-pressed="false"/g) ?? []).length, 3);
     match(toggle, /aria-label="Current moves"/);
-    match(toggle, /aria-label="Stats progression"/);
+    match(
+        toggle,
+        /<button(?=[^>]*aria-pressed="true")(?=[^>]*aria-label="Stats progression")[^>]*>/,
+    );
     match(toggle, /aria-label="Weaknesses"/);
     match(toggle, /aria-label="Resistances &amp; immunities"/);
     const panelIds = [...toggle.matchAll(/aria-controls="([^"]+)"/g)].map((entry) => entry[1]);
     strictEqual(panelIds.length, 4);
-    strictEqual(new Set(panelIds).size, 1);
-    match(html, new RegExp(`class="my-card-view" id="${panelIds[0]}"`));
-    const czech = render(card(), 'cs');
+    strictEqual(
+        panelIds.every((id) => id === 'pokemon-cards'),
+        true,
+    );
+    const czech = render(selector, 'cs');
     match(czech, /aria-label="Slabiny"/);
     match(czech, /aria-label="Odolnosti a imunity"/);
+});
+
+void test('summary and detail cards render the selected global view without their own selector', () => {
+    for (const detail of [false, true]) {
+        const moves = render(card(owned, false, detail, 'moves'));
+        match(moves, /class="my-current-moves">/);
+        doesNotMatch(moves, /my-stat-view-toggle|my-stat-graph-panel|my-type-defenses/);
+
+        const stats = render(card(owned, false, detail, 'stats'));
+        match(stats, /class="my-current-moves" hidden=""/);
+        match(stats, /No battle stats recorded/);
+        doesNotMatch(stats, /my-stat-view-toggle|my-type-defenses/);
+
+        for (const view of ['weaknesses', 'resistances'] as const) {
+            const defenses = render(card(owned, false, detail, view));
+            match(defenses, /class="my-current-moves" hidden=""/);
+            match(
+                defenses,
+                view === 'weaknesses'
+                    ? /class="my-type-defenses" aria-label="Weaknesses"/
+                    : /class="my-type-defenses" aria-label="Resistances &amp; immunities"/,
+            );
+            doesNotMatch(defenses, /my-stat-view-toggle|my-stat-graph-panel/);
+        }
+    }
 });

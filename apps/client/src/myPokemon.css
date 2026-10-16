@@ -179,8 +179,23 @@
     flex: 0 1 350px;
 }
 .my-view-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     margin: 1.25rem 0;
-    flex-wrap: wrap;
+}
+.my-view-toolbar > .my-view-switch {
+    justify-self: start;
+}
+.my-view-toolbar > .my-stat-view-toggle {
+    justify-self: center;
+}
+.my-view-toolbar > .my-primary {
+    justify-self: end;
+}
+.my-detail-view-toolbar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.25rem;
 }
 .my-view-switch {
     display: inline-flex;
@@ -326,7 +341,7 @@
 }
 .appearance-toggle.my-stat-view-toggle {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     width: auto;
     gap: 0.125rem;
     padding: 0.2rem;
@@ -334,8 +349,8 @@
 .appearance-toggle.my-stat-view-toggle button {
     display: grid;
     place-items: center;
-    min-width: 30px;
-    min-height: 32px;
+    min-width: 40px;
+    min-height: 40px;
     padding: 0.3rem;
 }
 .my-stat-view-toggle svg {
@@ -1266,6 +1281,17 @@
     }
 }
 @media (max-width: 800px) {
+    .my-view-toolbar {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .my-view-toolbar > .my-stat-view-toggle {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+    .my-view-toolbar > .my-primary {
+        grid-column: 2;
+        grid-row: 1;
+    }
     .my-party-grid,
     .my-conflict-options {
         grid-template-columns: minmax(0, 1fr);
@@ -1283,7 +1309,12 @@
     .my-stat-inputs {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    .my-view-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+    }
     .my-view-toolbar > .my-primary {
+        grid-column: 1;
+        grid-row: 3;
         width: 100%;
     }
     .my-view-switch {
