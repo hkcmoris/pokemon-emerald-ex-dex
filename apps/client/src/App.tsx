@@ -11,6 +11,7 @@ import { SpeciesPage } from './SpeciesPage.js';
 import { AbilitiesPage } from './AbilitiesPage.js';
 import { ItemsPage } from './ItemsPage.js';
 import { MyPokemonPage } from './MyPokemonPage.js';
+import { DamageSimulatorPage } from './DamageSimulatorPage.js';
 import { PokemonFilterSheet, getSortOptions } from './PokemonFilterSheet.js';
 import { PokemonResults } from './PokemonResults.js';
 import { navigationSnapshot, parseRoute, subscribeToNavigation } from './navigation.js';
@@ -65,6 +66,16 @@ export function App() {
         setPage(0);
     }
 
+    if (route.kind === 'damage-simulator') {
+        return (
+            <DamageSimulatorPage
+                key={route.id}
+                pokemonId={route.id}
+                version={dexMetadata?.version ?? '1.0.4'}
+                datasetId={dexMetadata?.datasetId ?? 'emerald-ex-1.0.4'}
+            />
+        );
+    }
     if (route.kind === 'my-pokemon' || route.kind === 'owned-pokemon') {
         return (
             <MyPokemonPage

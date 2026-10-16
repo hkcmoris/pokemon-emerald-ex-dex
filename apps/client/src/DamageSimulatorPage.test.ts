@@ -1,0 +1,363 @@
+import { deepStrictEqual, doesNotMatch, match } from 'node:assert/strict';
+import { test } from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+    emptyCollection,
+    type CollectionConflict,
+    type CollectionDocument,
+    type Move,
+    type OwnedPokemon,
+    type SpeciesDetails,
+    type StatObservation,
+} from '@pokemon-emerald-ex-dex/shared';
+
+import { DamageSimulatorView } from './DamageSimulatorPage.js';
+import { LanguageProvider } from './language.js';
+
+const waterGun: Move = {
+    moveId: 55,
+    name: 'Water Gun',
+    description: '',
+    descriptionCs: null,
+    typeId: 11,
+    type: 'Water',
+    typeIconFile: null,
+    categoryId: 1,
+    category: 'Special',
+    categoryIconFile: null,
+    power: 40,
+    accuracy: 100,
+    pp: 25,
+    priority: 0,
+    effectId: 0,
+    targetId: 0,
+};
+const tackle: Move = {
+    ...waterGun,
+    moveId: 33,
+    name: 'Tackle',
+    typeId: 0,
+    type: 'Normal',
+    categoryId: 0,
+    category: 'Physical',
+};
+const bubbleBeam: Move = { ...waterGun, moveId: 61, name: 'Bubble Beam', power: 65 };
+const surf: Move = { ...waterGun, moveId: 57, name: 'Surf', power: 90 };
+const darkPulse: Move = {
+    ...waterGun,
+    moveId: 399,
+    name: 'Dark Pulse',
+    typeId: 17,
+    type: 'Dark',
+    power: 80,
+};
+const species: SpeciesDetails = {
+    speciesId: 692,
+    name: 'Clauncher',
+    types: ['Water'],
+    typeIds: [11],
+    typeIconFiles: [null],
+    stats: { hp: 50, attack: 53, defense: 62, spAttack: 58, spDefense: 63, speed: 44 },
+    baseStatTotal: 330,
+    sprites: {
+        front: 'clauncher/front.png',
+        back: 'clauncher/back.png',
+        shinyFront: null,
+        shinyBack: null,
+        frontFrame2: null,
+        shinyFrontFrame2: null,
+        frontFrameCount: 1,
+        missingReason: null,
+    },
+    abilities: [],
+    learnset: [
+        { ...waterGun, entryOrder: 0, level: 1 },
+        { ...bubbleBeam, entryOrder: 1, level: 20 },
+    ],
+    machines: [{ ...surf, machine: 'HM03', kind: 'HM', number: 3 }],
+    evolutionLinks: [],
+    evolutionFamily: [],
+    evolutionBaseSpeciesId: 692,
+    formInfo: null,
+    forms: null,
+    formChanges: [],
+};
+const nextForm: SpeciesDetails = {
+    ...species,
+    speciesId: 693,
+    name: 'Clawitzer',
+    learnset: [{ ...darkPulse, entryOrder: 0, level: 1 }],
+    machines: [],
+};
+const pokemon: OwnedPokemon = {
+    id: 'pinchy',
+    playthroughId: 'run',
+    nickname: 'Pinchy',
+    state: {
+        speciesId: species.speciesId,
+        level: 17,
+        moves: [waterGun, tackle].map(({ moveId, name }) => ({ moveId, name })),
+        formEpoch: 'first-form',
+    },
+    deleted: false,
+    createdAt: '2026-10-12T12:00:00.000Z',
+};
+const observation: StatObservation = {
+    id: 'current-stats',
+    pokemonId: pokemon.id,
+    speciesId: species.speciesId,
+    level: 17,
+    formEpoch: pokemon.state.formEpoch,
+    recordedAt: '2026-10-16T12:00:00.000Z',
+    stats: { attack: 27, spAttack: 39, defense: 32 },
+    deleted: false,
+};
+
+function collection(
+    owned: OwnedPokemon = pokemon,
+    observations: readonly StatObservation[] = [observation],
+): CollectionDocument {
+    return {
+        ...emptyCollection(),
+        playthroughs: {
+            run: { id: 'run', name: 'Emerald', party: [owned.id], deleted: false },
+        },
+        pokemon: { [owned.id]: owned },
+        observations: Object.fromEntries(observations.map((entry) => [entry.id, entry])),
+    };
+}
+
+function freeze<T>(value: T): T {
+    if (value !== null && typeof value === 'object') {
+        for (const child of Object.values(value)) freeze(child);
+        Object.freeze(value);
+    }
+    return value;
+}
+
+function render(
+    options: {
+        document?: CollectionDocument;
+        conflicts?: readonly CollectionConflict[];
+        ready?: boolean;
+        language?: 'en' | 'cs';
+        speciesAvailable?: boolean;
+    } = {},
+): string {
+    const client = new QueryClient({
+        defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    if (options.speciesAvailable !== false) {
+        client.setQueryData(['collection-species', species.speciesId], species);
+    }
+    client.setQueryData(['collection-family', species.speciesId], [species, nextForm]);
+    client.setQueryData(['collection-move', tackle.moveId], tackle);
+    client.setQueryData(['collection-search', ''], []);
+    try {
+        return renderToStaticMarkup(
+            createElement(
+                QueryClientProvider,
+                { client },
+                createElement(
+                    LanguageProvider,
+                    { initialLanguage: options.language ?? 'en' },
+                    createElement(DamageSimulatorView, {
+                        pokemonId: pokemon.id,
+                        version: '1.0.4',
+                        datasetId: 'test',
+                        document: options.document ?? collection(),
+                        conflicts: options.conflicts ?? [],
+                        ready: options.ready ?? true,
+                    }),
+                ),
+            ),
+        );
+    } finally {
+        client.clear();
+    }
+}
+
+void test('simulator renders the owned back sprite and keeps current and inherited moves without mutating the collection', () => {
+    const document = freeze(collection());
+    const before = structuredClone(document);
+    const html = render({ document });
+    match(html, /Pinchy/);
+    match(html, /src="[^"]*clauncher\/back\.png"/);
+    match(html, /Clauncher standard back sprite/);
+    match(html, /Water Gun/);
+    match(html, /Tackle/);
+    doesNotMatch(html, /Dark Pulse/);
+    deepStrictEqual(document, before);
+});
+
+function input(html: string, label: string): string {
+    return (
+        [...html.matchAll(/<input\b[^>]*>/g)].find((entry) =>
+            entry[0].includes(`aria-label="${label}"`),
+        )?.[0] ?? ''
+    );
+}
+
+void test('the preview catalogue includes future current-form and HM moves, with clear acquisition labels', () => {
+    const html = render();
+    match(html, /Bubble Beam/);
+    match(html, /Lv\. 20 · future/);
+    match(html, /Surf/);
+    match(html, /HM03/);
+    match(html, /Recorded \/ inherited/);
+    match(html, /Level labels describe the learnset, not immediate availability/);
+    match(html, /Future moves use today’s recorded level, stats and types/);
+    doesNotMatch(html, /Dark Pulse/);
+    match(html, /Base power <b>40<\/b>/);
+    match(html, /Choose an opponent/);
+    doesNotMatch(html, /[0-9]–[0-9]+ <span>HP<\/span>/);
+});
+
+void test('attacking inputs use the latest current observation and never fill gaps with older or base stats', () => {
+    const html = render();
+    match(input(html, 'Your Pokémon: Attack'), /placeholder="27"/);
+    match(input(html, 'Your Pokémon: Sp. Atk'), /placeholder="39"/);
+    match(input(html, 'Your Pokémon: Defense'), /placeholder="32"/);
+    match(html, /Blank fields use recorded stats; entered values apply only here/);
+
+    const partial = render({
+        document: collection(pokemon, [
+            { ...observation, id: 'older', recordedAt: '2026-10-15T12:00:00.000Z' },
+            { ...observation, stats: { spAttack: 39 } },
+        ]),
+    });
+    match(input(partial, 'Your Pokémon: Attack'), /placeholder="—"/);
+    match(input(partial, 'Your Pokémon: Sp. Atk'), /placeholder="39"/);
+    match(input(partial, 'Your Pokémon: Defense'), /placeholder="—"/);
+    match(partial, /Missing · enter value/);
+
+    for (const stale of [
+        { ...observation, deleted: true },
+        { ...observation, level: 16 },
+        { ...observation, formEpoch: 'earlier-form' },
+        { ...observation, speciesId: nextForm.speciesId },
+        { ...observation, pokemonId: 'another-pokemon' },
+    ]) {
+        const unavailable = render({ document: collection(pokemon, [stale]) });
+        for (const stat of ['Attack', 'Sp. Atk', 'Defense']) {
+            match(input(unavailable, `Your Pokémon: ${stat}`), /placeholder="—"/);
+        }
+    }
+});
+
+void test('loading, missing or released owners and missing species data do not start a battle scenario', () => {
+    const loading = render({ ready: false });
+    match(loading, /Loading collection…/);
+    doesNotMatch(loading, /Clauncher standard back sprite|Attacking stats|Current moves/);
+    const noSpecies = render({ speciesAvailable: false });
+    match(noSpecies, /Loading Pokémon data…/);
+    doesNotMatch(noSpecies, /Clauncher standard back sprite|Attacking stats/);
+
+    const releasedRun = collection();
+    releasedRun.playthroughs = {
+        run: { ...releasedRun.playthroughs.run, deleted: true },
+    };
+    for (const document of [
+        emptyCollection(),
+        collection({ ...pokemon, deleted: true }),
+        { ...collection(), playthroughs: {} },
+        releasedRun,
+    ]) {
+        const unavailable = render({ document });
+        match(unavailable, /This Pokémon or its playthrough is unavailable/);
+        doesNotMatch(unavailable, /Clauncher standard back sprite|Attacking stats|Current moves/);
+    }
+});
+
+void test('ownership conflicts block simulation, while observation conflicts require temporary stat inputs', () => {
+    for (const { entity, entityId, field } of [
+        { entity: 'pokemon', entityId: pokemon.id, field: 'state' },
+        { entity: 'pokemon', entityId: pokemon.id, field: '$entity' },
+        { entity: 'playthroughs', entityId: 'run', field: 'deleted' },
+    ] as const) {
+        const html = render({
+            conflicts: [
+                {
+                    id: 'conflict',
+                    kind: 'field',
+                    entity,
+                    entityId,
+                    field,
+                    base: null,
+                    local: null,
+                    remote: null,
+                },
+            ],
+        });
+        match(html, /Resolve this Pokémon’s collection conflict before simulating/);
+        doesNotMatch(html, /Clauncher standard back sprite|Attacking stats|Current moves/);
+    }
+
+    for (const conflict of [
+        {
+            id: 'stats',
+            kind: 'field',
+            entity: 'observations',
+            entityId: observation.id,
+            field: 'stats',
+            base: null,
+            local: null,
+            remote: null,
+        },
+        {
+            id: 'stats',
+            kind: 'delete-edit',
+            entity: 'observations',
+            entityId: 'removed-observation',
+            field: '$entity',
+            base: null,
+            local: null,
+            remote: { pokemonId: pokemon.id },
+        },
+    ] satisfies CollectionConflict[]) {
+        const html = render({ conflicts: [conflict] });
+        match(html, /Recorded stats have a sync conflict. Enter temporary values to simulate/);
+        for (const stat of ['Attack', 'Sp. Atk', 'Defense']) {
+            match(input(html, `Your Pokémon: ${stat}`), /placeholder="—"/);
+        }
+        match(html, /Clauncher standard back sprite/);
+    }
+});
+
+void test('unknown and empty saved movesets still allow previews without populating the saved moves', () => {
+    for (const moves of [null, []]) {
+        const document = freeze(collection({ ...pokemon, state: { ...pokemon.state, moves } }));
+        const before = structuredClone(document);
+        const html = render({ document });
+        match(html, /No moves are recorded. Preview a learnable move below/);
+        match(html, /Bubble Beam/);
+        match(html, /Surf/);
+        doesNotMatch(html, /Recorded \/ inherited/);
+        deepStrictEqual(document, before);
+    }
+});
+
+void test('Czech simulator labels explain future moves, temporary inputs and omitted battle modifiers', () => {
+    const html = render({ language: 'cs' });
+    match(html, /Simulátor poškození/);
+    match(html, /Zadní obrázek Clauncher/);
+    match(input(html, 'Váš Pokémon: Útok'), /placeholder="27"/);
+    match(input(html, 'Váš Pokémon: Sp. útok'), /placeholder="39"/);
+    match(html, /Aktuální útoky/);
+    match(html, /Náhledy útoků/);
+    match(html, /Lv\. 20 · později/);
+    match(html, /Zaznamenaný \/ zděděný/);
+    match(html, /Základní síla/);
+    match(html, /Pouze dočasně/);
+    match(html, /Žádné změny se neukládají do sbírky/);
+    match(
+        html,
+        /Schopnosti, držené předměty, počasí, kritické zásahy, stavové podmínky a změny statistik nejsou zahrnuté/,
+    );
+    doesNotMatch(
+        html,
+        /Damage simulator|Current moves|Move previews|Choose an opponent|Base power|Recorded \/ inherited/,
+    );
+});

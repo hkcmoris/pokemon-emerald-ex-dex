@@ -9,6 +9,7 @@ import { registerCollectionOffline } from './collectionOffline.js';
 import './style.css';
 import './MoveEffectBadges.css';
 import './MoveAffinity.css';
+import './damageSimulator.css';
 
 applyTheme(readTheme());
 registerCollectionOffline();

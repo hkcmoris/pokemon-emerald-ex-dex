@@ -53,6 +53,7 @@ export function SpeciesSprite({
     file,
     name,
     shiny = false,
+    orientation = 'front',
     size = 64,
     loading = 'lazy',
 }: {
@@ -60,6 +61,7 @@ export function SpeciesSprite({
     file: string | null;
     name: string;
     shiny?: boolean;
+    orientation?: 'front' | 'back';
     size?: 64 | 128;
     loading?: 'lazy' | 'eager';
 }) {
@@ -70,8 +72,8 @@ export function SpeciesSprite({
             key={src}
             src={src}
             alt={t(
-                `${name} ${shiny ? 'shiny' : 'standard'} front sprite`,
-                `Přední obrázek ${name} (${shiny ? 'shiny' : 'běžná varianta'})`,
+                `${name} ${shiny ? 'shiny' : 'standard'} ${orientation} sprite`,
+                `${orientation === 'back' ? 'Zadní' : 'Přední'} obrázek ${name} (${shiny ? 'shiny' : 'běžná varianta'})`,
             )}
             size={size}
             loading={loading}

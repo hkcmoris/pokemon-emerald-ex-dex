@@ -1,7 +1,7 @@
 import { deepStrictEqual, strictEqual } from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { ownedPokemonHref, parseRoute, speciesHref } from './navigation.js';
+import { damageSimulatorHref, ownedPokemonHref, parseRoute, speciesHref } from './navigation.js';
 
 void test('species pages have stable static-host-friendly links, including padded IDs', () => {
     strictEqual(speciesHref(25), '#/species/25');
@@ -66,4 +66,25 @@ void test('owned Pokemon routes reject malformed and unsupported collection IDs'
     ]) {
         deepStrictEqual(parseRoute(hash), { kind: 'not-found' }, hash);
     }
+});
+
+void test('simulator links address owned identities and reject malformed or nested paths', () => {
+    strictEqual(damageSimulatorHref('Pinchy_1'), '#/my-pokemon/Pinchy_1/simulator');
+    deepStrictEqual(parseRoute(damageSimulatorHref('Pinchy_1')), {
+        kind: 'damage-simulator',
+        id: 'Pinchy_1',
+    });
+    deepStrictEqual(parseRoute('#/my-pokemon/%50inchy_1/simulator'), {
+        kind: 'damage-simulator',
+        id: 'Pinchy_1',
+    });
+    for (const hash of [
+        '#/my-pokemon//simulator',
+        '#/my-pokemon/__proto__/simulator',
+        '#/my-pokemon/a%2Fb/simulator',
+        '#/my-pokemon/%/simulator',
+        '#/my-pokemon/a/simulator/extra',
+        '#/my-pokemon/a/simulator?level=1',
+    ])
+        deepStrictEqual(parseRoute(hash), { kind: 'not-found' }, hash);
 });

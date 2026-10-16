@@ -129,6 +129,19 @@ move selection, upcoming moves, and level-up recaps. Owned Pokémon headers show
 physical, special, or balanced category icon beside their types, based on the species'
 base Attack and Sp. Attack, matching the Pokédex indicator. Current moves form a compact
 2×2 grid with category icons and power; moves without fixed base power show an em dash.
+A larger **Effective power** value above base power compares each move using its
+power × the individual's current recorded Attack or Sp. Atk × ordinary STAB (1.5
+for a matching type, otherwise 1). Tap the number for its explanation. Missing or
+conflicting current stats and moves without a supported fixed-power calculation
+show a dash. This is a comparison score, not HP damage against an opponent; see
+[the formula, exceptions and research sources](docs/move-power.md).
+Open **Simulate damage** on an owned Pokémon to compare its attacks against any
+opponent species/form and level. The simulator shows the attacker's back sprite,
+HP damage ranges, enemy HP percentages, STAB and type matchups. Enemy stats assume
+neutral nature, 31 IVs and 0 EVs, with temporary HP/Defense/Sp. Def overrides.
+Preview the current form's full learnset and TM/HM moves, including future level
+labels and recorded inherited moves. All scenario changes stay separate from the
+saved collection. See [the simulator's formula and limits](docs/features/damage-simulator.md).
 Category and power also appear in **Coming up**, saved wishes, wishlist choices,
 and learning-plan steps. Missing reference data shows a question mark.
 SVG effect icons beside move names summarize status conditions, stat changes, healing,
@@ -300,15 +313,15 @@ See [API endpoints and deployment](docs/api.md).
 
 ## Tech stack
 
-* Node.js
-* TypeScript
-* npm
-* React + Tailwind CSS + Vite
+- Node.js
+- TypeScript
+- npm
+- React + Tailwind CSS + Vite
 
 ## Requirements
 
-* Node.js version from `.nvmrc`
-* npm version from `package.json`
+- Node.js version from `.nvmrc`
+- npm version from `package.json`
 
 ## Setup
 

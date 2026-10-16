@@ -66,3 +66,23 @@ A comparison of level-up moves and TM/HM compatibility across evolution stages,
 covering full future paths and identifying differences by branch. Tutors and move
 reminders are outside this comparison's scope.
 _Avoid_: Proof that a move is permanently unobtainable
+
+**Damage simulation**:
+A hypothetical matchup between an owned Pokémon and a selected enemy species/form
+at a chosen level, kept separate from the saved collection.
+_Avoid_: Recorded battle, collection update
+
+**Simulation inputs**:
+Temporary battle values and assumptions used for a damage simulation without
+changing the owned Pokémon's recorded state or stat observations.
+_Avoid_: Stat observation, recorded gain
+
+**Damage range**:
+The minimum and maximum HP loss predicted for a move under the simulation's stated
+inputs and supported mechanics, also expressible as a percentage of enemy HP.
+_Avoid_: Base power, effective power
+
+**Preview move**:
+A move examined in a damage simulation without adding it to the owned Pokémon's
+recorded known moves.
+_Avoid_: Known move, learned move

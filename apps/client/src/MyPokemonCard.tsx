@@ -13,11 +13,11 @@ import {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { loadCollectionFamily, loadCollectionSpecies } from './collectionSpecies.js';
-import { getCurrentStatTotal } from './collectionStats.js';
+import { getCurrentStats, getCurrentStatTotal } from './collectionStats.js';
 import { useLanguage } from './language.js';
 import { evolutionConditionLabel, evolutionSummary } from './evolutionText.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
-import { ownedPokemonHref, speciesHref } from './navigation.js';
+import { damageSimulatorHref, ownedPokemonHref, speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory, ObservationForm } from './MyPokemonHistory.js';
 import { MyPokemonStatsGraph } from './MyPokemonStatsGraph.js';
@@ -30,6 +30,7 @@ import { WishIcon } from './WishIcon.js';
 import { TypeBadges } from './TypeBadges.js';
 import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { MoveAffinityProvider } from './MoveAffinity.js';
+import { MovePowerProvider } from './MovePower.js';
 import { typeSurfaceStyle } from './theme.js';
 
 function LevelEditor({
@@ -1087,6 +1088,12 @@ export function MyPokemonCard({
                             );
                         })}
                     </ul>
+                    <a
+                        className="my-text-button mt-3 inline-block"
+                        href={damageSimulatorHref(pokemon.id)}
+                    >
+                        {t('Simulate damage', 'Simulovat poškození')} →
+                    </a>
                 </div>
                 {view === 'stats' && (
                     <div className="my-stat-graph-panel">
@@ -1360,7 +1367,12 @@ export function MyPokemonCard({
     );
     return (
         <MoveAffinityProvider stats={stateConflict ? undefined : species.data?.stats}>
-            {card}
+            <MovePowerProvider
+                stats={statsConflict ? {} : getCurrentStats(pokemon, observations)}
+                typeIds={stateConflict ? undefined : species.data?.typeIds}
+            >
+                {card}
+            </MovePowerProvider>
         </MoveAffinityProvider>
     );
 }

@@ -1,0 +1,469 @@
+.sim-main {
+    --sim-error: #db6952;
+    --sim-soft-accent: color-mix(in srgb, var(--dex-accent) 10%, transparent);
+}
+:root.light .sim-main {
+    --sim-error: #ad3a28;
+}
+.sim-page-heading {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+    margin-top: 1.5rem;
+}
+.sim-owned-selector {
+    align-self: end;
+}
+.sim-setup-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+.sim-attacker-panel {
+    border: 1px solid var(--dex-border);
+    border-radius: 20px;
+    background: var(--dex-surface);
+    overflow: hidden;
+    min-width: 0;
+}
+.sim-arena {
+    position: relative;
+    height: 310px;
+    overflow: hidden;
+    border-bottom: 1px solid var(--dex-border);
+    background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--dex-accent) 4%, var(--dex-surface)) 55%,
+        color-mix(in srgb, var(--dex-accent) 15%, var(--dex-surface))
+    );
+}
+.sim-arena::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--dex-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--dex-border) 1px, transparent 1px);
+    background-size: 34px 34px;
+    opacity: 0.17;
+    mask-image: linear-gradient(transparent, black);
+}
+.sim-arena-kicker {
+    position: absolute;
+    top: 1.15rem;
+    left: 1.3rem;
+    color: var(--dex-muted);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+}
+.sim-combatant {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 90%;
+}
+.sim-enemy {
+    top: 34px;
+    right: 1.4rem;
+    text-align: right;
+}
+.sim-own {
+    bottom: 1.1rem;
+    left: 1.4rem;
+}
+.sim-combatant-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    min-width: 0;
+}
+.sim-enemy .sim-combatant-label {
+    align-items: flex-end;
+}
+.sim-combatant-label > strong {
+    font-size: 1.1rem;
+    font-weight: 750;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+.sim-combatant-label > small {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.sim-combatant-label > span:not(:last-child) {
+    font-size: 0.75rem;
+    color: var(--dex-muted);
+}
+.sim-sprite-platform {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 140px;
+    height: 132px;
+}
+.sim-sprite-platform::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    border: 1px solid color-mix(in srgb, var(--dex-accent) 30%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--dex-accent) 10%, transparent);
+}
+.sim-sprite-platform .species-sprite {
+    position: relative;
+    z-index: 1;
+}
+.sim-enemy-placeholder {
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--dex-muted);
+    opacity: 0.4;
+    font-weight: 300;
+}
+.sim-own-stats,
+.sim-enemy-panel {
+    padding: 1.2rem;
+}
+.sim-enemy-panel {
+    margin: 0;
+    min-width: 0;
+}
+.sim-enemy-panel .my-search-results {
+    max-height: 350px;
+    overflow-y: auto;
+}
+.sim-enemy-panel .my-picker {
+    margin-top: 1rem;
+}
+.sim-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.8rem;
+}
+.sim-section-heading > h2 {
+    font-size: 1rem;
+}
+.sim-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin: 0.9rem 0;
+}
+.sim-stat-field {
+    min-width: 0;
+}
+.sim-stat-field .filter-input {
+    min-width: 0;
+    width: 100%;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.1rem;
+    font-weight: 650;
+}
+.sim-stat-field .filter-input::placeholder {
+    opacity: 1;
+    color: var(--dex-muted);
+    font-weight: 500;
+}
+.sim-stat-field small {
+    min-height: 1.2rem;
+    font-size: 0.67rem;
+    line-height: 1.25;
+    font-weight: 400;
+}
+.sim-main .sim-invalid {
+    color: var(--sim-error);
+}
+.sim-main [aria-invalid='true'] {
+    border-color: var(--sim-error);
+}
+.sim-enemy-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    margin: 1.2rem 0 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--dex-border);
+}
+.sim-enemy-summary > strong {
+    font-size: 1.25rem;
+}
+.sim-level-field {
+    max-width: 200px;
+    margin-bottom: 1rem;
+}
+.sim-notice {
+    margin: 1rem 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    background: var(--sim-soft-accent);
+}
+.sim-moves-section {
+    margin-top: 2rem;
+}
+.sim-move-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+.sim-move {
+    min-width: 0;
+    padding: 1rem 1.1rem 0.75rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 15px;
+    background-color: var(--dex-surface);
+}
+.sim-move-heading,
+.sim-move-heading > div {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+.sim-move-heading {
+    justify-content: space-between;
+    min-height: 28px;
+}
+.sim-move-heading > div {
+    flex-wrap: wrap;
+    min-width: 0;
+}
+.sim-move-heading h3 {
+    margin: 0;
+}
+.sim-remove {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    font-size: 1.3rem;
+    border-radius: 8px;
+    color: var(--dex-muted);
+    border: 1px solid var(--dex-border);
+}
+.sim-remove:hover {
+    color: var(--dex-accent);
+    background: var(--sim-soft-accent);
+}
+.sim-move-sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    line-height: 1.5;
+    color: var(--dex-muted);
+    margin-top: 0.4rem;
+}
+.sim-move-sources > span {
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    border: 1px solid var(--dex-border);
+}
+.sim-move-sources > .sim-future {
+    color: var(--dex-accent);
+    border-color: color-mix(in srgb, var(--dex-accent) 30%, transparent);
+    background: var(--sim-soft-accent);
+}
+.sim-damage-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    margin-top: 0.7rem;
+}
+.sim-category {
+    padding-bottom: 0.2rem;
+}
+.sim-damage-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: 0.1rem;
+}
+.sim-damage-number {
+    font-size: clamp(1.8rem, 3vw, 2.3rem);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+    font-weight: 750;
+}
+.sim-damage-number > span {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+}
+.sim-damage-percent {
+    color: var(--dex-muted);
+    font-size: 0.7rem;
+    line-height: 1.5;
+}
+.sim-base-power {
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    color: var(--dex-muted);
+}
+.sim-base-power > b {
+    margin-left: 0.3rem;
+    color: var(--dex-text);
+    font-size: 0.85rem;
+}
+.sim-move-detail {
+    margin-top: 0.8rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--dex-border);
+    font-size: 0.7rem;
+    color: var(--dex-muted);
+    line-height: 1.6;
+}
+.sim-move-detail summary {
+    cursor: pointer;
+}
+.sim-move-detail summary > span {
+    float: right;
+    padding-left: 0.4rem;
+}
+.sim-move-detail p {
+    margin-top: 0.5rem;
+}
+.sim-session-badge {
+    color: var(--dex-accent);
+    background: var(--sim-soft-accent);
+    border: 1px solid color-mix(in srgb, var(--dex-accent) 25%, transparent);
+    border-radius: 99px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.68rem;
+    white-space: nowrap;
+}
+.sim-preview-grid {
+    margin: 1rem 0;
+}
+.sim-preview-picker {
+    margin-top: 1rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 14px;
+    background: var(--dex-surface);
+}
+.sim-preview-picker > summary,
+.sim-assumptions > summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+.sim-preview-picker > summary {
+    padding: 1rem;
+}
+.sim-preview-picker > summary > span {
+    color: var(--dex-muted);
+    font-weight: 400;
+    margin-left: 0.4rem;
+}
+.sim-preview-picker-body {
+    padding: 0 1rem 1rem;
+}
+.sim-candidate-list {
+    margin: 1rem 0 0.7rem;
+    max-height: 310px;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+.sim-candidate {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    width: 100%;
+    text-align: left;
+    gap: 0.7rem;
+    align-items: center;
+    border-top: 1px solid var(--dex-border);
+    padding: 0.7rem 0.5rem;
+    border-radius: 6px;
+}
+.sim-candidate:hover:not(:disabled) {
+    background: var(--sim-soft-accent);
+}
+.sim-candidate:disabled {
+    opacity: 0.5;
+}
+.sim-candidate .sim-move-sources {
+    margin: 0;
+}
+.sim-candidate-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    min-width: 0;
+}
+.sim-candidate-action {
+    font-size: 0.75rem;
+    color: var(--dex-accent);
+    white-space: nowrap;
+}
+.sim-assumptions {
+    margin-top: 2rem;
+}
+.sim-assumptions p {
+    color: var(--dex-muted);
+    font-size: 0.8rem;
+    line-height: 1.7;
+    margin-top: 0.8rem;
+}
+@media (max-width: 800px) {
+    .sim-page-heading,
+    .sim-setup-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .sim-owned-selector {
+        max-width: 100%;
+    }
+    .sim-enemy-panel .my-search-results {
+        max-height: 250px;
+    }
+}
+@media (max-width: 480px) {
+    .sim-arena {
+        height: 300px;
+    }
+    .sim-enemy {
+        top: 38px;
+        right: 0.4rem;
+    }
+    .sim-own {
+        bottom: 0.7rem;
+        left: 0.3rem;
+    }
+    .sim-combatant {
+        gap: 0.3rem;
+    }
+    .sim-combatant-label > strong {
+        font-size: 0.95rem;
+    }
+    .sim-move-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .sim-section-heading {
+        flex-wrap: wrap;
+    }
+    .sim-candidate {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .sim-candidate .sim-move-sources {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .sim-candidate-action {
+        grid-column: 2;
+        grid-row: 1 / 3;
+    }
+}

@@ -4,6 +4,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { SpeciesSprite, spriteUrl } from './SpeciesSprite.js';
+import { LanguageProvider } from './language.js';
 
 void test('sprite URLs preserve the dataset, ID and filename, including special characters', () => {
     strictEqual(
@@ -44,4 +45,28 @@ void test('sprites use descriptive alternatives and missing references produce n
     );
     doesNotMatch(missing, /<img/);
     match(missing, /Terapagos standard front sprite unavailable/);
+});
+
+void test('back sprites describe their orientation in both languages, including unavailable assets', () => {
+    const back = {
+        datasetId: 'emerald-ex-1.0.4',
+        file: 'back/0692_Clauncher.png',
+        name: 'Clauncher',
+        orientation: 'back' as const,
+    };
+    const english = renderToStaticMarkup(createElement(SpeciesSprite, back));
+    match(english, /alt="Clauncher standard back sprite"/);
+    match(english, /\/back\/0692_Clauncher.png/);
+    doesNotMatch(english, /front sprite/);
+    const czech = renderToStaticMarkup(
+        createElement(
+            LanguageProvider,
+            { initialLanguage: 'cs' },
+            createElement(SpeciesSprite, back),
+        ),
+    );
+    match(czech, /Zadní obrázek Clauncher/);
+    const missing = renderToStaticMarkup(createElement(SpeciesSprite, { ...back, file: null }));
+    match(missing, /Clauncher standard back sprite unavailable/);
+    doesNotMatch(missing, /<img/);
 });

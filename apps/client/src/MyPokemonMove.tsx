@@ -9,6 +9,7 @@ import { useLanguage } from './language.js';
 import { typeSurfaceStyle } from './theme.js';
 import { MoveEffectBadges } from './MoveEffectBadges.js';
 import { moveAffinityLabel, useMoveAffinity } from './MoveAffinity.js';
+import { MovePower } from './MovePower.js';
 
 export function findReferenceMove(
     moveId: number,
@@ -32,18 +33,21 @@ export function MyPokemonMoveStats({ move }: { move?: Move }) {
             ) : (
                 <span title={t('Category unavailable', 'Kategorie není dostupná')}>?</span>
             )}
-            <span
-                className="my-move-power"
-                title={
-                    !move
-                        ? t('Power unavailable', 'Síla není dostupná')
-                        : move.power === 0
-                          ? t('No fixed base power', 'Bez pevné základní síly')
-                          : undefined
-                }
-            >
-                <span>{t('Power', 'Síla')}</span>
-                <strong>{move ? move.power || '—' : '?'}</strong>
+            <span className="my-move-power-values">
+                <MovePower move={move} />
+                <span
+                    className="my-move-power"
+                    title={
+                        !move
+                            ? t('Power unavailable', 'Síla není dostupná')
+                            : move.power === 0
+                              ? t('No fixed base power', 'Bez pevné základní síly')
+                              : undefined
+                    }
+                >
+                    <span>{t('Power', 'Síla')}</span>
+                    <strong>{move ? move.power || '—' : '?'}</strong>
+                </span>
             </span>
         </span>
     );
