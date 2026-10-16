@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import type {
-    CollectionConflict,
-    CollectionDocument,
-    JsonValue,
+import {
+    pokemonNatures,
+    type CollectionConflict,
+    type CollectionDocument,
+    type JsonValue,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { useLanguage, type Translate } from './language.js';
@@ -16,11 +17,17 @@ export function conflictValueLabel(
     if (value === null)
         return field === 'moves'
             ? t('Moves not recorded', 'Útoky nejsou zaznamenány')
-            : t('No entry', 'Bez záznamu');
+            : field === 'natureId' || field === 'ability'
+              ? t('Not recorded', 'Nezaznamenáno')
+              : t('No entry', 'Bez záznamu');
     if (typeof value === 'boolean')
         return value ? t('Removed', 'Odstraněno') : t('Kept', 'Zachováno');
     if (typeof value === 'string') return value || t('No nickname', 'Bez přezdívky');
-    if (typeof value === 'number') return field === 'speciesId' ? `#${value}` : String(value);
+    if (typeof value === 'number') {
+        if (field === 'natureId')
+            return pokemonNatures.find((nature) => nature.id === value)?.name ?? `#${value}`;
+        return field === 'speciesId' || field === 'abilityId' ? `#${value}` : String(value);
+    }
     if (Array.isArray(value))
         return value.length === 0
             ? t('Empty', 'Prázdné')
@@ -49,6 +56,8 @@ export function conflictValueLabel(
                 : t('Kept Pokémon', 'Zachovaný Pokémon'),
             typeof value.nickname === 'string' ? value.nickname : '',
             conflictValueLabel(value.state, 'state', document, t),
+            `${t('Nature', 'Povaha')}: ${conflictValueLabel(value.natureId ?? null, 'natureId', document, t)}`,
+            `${t('Ability', 'Schopnost')}: ${conflictValueLabel(value.ability ?? null, 'ability', document, t)}`,
             value.moveWishlist
                 ? conflictValueLabel(value.moveWishlist, 'moveWishlist', document, t)
                 : '',
@@ -65,6 +74,9 @@ export function conflictValueLabel(
         ].join(' · ');
     const labels: Record<string, string> = {
         speciesId: t('Species', 'Druh'),
+        abilityId: t('Ability', 'Schopnost'),
+        natureId: t('Nature', 'Povaha'),
+        ability: t('Ability', 'Schopnost'),
         level: t('Level', 'Úroveň'),
         moves: t('Moves', 'Útoky'),
         recordedAt: t('Observed at', 'Datum měření'),
@@ -157,11 +169,15 @@ export function MyPokemonConflicts({
                                     ? t('Species, level and moves', 'Druh, úroveň a útoky')
                                     : conflict.field === 'moveWishlist'
                                       ? t('Move wishlist', 'Seznam požadovaných útoků')
-                                      : conflict.field === 'nickname'
-                                        ? t('Nickname', 'Přezdívka')
-                                        : conflict.field === 'name'
-                                          ? t('Name', 'Název')
-                                          : t('Recorded values', 'Zaznamenané hodnoty')}
+                                      : conflict.field === 'natureId'
+                                        ? t('Nature', 'Povaha')
+                                        : conflict.field === 'ability'
+                                          ? t('Ability', 'Schopnost')
+                                          : conflict.field === 'nickname'
+                                            ? t('Nickname', 'Přezdívka')
+                                            : conflict.field === 'name'
+                                              ? t('Name', 'Název')
+                                              : t('Recorded values', 'Zaznamenané hodnoty')}
                         </h3>
                         <div className="my-conflict-options">
                             {(['local', 'remote'] as const).map((choice) => (

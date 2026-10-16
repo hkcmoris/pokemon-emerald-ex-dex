@@ -294,7 +294,9 @@ export function MyPokemonPage({
             (conflict) =>
                 conflict.entity === 'pokemon' &&
                 conflict.entityId === pokemon.id &&
-                (conflict.field === 'state' || conflict.field === '$entity'),
+                (conflict.field === 'state' ||
+                    conflict.field === 'deleted' ||
+                    conflict.field === '$entity'),
         );
     }
     function renderPokemon(pokemon: OwnedPokemon, detail = false) {
@@ -322,6 +324,18 @@ export function MyPokemonPage({
                         : party
                 }
                 stateConflict={hasStateConflict(pokemon)}
+                natureConflict={collection.conflicts.some(
+                    (conflict) =>
+                        conflict.entity === 'pokemon' &&
+                        conflict.entityId === pokemon.id &&
+                        conflict.field === 'natureId',
+                )}
+                abilityConflict={collection.conflicts.some(
+                    (conflict) =>
+                        conflict.entity === 'pokemon' &&
+                        conflict.entityId === pokemon.id &&
+                        conflict.field === 'ability',
+                )}
                 wishlistConflict={collection.conflicts.some(
                     (conflict) =>
                         conflict.entity === 'pokemon' &&

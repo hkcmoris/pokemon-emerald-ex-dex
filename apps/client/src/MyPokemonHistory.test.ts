@@ -114,3 +114,15 @@ void test('prediction guidance and field labels follow the Czech interface langu
     strictEqual((html.match(/>Odhad<\/small>/g) ?? []).length, 6);
     doesNotMatch(html, /Prefilled|Estimate|Check them against/);
 });
+
+void test('current nature marks newly recorded stats without applying a second stat multiplier', () => {
+    const html = render({ pokemon: { ...pokemon, natureId: 15 } });
+    match(html, /data-nature-effect="increased"/);
+    match(html, /data-nature-effect="decreased"/);
+    deepStrictEqual(fieldValues(html), ['36', '24', '24', '24', '24', '24']);
+    doesNotMatch(
+        render({ pokemon: { ...pokemon, natureId: 15 }, observation: observations[0] }),
+        /data-nature-effect/,
+    );
+    doesNotMatch(render({ pokemon: { ...pokemon, natureId: 0 } }), /data-nature-effect/);
+});

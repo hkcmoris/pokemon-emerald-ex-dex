@@ -1,6 +1,7 @@
 import { useId, useState, type SubmitEvent } from 'react';
 import {
     interpolateStats,
+    getNatureStatEffect,
     type BaseStats,
     type OwnedPokemon,
     type SpeciesDetails,
@@ -8,6 +9,7 @@ import {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { useLanguage, type Translate } from './language.js';
+import { NatureStat } from './NatureStat.js';
 import { predictStats } from './collectionStats.js';
 
 const statKeys: readonly (keyof BaseStats)[] = [
@@ -41,6 +43,7 @@ export function ObservationForm({
     observation,
     observations = [],
     predictionsEnabled = true,
+    natureId = pokemon.natureId,
     onSave,
     onCancel,
 }: {
@@ -48,6 +51,7 @@ export function ObservationForm({
     observation?: StatObservation;
     observations?: readonly StatObservation[];
     predictionsEnabled?: boolean;
+    natureId?: number | null;
     onSave: (value: StatObservation) => Promise<void>;
     onCancel: () => void;
 }) {
@@ -62,6 +66,8 @@ export function ObservationForm({
         ),
     );
     const predictionHintId = useId();
+    const recordingNatureId =
+        !observation && Number(level) === pokemon.state.level ? natureId : null;
     const predictions =
         !observation && predictionsEnabled
             ? predictStats(pokemon, observations, Number(level))
@@ -168,7 +174,9 @@ export function ObservationForm({
             <div className="my-stat-inputs">
                 {statKeys.map((key) => (
                     <label className="filter-label" key={key}>
-                        {statName(key, t)}
+                        <NatureStat stat={key} natureId={recordingNatureId}>
+                            {statName(key, t)}
+                        </NatureStat>
                         {isPredicted(key) && (
                             <>
                                 {' '}
@@ -182,6 +190,10 @@ export function ObservationForm({
                             max="65535"
                             step="1"
                             value={statValue(key)}
+                            data-nature-effect={
+                                getNatureStatEffect(recordingNatureId, key) ?? undefined
+                            }
+                            aria-label={statName(key, t)}
                             aria-describedby={isPredicted(key) ? predictionHintId : undefined}
                             onChange={(event) => setStats({ ...stats, [key]: event.target.value })}
                         />
@@ -357,12 +369,14 @@ export function MyPokemonHistory({
     family,
     saveObservation,
     predictionsEnabled = true,
+    natureId = pokemon.natureId,
 }: {
     pokemon: OwnedPokemon;
     observations: readonly StatObservation[];
     family: readonly SpeciesDetails[];
     saveObservation: (observation: StatObservation) => Promise<void>;
     predictionsEnabled?: boolean;
+    natureId?: number | null;
 }) {
     const { t } = useLanguage();
     const [editing, setEditing] = useState<StatObservation | 'new' | null>(null);
@@ -415,6 +429,7 @@ export function MyPokemonHistory({
                     }
                     pokemon={pokemon}
                     observation={editing === 'new' ? undefined : editing}
+                    natureId={natureId}
                     observations={observations}
                     predictionsEnabled={predictionsEnabled}
                     onSave={async (entry) => {

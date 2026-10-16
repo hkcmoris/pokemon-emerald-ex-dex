@@ -1,0 +1,72 @@
+:root {
+    --nature-increased: #ff9d9d;
+    --nature-decreased: #93c6ff;
+}
+:root.light {
+    --nature-increased: #a62135;
+    --nature-decreased: #1e58a5;
+}
+.my-pokemon-main [data-nature-effect='increased'] {
+    color: var(--nature-increased);
+}
+.my-pokemon-main [data-nature-effect='decreased'] {
+    color: var(--nature-decreased);
+}
+.my-pokemon-main input[data-nature-effect='increased']::placeholder {
+    color: var(--nature-increased);
+}
+.my-pokemon-main input[data-nature-effect='decreased']::placeholder {
+    color: var(--nature-decreased);
+}
+.nature-stat-arrow {
+    margin-left: 0.2em;
+    font-weight: 750;
+}
+.my-pokemon-traits {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.85rem;
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--dex-border);
+    min-width: 0;
+}
+.my-pokemon-trait {
+    min-width: 0;
+}
+.my-pokemon-traits .filter-input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.82rem;
+}
+.my-trait-single-ability {
+    display: flex;
+    align-items: center;
+    min-height: 2.5rem;
+    color: var(--dex-text);
+    font-size: 0.88rem;
+}
+.my-trait-note {
+    color: var(--dex-muted);
+    font-size: 0.73rem;
+    line-height: 1.5;
+    margin: 0.3rem 0 0;
+}
+.my-trait-recorded-note,
+.my-trait-error {
+    grid-column: 1 / -1;
+}
+.my-trait-error {
+    font-size: 0.8rem;
+}
+@container (max-width: 350px) {
+    .my-pokemon-traits {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.my-card-summary .my-pokemon-traits {
+    position: relative;
+    z-index: 2;
+}

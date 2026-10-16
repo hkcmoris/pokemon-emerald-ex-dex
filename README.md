@@ -142,6 +142,19 @@ neutral nature, 31 IVs and 0 EVs, with temporary HP/Defense/Sp. Def overrides.
 Preview the current form's full learnset and TM/HM moves, including future level
 labels and recorded inherited moves. All scenario changes stay separate from the
 saved collection. See [the simulator's formula and limits](docs/features/damage-simulator.md).
+Each collection Pokémon has a saved **Nature** selection and, when its current form
+has multiple distinct abilities, an **Ability** selection including hidden abilities.
+Unknown remains a valid choice. A form with one ability displays it directly.
+Nature-boosted current stats use red text and an up arrow; lowered stats use blue
+text and a down arrow. Neutral natures and HP stay unchanged. Recorded stat values
+already include nature, so choosing one never multiplies or rewrites observations.
+The choices sync with the collection; a form change requires selecting an ability
+for that form again. The simulator displays these traits and colors its attacker
+stat inputs, but still excludes ability effects from damage. Historical stat records
+keep their original values without retroactively assigning the current nature.
+Nature IDs and the +10%/−10% mapping follow the
+[upstream nature table](https://github.com/rh-hideout/pokeemerald-expansion/blob/expansion/1.8.0/src/pokemon.c#L351-L406).
+
 Category and power also appear in **Coming up**, saved wishes, wishlist choices,
 and learning-plan steps. Missing reference data shows a question mark.
 SVG effect icons beside move names summarize status conditions, stat changes, healing,

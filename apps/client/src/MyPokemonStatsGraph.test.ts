@@ -34,12 +34,16 @@ function observation(
     };
 }
 
-function render(observations: readonly StatObservation[], language: 'en' | 'cs' = 'en'): string {
+function render(
+    observations: readonly StatObservation[],
+    language: 'en' | 'cs' = 'en',
+    natureId?: number | null,
+): string {
     return renderToStaticMarkup(
         createElement(
             LanguageProvider,
             { initialLanguage: language },
-            createElement(MyPokemonStatsGraph, { pokemon, observations, family: [] }),
+            createElement(MyPokemonStatsGraph, { pokemon, observations, family: [], natureId }),
         ),
     );
 }
@@ -162,4 +166,19 @@ void test('each recorded point is keyboard reachable and names its exact observa
     match(svg, /aria-label="HP: 31 · Level 10 · #1 · [^"]+"/);
     match(svg, /aria-label="Attack: 20 · Level 10 · #1 · [^"]+"/);
     doesNotMatch(svg, /data-active|role="tooltip"/);
+});
+
+void test('nature colors current stat labels and values without changing measured numbers or chart series', () => {
+    const entries = [observation('current', 20, { stats: { attack: 40, spAttack: 80, hp: 60 } })];
+    const html = render(entries, 'en', 15);
+    match(
+        html,
+        /data-stat="attack">[\s\S]*?data-nature-effect="decreased"[\s\S]*?<strong data-nature-effect="decreased">40<\/strong>/,
+    );
+    match(
+        html,
+        /data-stat="spAttack">[\s\S]*?data-nature-effect="increased"[\s\S]*?<strong data-nature-effect="increased">80<\/strong>/,
+    );
+    strictEqual(plot(html), plot(render(entries)));
+    doesNotMatch(render(entries, 'en', 0), /data-nature-effect/);
 });

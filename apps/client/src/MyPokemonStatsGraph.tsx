@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import {
     statKeys,
+    getNatureStatEffect,
     type BaseStats,
     type OwnedPokemon,
     type SpeciesDetails,
@@ -9,6 +10,7 @@ import {
 
 import { useLanguage } from './language.js';
 import { statName } from './MyPokemonHistory.js';
+import { NatureStat } from './NatureStat.js';
 import { getCurrentStats } from './collectionStats.js';
 
 /** Theme colors shared by the plot and its stat legend. */
@@ -56,11 +58,13 @@ export function MyPokemonStatsGraph({
     observations,
     family,
     compact = false,
+    natureId = pokemon.natureId,
 }: {
     pokemon: OwnedPokemon;
     observations: readonly StatObservation[];
     family: readonly SpeciesDetails[];
     compact?: boolean;
+    natureId?: number | null;
 }) {
     const { t, locale } = useLanguage();
     const id = useId();
@@ -349,8 +353,16 @@ export function MyPokemonStatsGraph({
                 {statKeys.map((stat) => (
                     <li key={stat} data-stat={stat}>
                         <span aria-hidden="true" style={{ backgroundColor: statColors[stat] }} />
-                        <span>{statName(stat, t)}</span>
-                        <strong>{currentStats[stat] ?? '—'}</strong>
+                        <span>
+                            <NatureStat stat={stat} natureId={natureId}>
+                                {statName(stat, t)}
+                            </NatureStat>
+                        </span>
+                        <strong
+                            data-nature-effect={getNatureStatEffect(natureId, stat) ?? undefined}
+                        >
+                            {currentStats[stat] ?? '—'}
+                        </strong>
                     </li>
                 ))}
             </ul>

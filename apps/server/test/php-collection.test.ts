@@ -151,6 +151,43 @@ void test(
                 },
             });
         }
+        for (const natureId of [null, 0, 15, 24, -1, 25, 3.5, '3', {}, false]) {
+            documents.push({
+                ...document,
+                pokemon: { owned: { ...document.pokemon.owned, natureId } },
+            });
+        }
+        for (const ability of [
+            null,
+            { speciesId: 1, abilityId: 65 },
+            { speciesId: 2, abilityId: 100000 },
+            {},
+            [],
+            65,
+            '65',
+            false,
+            { speciesId: 1 },
+            { abilityId: 65 },
+            { speciesId: 0, abilityId: 65 },
+            { speciesId: 100001, abilityId: 65 },
+            { speciesId: 1.5, abilityId: 65 },
+            { speciesId: '1', abilityId: 65 },
+            { speciesId: 1, abilityId: 0 },
+            { speciesId: 1, abilityId: 100001 },
+            { speciesId: 1, abilityId: 65.5 },
+            { speciesId: 1, abilityId: '65' },
+            { speciesId: 1, abilityId: 65, extra: true },
+        ]) {
+            documents.push({
+                ...document,
+                pokemon: { owned: { ...document.pokemon.owned, ability } },
+            });
+        }
+        changed((value) => {
+            value.pokemon.owned.natureId = 0;
+            value.pokemon.owned.ability = { speciesId: 1, abilityId: 65 };
+            value.pokemon.owned.moveWishlist = wishlist;
+        });
         const validToken = token();
         const parts = validToken.split('.');
         const tampered = `${parts[0]}.${Buffer.from(JSON.stringify({ ...claims, sub: 'intruder' })).toString('base64url')}.${parts[2]}`;

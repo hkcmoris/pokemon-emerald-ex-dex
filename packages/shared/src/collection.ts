@@ -27,6 +27,11 @@ export interface Playthrough {
     deleted: boolean;
 }
 
+export interface OwnedPokemonAbility {
+    speciesId: number;
+    abilityId: number;
+}
+
 export interface OwnedPokemon {
     id: string;
     playthroughId: string;
@@ -34,6 +39,10 @@ export interface OwnedPokemon {
     state: PokemonState;
     /** Absent in collections saved before move planning was introduced. */
     moveWishlist?: MoveWishlist;
+    /** Absent or null when the nature has not been recorded. */
+    natureId?: number | null;
+    /** Tied to a species/form so a saved choice cannot silently follow an evolution. */
+    ability?: OwnedPokemonAbility | null;
     deleted: boolean;
     createdAt: string;
 }
@@ -232,6 +241,8 @@ export function validateCollectionDocument(value: unknown): value is CollectionD
                 'deleted',
                 'createdAt',
                 ...(Object.hasOwn(owned, 'moveWishlist') ? ['moveWishlist'] : []),
+                ...(Object.hasOwn(owned, 'natureId') ? ['natureId'] : []),
+                ...(Object.hasOwn(owned, 'ability') ? ['ability'] : []),
             ]) ||
             owned.id !== key ||
             !id(owned.playthroughId) ||
@@ -239,6 +250,17 @@ export function validateCollectionDocument(value: unknown): value is CollectionD
             !text(owned.nickname, 40) ||
             !validState(owned.state) ||
             (Object.hasOwn(owned, 'moveWishlist') && !validWishlist(owned.moveWishlist)) ||
+            (Object.hasOwn(owned, 'natureId') &&
+                owned.natureId !== null &&
+                !integer(owned.natureId, 0, 24)) ||
+            (Object.hasOwn(owned, 'ability') &&
+                owned.ability !== null &&
+                !(
+                    record(owned.ability) &&
+                    keys(owned.ability, ['speciesId', 'abilityId']) &&
+                    integer(owned.ability.speciesId, 1, 100000) &&
+                    integer(owned.ability.abilityId, 1, 100000)
+                )) ||
             typeof owned.deleted !== 'boolean' ||
             !timestamp(owned.createdAt)
         )

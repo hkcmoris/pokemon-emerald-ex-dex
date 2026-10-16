@@ -30,6 +30,11 @@ target-independent comparison.
   saved collection, known moves, level, observations, wishlist or history. Changing
   attacker/form/recorded level or leaving the page starts a fresh scenario.
 
+The simulator also displays the attacker’s saved nature and selected ability.
+Nature highlights current attacking stats; recorded values already include its
+effect and are never multiplied again. Ability effects remain excluded from damage.
+Change these saved choices on the collection card; simulator controls stay temporary.
+
 ## Damage calculation
 
 The prominent result is a **minimum–maximum HP damage range**, with the percentage

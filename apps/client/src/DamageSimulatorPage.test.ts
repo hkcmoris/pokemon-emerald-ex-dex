@@ -361,3 +361,27 @@ void test('Czech simulator labels explain future moves, temporary inputs and omi
         /Damage simulator|Current moves|Move previews|Choose an opponent|Base power|Recorded \/ inherited/,
     );
 });
+
+void test('simulator reflects saved nature without altering recorded stats and suppresses conflicting nature', () => {
+    const owned = { ...pokemon, natureId: 15 };
+    const document = freeze(collection(owned));
+    const before = structuredClone(document);
+    const html = render({ document });
+    match(html, /Nature: Modest/);
+    match(html, /aria-label="Your Pokémon: Attack"[^>]*data-nature-effect="decreased"/);
+    match(html, /aria-label="Your Pokémon: Sp\. Atk"[^>]*data-nature-effect="increased"/);
+    match(html, /placeholder="39"/);
+    match(html, /Recorded values already include nature/);
+    const conflict: CollectionConflict = {
+        id: 'nature-choice',
+        kind: 'field',
+        entity: 'pokemon',
+        entityId: pokemon.id,
+        field: 'natureId',
+        base: null,
+        local: 15,
+        remote: 3,
+    };
+    doesNotMatch(render({ document, conflicts: [conflict] }), /data-nature-effect/);
+    deepStrictEqual(document, before);
+});

@@ -457,3 +457,165 @@ void test('an absent optional wishlist conflict choice removes the property inst
     equal(Object.hasOwn(resolved.pokemon.mon, 'moveWishlist'), false);
     ok(validateCollectionDocument(resolved));
 });
+
+void test('recorded traits preserve legacy collections and strictly validate unknown and explicit values', () => {
+    const document = fixture();
+    ok(validateCollectionDocument(document));
+    for (const natureId of [null, 0, 3, 24]) {
+        for (const ability of [
+            null,
+            { speciesId: 1, abilityId: 65 },
+            { speciesId: 2, abilityId: 100000 },
+        ]) {
+            const recorded = {
+                ...document,
+                pokemon: { mon: { ...document.pokemon.mon, natureId, ability } },
+            };
+            ok(validateCollectionDocument(recorded));
+            deepStrictEqual(JSON.parse(JSON.stringify(recorded)), recorded);
+        }
+    }
+    for (const natureId of [undefined, -1, 25, 3.5, Number.NaN, '3', {}, false]) {
+        equal(
+            validateCollectionDocument({
+                ...document,
+                pokemon: { mon: { ...document.pokemon.mon, natureId } },
+            }),
+            false,
+        );
+    }
+    for (const ability of [
+        undefined,
+        [],
+        {},
+        65,
+        '65',
+        false,
+        { speciesId: 1 },
+        { abilityId: 65 },
+        { speciesId: 0, abilityId: 65 },
+        { speciesId: 100001, abilityId: 65 },
+        { speciesId: 1.5, abilityId: 65 },
+        { speciesId: '1', abilityId: 65 },
+        { speciesId: 1, abilityId: 0 },
+        { speciesId: 1, abilityId: 100001 },
+        { speciesId: 1, abilityId: 65.5 },
+        { speciesId: 1, abilityId: '65' },
+        { speciesId: 1, abilityId: 65, extra: true },
+    ]) {
+        equal(
+            validateCollectionDocument({
+                ...document,
+                pokemon: { mon: { ...document.pokemon.mon, ability } },
+            }),
+            false,
+        );
+    }
+});
+
+void test('nature and species-scoped ability merge independently without changing observations or moves', () => {
+    const base = fixture();
+    base.observations.a = observation('a', 24, 35);
+    base.pokemon.mon.moveWishlist = {
+        moves: [{ moveId: 10, name: 'Move' }],
+        learnedMoveIds: [],
+        targetSpeciesId: null,
+    };
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    local.pokemon.mon.natureId = 0;
+    remote.pokemon.mon.ability = { speciesId: 1, abilityId: 65 };
+    for (const [ours, theirs] of [
+        [local, remote],
+        [remote, local],
+    ]) {
+        const merged = mergeCollections(base, ours, theirs);
+        equal(merged.conflicts.length, 0);
+        equal(merged.document.pokemon.mon.natureId, 0);
+        deepStrictEqual(merged.document.pokemon.mon.ability, remote.pokemon.mon.ability);
+        deepStrictEqual(merged.document.pokemon.mon.state, base.pokemon.mon.state);
+        deepStrictEqual(merged.document.pokemon.mon.moveWishlist, base.pokemon.mon.moveWishlist);
+        deepStrictEqual(merged.document.observations, base.observations);
+        ok(validateCollectionDocument(merged.document));
+    }
+    equal(Object.hasOwn(base.pokemon.mon, 'natureId'), false);
+    equal(Object.hasOwn(base.pokemon.mon, 'ability'), false);
+});
+
+void test('concurrent trait choices retain full alternatives and can be resolved or explicitly cleared', () => {
+    const base = fixture();
+    base.pokemon.mon.natureId = 0;
+    base.pokemon.mon.ability = { speciesId: 1, abilityId: 65 };
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    local.pokemon.mon.natureId = 3;
+    local.pokemon.mon.ability = { speciesId: 1, abilityId: 34 };
+    remote.pokemon.mon.natureId = 15;
+    remote.pokemon.mon.ability = { speciesId: 2, abilityId: 65 };
+    const merged = mergeCollections(base, local, remote);
+    deepStrictEqual(merged.conflicts.map(({ field }) => field).sort(), ['ability', 'natureId']);
+    for (const choice of ['local', 'remote'] as const) {
+        const resolved = merged.conflicts.reduce(
+            (document, conflict) => applyConflictChoice(document, conflict, choice),
+            merged.document,
+        );
+        equal(resolved.pokemon.mon.natureId, choice === 'local' ? 3 : 15);
+        deepStrictEqual(
+            resolved.pokemon.mon.ability,
+            choice === 'local' ? local.pokemon.mon.ability : remote.pokemon.mon.ability,
+        );
+        ok(validateCollectionDocument(resolved));
+    }
+    const cleared = structuredClone(base);
+    cleared.pokemon.mon.natureId = null;
+    cleared.pokemon.mon.ability = null;
+    const clearMerge = mergeCollections(base, cleared, remote);
+    equal(clearMerge.conflicts.length, 2);
+    const clearResolved = clearMerge.conflicts.reduce(
+        (document, conflict) => applyConflictChoice(document, conflict, 'local'),
+        clearMerge.document,
+    );
+    equal(clearResolved.pokemon.mon.natureId, null);
+    equal(clearResolved.pokemon.mon.ability, null);
+    ok(validateCollectionDocument(clearResolved));
+});
+
+void test('absent trait conflict alternatives resolve to valid unknown values', () => {
+    const base = fixture();
+    base.pokemon.mon.natureId = 0;
+    base.pokemon.mon.ability = { speciesId: 1, abilityId: 65 };
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    delete local.pokemon.mon.natureId;
+    delete local.pokemon.mon.ability;
+    remote.pokemon.mon.natureId = 3;
+    remote.pokemon.mon.ability = { speciesId: 1, abilityId: 34 };
+    const merged = mergeCollections(base, local, remote);
+    equal(merged.conflicts.length, 2);
+    const resolved = merged.conflicts.reduce(
+        (document, conflict) => applyConflictChoice(document, conflict, 'local'),
+        merged.document,
+    );
+    // Conflict snapshots encode absence as null; both representations mean unknown.
+    equal(resolved.pokemon.mon.natureId, null);
+    equal(resolved.pokemon.mon.ability, null);
+    ok(validateCollectionDocument(resolved));
+});
+
+void test('trait additions survive deletion conflicts in both recoverable alternatives', () => {
+    const base = fixture();
+    const local = structuredClone(base);
+    local.pokemon.mon.deleted = true;
+    local.playthroughs.run.party = [];
+    const remote = structuredClone(base);
+    remote.pokemon.mon.natureId = 15;
+    remote.pokemon.mon.ability = { speciesId: 1, abilityId: 65 };
+    const merged = mergeCollections(base, local, remote);
+    const removal = merged.conflicts.find(({ kind }) => kind === 'delete-edit')!;
+    for (const choice of ['local', 'remote'] as const) {
+        const resolved = applyConflictChoice(merged.document, removal, choice);
+        equal(resolved.pokemon.mon.natureId, 15);
+        deepStrictEqual(resolved.pokemon.mon.ability, remote.pokemon.mon.ability);
+        ok(validateCollectionDocument(resolved));
+    }
+});

@@ -10,6 +10,7 @@ import './style.css';
 import './MoveEffectBadges.css';
 import './MoveAffinity.css';
 import './damageSimulator.css';
+import './pokemonTraits.css';
 
 applyTheme(readTheme());
 registerCollectionOffline();

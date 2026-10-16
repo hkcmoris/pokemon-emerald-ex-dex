@@ -20,6 +20,7 @@ import { SpeciesSprite } from './SpeciesSprite.js';
 import { damageSimulatorHref, ownedPokemonHref, speciesHref } from './navigation.js';
 import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory, ObservationForm } from './MyPokemonHistory.js';
+import { MyPokemonTraits } from './MyPokemonTraits.js';
 import { MyPokemonStatsGraph } from './MyPokemonStatsGraph.js';
 import { MyPokemonTypeDefenses } from './MyPokemonTypeDefenses.js';
 import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
@@ -570,6 +571,7 @@ export function EvolutionAdvice({
 
 export function CatchUpRecap({
     pokemon,
+    natureId = pokemon.natureId,
     observations = [],
     predictionsEnabled = true,
     details,
@@ -581,6 +583,7 @@ export function CatchUpRecap({
     onClose,
 }: {
     pokemon: OwnedPokemon;
+    natureId?: number | null;
     observations?: readonly StatObservation[];
     predictionsEnabled?: boolean;
     details: SpeciesDetails;
@@ -639,6 +642,7 @@ export function CatchUpRecap({
                     <ObservationForm
                         key={`${pokemon.state.speciesId}-${pokemon.state.formEpoch}-${pokemon.state.level}`}
                         pokemon={pokemon}
+                        natureId={natureId}
                         observations={observations}
                         predictionsEnabled={predictionsEnabled}
                         onSave={async (entry) => {
@@ -770,6 +774,8 @@ export function MyPokemonCard({
     stateConflict,
     observationConflict = false,
     wishlistConflict = false,
+    natureConflict = false,
+    abilityConflict = false,
     onUpdate,
     onParty,
     onMove,
@@ -786,6 +792,8 @@ export function MyPokemonCard({
     stateConflict: boolean;
     observationConflict?: boolean;
     wishlistConflict?: boolean;
+    natureConflict?: boolean;
+    abilityConflict?: boolean;
     onUpdate: (updater: (pokemon: OwnedPokemon) => OwnedPokemon) => Promise<void>;
     onParty: () => Promise<void>;
     onMove: (direction: -1 | 1) => Promise<void>;
@@ -997,6 +1005,14 @@ export function MyPokemonCard({
                     </div>
                 </div>
             </div>
+            <MyPokemonTraits
+                pokemon={pokemon}
+                species={species.data}
+                stateConflict={stateConflict}
+                natureConflict={natureConflict}
+                abilityConflict={abilityConflict}
+                onUpdate={onUpdate}
+            />
             {stateConflict && (
                 <p className="my-advice-highlight" role="status">
                     {t(
@@ -1009,6 +1025,7 @@ export function MyPokemonCard({
                 <CatchUpRecap
                     {...recap}
                     pokemon={pokemon}
+                    natureId={natureConflict ? null : pokemon.natureId}
                     observations={observations}
                     predictionsEnabled={!statsConflict}
                     moves={pokemon.state.moves}
@@ -1107,6 +1124,7 @@ export function MyPokemonCard({
                         ) : (
                             <MyPokemonStatsGraph
                                 pokemon={pokemon}
+                                natureId={natureConflict ? null : pokemon.natureId}
                                 observations={observations}
                                 family={family}
                                 compact={!detail}
@@ -1298,6 +1316,7 @@ export function MyPokemonCard({
                             )}
                             <MyPokemonHistory
                                 pokemon={pokemon}
+                                natureId={natureConflict || stateConflict ? null : pokemon.natureId}
                                 observations={observations}
                                 predictionsEnabled={!statsConflict}
                                 family={family}

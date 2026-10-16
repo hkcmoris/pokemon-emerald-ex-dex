@@ -61,6 +61,8 @@ function validateCollectionDocument(mixed $document): bool
     foreach ($document->pokemon as $pokemon) {
         $pokemonKeys = ['id', 'playthroughId', 'nickname', 'state', 'deleted', 'createdAt'];
         if (property_exists($pokemon, 'moveWishlist')) { $pokemonKeys[] = 'moveWishlist'; }
+        if (property_exists($pokemon, 'natureId')) { $pokemonKeys[] = 'natureId'; }
+        if (property_exists($pokemon, 'ability')) { $pokemonKeys[] = 'ability'; }
         if (!collectionKeys($pokemon, $pokemonKeys) || !collectionId($pokemon->playthroughId) || !isset($document->playthroughs->{$pokemon->playthroughId}) || !collectionText($pokemon->nickname, 40) || !collectionDate($pokemon->createdAt) ||
             !collectionKeys($pokemon->state, ['speciesId', 'level', 'moves', 'formEpoch']) || !collectionInteger($pokemon->state->speciesId, 1, 100000) || !collectionInteger($pokemon->state->level, 1, 100) || !collectionId($pokemon->state->formEpoch)) { return false; }
         if (property_exists($pokemon, 'moveWishlist')) {
@@ -80,6 +82,9 @@ function validateCollectionDocument(mixed $document): bool
                 $seen[$moveId] = true;
             }
         }
+        if (property_exists($pokemon, 'natureId') && $pokemon->natureId !== null && !collectionInteger($pokemon->natureId, 0, 24)) { return false; }
+        if (property_exists($pokemon, 'ability') && $pokemon->ability !== null &&
+            (!collectionKeys($pokemon->ability, ['speciesId', 'abilityId']) || !collectionInteger($pokemon->ability->speciesId, 1, 100000) || !collectionInteger($pokemon->ability->abilityId, 1, 100000))) { return false; }
         $moves = $pokemon->state->moves;
         if ($moves !== null) {
             if (!is_array($moves) || count($moves) > 4) { return false; }

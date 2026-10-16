@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { pokemonNatures, getNatureStatEffect } from '@pokemon-emerald-ex-dex/shared';
 import type {
     BaseStats,
     CollectionConflict,
@@ -10,6 +11,8 @@ import type {
     TypeEffectivenessChart,
 } from '@pokemon-emerald-ex-dex/shared';
 
+import { NatureStat } from './NatureStat.js';
+import { getAbilityChoices, getSelectedAbility } from './pokemonTraits.js';
 import { useCollection } from './collectionStore.js';
 import { getCurrentStats } from './collectionStats.js';
 import { loadCollectionMove, loadCollectionSpecies } from './collectionSpecies.js';
@@ -224,6 +227,7 @@ function StatInput({
     source,
     onChange,
     prefix,
+    natureId,
 }: {
     stat: AttackStat | EnemyStat;
     value: string;
@@ -231,12 +235,15 @@ function StatInput({
     source: string;
     onChange: (value: string) => void;
     prefix: string;
+    natureId?: number | null;
 }) {
     const { t } = useLanguage();
     const invalid = value !== '' && integerInput(value) === undefined;
     return (
         <label className="filter-label sim-stat-field">
-            <span>{t(statLabels[stat][0], statLabels[stat][1])}</span>
+            <NatureStat stat={stat} natureId={natureId}>
+                {t(statLabels[stat][0], statLabels[stat][1])}
+            </NatureStat>
             <input
                 className="filter-input"
                 type="text"
@@ -246,6 +253,7 @@ function StatInput({
                 onChange={(event) => onChange(event.target.value)}
                 aria-label={`${prefix}: ${t(statLabels[stat][0], statLabels[stat][1])}`}
                 aria-invalid={invalid}
+                data-nature-effect={getNatureStatEffect(natureId, stat) ?? undefined}
                 maxLength={6}
             />
             <small className={invalid ? 'sim-invalid' : undefined}>
@@ -264,12 +272,16 @@ function SimulatorScenario({
     species,
     recordedStats,
     observationConflict,
+    natureId,
+    abilityConflict,
     datasetId,
 }: {
     pokemon: OwnedPokemon;
     species: SpeciesDetails;
     recordedStats: Partial<BaseStats>;
     observationConflict: boolean;
+    natureId?: number | null;
+    abilityConflict: boolean;
     datasetId?: string;
 }) {
     const { t } = useLanguage();
@@ -334,6 +346,12 @@ function SimulatorScenario({
         chart: chart.data,
     };
     const ownName = pokemon.nickname || species.name;
+    const nature = pokemonNatures.find((entry) => entry.id === natureId);
+    const abilityChoices = getAbilityChoices(species);
+    const selectedAbility = abilityConflict
+        ? null
+        : (getSelectedAbility(pokemon, species) ??
+          (abilityChoices.length === 1 ? abilityChoices[0] : null));
     function resetEnemyStats() {
         setEnemyOverrides({ hp: '', defense: '', spDefense: '' });
     }
@@ -409,6 +427,15 @@ function SimulatorScenario({
                         </div>
                     </div>
                     <div className="sim-own-stats">
+                        <p className="my-muted sim-traits-summary">
+                            {t('Nature', 'Povaha')}:{' '}
+                            {nature?.name ?? t('Not recorded', 'Nezaznamenána')} ·{' '}
+                            {t('Ability', 'Schopnost')}:{' '}
+                            {abilityConflict
+                                ? t('Sync conflict', 'Konflikt synchronizace')
+                                : (selectedAbility?.ability.name ??
+                                  t('Not recorded', 'Nezaznamenána'))}
+                        </p>
                         <div className="sim-section-heading">
                             <h2>{t('Attacking stats', 'Útočné statistiky')}</h2>
                             <button
@@ -428,6 +455,7 @@ function SimulatorScenario({
                                     stat={stat}
                                     value={ownOverrides[stat]}
                                     fallback={recordedStats[stat]}
+                                    natureId={natureId}
                                     source={
                                         recordedStats[stat] === undefined
                                             ? t('Missing · enter value', 'Chybí · zadejte hodnotu')
@@ -445,8 +473,8 @@ function SimulatorScenario({
                         </div>
                         <p className="my-muted">
                             {t(
-                                'Current recorded level and form. Defense is used by Body Press. Blank fields use recorded stats; entered values apply only here.',
-                                'Aktuální zaznamenaná úroveň a forma. Body Press používá Obranu. Prázdná pole použijí zaznamenané statistiky; zadané hodnoty platí jen zde.',
+                                'Current recorded level and form. Defense is used by Body Press. Blank fields use recorded stats; entered values apply only here. Recorded values already include nature. The selected ability is not applied to damage.',
+                                'Aktuální zaznamenaná úroveň a forma. Body Press používá Obranu. Prázdná pole použijí zaznamenané statistiky; zadané hodnoty platí jen zde. Zaznamenané hodnoty již zahrnují povahu. Vybraná schopnost se do poškození nezapočítává.',
                             )}
                         </p>
                         {observationConflict && (
@@ -883,6 +911,22 @@ export function DamageSimulatorView({
                         pokemon={pokemon}
                         species={species.data}
                         recordedStats={recordedStats}
+                        natureId={
+                            conflicts.some(
+                                (conflict) =>
+                                    conflict.entity === 'pokemon' &&
+                                    conflict.entityId === pokemonId &&
+                                    conflict.field === 'natureId',
+                            )
+                                ? null
+                                : pokemon.natureId
+                        }
+                        abilityConflict={conflicts.some(
+                            (conflict) =>
+                                conflict.entity === 'pokemon' &&
+                                conflict.entityId === pokemonId &&
+                                conflict.field === 'ability',
+                        )}
                         observationConflict={observationConflict}
                         datasetId={datasetId}
                     />

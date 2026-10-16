@@ -37,3 +37,4 @@ export type {
     ItemPocket,
     RuleItem,
 } from './dex.js';
+export * from './pokemonNatures.js';
