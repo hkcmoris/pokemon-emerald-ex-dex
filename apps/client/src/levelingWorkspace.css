@@ -1,0 +1,53 @@
+.my-current-stat-summary dl {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.my-current-stat-summary dl > div {
+    background: var(--surface-soft, rgb(255 255 255 / 6%));
+    border: 1px solid var(--border, rgb(128 128 128 / 20%));
+    border-radius: 0.5rem;
+    padding: 0.6rem;
+}
+.my-current-stat-summary dt {
+    font-size: 0.72rem;
+}
+.my-current-stat-summary dd {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-variant-numeric: tabular-nums;
+}
+.my-current-stat-summary strong {
+    font-size: 1.2rem;
+}
+.my-current-stat-summary small {
+    font-size: 0.75rem;
+}
+.my-stat-increase {
+    color: var(--accent, #16845c);
+}
+.my-matchup-panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+.my-matchup-panels .my-type-defenses {
+    min-width: 0;
+}
+.my-evolution-milestone {
+    flex-wrap: wrap;
+}
+.my-evolution-milestone > button {
+    width: 100%;
+    text-align: left;
+}
+@media (max-width: 600px) {
+    .my-current-stat-summary dl {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .my-matchup-panels {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

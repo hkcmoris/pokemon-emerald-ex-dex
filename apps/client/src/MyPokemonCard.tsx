@@ -1,11 +1,10 @@
-import { useId, useState, type SubmitEvent } from 'react';
+import { useEffect, useId, useState, type SubmitEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     getCatchUpRecap,
     getEvolutionConditions,
     getEvolutionGuidance,
     type EvolutionMoveAdvice,
-    type KnownMove,
     type OwnedPokemon,
     type Pokemon,
     type SpeciesDetails,
@@ -15,11 +14,24 @@ import {
 import { loadCollectionFamily, loadCollectionSpecies } from './collectionSpecies.js';
 import { getCurrentStats, getCurrentStatTotal } from './collectionStats.js';
 import { useLanguage } from './language.js';
+import { LevelEditor } from './LevelEditor.js';
 import { evolutionConditionLabel, evolutionSummary } from './evolutionText.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { damageSimulatorHref, ownedPokemonHref, speciesHref } from './navigation.js';
-import { MovesEditor, SpeciesPicker } from './MyPokemonForms.js';
+import { SpeciesPicker } from './MyPokemonForms.js';
 import { MyPokemonHistory, ObservationForm } from './MyPokemonHistory.js';
+import { MyPokemonCurrentStats } from './MyPokemonCurrentStats.js';
+import { CatchUpRecap } from './CatchUpRecap.js';
+export { CatchUpRecap } from './CatchUpRecap.js';
+import {
+    clearLevelReview,
+    rememberLevelReview,
+    useLevelReview,
+    useLevelReviewStorageError,
+} from './levelingSession.js';
+import { MyPokemonMovesWorkspace } from './MyPokemonMovesWorkspace.js';
+import { requestMoveLearning } from './moveChoices.js';
+import { ScreenshotObservationQueue } from './ScreenshotObservationQueue.js';
 import { MyPokemonTraits } from './MyPokemonTraits.js';
 import { MyPokemonStatsGraph } from './MyPokemonStatsGraph.js';
 import type { MyPokemonView } from './MyPokemonViewToggle.js';
@@ -36,124 +48,13 @@ import { MovePowerProvider } from './MovePower.js';
 import { typeSurfaceStyle } from './theme.js';
 import { BattleStrengthBadge } from './BattleStrengthBadge.js';
 import type { OwnedBattleStrength } from './useBattleStrength.js';
-import { applyCatchUpChanges, type CatchUpChanges } from './catchUpChanges.js';
+import { applyCatchUpChanges } from './catchUpChanges.js';
 import {
     clearObservationDraft,
     isObservationDraftSaving,
     observationDraftKey,
     useObservationDrafts,
 } from './observationDrafts.js';
-
-const evolutionIcon = new URL('./assets/evolution-dna.svg', import.meta.url).href;
-
-function LevelEditor({
-    value,
-    disabled,
-    onSave,
-}: {
-    value: number;
-    disabled: boolean;
-    onSave: (level: number) => Promise<void>;
-}) {
-    const { t } = useLanguage();
-    const [level, setLevel] = useState(String(value));
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const nextLevel = Number(level);
-    const valid = Number.isInteger(nextLevel) && nextLevel >= 1 && nextLevel <= 100;
-    const changed = nextLevel !== value;
-    function step(direction: -1 | 1) {
-        const current = valid ? nextLevel : value;
-        setLevel(String(Math.max(1, Math.min(100, current + direction))));
-        setError(null);
-    }
-    async function submit(event: SubmitEvent) {
-        event.preventDefault();
-        if (disabled || busy || !valid || !changed) return;
-        setError(null);
-        setBusy(true);
-        try {
-            await onSave(nextLevel);
-        } catch {
-            setError(
-                t(
-                    'Could not save the level. Try again.',
-                    'Úroveň se nepodařilo uložit. Zkuste to znovu.',
-                ),
-            );
-        } finally {
-            setBusy(false);
-        }
-    }
-    return (
-        <form
-            className="my-level-editor"
-            onSubmit={(event) => {
-                void submit(event);
-            }}
-        >
-            <div className="my-level-controls">
-                {changed && (
-                    <button
-                        className="my-level-save"
-                        disabled={disabled || busy || !valid}
-                        type="submit"
-                        aria-label={t('Save level', 'Uložit úroveň')}
-                        title={t('Save level', 'Uložit úroveň')}
-                    >
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="m5 12 4 4L19 6" />
-                        </svg>
-                    </button>
-                )}
-                <label className="my-level-display">
-                    <span aria-hidden="true">LV.</span>
-                    <input
-                        aria-label={t('Level', 'Úroveň')}
-                        style={{ width: `${Math.max(2, Math.min(3, level.length))}ch` }}
-                        type="number"
-                        inputMode="numeric"
-                        min="1"
-                        max="100"
-                        step="1"
-                        required
-                        value={level}
-                        onChange={(event) => {
-                            setLevel(event.target.value);
-                            setError(null);
-                        }}
-                        disabled={disabled || busy}
-                    />
-                </label>
-                <div className="my-level-arrows">
-                    <button
-                        type="button"
-                        aria-label={t('Increase level', 'Zvýšit úroveň')}
-                        title={t('Increase level', 'Zvýšit úroveň')}
-                        disabled={disabled || busy || (valid && nextLevel >= 100)}
-                        onClick={() => step(1)}
-                    >
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="m6 15 6-6 6 6" />
-                        </svg>
-                    </button>
-                    <button
-                        type="button"
-                        aria-label={t('Decrease level', 'Snížit úroveň')}
-                        title={t('Decrease level', 'Snížit úroveň')}
-                        disabled={disabled || busy || (valid && nextLevel <= 1)}
-                        onClick={() => step(-1)}
-                    >
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="m6 9 6 6 6-6" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            {error && <p role="alert">{error}</p>}
-        </form>
-    );
-}
 
 function NicknameEditor({
     value,
@@ -581,273 +482,6 @@ export function EvolutionAdvice({
     );
 }
 
-export function CatchUpRecap({
-    pokemon,
-    datasetId,
-    natureId = pokemon.natureId,
-    observations = [],
-    predictionsEnabled = true,
-    details,
-    oldLevel,
-    newLevel,
-    moves,
-    onSave,
-    saveObservation,
-    onClose,
-    onRecord,
-}: {
-    pokemon: OwnedPokemon;
-    datasetId?: string;
-    natureId?: number | null;
-    observations?: readonly StatObservation[];
-    predictionsEnabled?: boolean;
-    details: SpeciesDetails;
-    oldLevel: number;
-    newLevel: number;
-    moves: KnownMove[] | null;
-    onSave: (changes: CatchUpChanges) => Promise<void>;
-    saveObservation: (observation: StatObservation) => Promise<void>;
-    onClose: () => void;
-    onRecord?: () => void;
-}) {
-    const { t, language } = useLanguage();
-    const recap = getCatchUpRecap(details, oldLevel, newLevel);
-    const statsFormId = useId();
-    const [recordingStats, setRecordingStats] = useState(false);
-    const [selected, setSelected] = useState<KnownMove[]>(moves ?? []);
-    const [movesEdited, setMovesEdited] = useState(false);
-    const [selectedEvolution, setSelectedEvolution] = useState<number | null>(null);
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    async function save() {
-        setBusy(true);
-        setError(null);
-        try {
-            await onSave({
-                ...(movesEdited || recap.evolutions.length === 0 ? { moves: selected } : {}),
-                ...(selectedEvolution === null
-                    ? {}
-                    : {
-                          evolutionSpeciesId:
-                              recap.evolutions[selectedEvolution].evolution.toSpeciesId,
-                      }),
-            });
-            onClose();
-        } catch {
-            setError(
-                t(
-                    'Could not save the recap. Try again, or reopen it if this Pokémon changed.',
-                    'Přehled se nepodařilo uložit. Zkuste to znovu. Pokud se Pokémon změnil, otevřete přehled znovu.',
-                ),
-            );
-        } finally {
-            setBusy(false);
-        }
-    }
-    return (
-        <section
-            className="my-recap my-stack"
-            aria-label={t('Optional catch-up recap', 'Volitelný přehled změn')}
-        >
-            <div className="my-section-heading flex-wrap">
-                <h3>
-                    {t('Level saved', 'Úroveň uložena')} · {oldLevel} → {newLevel}
-                </h3>
-                <div className="my-actions">
-                    <button
-                        className="page-button"
-                        type="button"
-                        aria-expanded={onRecord ? undefined : recordingStats}
-                        aria-controls={onRecord ? undefined : statsFormId}
-                        disabled={busy}
-                        onClick={() => {
-                            if (onRecord) onRecord();
-                            else setRecordingStats(!recordingStats);
-                        }}
-                    >
-                        {t('Record stats', 'Zapsat statistiky')}
-                    </button>
-                    <button
-                        className="my-text-button"
-                        type="button"
-                        disabled={busy}
-                        onClick={onClose}
-                    >
-                        {t('Skip recap', 'Přeskočit přehled')}
-                    </button>
-                </div>
-            </div>
-            <div id={statsFormId} hidden={!recordingStats}>
-                {recordingStats && (
-                    <ObservationForm
-                        key={observationDraftKey(pokemon)}
-                        pokemon={pokemon}
-                        natureId={natureId}
-                        observations={observations}
-                        predictionsEnabled={predictionsEnabled}
-                        onSave={async (entry) => {
-                            await saveObservation(entry);
-                            setRecordingStats(false);
-                        }}
-                        onCancel={() => setRecordingStats(false)}
-                    />
-                )}
-            </div>
-            <p className="my-muted">
-                {t(
-                    'These opportunities assume this species throughout the interval. If you evolved during it, check the timing. Species and moves stay unchanged until you record them.',
-                    'Tyto možnosti předpokládají stejný druh po celé období. Pokud došlo k vývoji, ověřte načasování. Druh ani útoky se bez vašeho záznamu nemění.',
-                )}
-            </p>
-            {recap.moves.length === 0 && recap.evolutions.length === 0 && (
-                <p>
-                    {t(
-                        'No new opportunities recorded in this interval.',
-                        'V tomto období nejsou zaznamenány nové možnosti.',
-                    )}
-                </p>
-            )}
-            {recap.moves.length > 0 && (
-                <>
-                    <h4>{t('Did you learn any of these?', 'Naučil se některý z těchto útoků?')}</h4>
-                    <p className="my-muted">
-                        {t(
-                            'Select your current moves, up to four. Remove an old move if needed.',
-                            'Vyberte až čtyři aktuální útoky. Podle potřeby odeberte starý útok.',
-                        )}
-                    </p>
-                    <div className="my-move-chips">
-                        {selected.map((move) => (
-                            <MyPokemonMove
-                                as="button"
-                                key={move.moveId}
-                                move={move}
-                                reference={findReferenceMove(move.moveId, [details])}
-                                suffix={<span aria-hidden="true">×</span>}
-                                disabled={busy}
-                                onClick={() => {
-                                    setMovesEdited(true);
-                                    setSelected(
-                                        selected.filter((entry) => entry.moveId !== move.moveId),
-                                    );
-                                }}
-                            />
-                        ))}
-                    </div>
-                    {recap.moves.map((move) => (
-                        <MyPokemonMove
-                            as="label"
-                            className="my-check"
-                            key={`${move.moveId}-${move.level}`}
-                            move={move}
-                            reference={move}
-                            prefix={
-                                <input
-                                    type="checkbox"
-                                    checked={selected.some((entry) => entry.moveId === move.moveId)}
-                                    disabled={
-                                        busy ||
-                                        (selected.length >= 4 &&
-                                            !selected.some((entry) => entry.moveId === move.moveId))
-                                    }
-                                    onChange={(event) => {
-                                        setMovesEdited(true);
-                                        setSelected(
-                                            event.target.checked
-                                                ? [
-                                                      ...selected,
-                                                      { moveId: move.moveId, name: move.name },
-                                                  ]
-                                                : selected.filter(
-                                                      (entry) => entry.moveId !== move.moveId,
-                                                  ),
-                                        );
-                                    }}
-                                />
-                            }
-                            suffix={<span className="my-level-badge">Lv. {move.level}</span>}
-                        />
-                    ))}
-                </>
-            )}
-            {recap.evolutions.map(({ evolution, condition, note }, index) => (
-                <label className="my-recap-evolution" key={index}>
-                    <SpeciesSprite
-                        datasetId={datasetId}
-                        file={evolution.toSprite}
-                        name={evolution.toName}
-                    />
-                    <span className="my-recap-evolution-copy">
-                        <span className="my-recap-evolution-title">
-                            <img
-                                src={evolutionIcon}
-                                width={24}
-                                height={24}
-                                alt=""
-                                aria-hidden="true"
-                            />
-                            <strong>{evolution.toName}</strong>
-                        </span>
-                        <span>{evolutionSummary(evolution.summary, language)}</span>
-                        <small>
-                            {t(
-                                note,
-                                condition === 'level-met'
-                                    ? 'Požadované úrovně dosaženo; potvrďte, zda vývoj skutečně proběhl.'
-                                    : `Ostatní podmínky je nutné ověřit: ${evolutionSummary(evolution.summary, 'cs')}`,
-                            )}
-                        </small>
-                        <span className="my-recap-evolution-choice">
-                            <input
-                                type="checkbox"
-                                disabled={busy}
-                                checked={selectedEvolution === index}
-                                aria-label={t(
-                                    `Evolved into ${evolution.toName}`,
-                                    `Vyvinul se na ${evolution.toName}`,
-                                )}
-                                onChange={(event) =>
-                                    setSelectedEvolution(event.target.checked ? index : null)
-                                }
-                            />
-                            {t(
-                                `Evolved into ${evolution.toName}`,
-                                `Vyvinul se na ${evolution.toName}`,
-                            )}
-                        </span>
-                    </span>
-                </label>
-            ))}
-            {recap.evolutions.length > 0 && (
-                <p className="my-muted">
-                    {t(
-                        'Select the evolution that happened, then save. Earlier stats keep their original form. Current moves stay unchanged unless you edit them above.',
-                        'Označte vývoj, který proběhl, a uložte změny. Starší statistiky zůstanou u původní formy. Aktuální útoky se nezmění, pokud je výše neupravíte.',
-                    )}
-                </p>
-            )}
-            {(recap.moves.length > 0 || recap.evolutions.length > 0) && (
-                <button
-                    className="my-primary"
-                    type="button"
-                    disabled={
-                        busy ||
-                        (recap.evolutions.length > 0 && !movesEdited && selectedEvolution === null)
-                    }
-                    onClick={() => {
-                        void save();
-                    }}
-                >
-                    {recap.evolutions.length > 0
-                        ? t('Save changes', 'Uložit změny')
-                        : t('Save chosen current moves', 'Uložit vybrané aktuální útoky')}
-                </button>
-            )}
-            {error && <p role="alert">{error}</p>}
-        </section>
-    );
-}
-
 export function MyPokemonCard({
     pokemon,
     strength,
@@ -870,6 +504,9 @@ export function MyPokemonCard({
     onRemove,
     recordingStats,
     onRecordingStatsChange,
+    onRecordNext,
+    allObservations,
+    blockedRecordingIds,
 }: {
     pokemon: OwnedPokemon;
     strength?: OwnedBattleStrength;
@@ -892,6 +529,9 @@ export function MyPokemonCard({
     onRemove: () => Promise<void>;
     recordingStats?: boolean;
     onRecordingStatsChange?: (recording: boolean) => void;
+    onRecordNext?: () => void;
+    allObservations?: readonly StatObservation[];
+    blockedRecordingIds?: readonly string[];
 }) {
     const { t } = useLanguage();
     const species = useQuery({
@@ -903,15 +543,15 @@ export function MyPokemonCard({
         queryFn: () => loadCollectionFamily(pokemon.state.speciesId),
     });
     const family = relatives.data ?? (species.data ? [species.data] : []);
-    const [editingMoves, setEditingMoves] = useState(false);
     const [localRecordingStats, setLocalRecordingStats] = useState(false);
     const [resumingDraftKey, setResumingDraftKey] = useState<string>();
     const isRecordingStats = recordingStats ?? localRecordingStats;
     const statsFormId = useId();
     const drafts = useObservationDrafts(pokemon.id);
-    const hasDraft = drafts.length > 0;
+    const hasDraft = drafts.some(({ key }) => !key.startsWith('screenshot:'));
     const earlierDrafts = drafts.filter(
-        ({ value }) =>
+        ({ key, value }) =>
+            !key.startsWith('screenshot:') &&
             !value.observationId &&
             (value.speciesId !== pokemon.state.speciesId ||
                 value.formEpoch !== pokemon.state.formEpoch),
@@ -925,12 +565,21 @@ export function MyPokemonCard({
     const [showWishlist, setShowWishlist] = useState(false);
     const [changingSpecies, setChangingSpecies] = useState(false);
     const [nextSpecies, setNextSpecies] = useState<Pokemon | null>(null);
-    const [recap, setRecap] = useState<{
-        details: SpeciesDetails;
-        oldLevel: number;
-        newLevel: number;
-        formEpoch: string;
-    } | null>(null);
+    const recap = useLevelReview(pokemon);
+    const recapStorageError = useLevelReviewStorageError();
+    const [savedNotice, setSavedNotice] = useState(false);
+    useEffect(() => {
+        if (!savedNotice) return;
+        const timeout = window.setTimeout(() => setSavedNotice(false), 3000);
+        return () => clearTimeout(timeout);
+    }, [savedNotice]);
+    useEffect(() => {
+        if (!recap || !species.data || stateConflict) return;
+        const opportunities = getCatchUpRecap(species.data, recap.oldLevel, recap.newLevel);
+        if (opportunities.moves.length === 0 && opportunities.evolutions.length === 0)
+            clearLevelReview(pokemon.id);
+    }, [recap, species.data, stateConflict, pokemon.id]);
+    const [showScreenshotQueue, setShowScreenshotQueue] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const name = species.data?.name ?? `#${pokemon.state.speciesId}`;
@@ -952,37 +601,67 @@ export function MyPokemonCard({
             setBusy(false);
         }
     }
-    async function saveMoves(moves: KnownMove[] | null) {
-        await onUpdate((current) => ({ ...current, state: { ...current.state, moves } }));
-        setEditingMoves(false);
-    }
-    async function levelChange(level: number) {
-        const previous = pokemon.state.level;
-        await onUpdate((current) => ({ ...current, state: { ...current.state, level } }));
-        if (level > previous && species.data)
-            setRecap({
-                details: species.data,
+    function reviewLevelChange(previous: number, level: number) {
+        if (level <= previous) return;
+        const opportunities = species.data
+            ? getCatchUpRecap(species.data, previous, level)
+            : undefined;
+        setSavedNotice(true);
+        if (
+            !opportunities ||
+            opportunities.moves.length > 0 ||
+            opportunities.evolutions.length > 0
+        ) {
+            rememberLevelReview(pokemon.id, {
+                speciesId: pokemon.state.speciesId,
                 oldLevel: previous,
                 newLevel: level,
                 formEpoch: pokemon.state.formEpoch,
             });
+        }
+    }
+    async function levelChange(level: number) {
+        const previous = pokemon.state.level;
+        await onUpdate((current) => ({ ...current, state: { ...current.state, level } }));
+        reviewLevelChange(previous, level);
     }
     async function recordObservation(observation: StatObservation) {
+        const target =
+            observation.pokemonId === pokemon.id
+                ? pokemon
+                : partyMembers?.find((member) => member.id === observation.pokemonId);
+        const wasRecorded = (allObservations ?? observations).some(
+            (entry) => entry.id === observation.id,
+        );
         await saveObservation(observation);
+        setSavedNotice(true);
         if (
+            target &&
             !observation.deleted &&
-            !observations.some((entry) => entry.id === observation.id) &&
-            observation.speciesId === pokemon.state.speciesId &&
-            observation.formEpoch === pokemon.state.formEpoch &&
-            observation.level > pokemon.state.level &&
-            species.data
-        )
-            setRecap({
-                details: species.data,
-                oldLevel: pokemon.state.level,
-                newLevel: observation.level,
-                formEpoch: pokemon.state.formEpoch,
-            });
+            !wasRecorded &&
+            observation.level > target.state.level &&
+            observation.speciesId === target.state.speciesId &&
+            observation.formEpoch === target.state.formEpoch
+        ) {
+            // Persist another member's review without waiting for reference data.
+            // Opening that member reconciles ranges with no actionable opportunities.
+            const details = target.id === pokemon.id ? species.data : undefined;
+            const opportunities = details
+                ? getCatchUpRecap(details, target.state.level, observation.level)
+                : undefined;
+            if (
+                !opportunities ||
+                opportunities.moves.length > 0 ||
+                opportunities.evolutions.length > 0
+            ) {
+                rememberLevelReview(target.id, {
+                    speciesId: target.state.speciesId,
+                    formEpoch: target.state.formEpoch,
+                    oldLevel: target.state.level,
+                    newLevel: observation.level,
+                });
+            }
+        }
     }
     const card = (
         <article
@@ -1170,10 +849,15 @@ export function MyPokemonCard({
                         natureId={natureConflict ? null : pokemon.natureId}
                         observations={observations}
                         predictionsEnabled={!statsConflict}
-                        onSave={async (entry) => {
+                        family={family}
+                        allowNextMember={Boolean(onRecordNext)}
+                        onSave={async (entry, intent) => {
                             await recordObservation(entry);
-                            setResumingDraftKey(undefined);
-                            setRecordingStats(false);
+                            if (intent !== 'another') {
+                                setResumingDraftKey(undefined);
+                                setRecordingStats(false);
+                            }
+                            if (intent === 'next-member') onRecordNext?.();
                         }}
                         onCancel={() => {
                             setResumingDraftKey(undefined);
@@ -1182,6 +866,32 @@ export function MyPokemonCard({
                     />
                 )}
             </div>
+            {detail && (
+                <div className="my-actions">
+                    <button
+                        className="my-text-button"
+                        type="button"
+                        disabled={stateConflict}
+                        aria-expanded={showScreenshotQueue}
+                        onClick={() => setShowScreenshotQueue(!showScreenshotQueue)}
+                    >
+                        {showScreenshotQueue
+                            ? t('Close screenshot queue', 'Zavřít frontu snímků')
+                            : t('Record from screenshots', 'Zapsat ze snímků')}
+                    </button>
+                </div>
+            )}
+            {showScreenshotQueue && !stateConflict && (
+                <ScreenshotObservationQueue
+                    pokemon={pokemon}
+                    members={partyMembers}
+                    observations={allObservations ?? observations}
+                    family={family}
+                    blockedPokemonIds={blockedRecordingIds}
+                    onSave={recordObservation}
+                    onClose={() => setShowScreenshotQueue(false)}
+                />
+            )}
             <MyPokemonTraits
                 pokemon={pokemon}
                 species={species.data}
@@ -1198,46 +908,51 @@ export function MyPokemonCard({
                     )}
                 </p>
             )}
-            {recap &&
-                !stateConflict &&
-                pokemon.state.speciesId === recap.details.speciesId &&
-                pokemon.state.level === recap.newLevel &&
-                pokemon.state.formEpoch === recap.formEpoch && (
-                    <CatchUpRecap
-                        key={`${recap.formEpoch}-${recap.oldLevel}-${recap.newLevel}`}
-                        {...recap}
-                        pokemon={pokemon}
-                        datasetId={datasetId}
-                        natureId={natureConflict ? null : pokemon.natureId}
-                        observations={observations}
-                        predictionsEnabled={!statsConflict}
-                        moves={pokemon.state.moves}
-                        onSave={async (changes) => {
-                            await onUpdate((current) =>
-                                applyCatchUpChanges(current, pokemon.state, changes),
-                            );
-                        }}
-                        saveObservation={recordObservation}
-                        onRecord={() => setRecordingStats(true)}
-                        onClose={() => setRecap(null)}
-                    />
-                )}
+            {savedNotice && !recap && (
+                <p role="status" className="my-muted">
+                    {t('Saved', 'Uloženo')}
+                </p>
+            )}
+            {recapStorageError && (
+                <p role="alert">
+                    {t(
+                        'Pending decisions are available until this page closes; browser storage is unavailable.',
+                        'Nevyřízená rozhodnutí jsou dostupná do zavření stránky; úložiště prohlížeče není dostupné.',
+                    )}
+                </p>
+            )}
+            {recap && !stateConflict && species.data && (
+                <CatchUpRecap
+                    key={`${recap.formEpoch}-${recap.oldLevel}-${recap.newLevel}`}
+                    details={species.data}
+                    oldLevel={recap.oldLevel}
+                    newLevel={recap.newLevel}
+                    pokemon={pokemon}
+                    datasetId={datasetId}
+                    natureId={natureConflict ? null : pokemon.natureId}
+                    observations={observations}
+                    predictionsEnabled={!statsConflict}
+                    moves={pokemon.state.moves}
+                    onSave={async (changes) => {
+                        await onUpdate((current) =>
+                            applyCatchUpChanges(current, pokemon.state, changes),
+                        );
+                    }}
+                    saveObservation={recordObservation}
+                    onRecord={() => setRecordingStats(true)}
+                    onClose={() => clearLevelReview(pokemon.id)}
+                />
+            )}
             <div className="my-card-view">
-                <div className="my-current-moves" hidden={view !== 'moves'}>
-                    <div className="my-section-heading">
-                        <h3>{t('Current moves', 'Aktuální útoky')}</h3>
-                        <div className="my-actions">
-                            <button
-                                className="my-text-button"
-                                type="button"
-                                disabled={stateConflict}
-                                onClick={() => {
-                                    setEditingMoves(!editingMoves);
-                                    setShowWishlist(false);
-                                }}
-                            >
-                                {t('Edit', 'Upravit')}
-                            </button>
+                <MyPokemonMovesWorkspace
+                    pokemon={pokemon}
+                    family={family}
+                    paused={stateConflict}
+                    previousLevel={recap?.oldLevel}
+                    onUpdate={onUpdate}
+                    showMoves={view === 'moves'}
+                    actions={
+                        <>
                             <button
                                 className="my-wishlist-toggle"
                                 type="button"
@@ -1245,61 +960,16 @@ export function MyPokemonCard({
                                 title={t('Wanted moves', 'Požadované útoky')}
                                 aria-expanded={showWishlist}
                                 aria-controls={wishlistPanelId}
-                                onClick={() => {
-                                    setShowWishlist(!showWishlist);
-                                    setEditingMoves(false);
-                                }}
+                                onClick={() => setShowWishlist(!showWishlist)}
                             >
                                 <WishIcon />
                             </button>
-                        </div>
-                    </div>
-                    <ul
-                        className="my-move-grid"
-                        aria-label={
-                            pokemon.state.moves?.length === 0
-                                ? t(
-                                      'No moves recorded as known',
-                                      'Žádné útoky nejsou označeny jako známé',
-                                  )
-                                : undefined
-                        }
-                    >
-                        {Array.from({ length: 4 }, (_, slot) => {
-                            const move = pokemon.state.moves?.[slot];
-                            return move ? (
-                                <MyPokemonMove
-                                    as="li"
-                                    key={slot}
-                                    move={move}
-                                    reference={findReferenceMove(move.moveId, family)}
-                                    showStats
-                                />
-                            ) : (
-                                <li className="my-move my-move-detailed my-move-empty" key={slot}>
-                                    <span
-                                        className={
-                                            pokemon.state.moves === null ? undefined : 'sr-only'
-                                        }
-                                    >
-                                        {pokemon.state.moves === null
-                                            ? t('Not recorded', 'Nezaznamenány')
-                                            : t(
-                                                  'Free move slot ' + (slot + 1),
-                                                  'Volné místo pro útok ' + (slot + 1),
-                                              )}
-                                    </span>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                    <a
-                        className="my-text-button mt-3 inline-block"
-                        href={damageSimulatorHref(pokemon.id)}
-                    >
-                        {t('Simulate damage', 'Simulovat poškození')} →
-                    </a>
-                </div>
+                            <a className="my-text-button" href={damageSimulatorHref(pokemon.id)}>
+                                {t('Simulate damage', 'Simulovat poškození')} →
+                            </a>
+                        </>
+                    }
+                />
                 {view === 'stats' && (
                     <div className="my-stat-graph-panel">
                         {statsConflict ? (
@@ -1310,66 +980,166 @@ export function MyPokemonCard({
                                 )}
                             </p>
                         ) : (
-                            <MyPokemonStatsGraph
-                                pokemon={pokemon}
-                                natureId={natureConflict ? null : pokemon.natureId}
-                                observations={observations}
-                                family={family}
-                                compact={!detail}
-                            />
+                            <>
+                                <MyPokemonCurrentStats
+                                    pokemon={pokemon}
+                                    observations={observations}
+                                />
+                                <MyPokemonStatsGraph
+                                    pokemon={pokemon}
+                                    natureId={natureConflict ? null : pokemon.natureId}
+                                    observations={observations}
+                                    family={family}
+                                    compact={!detail}
+                                />
+                            </>
                         )}
                     </div>
                 )}
-                {(view === 'weaknesses' || view === 'resistances') && (
-                    <MyPokemonTypeDefenses
-                        species={species.data}
-                        datasetId={datasetId}
-                        mode={view}
-                        conflict={stateConflict}
+                {view === 'matchups' && (
+                    <div className="my-matchup-panels">
+                        <MyPokemonTypeDefenses
+                            species={species.data}
+                            datasetId={datasetId}
+                            mode="weaknesses"
+                            conflict={stateConflict}
+                        />
+                        <MyPokemonTypeDefenses
+                            species={species.data}
+                            datasetId={datasetId}
+                            mode="resistances"
+                            conflict={stateConflict}
+                        />
+                    </div>
+                )}
+                {(view === 'stats' || view === 'history') && (
+                    <MyPokemonHistory
+                        pokemon={pokemon}
+                        natureId={natureConflict || stateConflict ? null : pokemon.natureId}
+                        observations={observations}
+                        predictionsEnabled={!statsConflict}
+                        family={family}
+                        saveObservation={recordObservation}
+                        onRecord={() => setRecordingStats(true)}
+                        recentOnly={view === 'stats'}
                     />
                 )}
             </div>
-            {editingMoves && !stateConflict && (
-                <div hidden={view !== 'moves'}>
-                    <MovesEditor
-                        key={JSON.stringify(pokemon.state.moves)}
-                        moves={pokemon.state.moves}
-                        family={family}
-                        onSave={saveMoves}
-                        onCancel={() => setEditingMoves(false)}
-                    />
-                </div>
-            )}
             <div id={wishlistPanelId} hidden={!showWishlist || view !== 'moves'}>
                 {showWishlist && (
                     <MyPokemonWishlist
                         pokemon={pokemon}
                         family={family}
                         paused={stateConflict || wishlistConflict}
+                        onLearnMove={(move) => requestMoveLearning(pokemon, move)}
                         onUpdate={onUpdate}
                     />
                 )}
             </div>
-            {!stateConflict &&
-                species.data &&
-                (detail ? (
-                    <EvolutionAdvice
-                        pokemon={pokemon}
-                        family={family}
-                        party={partyMembers}
-                        observations={observations}
-                        wishlistPaused={wishlistConflict}
-                        onUpdate={onUpdate}
-                    />
-                ) : (
+            {!stateConflict && species.data && (
+                <>
                     <MyPokemonMilestones
                         pokemon={pokemon}
                         details={species.data}
                         family={family}
                         wishlistPaused={wishlistConflict}
                         onUpdate={onUpdate}
+                        onRecordEvolution={(speciesId) => {
+                            const target = family.find((entry) => entry.speciesId === speciesId);
+                            if (target) {
+                                setNextSpecies(target);
+                                setChangingSpecies(true);
+                            }
+                        }}
                     />
-                ))}
+                    {detail && (
+                        <details className="my-details">
+                            <summary>
+                                {t(
+                                    'Evolution advice & move comparisons',
+                                    'Rady k vývoji a porovnání útoků',
+                                )}
+                            </summary>
+                            <EvolutionAdvice
+                                pokemon={pokemon}
+                                family={family}
+                                party={partyMembers}
+                                observations={observations}
+                                wishlistPaused={wishlistConflict}
+                                onUpdate={onUpdate}
+                            />
+                        </details>
+                    )}
+                </>
+            )}
+            {changingSpecies && !stateConflict && (
+                <div className="my-inset my-stack">
+                    {nextSpecies ? (
+                        <>
+                            <h4>
+                                {name} → {nextSpecies.name}
+                            </h4>
+                            <p className="my-muted">
+                                {t(
+                                    'No evolution date or past level is required. Future stat observations start a new stage record.',
+                                    'Datum vývoje ani minulá úroveň nejsou nutné. Další měření statistik začnou nové období formy.',
+                                )}
+                            </p>
+                            <div className="my-actions">
+                                <button
+                                    className="my-primary"
+                                    disabled={
+                                        busy || nextSpecies.speciesId === pokemon.state.speciesId
+                                    }
+                                    type="button"
+                                    onClick={() => {
+                                        void perform(async () => {
+                                            await onUpdate((current) => ({
+                                                ...current,
+                                                state: {
+                                                    ...current.state,
+                                                    speciesId: nextSpecies.speciesId,
+                                                    formEpoch: crypto.randomUUID(),
+                                                },
+                                            }));
+                                            setChangingSpecies(false);
+                                            setNextSpecies(null);
+                                            clearLevelReview(pokemon.id);
+                                        });
+                                    }}
+                                >
+                                    {t('Confirm species / form', 'Potvrdit druh / formu')}
+                                </button>
+                                <button
+                                    className="page-button"
+                                    type="button"
+                                    onClick={() => setNextSpecies(null)}
+                                >
+                                    {t('Choose another', 'Vybrat jiný')}
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="my-actions">
+                                {family
+                                    .filter((entry) => entry.speciesId !== pokemon.state.speciesId)
+                                    .map((entry) => (
+                                        <button
+                                            className="page-button"
+                                            key={entry.speciesId}
+                                            type="button"
+                                            onClick={() => setNextSpecies(entry)}
+                                        >
+                                            {entry.name}
+                                        </button>
+                                    ))}
+                            </div>
+                            <SpeciesPicker datasetId={datasetId} onSelect={setNextSpecies} />
+                        </>
+                    )}
+                </div>
+            )}
             {(species.isError || relatives.isError) && (
                 <p className="my-muted" role="status">
                     {t(
@@ -1390,10 +1160,8 @@ export function MyPokemonCard({
             )}
             {detail && (
                 <>
-                    <details className="my-details my-pokemon-details" open>
-                        <summary>
-                            {t('Details, evolution & growth', 'Podrobnosti, vývoj a růst')}
-                        </summary>
+                    <details className="my-details my-pokemon-details">
+                        <summary>{t('Pokémon details', 'Podrobnosti Pokémona')}</summary>
                         <div className="my-stack">
                             <NicknameEditor
                                 key={pokemon.nickname}
@@ -1421,96 +1189,6 @@ export function MyPokemonCard({
                                     )}
                                 </p>
                             </div>
-                            {changingSpecies && !stateConflict && (
-                                <div className="my-inset my-stack">
-                                    {nextSpecies ? (
-                                        <>
-                                            <h4>
-                                                {name} → {nextSpecies.name}
-                                            </h4>
-                                            <p className="my-muted">
-                                                {t(
-                                                    'No evolution date or past level is required. Future stat observations start a new stage record.',
-                                                    'Datum vývoje ani minulá úroveň nejsou nutné. Další měření statistik začnou nové období formy.',
-                                                )}
-                                            </p>
-                                            <div className="my-actions">
-                                                <button
-                                                    className="my-primary"
-                                                    disabled={
-                                                        busy ||
-                                                        nextSpecies.speciesId ===
-                                                            pokemon.state.speciesId
-                                                    }
-                                                    type="button"
-                                                    onClick={() => {
-                                                        void perform(async () => {
-                                                            await onUpdate((current) => ({
-                                                                ...current,
-                                                                state: {
-                                                                    ...current.state,
-                                                                    speciesId:
-                                                                        nextSpecies.speciesId,
-                                                                    formEpoch: crypto.randomUUID(),
-                                                                },
-                                                            }));
-                                                            setChangingSpecies(false);
-                                                            setNextSpecies(null);
-                                                            setRecap(null);
-                                                        });
-                                                    }}
-                                                >
-                                                    {t(
-                                                        'Confirm species / form',
-                                                        'Potvrdit druh / formu',
-                                                    )}
-                                                </button>
-                                                <button
-                                                    className="page-button"
-                                                    type="button"
-                                                    onClick={() => setNextSpecies(null)}
-                                                >
-                                                    {t('Choose another', 'Vybrat jiný')}
-                                                </button>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="my-actions">
-                                                {family
-                                                    .filter(
-                                                        (entry) =>
-                                                            entry.speciesId !==
-                                                            pokemon.state.speciesId,
-                                                    )
-                                                    .map((entry) => (
-                                                        <button
-                                                            className="page-button"
-                                                            key={entry.speciesId}
-                                                            type="button"
-                                                            onClick={() => setNextSpecies(entry)}
-                                                        >
-                                                            {entry.name}
-                                                        </button>
-                                                    ))}
-                                            </div>
-                                            <SpeciesPicker
-                                                datasetId={datasetId}
-                                                onSelect={setNextSpecies}
-                                            />
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                            <MyPokemonHistory
-                                pokemon={pokemon}
-                                natureId={natureConflict || stateConflict ? null : pokemon.natureId}
-                                observations={observations}
-                                predictionsEnabled={!statsConflict}
-                                family={family}
-                                saveObservation={recordObservation}
-                                onRecord={() => setRecordingStats(true)}
-                            />
                         </div>
                     </details>
                     <div className="my-card-footer">

@@ -15,6 +15,13 @@ target-independent comparison.
 
 ## Inputs and move previews
 
+- **Level up +1** immediately saves one level for the selected collection Pokémon.
+  The adjacent level editor supports larger jumps and corrections with **Save level**.
+  Levels remain within 1–100. Saving keeps earlier observations and the selected opponent,
+  clears stale attacker overrides, and leaves newly reached moves/evolutions available
+  through **Review level-up changes**. Record new measured stats from the linked workspace;
+  older-level stats are never reused as current measurements. Stale member, form, level,
+  or playthrough changes reject the save rather than overwrite newer data.
 - Use the owned Pokémon's current recorded level, form and unambiguous recorded
   stats. Missing stats require temporary inputs; older observations, base stats
   and growth predictions do not fill gaps. Recorded stats can also be overridden
@@ -31,17 +38,19 @@ target-independent comparison.
 - Past-level labels describe the learnset, not confirmed Move Reminder access;
   game-specific acquisition rules remain unverified in
   [the source review](../move-reminder-rules.md).
-- Scenario inputs and previews are local component state. They never update the
-  saved collection, known moves, level, observations, wishlist or history. Switching
-  attackers in the simulator (including party links, the collection selector, and
-  browser history) preserves the selected enemy, its level and stat overrides.
-  Changing attacker/form/recorded level clears only the attacker's temporary stats
-  and move previews. Leaving the simulator or switching datasets clears the scenario.
+- Scenario inputs and previews are separate session state. They never update the saved
+  collection, known moves, level, observations, wishlist or history. Switching attackers
+  preserves the opponent, its level and stat overrides. Navigating away and returning
+  restores the scenario and each unchanged attacker's previews and temporary values.
+  New recorded stats, moves, nature, ability, form or level invalidate that attacker's
+  temporary values and previews. Scenarios are isolated per dataset and are cleared by
+  **Reset scenario** or a browser reload.
 
 The simulator also displays the attacker’s saved nature and selected ability.
 Nature highlights current attacking stats; recorded values already include its
 effect and are never multiplied again. Ability effects remain excluded from damage.
-Change these saved choices on the collection card; simulator controls stay temporary.
+Change nature and ability on the collection card. Saved level controls update the collection;
+opponent settings, stat overrides and move previews remain temporary.
 
 The battle preview shows relevant incoming type matchups beside each name: left
 of the enemy and right of your Pokémon. Only non-neutral matchups against the

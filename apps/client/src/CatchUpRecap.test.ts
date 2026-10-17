@@ -6,8 +6,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { OwnedPokemon, SpeciesDetails } from '@pokemon-emerald-ex-dex/shared';
 
 import { loadCollectionSpeciesFixture } from '../../../packages/shared/test/fixtures/collectionSpecies.js';
-import { CatchUpRecap } from './MyPokemonCard.js';
+import { CatchUpRecap } from './CatchUpRecap.js';
 import { LanguageProvider, type Language } from './language.js';
+import { clearLevelReview, rememberLevelReview } from './levelingSession.js';
+import { getMoveChoice } from './moveChoices.js';
 
 const fixtures = loadCollectionSpeciesFixture([21, 22, 133]);
 const spearow: SpeciesDetails = {
@@ -56,21 +58,21 @@ function render(
     );
 }
 
-function checkboxLabels(html: string): string[] {
-    return [...html.matchAll(/<label\b[^>]*>[\s\S]*?<\/label>/g)]
-        .map(([label]) => label)
-        .filter((label) => label.includes('type="checkbox"'));
+function evolutionChoices(html: string): string[] {
+    return [...html.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/g)]
+        .map(([button]) => button)
+        .filter((button) => button.includes('aria-pressed='));
 }
 
-void test('a Fearow evolution opportunity has its target sprite, DNA icon and an unchecked labeled checkbox', () => {
+void test('a Fearow evolution opportunity has its target sprite and an explicit unselected action', () => {
     const html = render();
     match(html, /src="\/api\/sprites\/emerald-ex-1\.0\.4\/front\/22\.png"/);
     match(html, /alt="Fearow standard front sprite"/);
-    match(html, /<img(?=[^>]*evolution-dna\.svg)(?=[^>]*alt="")(?=[^>]*aria-hidden="true")[^>]*>/);
-    const labels = checkboxLabels(html);
-    strictEqual(labels.length, 1);
-    match(labels[0], /aria-label="Evolved into Fearow"/);
-    doesNotMatch(labels[0], /checked=""/);
+    const choices = evolutionChoices(html);
+    strictEqual(choices.length, 1);
+    match(choices[0], /Record evolution to Fearow/);
+    match(choices[0], /aria-pressed="false"/);
+    doesNotMatch(html, /Confirm evolution/);
     match(html, /Reach level 20/);
     match(html, /Level requirement reached/);
     doesNotMatch(html, /use “Record evolution \/ form”/);
@@ -87,15 +89,16 @@ void test('an evolution with no sprite keeps an accessible placeholder and a sel
         html,
         /class="sprite-placeholder" role="img" aria-label="Fearow standard front sprite unavailable"/,
     );
-    match(checkboxLabels(html)[0], /Fearow/);
+    match(evolutionChoices(html)[0], /Record evolution to Fearow/);
     doesNotMatch(html, /src="null"/);
 });
 
 void test('Czech evolution recap translates its choice and retains the Fearow species name', () => {
     const html = render({}, 'cs');
-    const labels = checkboxLabels(html);
-    strictEqual(labels.length, 1);
-    match(labels[0], /aria-label="Vyvinul se na Fearow"/);
+    const choices = evolutionChoices(html);
+    strictEqual(choices.length, 1);
+    match(choices[0], /Zapsat vývoj na Fearow/);
+    match(choices[0], /aria-pressed="false"/);
     match(html, /Dosáhnout úrovně 20/);
     match(html, /Požadované úrovně dosaženo/);
     match(html, /Přední obrázek Fearow/);
@@ -105,24 +108,24 @@ void test('Czech evolution recap translates its choice and retains the Fearow sp
     );
 });
 
-void test('branched evolution opportunities each have an unchecked choice without selecting a branch automatically', () => {
+void test('branched evolution opportunities each have an unselected action without choosing automatically', () => {
     const eevee = { ...fixtures[133], learnset: [] };
     const html = render({
         pokemon: { ...owned, state: { ...owned.state, speciesId: 133 } },
         details: eevee,
     });
-    const labels = checkboxLabels(html);
+    const choices = evolutionChoices(html);
     const targets = eevee.evolutionLinks.filter((edge) => !edge.internalOnly);
     ok(targets.length > 1);
-    strictEqual(labels.length, targets.length);
+    strictEqual(choices.length, targets.length);
     for (const target of targets) {
-        ok(labels.some((label) => label.includes(target.toName)));
+        ok(choices.some((choice) => choice.includes(target.toName)));
     }
-    doesNotMatch(html, /checked=""/);
+    doesNotMatch(html, /aria-pressed="true"|Confirm evolution/);
     match(html, /Other conditions need checking/);
 });
 
-void test('an untouched evolution-only recap writes nothing and cannot save until a choice is made', () => {
+void test('an untouched evolution-only recap writes nothing and offers no confirmation before a choice', () => {
     let saves = 0;
     let observations = 0;
     let closes = 0;
@@ -139,18 +142,15 @@ void test('an untouched evolution-only recap writes nothing and cannot save unti
             closes++;
         },
     });
-    const saveButton = [...html.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/g)]
-        .map(([button]) => button)
-        .find((button) => />Save[^<]*<\/button>/.test(button));
-    ok(saveButton);
-    match(saveButton, /disabled=""/);
-    match(html, /Skip recap/);
+    doesNotMatch(html, /Confirm evolution|Save changes/);
+    match(html, /Done reviewing/);
+    match(html, /Nothing is learned or evolved automatically/);
     strictEqual(saves, 0);
     strictEqual(observations, 0);
     strictEqual(closes, 0);
 });
 
-void test('a recap with moves and evolution keeps Save changes disabled while unknown moves and evolution are untouched', () => {
+void test('move and evolution choices stay separate and leave unknown moves untouched', () => {
     const move = fixtures[21].learnset.find((entry) => entry.level > 1 && entry.level <= 20);
     ok(move);
     const html = render({
@@ -159,7 +159,69 @@ void test('a recap with moves and evolution keeps Save changes disabled while un
         moves: null,
     });
     match(html, /Did you learn any of these/);
-    match(html, /aria-label="Evolved into Fearow"/);
-    doesNotMatch(html, /checked=""/);
-    match(html, /<button(?=[^>]*disabled="")[^>]*>Save changes<\/button>/);
+    match(html, /Record evolution to Fearow/);
+    match(html, new RegExp(`aria-label="Learn or replace ${move.name}"`));
+    doesNotMatch(html, /aria-label="Remove |Confirm evolution|Save changes/);
+    strictEqual(getMoveChoice(owned.id), undefined);
+});
+
+void test('a restored branch choice selects only that branch and still requires explicit confirmation', () => {
+    const eevee = { ...fixtures[133], learnset: [] };
+    const targets = eevee.evolutionLinks.filter((edge) => !edge.internalOnly);
+    const selected = targets[1];
+    ok(selected);
+    const pokemon = {
+        ...owned,
+        id: 'restored-eevee-choice',
+        state: { ...owned.state, speciesId: 133 },
+    };
+    let saves = 0;
+    rememberLevelReview(pokemon.id, {
+        speciesId: 133,
+        formEpoch: pokemon.state.formEpoch,
+        oldLevel: 19,
+        newLevel: 20,
+        evolutionSpeciesId: selected.toSpeciesId,
+    });
+    try {
+        const html = render({
+            pokemon,
+            details: eevee,
+            onSave: () => {
+                saves++;
+                return Promise.resolve();
+            },
+        });
+        const choices = evolutionChoices(html);
+        const pressed = choices.filter((choice) => choice.includes('aria-pressed="true"'));
+        strictEqual(pressed.length, 1);
+        ok(pressed[0].includes(`Record evolution to ${selected.toName}`));
+        match(html, /Confirm evolution/);
+        match(html, /Earlier stats keep their original form; current moves stay unchanged/);
+        strictEqual(saves, 0);
+        const czech = render({ pokemon, details: eevee }, 'cs');
+        match(czech, /Potvrdit vývoj/);
+        match(
+            czech,
+            /Starší statistiky zůstanou u původní formy; aktuální útoky zůstanou zachované/,
+        );
+        doesNotMatch(czech, /Confirm evolution|Record evolution to/);
+    } finally {
+        clearLevelReview(pokemon.id);
+    }
+});
+
+void test('an already recorded move is disabled and never announced as a removal action', () => {
+    const move = fixtures[21].learnset.find((entry) => entry.level > 1 && entry.level <= 20);
+    ok(move);
+    const options = { details: { ...spearow, learnset: [move] }, oldLevel: 1, moves: [move] };
+    const html = render(options);
+    match(
+        html,
+        new RegExp(`<button[^>]*aria-label="${move.name} already recorded"[^>]*disabled=""`),
+    );
+    doesNotMatch(html, /aria-label="Remove /);
+    const czech = render(options, 'cs');
+    match(czech, new RegExp(`aria-label="Útok ${move.name} už je zaznamenán"`));
+    doesNotMatch(czech, /aria-label="Odebrat /);
 });

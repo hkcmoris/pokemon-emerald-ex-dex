@@ -14,6 +14,25 @@
 .sim-owned-selector {
     align-self: end;
 }
+.sim-level-session {
+    margin-bottom: 1.25rem;
+}
+.sim-level-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+}
+.sim-level-actions h2,
+.sim-level-actions p {
+    margin: 0;
+}
+.sim-level-actions h2 {
+    font-size: 1rem;
+}
+.sim-level-actions .my-level-editor {
+    margin-right: auto;
+}
 .sim-setup-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);

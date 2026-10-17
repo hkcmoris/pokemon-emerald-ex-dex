@@ -5,7 +5,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import type { OwnedPokemon, StatObservation } from '@pokemon-emerald-ex-dex/shared';
 
 import { LanguageProvider } from './language.js';
-import { ObservationForm } from './MyPokemonHistory.js';
+import {
+    ObservationForm,
+    MyPokemonHistory,
+    getObservationStages,
+    observedStatValues,
+    latestObservedComparison,
+} from './MyPokemonHistory.js';
 import {
     clearObservationDraft,
     getObservationDraft,
@@ -75,7 +81,7 @@ function fieldValues(html: string): string[] {
     );
 }
 
-void test('new stat entries prefill estimates for the raised level without saving them', () => {
+void test('new stat entries show suggestions beside empty measured fields', () => {
     let saves = 0;
     const html = render({
         onSave: () => {
@@ -83,19 +89,19 @@ void test('new stat entries prefill estimates for the raised level without savin
             return Promise.resolve();
         },
     });
-    deepStrictEqual(fieldValues(html), ['36', '24', '24', '24', '24', '24']);
-    strictEqual((html.match(/>Estimate<\/small>/g) ?? []).length, 6);
+    deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
+    strictEqual((html.match(/>Estimate: /g) ?? []).length, 6);
     strictEqual((html.match(/aria-describedby=/g) ?? []).length, 6);
-    match(html, /last two recorded levels in this form/);
-    match(html, /Check them against the game before saving/);
+    match(html, /last two recorded levels/);
+    match(html, /Only values you enter or explicitly copy/);
     strictEqual(saves, 0);
 });
 
-void test('missing latest stats remain blank while supported stats get prefilled', () => {
+void test('missing latest stats stay blank and supported stats receive suggestions only', () => {
     const partial = observations.map((entry) => ({ ...entry, stats: { hp: entry.stats.hp } }));
     const html = render({ observations: partial });
-    deepStrictEqual(fieldValues(html), ['36', '', '', '', '', '']);
-    strictEqual((html.match(/>Estimate<\/small>/g) ?? []).length, 1);
+    deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
+    strictEqual((html.match(/>Estimate: /g) ?? []).length, 1);
 });
 
 void test('short history, new forms and unresolved conflicts leave new entries blank', () => {
@@ -119,9 +125,9 @@ void test('corrections preserve the recorded fields and never fill previously un
 
 void test('prediction guidance and field labels follow the Czech interface language', () => {
     const html = render({ language: 'cs' });
-    match(html, /Předvyplněné hodnoty jsou odhady/);
-    match(html, /Před uložením je ověřte ve hře/);
-    strictEqual((html.match(/>Odhad<\/small>/g) ?? []).length, 6);
+    match(html, /U polí jsou odhady/);
+    match(html, /výslovně zkopírované hodnoty/);
+    strictEqual((html.match(/>Odhad: /g) ?? []).length, 6);
     doesNotMatch(html, /Prefilled|Estimate|Check them against/);
 });
 
@@ -129,7 +135,7 @@ void test('current nature marks newly recorded stats without applying a second s
     const html = render({ pokemon: { ...pokemon, natureId: 15 } });
     match(html, /data-nature-effect="increased"/);
     match(html, /data-nature-effect="decreased"/);
-    deepStrictEqual(fieldValues(html), ['36', '24', '24', '24', '24', '24']);
+    deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
     doesNotMatch(
         render({ pokemon: { ...pokemon, natureId: 15 }, observation: observations[0] }),
         /data-nature-effect/,
@@ -151,7 +157,7 @@ void test('unfinished entries survive remounts without copying values to another
         const html = render();
         match(html, /value="14"/);
         match(html, /value="2026-10-17T12:30"/);
-        deepStrictEqual(fieldValues(html), ['43', '', '28', '28', '28', '28']);
+        deepStrictEqual(fieldValues(html), ['43', '', '', '', '', '']);
         strictEqual(hasObservationDraft(pokemon.id), true);
         deepStrictEqual(getObservationDraft(key), draft);
         const other = { ...pokemon, id: 'another' };
@@ -192,7 +198,7 @@ void test('correction drafts remain separate from a new observation and its esti
             '',
             '',
         ]);
-        deepStrictEqual(fieldValues(render()), ['36', '24', '24', '24', '24', '24']);
+        deepStrictEqual(fieldValues(render()), ['', '', '', '', '', '']);
     } finally {
         clearObservationDraft(key);
     }
@@ -216,13 +222,90 @@ void test('an earlier-form draft can be resumed as history after evolution witho
         };
         const html = render({ pokemon: evolved, draftKey: key });
         deepStrictEqual(fieldValues(html), ['43', '', '', '', '', '']);
-        match(html, /unfinished entry belongs to an earlier form/);
+        match(html, /entry belongs to a different form/);
         match(html, /Save to history/);
         doesNotMatch(html, /data-nature-effect|>Estimate<\/small>/);
         deepStrictEqual(getObservationDraft(key), draft);
     } finally {
         clearObservationDraft(key);
     }
+});
+
+void test('saving measured stats never implicitly includes prediction values', () => {
+    deepStrictEqual(
+        observedStatValues({
+            speciesId: 1,
+            formEpoch: 'stage',
+            level: '13',
+            recordedAt: '2026-10-17T12:00',
+            stats: { hp: '40', speed: '' },
+        }),
+        { hp: 40 },
+    );
+});
+
+void test('historical stages are scoped to this Pokémon and preserve repeated species stages', () => {
+    const previous = { ...observations[0], speciesId: 2, formEpoch: 'old-stage' };
+    const foreign = { ...previous, pokemonId: 'other', formEpoch: 'foreign-stage' };
+    const result = getObservationStages(pokemon, [...observations, previous, foreign]);
+    deepStrictEqual(result, [
+        { speciesId: 1, formEpoch: 'current-form' },
+        { speciesId: 2, formEpoch: 'old-stage' },
+    ]);
+    match(render({ observations: [...observations, previous] }), /value="old-stage"/);
+});
+
+void test('a previous family species without recorded stats gets a separate stable historical stage', () => {
+    const first = getObservationStages(pokemon, [], [{ speciesId: 1 }, { speciesId: 2 }]);
+    const second = getObservationStages(pokemon, [], [{ speciesId: 1 }, { speciesId: 2 }]);
+    deepStrictEqual(first, second);
+    strictEqual(first.length, 2);
+    strictEqual(first[1].speciesId, 2);
+    strictEqual(first[1].formEpoch === pokemon.state.formEpoch, false);
+});
+
+void test('recent history shows the latest three measurements newest first without estimates', () => {
+    const entries = [10, 11, 12, 13].map((level) => ({
+        ...observations[0],
+        id: `recent-${level}`,
+        level,
+        recordedAt: `2026-10-17T${level}:00:00.000Z`,
+    }));
+    const html = renderToStaticMarkup(
+        createElement(
+            LanguageProvider,
+            { initialLanguage: 'en' },
+            createElement(MyPokemonHistory, {
+                pokemon,
+                observations: entries,
+                family: [],
+                recentOnly: true,
+                saveObservation: async () => {},
+            }),
+        ),
+    );
+    deepStrictEqual(
+        [...html.matchAll(/<th scope="row">(\d+)<\/th>/g)].map((entry) => entry[1]),
+        ['13', '12', '11'],
+    );
+    match(html, /Recent observations/);
+    doesNotMatch(html, /Show estimates between observations|Table estimates fill gaps/);
+});
+
+void test('same-level observations offer explicit copying without filling unknown stats', () => {
+    const sameLevel = { ...observations[1], level: 12, stats: { hp: 40, speed: 31 } };
+    const html = render({ observations: [sameLevel] });
+    match(html, /Use last observed values at this level/);
+    deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
+    match(html, /Save &amp; add another/);
+    doesNotMatch(html, /Save &amp; next member/);
+});
+
+void test('comparison deltas omit contradictory or missing stats in tied latest observations', () => {
+    const first = { ...observations[1], stats: { hp: 40, speed: 30, attack: 20 } };
+    const tied = { ...first, id: 'tied', stats: { hp: 40, speed: 31 } };
+    deepStrictEqual(latestObservedComparison([observations[0], first, tied]), { hp: 40 });
+    deepStrictEqual(latestObservedComparison([]), {});
 });
 
 void test('a remounted entry form keeps inputs and save/cancel disabled while its prior save is pending', async () => {

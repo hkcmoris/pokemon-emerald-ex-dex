@@ -6,7 +6,6 @@ import type {
     CollectionConflict,
     CollectionDocument,
     OwnedPokemon,
-    Pokemon,
     SpeciesDetails,
     TypeEffectivenessChart,
 } from '@pokemon-emerald-ex-dex/shared';
@@ -16,6 +15,8 @@ import { BattleTypeMatchups } from './BattleTypeMatchups.js';
 import { getSimulatorParty, SimulatorParty } from './SimulatorParty.js';
 import { getAbilityChoices, getSelectedAbility } from './pokemonTraits.js';
 import { useCollection } from './collectionStore.js';
+import { setOwnedPokemonLevel } from './collectionLevel.js';
+import { SimulatorLevelControls } from './SimulatorLevelControls.js';
 import { getCurrentStats } from './collectionStats.js';
 import { loadCollectionMove, loadCollectionSpecies } from './collectionSpecies.js';
 import { loadCollectionTypeEffectiveness } from './collectionTypeEffectiveness.js';
@@ -32,6 +33,16 @@ import { damageSimulatorHref, ownedPokemonHref } from './navigation.js';
 import { useLanguage } from './language.js';
 import { typeSurfaceStyle } from './theme.js';
 import {
+    attackerFingerprint,
+    emptyEnemySetup,
+    readSimulatorAttacker,
+    readSimulatorOpponent,
+    rememberSimulatorAttacker,
+    rememberSimulatorOpponent,
+    resetSimulatorSession,
+    type EnemySetup,
+} from './simulatorSession.js';
+import {
     readWorkspaceSession,
     rememberWorkspaceSelection,
     type WorkspaceSelection,
@@ -39,12 +50,6 @@ import {
 
 type AttackStat = 'attack' | 'spAttack' | 'defense';
 type EnemyStat = 'hp' | 'defense' | 'spDefense';
-interface EnemySetup {
-    pokemon: Pokemon | null;
-    level: string;
-    picking: boolean;
-    overrides: Record<EnemyStat, string>;
-}
 
 const attackKeys: readonly AttackStat[] = ['attack', 'spAttack', 'defense'];
 const enemyKeys: readonly EnemyStat[] = ['hp', 'defense', 'spDefense'];
@@ -312,13 +317,24 @@ function SimulatorScenario({
         picking: pickingEnemy,
         overrides: enemyOverrides,
     } = enemySetup;
-    const [ownOverrides, setOwnOverrides] = useState<Record<AttackStat, string>>({
-        attack: '',
-        spAttack: '',
-        defense: '',
-    });
-    const [previewIds, setPreviewIds] = useState<number[]>([]);
-    const [moveSearch, setMoveSearch] = useState('');
+    const sessionKey = `${datasetId ?? 'default'}:${pokemon.id}`;
+    const fingerprint = attackerFingerprint(pokemon, recordedStats);
+    const [ownOverrides, setOwnOverrides] = useState<Record<AttackStat, string>>(
+        () => readSimulatorAttacker(sessionKey, fingerprint).overrides,
+    );
+    const [previewIds, setPreviewIds] = useState<number[]>(
+        () => readSimulatorAttacker(sessionKey, fingerprint).previewIds,
+    );
+    const [moveSearch, setMoveSearch] = useState(
+        () => readSimulatorAttacker(sessionKey, fingerprint).search,
+    );
+    useEffect(() => {
+        rememberSimulatorAttacker(sessionKey, fingerprint, {
+            overrides: ownOverrides,
+            previewIds,
+            search: moveSearch,
+        });
+    }, [sessionKey, fingerprint, ownOverrides, previewIds, moveSearch]);
     const parsedEnemyLevel = integerInput(enemyLevel, 100);
     const automatic =
         enemy && parsedEnemyLevel !== undefined
@@ -783,8 +799,8 @@ function SimulatorScenario({
                 </p>
                 <p>
                     {t(
-                        'No changes are saved to your collection. Switching the attacker, form or recorded level keeps the opponent and clears your temporary stats and move previews. Leaving the simulator clears the scenario.',
-                        'Žádné změny se neukládají do sbírky. Změna útočníka, formy nebo zaznamenané úrovně zachová soupeře a vymaže vaše dočasné statistiky a náhledy útoků. Odchod ze simulátoru vymaže scénář.',
+                        'Level changes save to your collection. Opponent settings, stat overrides and move previews are temporary and survive navigation during this browser session. New recorded stats, moves, level or form clear stale attacker overrides. Use Reset scenario to start again.',
+                        'Změny úrovně se ukládají do sbírky. Nastavení soupeře, úpravy statistik a náhledy útoků jsou dočasné a zůstanou při přechodu mezi stránkami v této relaci prohlížeče zachované. Nové statistiky, útoky, úroveň či forma vymažou zastaralé úpravy útočníka. Nový scénář spustíte tlačítkem Obnovit scénář.',
                     )}
                 </p>
             </details>
@@ -831,9 +847,17 @@ export function getDefaultSimulatorPokemonId(
 }
 
 export function DamageSimulatorPage(props: DamageSimulatorProps) {
-    const { document, conflicts, ready } = useCollection();
+    const { document, conflicts, ready, update } = useCollection();
     return (
-        <DamageSimulatorView {...props} document={document} conflicts={conflicts} ready={ready} />
+        <DamageSimulatorView
+            {...props}
+            document={document}
+            conflicts={conflicts}
+            ready={ready}
+            onSaveLevel={(pokemon, level) =>
+                update((current) => setOwnedPokemonLevel(current, pokemon, level))
+            }
+        />
     );
 }
 
@@ -844,22 +868,24 @@ export function DamageSimulatorView({
     document,
     conflicts,
     ready,
+    onSaveLevel,
 }: DamageSimulatorProps & {
     document: CollectionDocument;
     conflicts: readonly CollectionConflict[];
     ready: boolean;
+    onSaveLevel: (pokemon: OwnedPokemon, level: number) => Promise<void>;
 }) {
     const { t } = useLanguage();
     const [workspaceSelection, setWorkspaceSelection] = useState(readWorkspaceSession);
     const pokemonId =
         requestedPokemonId ?? getDefaultSimulatorPokemonId(document, conflicts, workspaceSelection);
     // This state belongs to the simulator page, above the keyed attacker scenario.
-    const [enemySetup, setEnemySetup] = useState<EnemySetup>({
-        pokemon: null,
-        level: '',
-        picking: true,
-        overrides: { hp: '', defense: '', spDefense: '' },
-    });
+    const datasetKey = datasetId ?? 'default';
+    const [enemySetup, setEnemySetup] = useState<EnemySetup>(() =>
+        readSimulatorOpponent(datasetKey),
+    );
+    const [scenarioRevision, setScenarioRevision] = useState(0);
+    useEffect(() => rememberSimulatorOpponent(datasetKey, enemySetup), [datasetKey, enemySetup]);
     const chart = useQuery({
         queryKey: ['collection-type-effectiveness', datasetId],
         queryFn: () => loadCollectionTypeEffectiveness(datasetId!),
@@ -917,7 +943,14 @@ export function DamageSimulatorView({
                 active="simulator"
                 version={version}
                 backHref={missing ? '#/my-pokemon' : ownedPokemonHref(pokemon.id)}
-                backLabel={t('Back to collection', 'Zpět do sbírky')}
+                backLabel={
+                    missing
+                        ? t('Back to collection', 'Zpět do sbírky')
+                        : t(
+                              `Back to ${pokemon.nickname || species.data?.name || 'Pokémon'}`,
+                              `Zpět: ${pokemon.nickname || species.data?.name || 'Pokémon'}`,
+                          )
+                }
             />
             <main className="dex-browse-main my-pokemon-main sim-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
                 <div className="my-page-heading sim-page-heading">
@@ -926,10 +959,21 @@ export function DamageSimulatorView({
                         <h1>{t('Damage simulator', 'Simulátor poškození')}</h1>
                         <p className="my-muted">
                             {t(
-                                'Compare attacks against any opponent. Your saved collection stays untouched.',
-                                'Porovnejte útoky proti libovolnému soupeři. Uložená sbírka zůstane beze změn.',
+                                'Compare attacks against any opponent and update your Pokémon’s level as you play.',
+                                'Porovnejte útoky proti libovolnému soupeři a během hraní aktualizujte úroveň svého Pokémona.',
                             )}
                         </p>
+                        <button
+                            type="button"
+                            className="my-text-button"
+                            onClick={() => {
+                                resetSimulatorSession(datasetKey);
+                                setEnemySetup(emptyEnemySetup());
+                                setScenarioRevision((value) => value + 1);
+                            }}
+                        >
+                            {t('Reset scenario', 'Obnovit scénář')}
+                        </button>
                     </div>
                     {ready && ownOptions.length > 0 && (
                         <label className="filter-label sim-owned-selector">
@@ -1018,34 +1062,42 @@ export function DamageSimulatorView({
                         {t('Loading Pokémon data…', 'Načítání údajů Pokémona…')}
                     </p>
                 ) : (
-                    <SimulatorScenario
-                        key={`${pokemon.id}:${pokemon.state.speciesId}:${pokemon.state.formEpoch}:${pokemon.state.level}`}
-                        pokemon={pokemon}
-                        species={species.data}
-                        recordedStats={recordedStats}
-                        natureId={
-                            conflicts.some(
+                    <>
+                        <SimulatorLevelControls
+                            key={`${pokemon.id}:${pokemon.state.formEpoch}`}
+                            pokemon={pokemon}
+                            species={species.data}
+                            onSave={onSaveLevel}
+                        />
+                        <SimulatorScenario
+                            key={`${pokemon.id}:${attackerFingerprint(pokemon, recordedStats)}:${observationConflict}:${scenarioRevision}`}
+                            pokemon={pokemon}
+                            species={species.data}
+                            recordedStats={recordedStats}
+                            natureId={
+                                conflicts.some(
+                                    (conflict) =>
+                                        conflict.entity === 'pokemon' &&
+                                        conflict.entityId === pokemonId &&
+                                        conflict.field === 'natureId',
+                                )
+                                    ? null
+                                    : pokemon.natureId
+                            }
+                            abilityConflict={conflicts.some(
                                 (conflict) =>
                                     conflict.entity === 'pokemon' &&
                                     conflict.entityId === pokemonId &&
-                                    conflict.field === 'natureId',
-                            )
-                                ? null
-                                : pokemon.natureId
-                        }
-                        abilityConflict={conflicts.some(
-                            (conflict) =>
-                                conflict.entity === 'pokemon' &&
-                                conflict.entityId === pokemonId &&
-                                conflict.field === 'ability',
-                        )}
-                        observationConflict={observationConflict}
-                        datasetId={datasetId}
-                        enemySetup={enemySetup}
-                        setEnemySetup={setEnemySetup}
-                        chart={chart.data}
-                        chartStatus={chart.status}
-                    />
+                                    conflict.field === 'ability',
+                            )}
+                            observationConflict={observationConflict}
+                            datasetId={datasetId}
+                            enemySetup={enemySetup}
+                            setEnemySetup={setEnemySetup}
+                            chart={chart.data}
+                            chartStatus={chart.status}
+                        />
+                    </>
                 )}
                 <DexFooter />
             </main>

@@ -34,12 +34,14 @@ export function MyPokemonMilestones({
     family = [details],
     wishlistPaused = false,
     onUpdate,
+    onRecordEvolution,
 }: {
     pokemon: OwnedPokemon;
     details: SpeciesDetails;
     family?: readonly SpeciesDetails[];
     wishlistPaused?: boolean;
     onUpdate?: (updater: (current: OwnedPokemon) => OwnedPokemon) => Promise<void>;
+    onRecordEvolution?: (speciesId: number) => void;
 }) {
     const { language, t } = useLanguage();
     const hasWishlist = (pokemon.moveWishlist?.moves.length ?? 0) > 0;
@@ -281,6 +283,15 @@ export function MyPokemonMilestones({
                                     aria-hidden="true"
                                 />
                                 <span className="my-milestone-name">{evolution.toName}</span>
+                                {onRecordEvolution && (
+                                    <button
+                                        type="button"
+                                        className="my-text-button"
+                                        onClick={() => onRecordEvolution(evolution.toSpeciesId)}
+                                    >
+                                        {t('Record evolution', 'Zapsat vývoj')}
+                                    </button>
+                                )}
                             </li>
                         );
                     })}

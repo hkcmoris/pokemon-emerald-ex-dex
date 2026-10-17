@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button } from '@heroui/react';
 
 import { readTheme, saveTheme } from './theme.js';
@@ -57,6 +57,13 @@ export function DexHeader({
 }) {
     const { language, setLanguage, t } = useLanguage();
     const headerRef = useRef<HTMLElement>(null);
+    const [compact, setCompact] = useState(false);
+    useEffect(() => {
+        const update = () => setCompact((wasCompact) => window.scrollY > (wasCompact ? 24 : 160));
+        update();
+        window.addEventListener('scroll', update, { passive: true });
+        return () => window.removeEventListener('scroll', update);
+    }, []);
     useLayoutEffect(() => {
         const header = headerRef.current;
         if (!header) return;
@@ -72,7 +79,7 @@ export function DexHeader({
         return () => observer.disconnect();
     }, []);
     return (
-        <header className="dex-header" ref={headerRef}>
+        <header className={`dex-header${compact ? ' dex-header-compact' : ''}`} ref={headerRef}>
             <div className="dex-header-inner">
                 <a className="dex-brand" href="#/" aria-label="Emerald EX Pokédex">
                     <span className="dex-brand-mark" aria-hidden="true">

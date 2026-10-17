@@ -1,0 +1,143 @@
+.my-moves-workspace {
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
+}
+.my-moves-workspace:empty {
+    display: none;
+}
+.my-moves-reorder {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.my-move-slot {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0;
+}
+.my-move-slot > .my-move {
+    width: 100%;
+    min-width: 0;
+}
+.my-move-slot-number {
+    display: none;
+}
+.my-move-slot-actions {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+}
+.my-move-more {
+    position: relative;
+}
+.my-move-more > summary {
+    cursor: pointer;
+    min-width: 32px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dex-muted);
+    list-style: none;
+}
+.my-move-more > button {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 3;
+    white-space: nowrap;
+    background: var(--dex-surface-raised);
+}
+.my-add-move {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 44px;
+    border: 1px dashed var(--dex-border);
+    border-radius: 10px;
+    background: var(--dex-surface);
+    color: var(--dex-text);
+    font: inherit;
+    cursor: pointer;
+}
+.my-add-move > span {
+    color: var(--dex-muted);
+    font-size: 0.8rem;
+}
+.my-move-picker {
+    scroll-margin-top: calc(
+        var(--dex-header-height, 120px) + var(--my-party-roster-height, 0px) + 6rem
+    );
+}
+.my-move-picker h4,
+.my-direct-move-candidates h5 {
+    margin: 0;
+}
+.my-direct-move-candidates {
+    display: grid;
+    gap: 0.7rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 26rem;
+    overflow-y: auto;
+}
+.my-direct-move-candidates h5 {
+    padding: 0.4rem 0;
+    color: var(--dex-text);
+    font-size: 0.8rem;
+}
+.my-direct-move-option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+}
+.my-direct-move-option > .my-move {
+    width: 100%;
+}
+.my-direct-move-candidates .my-muted {
+    margin: 0.2rem 0 0;
+    font-size: 0.75rem;
+}
+.my-move-replacement-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.my-moves-saved {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.85rem;
+}
+@media (min-width: 1100px) {
+    .my-moves-reorder {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+    }
+}
+@media (max-width: 560px) {
+    .my-move-slot {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 0.3rem;
+    }
+    .my-move-slot-number {
+        display: none;
+    }
+    .my-move-slot-actions .page-button {
+        padding-inline: 0.5rem;
+        font-size: 0.75rem;
+    }
+    .my-move-slot .my-move-stats {
+        flex-wrap: wrap;
+    }
+    .my-direct-move-candidates {
+        max-height: 22rem;
+    }
+}

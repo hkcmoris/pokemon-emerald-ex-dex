@@ -95,22 +95,23 @@ void test('owned cards distinguish unknown moves from an intentionally empty mov
     const unknown = render(card());
     match(unknown, /Sprout/);
     match(unknown, /Bulbasaur/);
-    match(unknown, /Not recorded/);
+    match(unknown, /Moves have not been recorded yet/);
     doesNotMatch(unknown, /No moves recorded as known/);
     const empty = render(card({ ...owned, state: { ...owned.state, moves: [] } }));
-    match(empty, /No moves recorded as known/);
+    doesNotMatch(empty, /Moves have not been recorded yet/);
+    match(empty, /Add move/);
     match(empty, /Remove from party/);
     match(empty, /min="1" max="100"/);
 });
 
 void test('recording level and stats is reachable in every card view and keeps explicit save and cancel', () => {
-    for (const view of ['moves', 'stats', 'weaknesses', 'resistances'] as const) {
+    for (const view of ['moves', 'stats', 'history', 'matchups'] as const) {
         const html = render(card(owned, false, true, view, true));
         match(html, /Record battle stats/);
         match(html, /Observed level/);
         match(html, /Save observation/);
         match(html, /Cancel/);
-        match(html, /Older screenshots stay in history without lowering it/);
+        match(html, /Older entries stay in history/);
     }
     match(render(card(owned, false, false, 'stats')), /Record stats/);
 });
@@ -186,9 +187,9 @@ void test('catch-up recap saves nothing automatically and keeps the recap skippa
         }),
     );
     match(html, /Level saved/);
-    match(html, /Skip recap/);
+    match(html, /Done reviewing/);
     match(html, /Vine Whip/);
-    match(html, /Save chosen current moves/);
+    match(html, /Learn \/ replace/);
     doesNotMatch(html, /checked=""/);
     match(html, /If you evolved during it, check the timing/);
     strictEqual(saves, 0);
@@ -302,7 +303,7 @@ void test('conflicts show readable alternatives, retain removal choices and hide
 void test('collection UI translates its user actions in Czech', () => {
     const html = render(card(), 'cs');
     match(html, /Aktuální útoky/);
-    match(html, /Nezaznamenány/);
+    match(html, /Útoky zatím nejsou zaznamenány/);
     match(html, /Zapsat vývoj \/ formu/);
     match(html, /Odebrat z týmu/);
     doesNotMatch(html, /Remove from party|Record evolution/);
@@ -473,7 +474,7 @@ void test('summary cards link to the owned Pokémon and reserve extended control
     match(summary, /Open details for Sprout/);
     match(summary, /Current moves|Coming up/);
     match(summary, /aria-label="Increase level"/);
-    match(summary, />Edit<\/button>/);
+    match(summary, /Add move/);
     doesNotMatch(
         summary,
         /Details, evolution|Record evolution|Release from collection|Remove from party|Nickname/,
@@ -481,7 +482,7 @@ void test('summary cards link to the owned Pokémon and reserve extended control
 
     const detail = render(card());
     doesNotMatch(detail, /class="my-card-detail-link"/);
-    match(detail, /my-pokemon-details" open=""/);
+    doesNotMatch(detail, /my-pokemon-details" open=""/);
     match(detail, /Record evolution|Release from collection|Remove from party/);
 });
 
@@ -506,8 +507,8 @@ void test('global card view selector exposes all four views and controls the sha
         toggle,
         /<button(?=[^>]*aria-pressed="true")(?=[^>]*aria-label="Stats progression")[^>]*>/,
     );
-    match(toggle, /aria-label="Weaknesses"/);
-    match(toggle, /aria-label="Resistances &amp; immunities"/);
+    match(toggle, /aria-label="Growth history"/);
+    match(toggle, /aria-label="Type matchups"/);
     const panelIds = [...toggle.matchAll(/aria-controls="([^"]+)"/g)].map((entry) => entry[1]);
     strictEqual(panelIds.length, 4);
     strictEqual(
@@ -515,31 +516,27 @@ void test('global card view selector exposes all four views and controls the sha
         true,
     );
     const czech = render(selector, 'cs');
-    match(czech, /aria-label="Slabiny"/);
-    match(czech, /aria-label="Odolnosti a imunity"/);
+    match(czech, /aria-label="Historie růstu"/);
+    match(czech, /aria-label="Typové vztahy"/);
 });
 
 void test('summary and detail cards render the selected global view without their own selector', () => {
     for (const detail of [false, true]) {
         const moves = render(card(owned, false, detail, 'moves'));
-        match(moves, /class="my-current-moves">/);
+        match(moves, /Current move order/);
         doesNotMatch(moves, /my-stat-view-toggle|my-stat-graph-panel|my-type-defenses/);
 
         const stats = render(card(owned, false, detail, 'stats'));
-        match(stats, /class="my-current-moves" hidden=""/);
+        doesNotMatch(stats, /Current move order/);
         match(stats, /No battle stats recorded/);
         doesNotMatch(stats, /my-stat-view-toggle|my-type-defenses/);
 
-        for (const view of ['weaknesses', 'resistances'] as const) {
-            const defenses = render(card(owned, false, detail, view));
-            match(defenses, /class="my-current-moves" hidden=""/);
-            match(
-                defenses,
-                view === 'weaknesses'
-                    ? /class="my-type-defenses" aria-label="Weaknesses"/
-                    : /class="my-type-defenses" aria-label="Resistances &amp; immunities"/,
-            );
-            doesNotMatch(defenses, /my-stat-view-toggle|my-stat-graph-panel/);
-        }
+        const defenses = render(card(owned, false, detail, 'matchups'));
+        match(defenses, /class="my-type-defenses" aria-label="Weaknesses"/);
+        match(defenses, /class="my-type-defenses" aria-label="Resistances &amp; immunities"/);
+        doesNotMatch(defenses, /my-stat-view-toggle|my-stat-graph-panel/);
+        const history = render(card(owned, false, detail, 'history'));
+        match(history, /Growth history/);
+        doesNotMatch(history, /my-stat-graph-panel|my-type-defenses/);
     }
 });

@@ -174,6 +174,7 @@ function render(
                         document: options.document ?? collection(),
                         conflicts: options.conflicts ?? [],
                         ready: options.ready ?? true,
+                        onSaveLevel: () => Promise.resolve(),
                     }),
                 ),
             ),
@@ -203,6 +204,24 @@ function input(html: string, label: string): string {
         )?.[0] ?? ''
     );
 }
+
+void test('simulator exposes saved level controls with a one-click increase and caps leveling at 100', () => {
+    const html = render();
+    match(html, /aria-label="Saved Pokémon level"/);
+    match(input(html, 'Level'), /value="17"/);
+    match(html, /Level up \+1/);
+    match(html, /Level changes save to your collection/);
+    match(html, /older measurements stay in history/);
+    doesNotMatch(
+        html,
+        /Your saved collection stays untouched|No changes are saved to your collection/,
+    );
+    const maximum = render({
+        document: collection({ ...pokemon, state: { ...pokemon.state, level: 100 } }),
+    });
+    match(maximum, /<button[^>]*disabled=""[^>]*>Level up \+1<\/button>/);
+    match(maximum, /aria-label="Increase level"[^>]*disabled=""/);
+});
 
 void test('the preview catalogue includes future current-form and HM moves, with clear acquisition labels', () => {
     const html = render();
@@ -297,6 +316,7 @@ void test('ownership conflicts block simulation, while observation conflicts req
         });
         match(html, /Resolve this Pokémon’s collection conflict before simulating/);
         doesNotMatch(html, /Clauncher standard back sprite|Attacking stats|Current moves/);
+        doesNotMatch(html, /Saved Pokémon level|Level up \+1/);
     }
 
     for (const conflict of [
@@ -355,7 +375,8 @@ void test('Czech simulator labels explain future moves, temporary inputs and omi
     match(html, /Zaznamenaný \/ zděděný/);
     match(html, /Základní síla/);
     match(html, /Pouze dočasně/);
-    match(html, /Žádné změny se neukládají do sbírky/);
+    match(html, /Změny úrovně se ukládají do sbírky/);
+    match(html, /Zvýšit úroveň \+1/);
     match(
         html,
         /Schopnosti, držené předměty, počasí, kritické zásahy, stavové podmínky a změny statistik nejsou zahrnuté/,

@@ -13,6 +13,9 @@ import { useLanguage } from './language.js';
 import { statName } from './MyPokemonHistory.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { useHasObservationDraft } from './observationDrafts.js';
+import { ReorderList } from './ReorderList.js';
+import { useHasMoveChoice } from './moveChoices.js';
+import { useLevelReview } from './levelingSession.js';
 
 function hasStateConflict(
     pokemon: OwnedPokemon,
@@ -37,6 +40,8 @@ function PartyMemberName({
 }) {
     const { t } = useLanguage();
     const hasDraft = useHasObservationDraft(pokemon.id);
+    const hasMoveChoice = useHasMoveChoice(pokemon.id);
+    const levelReview = useLevelReview(pokemon);
     const species = useQuery({
         queryKey: ['collection-species', pokemon.state.speciesId],
         queryFn: () => loadCollectionSpecies(pokemon.state.speciesId),
@@ -70,6 +75,14 @@ function PartyMemberName({
                         {t('Unfinished stats', 'Rozepsané statistiky')}
                     </span>
                 )}
+                {(hasMoveChoice || levelReview) && (
+                    <span
+                        className="my-party-member-pending"
+                        title={t('Pending decisions', 'Nevyřízená rozhodnutí')}
+                    >
+                        {t('Pending decisions', 'Nevyřízená rozhodnutí')}
+                    </span>
+                )}
             </span>
         </>
     );
@@ -82,6 +95,8 @@ export function PartyRoster({
     datasetId,
     onSelect,
     onOverview,
+    onReorder,
+    orderDisabled = false,
 }: {
     party: readonly OwnedPokemon[];
     selectedPokemonId?: string;
@@ -89,10 +104,11 @@ export function PartyRoster({
     datasetId?: string;
     onSelect: (pokemon: OwnedPokemon) => void;
     onOverview: () => void;
+    onReorder?: (ids: string[]) => Promise<void>;
+    orderDisabled?: boolean;
 }) {
     const { t } = useLanguage();
     const rosterRef = useRef<HTMLElement>(null);
-    const listRef = useRef<HTMLOListElement>(null);
     useLayoutEffect(() => {
         const roster = rosterRef.current;
         const workspace = roster?.closest<HTMLElement>('.my-pokemon-workspace');
@@ -109,7 +125,7 @@ export function PartyRoster({
         return () => observer.disconnect();
     }, []);
     useLayoutEffect(() => {
-        const list = listRef.current;
+        const list = rosterRef.current?.querySelector<HTMLElement>('.my-party-roster-list');
         const selected = list?.querySelector<HTMLElement>('[aria-current="true"]');
         if (!list || !selected) return;
         const bounds = selected.getBoundingClientRect();
@@ -135,9 +151,18 @@ export function PartyRoster({
                     {t('No active party members yet.', 'Tým zatím nemá žádné členy.')}
                 </p>
             ) : (
-                <ol className="my-party-roster-list" ref={listRef}>
-                    {party.map((pokemon) => (
-                        <li key={pokemon.id}>
+                <ReorderList
+                    items={party.map((pokemon) => ({
+                        id: pokemon.id,
+                        label: pokemon.nickname || `#${pokemon.state.speciesId}`,
+                        pokemon,
+                    }))}
+                    label={t('Party order', 'Pořadí týmu')}
+                    className="my-party-roster-list"
+                    disabled={orderDisabled || !onReorder}
+                    onReorder={onReorder ?? (async () => {})}
+                    renderItem={({ pokemon }, controls) => (
+                        <div className="my-party-member-row">
                             <a
                                 className="my-party-member"
                                 href={`#/my-pokemon/${encodeURIComponent(pokemon.id)}`}
@@ -150,9 +175,10 @@ export function PartyRoster({
                                     datasetId={datasetId}
                                 />
                             </a>
-                        </li>
-                    ))}
-                </ol>
+                            {onReorder && controls}
+                        </div>
+                    )}
+                />
             )}
         </nav>
     );
@@ -164,12 +190,14 @@ export function PartyOverview({
     conflicts,
     datasetId,
     onSelect,
+    onRecord,
 }: {
     party: readonly OwnedPokemon[];
     document: CollectionDocument;
     conflicts: readonly CollectionConflict[];
     datasetId?: string;
     onSelect: (pokemon: OwnedPokemon) => void;
+    onRecord?: (pokemon: OwnedPokemon) => void;
 }) {
     const { t } = useLanguage();
     const observations = Object.values(document.observations);
@@ -200,6 +228,11 @@ export function PartyOverview({
                                     {statName(stat, t)}
                                 </th>
                             ))}
+                            {onRecord && (
+                                <th scope="col">
+                                    <span className="sr-only">{t('Actions', 'Akce')}</span>
+                                </th>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
@@ -233,6 +266,18 @@ export function PartyOverview({
                                     {statKeys.map((stat) => (
                                         <td key={stat}>{stats[stat] ?? '—'}</td>
                                     ))}
+                                    {onRecord && (
+                                        <td>
+                                            <button
+                                                className="page-button"
+                                                type="button"
+                                                disabled={uncertain}
+                                                onClick={() => onRecord(pokemon)}
+                                            >
+                                                {t('Record stats', 'Zapsat statistiky')}
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             );
                         })}

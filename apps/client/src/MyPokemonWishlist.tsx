@@ -59,11 +59,13 @@ export function MyPokemonWishlist({
     family,
     paused = false,
     onUpdate,
+    onLearnMove,
 }: {
     pokemon: OwnedPokemon;
     family: readonly SpeciesDetails[];
     paused?: boolean;
     onUpdate: (updater: (current: OwnedPokemon) => OwnedPokemon) => Promise<void>;
+    onLearnMove?: (move: KnownMove) => void;
 }) {
     const { t, language } = useLanguage();
     const id = useId();
@@ -272,6 +274,22 @@ export function MyPokemonWishlist({
                                                 showStats
                                             />
                                             <span className="my-wishlist-status">{label}</span>
+                                            {onLearnMove &&
+                                                !pokemon.state.moves?.some(
+                                                    (known) => known.moveId === move.moveId,
+                                                ) && (
+                                                    <button
+                                                        type="button"
+                                                        className="page-button"
+                                                        disabled={busy}
+                                                        onClick={() => onLearnMove(move)}
+                                                    >
+                                                        {t(
+                                                            'Learn / Replace…',
+                                                            'Naučit / Nahradit…',
+                                                        )}
+                                                    </button>
+                                                )}
                                             <button
                                                 type="button"
                                                 className="my-text-button"
@@ -362,6 +380,27 @@ export function MyPokemonWishlist({
                                                             {step.source.requirement}
                                                         </p>
                                                     )}
+                                                    {onLearnMove &&
+                                                        !pokemon.state.moves?.some(
+                                                            (known) => known.moveId === step.moveId,
+                                                        ) && (
+                                                            <button
+                                                                type="button"
+                                                                className="page-button"
+                                                                disabled={busy}
+                                                                onClick={() =>
+                                                                    onLearnMove({
+                                                                        moveId: step.moveId,
+                                                                        name: step.name,
+                                                                    })
+                                                                }
+                                                            >
+                                                                {t(
+                                                                    'Learn / Replace…',
+                                                                    'Naučit / Nahradit…',
+                                                                )}
+                                                            </button>
+                                                        )}
                                                 </>
                                             ) : (
                                                 <>

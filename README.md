@@ -184,7 +184,7 @@ damaging categories; status moves are excluded. Reduced-motion preferences keep 
 Unused move slots have dashed borders and 45° stripes, keeping the move grid the same
 height for zero to four moves. Unrecorded moves retain an explicit unknown label.
 A shared four-button selector switches all party and collection cards between current
-moves, the recorded stat graph, weaknesses, and resistances/immunities. The selector
+**Moves**, **Stats**, **History**, and **Matchups** (weaknesses and resistances together). The selector
 and **Record stats** stay pinned below the header (and mobile party strip), so they
 remain available while scrolling through a member's details. The selected view stays
 the same when switching between members, party, and collection. Each view grows
@@ -208,37 +208,52 @@ Type names remain available
 when icons are missing; saved move names remain visible when reference data is
 unavailable offline.
 
-**Record stats** opens the entry form from any view. Unfinished entries remain available
-when switching members, views, or visiting the simulator during the same app session;
-a draft badge identifies members with work in progress. Drafts are not synced or retained
-after a reload. Cancel explicitly discards an entry. If a Pokémon evolves before an entry
-is finished, the earlier-form draft can be resumed as history or discarded.
-Saving a new observation above the current level also advances the Pokémon's level in
-the same save. Older screenshots remain in history without lowering the current level.
-Corrections and observations from earlier form stages never change the current level.
+**Record stats** opens the entry form from any view. **Save & next member** saves and opens
+entry for the next party member; **Save & add another** keeps recording the same member,
+including repeated measurements at the same level. **Use last observed values** explicitly
+copies unambiguous values for the selected form and level; changed stats show their deltas.
+Predictions from two earlier levels appear as suggestions beside empty inputs and never
+become measured values unless entered by the user. Unknown values remain blank.
 
-Levels, moves, and evolutions can also be updated manually. Edit the level in the card
-header by typing or using the up/down arrows. A save button appears to its left
-only when the level changes. Saving an increase offers a skippable recap; select
-learned moves explicitly. **Record stats** in the recap opens the shared stat-entry
-form with the current level filled in, on both collection cards and the detail page.
-Evolution opportunities in the recap show the target sprite and DNA icon. Check
-the evolution that happened and choose **Save changes** to record it together with
-any edited moves. Only one evolution branch can be selected; nothing is recorded
-by merely reaching its required level. Evolution starts a new form stage while
-earlier stat observations retain their original form and untouched moves stay as recorded.
-When the current form has observations at two earlier levels, the new-stat form
-prefills each supported stat by extending its growth between the two latest recorded
-levels, rounded to a whole number. These values are labeled **Estimate** and must be
-checked against the game before saving. Missing or conflicting readings, decreasing
-stats, evolution/form changes, and unresolved sync conflicts do not produce predictions.
-Editing or clearing a field keeps that choice even if the observed level changes;
-only untouched estimates recalculate. Corrections retain their original recorded values.
-Predictions are available from both the level-up recap and **Growth history** and are
-not added to the history or graph until the form is submitted.
-Saving or cancelling stat entry leaves the recap open. Unrecorded moves mean unknown,
-not an empty moveset. Recording an evolution or form change
-preserves the Pokémon's identity, existing moves, and previous stat observations.
+Unfinished observations and move choices are stored on this device and survive navigation
+and reloads. A roster badge identifies unfinished stats and pending decisions. Cancel
+explicitly discards a normal entry. Drafts are separate from saved history and do not sync.
+Use **Observed form** for an earlier evolution stage when transcribing older screenshots;
+this does not change the current species or lower its level. Saving a new current-form
+observation above the current level advances the level in the same save. Corrections and
+historical-stage observations never advance the current level.
+
+**Record from screenshots** opens a queue for the playthrough. Import or paste images,
+assign each to a member, and transcribe it beside the entry form. Each item retains its own
+form, level, timestamp, and draft. Saving advances to the next image without assuming a
+level-up. Completed screenshots stay in a local archive; images are not uploaded or synced.
+Stable observation identities make retrying a queue save safe if archiving was interrupted.
+
+Party members and current moves have dedicated drag handles. Drag to reorder, use the
+position selector, or focus a handle and press Space, arrow keys, then Enter; Escape cancels.
+The order saves on drop with Undo and Retry. Selection stays on the same member. Undo
+changes only the order, preserving newly recorded stats. On mobile, dragging the handle
+reorders while the rest of the party strip remains scrollable.
+
+Each move slot has **Replace**; **Add move** fills a free slot. Choosing the candidate saves
+immediately with Undo. Candidates prioritize newly reached and wanted moves and label
+future levels, other forms, and machine requirements. Wishlist and level-up prompts can
+learn a move directly: one action with a free slot, or choose the slot to replace when full.
+Move choices survive switching members and reloads; stale choices require review before saving.
+
+Levels and evolutions can also be updated manually. Actionable level-up decisions remain
+attached to the member until **Done reviewing**, including after navigation and reloads.
+A level increase without opportunities gets a short saved confirmation. Record an evolution
+from **Coming up**, the recap, or **Pokémon details**, then confirm what happened in-game.
+Earlier observations retain their original form and current moves stay unchanged.
+Long evolution comparisons and metadata are collapsed; Stats shows measured values, deltas,
+the chart and recent correctable observations, with full history one tab away.
+The overview provides quick recording actions without duplicating full cards.
+On phones, branding collapses while scrolling and the roster compacts further during entry.
+Workspace tabs, scroll position, simulator opponent settings and move previews survive
+navigation during the current browser session. New measured attacker data invalidates stale
+simulator overrides; **Reset scenario** clears the working scenario explicitly.
+
 Partial stat observations retain their measurement time, level, and species/form.
 The measurement date field fits the form width on mobile, including iOS, while retaining
 the native date and time picker.

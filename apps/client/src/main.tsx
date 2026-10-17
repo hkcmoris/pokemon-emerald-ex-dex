@@ -14,6 +14,10 @@ import './MoveAffinity.css';
 import './damageSimulator.css';
 import './pokemonTraits.css';
 import './myPokemonWorkspace.css';
+import './reorderList.css';
+import './myPokemonMovesWorkspace.css';
+import './screenshotQueue.css';
+import './levelingWorkspace.css';
 
 applyTheme(readTheme());
 registerCollectionOffline();

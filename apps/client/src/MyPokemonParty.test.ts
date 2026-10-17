@@ -19,6 +19,7 @@ import {
     observationDraftKey,
     setObservationDraft,
 } from './observationDrafts.js';
+import { rememberLevelReview, clearLevelReview } from './levelingSession.js';
 
 const owned: OwnedPokemon = {
     id: 'torchic',
@@ -158,4 +159,27 @@ void test('party overview shows no older-level or older-form measurements in the
     match(html, /Přehled týmu/);
     match(html, /Spec\. útok/);
     doesNotMatch(html, /Party overview|<td>38<\/td>/);
+});
+
+void test('the roster marks unfinished level decisions on their own member', () => {
+    rememberLevelReview(owned.id, {
+        speciesId: owned.state.speciesId,
+        formEpoch: owned.state.formEpoch,
+        oldLevel: 10,
+        newLevel: 12,
+    });
+    try {
+        const html = render(
+            createElement(PartyRoster, {
+                party: [owned, other],
+                conflicts: [],
+                onSelect: () => {},
+                onOverview: () => {},
+            }),
+        );
+        strictEqual((html.match(/class="my-party-member-pending"/g) ?? []).length, 1);
+        match(html, /Pending decisions/);
+    } finally {
+        clearLevelReview(owned.id);
+    }
 });

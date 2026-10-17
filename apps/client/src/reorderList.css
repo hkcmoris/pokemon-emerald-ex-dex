@@ -1,0 +1,72 @@
+.reorder-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.reorder-list > li {
+    position: relative;
+}
+.reorder-list > li[data-dragging='true'] {
+    outline: 2px solid var(--dex-accent);
+    outline-offset: -2px;
+    border-radius: 10px;
+    opacity: 0.8;
+}
+.reorder-controls {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.reorder-handle {
+    width: 32px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dex-muted);
+    cursor: grab;
+    touch-action: none;
+    border-radius: 6px;
+}
+.reorder-handle:active {
+    cursor: grabbing;
+}
+.reorder-handle:hover {
+    color: var(--dex-text);
+    background: var(--dex-surface-raised);
+}
+.reorder-handle svg {
+    width: 14px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+.reorder-position {
+    width: 35px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: var(--dex-muted);
+    background: var(--dex-surface);
+}
+.reorder-handle:disabled,
+.reorder-position:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+.reorder-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+}
+.reorder-feedback:empty {
+    display: none;
+}
+.reorder-feedback > span:empty {
+    display: none;
+}

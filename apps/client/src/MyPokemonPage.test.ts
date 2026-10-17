@@ -6,7 +6,8 @@ import {
     type OwnedPokemon,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { getVisitedWorkspaceSelection } from './MyPokemonPage.js';
+import { getVisitedWorkspaceSelection, reorderParty } from './MyPokemonPage.js';
+import { throws } from 'node:assert/strict';
 
 const partyMember: OwnedPokemon = {
     id: 'party-member',
@@ -83,4 +84,42 @@ void test('removing a selected member from the party preserves its collection se
         pokemonId: partyMember.id,
         view: 'collection',
     });
+});
+
+void test('reordering a party keeps member identity and unrelated run fields intact', () => {
+    const source = {
+        ...document,
+        playthroughs: {
+            ...document.playthroughs,
+            'second-run': {
+                ...document.playthroughs['second-run'],
+                party: [partyMember.id, boxedMember.id],
+            },
+        },
+    };
+    const result = reorderParty(
+        source,
+        'second-run',
+        [partyMember.id, boxedMember.id],
+        [boxedMember.id, partyMember.id],
+    );
+    deepStrictEqual(result.playthroughs['second-run'].party, [boxedMember.id, partyMember.id]);
+    strictEqual(result.pokemon, source.pokemon);
+    strictEqual(result.playthroughs['second-run'].name, 'Second');
+    throws(() =>
+        reorderParty(
+            result,
+            'second-run',
+            [partyMember.id, boxedMember.id],
+            [boxedMember.id, partyMember.id],
+        ),
+    );
+    throws(() =>
+        reorderParty(
+            source,
+            'second-run',
+            [partyMember.id, boxedMember.id],
+            [partyMember.id, partyMember.id],
+        ),
+    );
 });

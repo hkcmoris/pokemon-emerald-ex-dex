@@ -10,7 +10,7 @@ import {
 
 import { useLanguage, type Translate } from './language.js';
 import { NatureStat } from './NatureStat.js';
-import { predictStats } from './collectionStats.js';
+import { getCurrentStats, predictStats } from './collectionStats.js';
 import {
     clearObservationDraft,
     getObservationDraft,
@@ -19,6 +19,7 @@ import {
     setObservationDraft,
     useObservationDraftSaveCount,
     useObservationDraftSaving,
+    useObservationDraftStorageError,
     type ObservationDraft,
 } from './observationDrafts.js';
 
@@ -45,7 +46,56 @@ export function statName(key: keyof BaseStats, t: Translate): string {
 
 function localDateTime(iso: string): string {
     const date = new Date(iso);
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 19);
+}
+
+export type ObservationSaveIntent = 'save' | 'another' | 'next-member';
+
+export function getObservationStages(
+    pokemon: OwnedPokemon,
+    observations: readonly StatObservation[],
+    family: readonly Pick<SpeciesDetails, 'speciesId'>[] = [],
+): { speciesId: number; formEpoch: string }[] {
+    const stages = new Map<string, { speciesId: number; formEpoch: string }>();
+    for (const entry of observations) {
+        if (entry.pokemonId === pokemon.id && !entry.deleted)
+            stages.set(entry.formEpoch, { speciesId: entry.speciesId, formEpoch: entry.formEpoch });
+    }
+    stages.set(pokemon.state.formEpoch, {
+        speciesId: pokemon.state.speciesId,
+        formEpoch: pokemon.state.formEpoch,
+    });
+    for (const species of family) {
+        if (![...stages.values()].some((stage) => stage.speciesId === species.speciesId))
+            stages.set(`historical:${pokemon.id}:${species.speciesId}`, {
+                speciesId: species.speciesId,
+                formEpoch: `historical:${pokemon.id}:${species.speciesId}`,
+            });
+    }
+    return [...stages.values()];
+}
+
+export function observedStatValues(draft: ObservationDraft): Partial<BaseStats> {
+    const measured: Partial<BaseStats> = {};
+    for (const key of statKeys) {
+        const value = draft.stats[key];
+        if (value !== undefined && value !== '') measured[key] = Number(value);
+    }
+    return measured;
+}
+
+export function latestObservedComparison(
+    observations: readonly StatObservation[],
+): Partial<BaseStats> {
+    const latest = Math.max(...observations.map((entry) => Date.parse(entry.recordedAt)));
+    const tied = observations.filter((entry) => Date.parse(entry.recordedAt) === latest);
+    const result: Partial<BaseStats> = {};
+    for (const key of statKeys) {
+        const value = tied[0]?.stats[key];
+        if (value !== undefined && tied.every((entry) => entry.stats[key] === value))
+            result[key] = value;
+    }
+    return result;
 }
 
 export function ObservationForm({
@@ -55,6 +105,12 @@ export function ObservationForm({
     predictionsEnabled = true,
     natureId = pokemon.natureId,
     draftKey: selectedDraftKey,
+    family = [],
+    allowNextMember = false,
+    newObservationId,
+    onSaved,
+    cancelLabel,
+    preserveDraftOnCancel = false,
     onSave,
     onCancel,
 }: {
@@ -64,7 +120,13 @@ export function ObservationForm({
     predictionsEnabled?: boolean;
     natureId?: number | null;
     draftKey?: string;
-    onSave: (value: StatObservation) => Promise<void>;
+    family?: readonly SpeciesDetails[];
+    allowNextMember?: boolean;
+    newObservationId?: string;
+    onSaved?: (intent: ObservationSaveIntent) => void;
+    cancelLabel?: string;
+    preserveDraftOnCancel?: boolean;
+    onSave: (value: StatObservation, intent: ObservationSaveIntent) => Promise<void>;
     onCancel: () => void;
 }) {
     const { t } = useLanguage();
@@ -86,6 +148,33 @@ export function ObservationForm({
             },
     );
     const { level, recordedAt, stats } = draft;
+    const formRef = useRef<HTMLFormElement>(null);
+    useEffect(() => {
+        let secondFrame = 0;
+        const firstFrame = window.requestAnimationFrame(() => {
+            secondFrame = window.requestAnimationFrame(() => {
+                const form = formRef.current;
+                if (!form) return;
+                const toolbar = form
+                    .closest('.my-pokemon-workspace')
+                    ?.querySelector('.my-workspace-toolbar');
+                const visibleTop = (toolbar?.getBoundingClientRect().bottom ?? 0) + 12;
+                const top = form.getBoundingClientRect().top;
+                if (toolbar && Math.abs(top - visibleTop) > 32)
+                    window.scrollBy({ top: top - visibleTop, behavior: 'auto' });
+            });
+        });
+        return () => {
+            window.cancelAnimationFrame(firstFrame);
+            window.cancelAnimationFrame(secondFrame);
+        };
+    }, []);
+    const saveIntent = useRef<ObservationSaveIntent>('save');
+    const ownSave = useRef(false);
+    const storageError = useObservationDraftStorageError();
+    const stages = getObservationStages(pokemon, observations, family);
+    if (!stages.some((stage) => stage.formEpoch === draft.formEpoch))
+        stages.push({ speciesId: draft.speciesId, formEpoch: draft.formEpoch });
     const currentForm =
         draft.speciesId === pokemon.state.speciesId && draft.formEpoch === pokemon.state.formEpoch;
     function changeDraft(next: ObservationDraft) {
@@ -99,12 +188,31 @@ export function ObservationForm({
         !observation && currentForm && predictionsEnabled
             ? predictStats(pokemon, observations, Number(level))
             : {};
-    const isPredicted = (key: keyof BaseStats): boolean =>
-        stats[key] === undefined && predictions[key] !== undefined;
-    const hasPredictions = statKeys.some(isPredicted);
-    // Explicit edits, including clearing a field, always win over changing predictions.
-    const statValue = (key: keyof BaseStats): string =>
-        stats[key] ?? (predictions[key] === undefined ? '' : String(predictions[key]));
+    const hasPredictions = statKeys.some((key) => predictions[key] !== undefined);
+    const sameLevelStats = getCurrentStats(
+        {
+            ...pokemon,
+            state: {
+                ...pokemon.state,
+                speciesId: draft.speciesId,
+                formEpoch: draft.formEpoch,
+                level: Number(level),
+            },
+        },
+        observations.filter((entry) => entry.id !== observation?.id),
+    );
+    const comparison = latestObservedComparison(
+        observations.filter(
+            (entry) =>
+                !entry.deleted &&
+                entry.pokemonId === pokemon.id &&
+                entry.formEpoch === draft.formEpoch &&
+                entry.speciesId === draft.speciesId &&
+                entry.id !== observation?.id &&
+                entry.level <= Number(level) &&
+                Date.parse(entry.recordedAt) <= new Date(recordedAt).getTime(),
+        ),
+    );
     const busy = useObservationDraftSaving(draftKey);
     const completedSaves = useObservationDraftSaveCount(draftKey);
     const initialCompletedSaves = useRef(completedSaves);
@@ -112,18 +220,15 @@ export function ObservationForm({
         if (completedSaves !== initialCompletedSaves.current) {
             initialCompletedSaves.current = completedSaves;
             // Also close a replacement editor mounted while the original save was pending.
-            onCancel();
+            if (ownSave.current) ownSave.current = false;
+            else onCancel();
         }
     }, [completedSaves, onCancel]);
     const [error, setError] = useState<string | null>(null);
     async function submit(event: SubmitEvent) {
         event.preventDefault();
         if (busy) return;
-        const measured: Partial<BaseStats> = {};
-        for (const key of statKeys) {
-            const value = statValue(key);
-            if (value !== '') measured[key] = Number(value);
-        }
+        const measured = observedStatValues(draft);
         if (Object.keys(measured).length === 0) {
             setError(
                 t(
@@ -134,20 +239,44 @@ export function ObservationForm({
             return;
         }
         setError(null);
+        const intent = observation ? 'save' : saveIntent.current;
+        saveIntent.current = 'save';
+        ownSave.current = true;
         try {
-            await runObservationDraftSave(draftKey, () =>
-                onSave({
-                    id: observation?.id ?? crypto.randomUUID(),
-                    pokemonId: pokemon.id,
+            const saved = await runObservationDraftSave(draftKey, () =>
+                onSave(
+                    {
+                        id: observation?.id ?? newObservationId ?? crypto.randomUUID(),
+                        pokemonId: pokemon.id,
+                        speciesId: draft.speciesId,
+                        formEpoch: draft.formEpoch,
+                        level: Number(level),
+                        recordedAt: new Date(recordedAt).toISOString(),
+                        stats: measured,
+                        deleted: false,
+                    },
+                    intent,
+                ),
+            );
+            if (!saved) ownSave.current = false;
+            if (saved && intent === 'another') {
+                const next: ObservationDraft = {
                     speciesId: draft.speciesId,
                     formEpoch: draft.formEpoch,
-                    level: Number(level),
-                    recordedAt: new Date(recordedAt).toISOString(),
-                    stats: measured,
-                    deleted: false,
-                }),
-            );
+                    level: draft.level,
+                    recordedAt: localDateTime(new Date().toISOString()),
+                    stats: {},
+                };
+                changeDraft(next);
+                window.requestAnimationFrame(() =>
+                    formRef.current
+                        ?.querySelector<HTMLInputElement>('[data-observed-stat]')
+                        ?.focus(),
+                );
+            }
+            if (saved) onSaved?.(intent);
         } catch {
+            ownSave.current = false;
             setError(
                 t(
                     'Could not save this observation. Try again.',
@@ -159,7 +288,15 @@ export function ObservationForm({
     return (
         <form
             className="my-inset my-stack"
+            ref={formRef}
             data-stat-observation-form
+            onKeyDown={(event) => {
+                if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                    event.preventDefault();
+                    saveIntent.current = 'save';
+                    formRef.current?.requestSubmit();
+                }
+            }}
             onSubmit={(event) => {
                 void submit(event);
             }}
@@ -179,24 +316,51 @@ export function ObservationForm({
                 <p className="my-muted">
                     {!currentForm
                         ? t(
-                              'This unfinished entry belongs to an earlier form. Saving adds it to history and keeps the current species and level unchanged.',
-                              'Rozepsaný záznam patří k dřívější formě. Uloží se do historie. Aktuální druh ani úroveň se nezmění.',
+                              'This entry belongs to a different form. Saving adds it to history and keeps the current species and level unchanged.',
+                              'Záznam patří k jiné formě. Uloží se do historie. Aktuální druh ani úroveň se nezmění.',
                           )
                         : t(
-                              'Saving a higher level also updates this Pokémon’s current level. Older screenshots stay in history without lowering it. Unfinished entries stay available while you switch Pokémon or views.',
-                              'Vyšší zapsaná úroveň aktualizuje i aktuální úroveň Pokémona. Starší snímky zůstanou v historii a úroveň nesníží. Rozepsané údaje zůstanou zachované při přepnutí Pokémona nebo zobrazení.',
+                              'Higher levels update the current level. Older entries stay in history. Drafts are saved on this device, including after reloading.',
+                              'Vyšší úroveň aktualizuje aktuální úroveň. Starší záznamy zůstanou v historii. Rozepsané údaje se ukládají v tomto zařízení i po obnovení stránky.',
                           )}
                 </p>
             )}
             {hasPredictions && (
                 <p className="my-muted" id={predictionHintId}>
                     {t(
-                        'Prefilled values are estimates from your last two recorded levels in this form. Check them against the game before saving.',
-                        'Předvyplněné hodnoty jsou odhady ze dvou posledních zaznamenaných úrovní této formy. Před uložením je ověřte ve hře.',
+                        'Estimates from the last two recorded levels are shown beside the fields. Only values you enter or explicitly copy are saved as observed.',
+                        'U polí jsou odhady ze dvou posledních zaznamenaných úrovní. Jako naměřené se uloží jen zadané nebo výslovně zkopírované hodnoty.',
                     )}
                 </p>
             )}
             <div className="my-fields">
+                {!observation && (
+                    <label className="filter-label">
+                        {t('Observed form', 'Forma při měření')}
+                        <select
+                            className="filter-input"
+                            disabled={busy}
+                            value={draft.formEpoch}
+                            onChange={(event) => {
+                                const stage = stages.find(
+                                    (entry) => entry.formEpoch === event.target.value,
+                                );
+                                if (stage) changeDraft({ ...draft, ...stage });
+                            }}
+                        >
+                            {stages.map((stage, index) => (
+                                <option key={stage.formEpoch} value={stage.formEpoch}>
+                                    {family.find((entry) => entry.speciesId === stage.speciesId)
+                                        ?.name ?? `#${stage.speciesId}`}{' '}
+                                    · {t('Stage', 'Období')} {index + 1}
+                                    {stage.formEpoch === pokemon.state.formEpoch
+                                        ? t(' (current)', ' (aktuální)')
+                                        : ''}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                )}
                 <label className="filter-label">
                     {t('Observed level', 'Úroveň při měření')}
                     <input
@@ -218,6 +382,7 @@ export function ObservationForm({
                     <input
                         className="filter-input"
                         type="datetime-local"
+                        step="1"
                         required
                         disabled={busy}
                         value={recordedAt}
@@ -227,17 +392,39 @@ export function ObservationForm({
                     />
                 </label>
             </div>
+            {!observation && Object.keys(sameLevelStats).length > 0 && (
+                <button
+                    className="page-button"
+                    type="button"
+                    disabled={busy}
+                    onClick={() =>
+                        changeDraft({
+                            ...draft,
+                            stats: Object.fromEntries(
+                                Object.entries(sameLevelStats).map(([key, value]) => [
+                                    key,
+                                    String(value),
+                                ]),
+                            ),
+                        })
+                    }
+                >
+                    {t(
+                        'Use last observed values at this level',
+                        'Použít poslední naměřené hodnoty na této úrovni',
+                    )}
+                </button>
+            )}
             <div className="my-stat-inputs">
                 {statKeys.map((key) => (
                     <label className="filter-label" key={key}>
                         <NatureStat stat={key} natureId={recordingNatureId}>
                             {statName(key, t)}
                         </NatureStat>
-                        {isPredicted(key) && (
-                            <>
-                                {' '}
-                                <small className="my-muted">{t('Estimate', 'Odhad')}</small>
-                            </>
+                        {predictions[key] !== undefined && (
+                            <small className="my-muted">
+                                {t('Estimate', 'Odhad')}: {predictions[key]}
+                            </small>
                         )}
                         <input
                             className="filter-input"
@@ -246,13 +433,16 @@ export function ObservationForm({
                             max="65535"
                             step="1"
                             inputMode="numeric"
+                            data-observed-stat
                             disabled={busy}
-                            value={statValue(key)}
+                            value={stats[key] ?? ''}
                             data-nature-effect={
                                 getNatureStatEffect(recordingNatureId, key) ?? undefined
                             }
                             aria-label={statName(key, t)}
-                            aria-describedby={isPredicted(key) ? predictionHintId : undefined}
+                            aria-describedby={
+                                predictions[key] !== undefined ? predictionHintId : undefined
+                            }
                             onChange={(event) =>
                                 changeDraft({
                                     ...draft,
@@ -260,28 +450,76 @@ export function ObservationForm({
                                 })
                             }
                         />
+                        {comparison[key] !== undefined &&
+                            stats[key] !== undefined &&
+                            stats[key] !== '' && (
+                                <small className="my-muted">
+                                    {t('Change', 'Změna')}:{' '}
+                                    {Number(stats[key]) - comparison[key] > 0 ? '+' : ''}
+                                    {Number(stats[key]) - comparison[key]}
+                                </small>
+                            )}
                     </label>
                 ))}
             </div>
             {error && <p role="alert">{error}</p>}
+            {storageError && (
+                <p role="alert">
+                    {t(
+                        'This draft could not be stored on this device. Keep this page open and save the observation before leaving.',
+                        'Rozepsaný záznam se nepodařilo uložit v zařízení. Nechte stránku otevřenou a před odchodem uložte měření.',
+                    )}
+                </p>
+            )}
             <div className="my-actions">
-                <button className="my-primary" disabled={busy} type="submit">
+                <button
+                    className="my-primary"
+                    disabled={busy}
+                    type="submit"
+                    onClick={() => {
+                        saveIntent.current = 'save';
+                    }}
+                >
                     {observation
                         ? t('Save correction', 'Uložit opravu')
                         : currentForm
                           ? t('Save observation', 'Uložit záznam')
                           : t('Save to history', 'Uložit do historie')}
                 </button>
+                {!observation && !newObservationId && (
+                    <button
+                        className="page-button"
+                        disabled={busy}
+                        type="submit"
+                        onClick={() => {
+                            saveIntent.current = 'another';
+                        }}
+                    >
+                        {t('Save & add another', 'Uložit a přidat další')}
+                    </button>
+                )}
+                {!observation && allowNextMember && (
+                    <button
+                        className="page-button"
+                        disabled={busy}
+                        type="submit"
+                        onClick={() => {
+                            saveIntent.current = 'next-member';
+                        }}
+                    >
+                        {t('Save & next member', 'Uložit a další člen')}
+                    </button>
+                )}
                 <button
                     className="page-button"
                     type="button"
                     disabled={busy}
                     onClick={() => {
-                        clearObservationDraft(draftKey);
+                        if (!preserveDraftOnCancel) clearObservationDraft(draftKey);
                         onCancel();
                     }}
                 >
-                    {t('Cancel', 'Zrušit')}
+                    {cancelLabel ?? t('Cancel', 'Zrušit')}
                 </button>
             </div>
         </form>
@@ -294,12 +532,14 @@ export function GrowthTable({
     showEstimates,
     onEdit,
     onDelete,
+    newestFirst = false,
 }: {
     observations: readonly StatObservation[];
     family: readonly SpeciesDetails[];
     showEstimates: boolean;
     onEdit: (observation: StatObservation) => void;
     onDelete: (observation: StatObservation) => void;
+    newestFirst?: boolean;
 }) {
     const { t, locale } = useLanguage();
     const active = observations.filter((entry) => !entry.deleted);
@@ -307,7 +547,11 @@ export function GrowthTable({
     const epochs = [
         ...new Set(
             active
-                .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt))
+                .sort((a, b) =>
+                    newestFirst
+                        ? b.recordedAt.localeCompare(a.recordedAt)
+                        : a.recordedAt.localeCompare(b.recordedAt),
+                )
                 .map((entry) => entry.formEpoch),
         ),
     ];
@@ -344,7 +588,13 @@ export function GrowthTable({
                             observation: null,
                             estimated: true,
                         })),
-                ].sort((a, b) => a.level - b.level || Number(a.estimated) - Number(b.estimated));
+                ].sort((a, b) =>
+                    newestFirst
+                        ? (b.observation?.recordedAt ?? '').localeCompare(
+                              a.observation?.recordedAt ?? '',
+                          )
+                        : a.level - b.level || Number(a.estimated) - Number(b.estimated),
+                );
                 return (
                     <div key={epoch}>
                         <h4 className="my-history-heading">
@@ -444,6 +694,7 @@ export function MyPokemonHistory({
     predictionsEnabled = true,
     natureId = pokemon.natureId,
     onRecord,
+    recentOnly = false,
 }: {
     pokemon: OwnedPokemon;
     observations: readonly StatObservation[];
@@ -452,15 +703,25 @@ export function MyPokemonHistory({
     predictionsEnabled?: boolean;
     natureId?: number | null;
     onRecord?: () => void;
+    recentOnly?: boolean;
 }) {
     const { t } = useLanguage();
     const [editing, setEditing] = useState<StatObservation | 'new' | null>(null);
     const [showEstimates, setShowEstimates] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [removed, setRemoved] = useState<StatObservation | null>(null);
+    const visibleObservations = recentOnly
+        ? observations
+              .filter((entry) => !entry.deleted)
+              .sort((a, b) => b.recordedAt.localeCompare(a.recordedAt))
+              .slice(0, 3)
+        : observations;
     async function change(observation: StatObservation) {
         setError(null);
         try {
             await saveObservation(observation);
+            if (observation.deleted) setRemoved(observation);
+            else if (removed?.id === observation.id) setRemoved(null);
         } catch {
             setError(
                 t(
@@ -476,7 +737,11 @@ export function MyPokemonHistory({
             aria-label={t('Battle stat history', 'Historie bojových statistik')}
         >
             <div className="my-section-heading">
-                <h3>{t('Growth history', 'Historie růstu')}</h3>
+                <h3>
+                    {recentOnly
+                        ? t('Recent observations', 'Poslední měření')
+                        : t('Growth history', 'Historie růstu')}
+                </h3>
                 <button
                     className="page-button"
                     type="button"
@@ -488,20 +753,24 @@ export function MyPokemonHistory({
                     {t('Record stats', 'Zapsat statistiky')}
                 </button>
             </div>
-            <p className="my-muted">
-                {t(
-                    'Table estimates fill gaps between measurements of the same continuous species/form stage. They are not measured stats. Predictions for a new level appear only in the entry form until you save them.',
-                    'Odhady v tabulce vyplňují mezery mezi měřeními ve stejném souvislém období druhu či formy. Nejde o naměřené statistiky. Předpovědi pro novou úroveň se do uložení zobrazují pouze ve formuláři.',
-                )}
-            </p>
-            <label className="my-check">
-                <input
-                    type="checkbox"
-                    checked={showEstimates}
-                    onChange={(event) => setShowEstimates(event.target.checked)}
-                />
-                {t('Show estimates between observations', 'Zobrazit odhady mezi měřeními')}
-            </label>
+            {!recentOnly && (
+                <p className="my-muted">
+                    {t(
+                        'Table estimates fill gaps between measurements of the same continuous species/form stage. They are not measured stats. Predictions for a new level appear only in the entry form until you save them.',
+                        'Odhady v tabulce vyplňují mezery mezi měřeními ve stejném souvislém období druhu či formy. Nejde o naměřené statistiky. Předpovědi pro novou úroveň se do uložení zobrazují pouze ve formuláři.',
+                    )}
+                </p>
+            )}
+            {!recentOnly && (
+                <label className="my-check">
+                    <input
+                        type="checkbox"
+                        checked={showEstimates}
+                        onChange={(event) => setShowEstimates(event.target.checked)}
+                    />
+                    {t('Show estimates between observations', 'Zobrazit odhady mezi měřeními')}
+                </label>
+            )}
             {editing && (
                 <ObservationForm
                     key={
@@ -512,26 +781,42 @@ export function MyPokemonHistory({
                     pokemon={pokemon}
                     observation={editing === 'new' ? undefined : editing}
                     natureId={natureId}
+                    family={family}
                     observations={observations}
                     predictionsEnabled={predictionsEnabled}
-                    onSave={async (entry) => {
+                    onSave={async (entry, intent) => {
                         await saveObservation(entry);
-                        setEditing(null);
+                        if (intent !== 'another') setEditing(null);
                     }}
                     onCancel={() => setEditing(null)}
                 />
             )}
             {error && <p role="alert">{error}</p>}
+            {removed && (
+                <p role="status">
+                    {t('Observation removed.', 'Měření bylo odstraněno.')}{' '}
+                    <button
+                        className="my-text-button"
+                        type="button"
+                        onClick={() => {
+                            void change({ ...removed, deleted: false });
+                        }}
+                    >
+                        {t('Undo', 'Vrátit zpět')}
+                    </button>
+                </p>
+            )}
             <GrowthTable
-                observations={observations}
+                observations={visibleObservations}
                 family={family}
-                showEstimates={showEstimates}
+                showEstimates={!recentOnly && showEstimates}
+                newestFirst={recentOnly}
                 onEdit={setEditing}
                 onDelete={(entry) => {
                     void change({ ...entry, deleted: true });
                 }}
             />
-            {observations.some((entry) => entry.deleted) && (
+            {!recentOnly && observations.some((entry) => entry.deleted) && (
                 <details className="my-details">
                     <summary>{t('Removed observations', 'Odstraněné záznamy')}</summary>
                     {observations

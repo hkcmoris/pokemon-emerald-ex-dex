@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useState, useSyncExternalStore } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import type { DexSort } from './dex.js';
@@ -11,6 +11,7 @@ import { PokemonResults } from './PokemonResults.js';
 import { navigationSnapshot, parseRoute, subscribeToNavigation } from './navigation.js';
 import { useLanguage } from './language.js';
 import { typeDisplayName } from './typeNames.js';
+import { useRouteScroll } from './routeScroll.js';
 
 const pageSize = 40;
 
@@ -58,9 +59,7 @@ function AppContent() {
             : route.kind === 'damage-simulator'
               ? 'damage-simulator'
               : hash;
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [scrollKey]);
+    useRouteScroll(scrollKey);
     const [query, setQuery] = useState('');
     const [type, setType] = useState('');
     const [sort, setSort] = useState<DexSort>('id');

@@ -1,6 +1,6 @@
 import { useLanguage } from './language.js';
 
-export type MyPokemonView = 'moves' | 'stats' | 'weaknesses' | 'resistances';
+export type MyPokemonView = 'moves' | 'stats' | 'history' | 'matchups';
 
 export function MyPokemonViewToggle({
     view,
@@ -46,31 +46,30 @@ export function MyPokemonViewToggle({
             </button>
             <button
                 type="button"
-                aria-pressed={view === 'weaknesses'}
+                aria-pressed={view === 'history'}
                 aria-controls={controlsId}
-                aria-label={t('Weaknesses', 'Slabiny')}
-                title={t('Weaknesses', 'Slabiny')}
-                onClick={() => onViewChange('weaknesses')}
+                aria-label={t('Growth history', 'Historie růstu')}
+                title={t('Growth history', 'Historie růstu')}
+                onClick={() => onViewChange('history')}
             >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z" />
-                    <path d="m13 6-3 6h4l-3 6" />
+                    <path d="M4 5h16v15H4zM8 2v6M16 2v6M8 12h8M8 16h5" />
                 </svg>
-                <span>{t('Weaknesses', 'Slabiny')}</span>
+                <span>{t('History', 'Historie')}</span>
             </button>
             <button
                 type="button"
-                aria-pressed={view === 'resistances'}
+                aria-pressed={view === 'matchups'}
                 aria-controls={controlsId}
-                aria-label={t('Resistances & immunities', 'Odolnosti a imunity')}
-                title={t('Resistances & immunities', 'Odolnosti a imunity')}
-                onClick={() => onViewChange('resistances')}
+                aria-label={t('Type matchups', 'Typové vztahy')}
+                title={t('Type matchups', 'Typové vztahy')}
+                onClick={() => onViewChange('matchups')}
             >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z" />
                     <path d="m8 12 3 3 5-6" />
                 </svg>
-                <span>{t('Resistances', 'Odolnosti')}</span>
+                <span>{t('Matchups', 'Typy')}</span>
             </button>
         </div>
     );

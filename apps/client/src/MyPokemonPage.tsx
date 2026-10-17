@@ -22,8 +22,43 @@ import { MyPokemonViewToggle, type MyPokemonView } from './MyPokemonViewToggle.j
 import { MyPokemonConflicts } from './MyPokemonConflicts.js';
 import { AddPokemonForm, SpeciesPicker } from './MyPokemonForms.js';
 import { PartyOverview, PartyRoster } from './MyPokemonParty.js';
-import { readWorkspaceSession, rememberWorkspaceSelection } from './workspaceSession.js';
+import {
+    readWorkspaceSession,
+    rememberWorkspaceSelection,
+    readWorkspaceView,
+    rememberWorkspaceView,
+} from './workspaceSession.js';
 import { saveStatObservation } from './collectionObservations.js';
+import { sameOrder } from './ReorderList.js';
+
+export function reorderParty(
+    document: CollectionDocument,
+    runId: string,
+    before: readonly string[],
+    after: readonly string[],
+): CollectionDocument {
+    const run = document.playthroughs[runId];
+    if (
+        !run ||
+        run.deleted ||
+        !sameOrder(run.party, before) ||
+        after.length !== before.length ||
+        new Set(after).size !== after.length ||
+        after.some(
+            (id) =>
+                !before.includes(id) ||
+                !document.pokemon[id] ||
+                document.pokemon[id].deleted ||
+                document.pokemon[id].playthroughId !== runId,
+        )
+    ) {
+        throw new Error('The party changed. Try again with its current order.');
+    }
+    return {
+        ...document,
+        playthroughs: { ...document.playthroughs, [runId]: { ...run, party: [...after] } },
+    };
+}
 
 /** A visited detail becomes the selection to restore from the main navigation. */
 export function getVisitedWorkspaceSelection(
@@ -144,7 +179,7 @@ export function MyPokemonPage({
             'party',
     );
     const [collectionSort, setCollectionSort] = useState<'default' | 'score'>('default');
-    const [cardView, setCardView] = useState<MyPokemonView>('stats');
+    const [cardView, setCardView] = useState<MyPokemonView>(readWorkspaceView);
     const [recordingStats, setRecordingStats] = useState<Record<string, boolean>>({});
     const cardsId = useId();
     const workspaceToolbar = useRef<HTMLDivElement>(null);
@@ -211,6 +246,25 @@ export function MyPokemonPage({
               (view === 'collection' ? owned[0] : undefined));
     const activeRunId = run?.id;
     const activePokemonId = activePokemon?.id;
+    const activeMemberRef = useRef(activePokemonId);
+    activeMemberRef.current = activePokemonId;
+    useEffect(() => {
+        activeMemberRef.current = activePokemonId;
+        return () => {
+            activeMemberRef.current = undefined;
+        };
+    }, []);
+    const partyOrderDisabled =
+        !run ||
+        collection.conflicts.some(
+            (conflict) =>
+                (conflict.entity === 'playthroughs' &&
+                    conflict.entityId === run.id &&
+                    ['party', 'deleted', '$entity'].includes(conflict.field)) ||
+                (conflict.entity === 'pokemon' &&
+                    run.party.includes(conflict.entityId) &&
+                    ['deleted', 'playthroughId', '$entity'].includes(conflict.field)),
+        );
     const visitedSelection = getVisitedWorkspaceSelection(document, pokemonId);
     const visitedRunId = visitedSelection?.playthroughId;
     const visitedPokemonId = visitedSelection?.pokemonId;
@@ -378,6 +432,8 @@ export function MyPokemonPage({
     }
     function renderPokemon(pokemon: OwnedPokemon, detail = false) {
         if (!run) return null;
+        const partyPosition = party.findIndex((member) => member.id === pokemon.id);
+        const nextMember = partyPosition >= 0 ? party[partyPosition + 1] : undefined;
         return (
             <MyPokemonCard
                 key={pokemon.id}
@@ -399,6 +455,15 @@ export function MyPokemonPage({
                 observations={Object.values(document.observations).filter(
                     (entry) => entry.pokemonId === pokemon.id,
                 )}
+                allObservations={Object.values(document.observations)}
+                blockedRecordingIds={owned.filter(hasStateConflict).map((member) => member.id)}
+                onRecordNext={
+                    detail && !partyOrderDisabled && nextMember && !hasStateConflict(nextMember)
+                        ? () => {
+                              if (activeMemberRef.current === pokemon.id) openRecord(nextMember);
+                          }
+                        : undefined
+                }
                 partyIndex={run.party.indexOf(pokemon.id)}
                 partySize={party.length}
                 partyMembers={
@@ -473,6 +538,12 @@ export function MyPokemonPage({
         setView('overview');
         setReplacement(null);
     }
+    function openRecord(pokemon: OwnedPokemon) {
+        setRecordingStats((current) => ({ ...current, [pokemon.id]: true }));
+        setView('party');
+        setSelectedMemberId(pokemon.id);
+        window.location.hash = `#/my-pokemon/${encodeURIComponent(pokemon.id)}`;
+    }
     function revealCardContent(selector: string, focusInput = false): boolean {
         const content = window.document
             .getElementById(cardsId)
@@ -493,6 +564,7 @@ export function MyPokemonPage({
                     view={cardView}
                     onViewChange={(nextView) => {
                         setCardView(nextView);
+                        rememberWorkspaceView(nextView);
                         window.requestAnimationFrame(() => revealCardContent('.my-card-view'));
                     }}
                     controlsId={cardsId}
@@ -514,10 +586,7 @@ export function MyPokemonPage({
                             revealCardContent('[data-stat-observation-form]', true)
                         )
                             return;
-                        setRecordingStats((current) => ({ ...current, [pokemon.id]: true }));
-                        setView('party');
-                        setSelectedMemberId(pokemon.id);
-                        window.location.hash = `#/my-pokemon/${encodeURIComponent(pokemon.id)}`;
+                        openRecord(pokemon);
                     }}
                 >
                     {t('Record stats', 'Zapsat statistiky')}
@@ -535,6 +604,13 @@ export function MyPokemonPage({
                     datasetId={datasetId}
                     onSelect={selectMember}
                     onOverview={openOverview}
+                    orderDisabled={partyOrderDisabled}
+                    onReorder={async (ids) => {
+                        if (!run || partyOrderDisabled)
+                            throw new Error('Resolve the party conflict before reordering.');
+                        setSelectedMemberId(pokemon.id);
+                        await update((current) => reorderParty(current, run.id, run.party, ids));
+                    }}
                 />
                 <div className="my-workspace-detail">
                     {renderViewToolbar(pokemon)}
@@ -667,16 +743,7 @@ export function MyPokemonPage({
             <main className="dex-browse-main my-pokemon-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
                 <div className="my-page-heading">
                     <div>
-                        <p className="eyebrow">
-                            {t('Your playthrough companion', 'Průvodce vaším průchodem hrou')}
-                        </p>
                         <h1>{t('My Pokémon', 'Moji Pokémoni')}</h1>
-                        <p className="my-muted">
-                            {t(
-                                'Keep your party close. Know what comes next.',
-                                'Mějte přehled o týmu i o tom, co ho čeká.',
-                            )}
-                        </p>
                     </div>
                     <details className="my-account my-details">
                         <summary>
@@ -837,26 +904,31 @@ export function MyPokemonPage({
                                     </select>
                                 </label>
                             )}
-                            <div className="my-actions">
-                                <button
-                                    className="page-button"
-                                    type="button"
-                                    onClick={() => setRunEditor('new')}
-                                >
-                                    {t('New playthrough', 'Nový průchod')}
-                                </button>
-                                {run && (
+                            <details className="my-run-management my-details">
+                                <summary>{t('Manage playthroughs', 'Spravovat průchody')}</summary>
+                                <div className="my-actions">
                                     <button
-                                        className="my-text-button"
+                                        className="page-button"
                                         type="button"
-                                        onClick={() =>
-                                            setRunEditor(runEditor === 'rename' ? null : 'rename')
-                                        }
+                                        onClick={() => setRunEditor('new')}
                                     >
-                                        {t('Manage playthrough', 'Spravovat průchod')}
+                                        {t('New playthrough', 'Nový průchod')}
                                     </button>
-                                )}
-                            </div>
+                                    {run && (
+                                        <button
+                                            className="my-text-button"
+                                            type="button"
+                                            onClick={() =>
+                                                setRunEditor(
+                                                    runEditor === 'rename' ? null : 'rename',
+                                                )
+                                            }
+                                        >
+                                            {t('Manage playthrough', 'Spravovat průchod')}
+                                        </button>
+                                    )}
+                                </div>
+                            </details>
                         </section>
                         {(runEditor || !run) && (
                             <section className="my-panel my-stack">
@@ -1040,7 +1112,7 @@ export function MyPokemonPage({
                                     renderWorkspace(activePokemon)
                                 ) : (
                                     <div className="my-workspace-overview">
-                                        {renderViewToolbar(activePokemon)}
+                                        {view === 'collection' && renderViewToolbar(activePokemon)}
                                         {view === 'overview' && (
                                             <PartyOverview
                                                 party={party}
@@ -1048,11 +1120,14 @@ export function MyPokemonPage({
                                                 conflicts={collection.conflicts}
                                                 datasetId={datasetId}
                                                 onSelect={selectMember}
+                                                onRecord={openRecord}
                                             />
                                         )}
-                                        <div className="my-party-grid" id={cardsId}>
-                                            {shown.map((pokemon) => renderPokemon(pokemon))}
-                                        </div>
+                                        {view === 'collection' && (
+                                            <div className="my-party-grid" id={cardsId}>
+                                                {shown.map((pokemon) => renderPokemon(pokemon))}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </>

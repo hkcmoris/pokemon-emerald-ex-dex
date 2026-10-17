@@ -74,6 +74,29 @@
     color: var(--dex-text);
     text-decoration: none;
 }
+.my-party-member-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+.my-party-member-row > .my-party-member {
+    flex: 1;
+    min-width: 0;
+}
+.my-party-member-row .reorder-controls {
+    flex-direction: column;
+}
+.my-party-member-row .reorder-handle,
+.my-party-member-row .reorder-position {
+    width: 30px;
+    min-height: 32px;
+}
+.my-run-management > .my-actions {
+    margin-top: 0.75rem;
+}
+.my-party-overview .page-button {
+    white-space: nowrap;
+}
 .my-party-member:hover {
     background: var(--dex-surface-raised);
 }
@@ -110,6 +133,10 @@
 }
 .my-party-member-copy .my-party-member-draft {
     color: var(--dex-accent);
+}
+.my-party-member-copy .my-party-member-pending {
+    color: var(--dex-text);
+    font-weight: 600;
 }
 .my-workspace-toolbar {
     position: sticky;
@@ -243,7 +270,12 @@
         scroll-padding-inline: 0.25rem;
     }
     .my-party-roster-list > li {
-        flex: 0 0 86px;
+        flex: 0 0 128px;
+    }
+    .my-party-member-row .reorder-handle,
+    .my-party-member-row .reorder-position {
+        width: 28px;
+        min-height: 44px;
     }
     .my-party-roster .my-party-member {
         flex-direction: column;
@@ -289,6 +321,16 @@
         background: var(--dex-accent);
         font-size: 0;
     }
+    .my-party-roster .my-party-member-copy .my-party-member-pending {
+        position: absolute;
+        top: 15px;
+        right: 5px;
+        width: 7px;
+        height: 7px;
+        border-radius: 2px;
+        background: var(--dex-text);
+        font-size: 0;
+    }
     .my-pokemon-workspace .my-workspace-toolbar {
         top: calc(var(--dex-header-height) + var(--my-party-roster-height));
     }
@@ -309,17 +351,71 @@
     }
 }
 @media (max-width: 560px) {
+    body:has([data-stat-observation-form]:focus-within) .dex-header-inner,
+    body:has([data-stat-observation-form]:focus-within) .dex-back-row,
+    .dex-header-compact .dex-header-inner,
+    .dex-header-compact .dex-back-row {
+        display: none;
+    }
+    .dex-header-compact:focus-within .dex-header-inner {
+        display: flex;
+    }
+    .dex-header-compact .dex-navigation {
+        padding-block: 0.2rem;
+    }
+    .my-pokemon-workspace:has([data-stat-observation-form]:focus-within) .my-party-roster-heading,
+    .my-pokemon-workspace:has([data-stat-observation-form]:focus-within)
+        .my-party-member
+        .species-sprite,
+    .my-pokemon-workspace:has([data-stat-observation-form]:focus-within)
+        .my-party-member-row
+        .reorder-controls {
+        display: none;
+    }
+    .my-pokemon-workspace:has([data-stat-observation-form]:focus-within) .my-party-member {
+        height: 44px;
+        justify-content: center;
+    }
+    .my-pokemon-workspace:has([data-stat-observation-form]:focus-within)
+        .my-party-roster-list
+        > li {
+        flex-basis: 92px;
+    }
+    .my-pokemon-main .my-page-heading {
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+    }
+    .my-pokemon-main .my-page-heading h1 {
+        font-size: 1.3rem;
+    }
+    .my-pokemon-main .my-account {
+        width: auto;
+        margin-left: auto;
+    }
+    .my-pokemon-main .my-account-label {
+        max-width: 115px;
+    }
+    .my-pokemon-main .my-run-toolbar {
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
     .my-workspace-toolbar {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 0.35rem;
+        padding-block: 0.35rem;
     }
     .my-workspace-toolbar .my-record-stats-action {
-        min-height: 38px;
+        min-height: 44px;
+        max-width: 76px;
+        padding-inline: 0.3rem;
+        font-size: 0.7rem;
         padding-block: 0.4rem;
     }
     .my-workspace-toolbar .my-stat-view-toggle button {
-        min-height: 40px;
-        font-size: 0.7rem;
+        min-height: 44px;
+        font-size: 0.65rem;
+        padding-inline: 0.1rem;
     }
     .my-pokemon-main .my-view-toolbar {
         grid-template-columns: minmax(0, 1fr);
