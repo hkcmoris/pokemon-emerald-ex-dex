@@ -62,7 +62,9 @@ exporting or importing their collection.
   The graph plots all six recorded battle stats against
   level, with a legend and measurement details on each point. It excludes removed records,
   omits unknown values, and does not connect lines across species/form periods or through
-  contradictory values at the same level. Empty history explains how to record stats;
+  conflicting values recorded at the same level and timestamp. Readings at distinct
+  times on the same level connect in time order, showing training changes as vertical
+  steps while retaining every observation. Empty history explains how to record stats;
   a single observation is shown as points. Unresolved stat/state conflicts pause the graph.
 - The graph legend uses a two-column grid, with each stat's current recorded value beside
   its label. Values use the latest observation at the current level and form; missing or

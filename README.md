@@ -190,6 +190,10 @@ remain available while scrolling through a member's details. The selected view s
 the same when switching between members, party, and collection. Each view grows
 the card vertically as needed, with wrapping type badges and no fixed-height overlay.
 The graph legend sits in a single column on the right, leaving more vertical room for the plot.
+Measurements at the same level connect in recorded-time order, so a stat increase
+without a level-up appears as a vertical step. Both observations remain in history.
+Missing values, conflicting readings at the same timestamp, and changes of form
+still break the affected lines.
 Hover near a chart point, tap it, or focus it with the keyboard to show its recorded value
 and level above the point. Tapped hints stay visible until another point is selected,
 you tap elsewhere, or press Escape; Enter and Space also keep a focused hint open.

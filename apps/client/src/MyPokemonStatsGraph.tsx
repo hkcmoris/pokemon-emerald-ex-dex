@@ -32,21 +32,36 @@ function statSegments(
     observations: readonly StatObservation[],
     stat: keyof BaseStats,
 ): StatPoint[][] {
-    const byLevel = new Map<number, Set<number>>();
+    const measurements = new Map<
+        string,
+        { level: number; time: number; values: Set<number | undefined> }
+    >();
     for (const observation of observations) {
-        const values = byLevel.get(observation.level) ?? new Set<number>();
-        const value = observation.stats[stat];
-        if (value !== undefined) values.add(value);
-        byLevel.set(observation.level, values);
+        const time = Date.parse(observation.recordedAt);
+        const key = `${observation.level}:${time}`;
+        const measurement = measurements.get(key) ?? {
+            level: observation.level,
+            time,
+            values: new Set<number | undefined>(),
+        };
+        measurement.values.add(observation.stats[stat]);
+        measurements.set(key, measurement);
     }
     const segments: StatPoint[][] = [];
     let segment: StatPoint[] = [];
-    for (const [level, values] of [...byLevel].sort(([left], [right]) => left - right)) {
-        if (values.size !== 1) {
+    const ordered = [...measurements.values()].sort(
+        (left, right) => left.level - right.level || left.time - right.time,
+    );
+    for (const { level, values } of ordered) {
+        const value = values.values().next().value;
+        if (values.size !== 1 || value === undefined) {
             if (segment.length > 1) segments.push(segment);
             segment = [];
         } else {
-            segment.push({ level, value: [...values][0] });
+            // Training can change a stat without a level-up; retain that vertical step.
+            const previous = segment.at(-1);
+            if (previous?.level !== level || previous.value !== value)
+                segment.push({ level, value });
         }
     }
     if (segment.length > 1) segments.push(segment);
@@ -172,8 +187,8 @@ export function MyPokemonStatsGraph({
     const speciesName = (speciesId: number): string =>
         family.find((entry) => entry.speciesId === speciesId)?.name ?? `#${speciesId}`;
     const description = t(
-        'Recorded battle stats by level. Lines stay within one species/form period and stop at missing or contradictory values. No stats are estimated.',
-        'Zaznamenané bojové statistiky podle úrovně. Čáry spojují pouze stejné období druhu a formy. Chybějící nebo rozporné hodnoty čáru přerušují. Graf neobsahuje odhady.',
+        'Recorded battle stats by level. Readings at the same level connect in measurement-time order. Lines stay within one species/form period and stop at missing values or conflicting readings at the same time. No stats are estimated.',
+        'Zaznamenané bojové statistiky podle úrovně. Měření na stejné úrovni se spojují podle času záznamu. Čáry zůstávají ve stejném období druhu a formy. Chybějící hodnoty nebo rozporná měření ve stejný čas čáru přerušují. Graf neobsahuje odhady.',
     );
 
     return (
@@ -368,8 +383,8 @@ export function MyPokemonStatsGraph({
             </ul>
             <figcaption className="my-muted">
                 {t(
-                    'Recorded stats. Gaps mark missing or conflicting data, or a change of form.',
-                    'Zaznamenané statistiky. Mezery označují chybějící či rozporné údaje nebo změnu formy.',
+                    'Recorded stats. Changes at the same level connect in time order. Gaps mark missing values, conflicting readings at the same time, or a change of form.',
+                    'Zaznamenané statistiky. Změny na stejné úrovni se spojují podle času. Mezery označují chybějící hodnoty, rozporná měření ve stejný čas nebo změnu formy.',
                 )}
             </figcaption>
             <div className="sr-only">
