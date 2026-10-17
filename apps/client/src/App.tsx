@@ -5,7 +5,6 @@ import type { DexSort } from './dex.js';
 import { fetchCatalog, fetchSpecies } from './api.js';
 import { DexFooter } from './DexFooter.js';
 import { DexHeader } from './DexHeader.js';
-import { DexNavigation } from './DexNavigation.js';
 import { TypeBadges } from './TypeBadges.js';
 import { PokemonFilterSheet, getSortOptions } from './PokemonFilterSheet.js';
 import { PokemonResults } from './PokemonResults.js';
@@ -53,9 +52,15 @@ function AppContent() {
     const { t, locale, language } = useLanguage();
     const hash = useSyncExternalStore(subscribeToNavigation, navigationSnapshot, () => '');
     const route = parseRoute(hash);
+    const scrollKey =
+        route.kind === 'owned-pokemon' || route.kind === 'my-pokemon'
+            ? 'my-pokemon'
+            : route.kind === 'damage-simulator'
+              ? 'damage-simulator'
+              : hash;
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, [hash]);
+    }, [scrollKey]);
     const [query, setQuery] = useState('');
     const [type, setType] = useState('');
     const [sort, setSort] = useState<DexSort>('id');
@@ -339,7 +344,6 @@ function AppContent() {
                 )}
                 <DexFooter />
             </main>
-            <DexNavigation active="pokemon" />
         </div>
     );
 }

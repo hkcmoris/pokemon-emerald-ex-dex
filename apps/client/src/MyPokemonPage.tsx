@@ -16,12 +16,30 @@ import { loadCollectionSpecies } from './collectionSpecies.js';
 import { GoogleSignIn } from './GoogleSignIn.js';
 import { DexHeader } from './DexHeader.js';
 import { DexFooter } from './DexFooter.js';
-import { DexNavigation } from './DexNavigation.js';
 import { useLanguage } from './language.js';
 import { MyPokemonCard } from './MyPokemonCard.js';
 import { MyPokemonViewToggle, type MyPokemonView } from './MyPokemonViewToggle.js';
 import { MyPokemonConflicts } from './MyPokemonConflicts.js';
 import { AddPokemonForm, SpeciesPicker } from './MyPokemonForms.js';
+import { PartyOverview, PartyRoster } from './MyPokemonParty.js';
+import { readWorkspaceSession, rememberWorkspaceSelection } from './workspaceSession.js';
+import { saveStatObservation } from './collectionObservations.js';
+
+/** A visited detail becomes the selection to restore from the main navigation. */
+export function getVisitedWorkspaceSelection(
+    document: CollectionDocument,
+    pokemonId: string | undefined,
+): { playthroughId: string; pokemonId: string; view: 'party' | 'collection' } | null {
+    const pokemon = pokemonId === undefined ? undefined : document.pokemon[pokemonId];
+    if (!pokemon || pokemon.deleted) return null;
+    const run = document.playthroughs[pokemon.playthroughId];
+    if (!run || run.deleted) return null;
+    return {
+        playthroughId: run.id,
+        pokemonId: pokemon.id,
+        view: run.party.includes(pokemon.id) ? 'party' : 'collection',
+    };
+}
 
 function PlaythroughForm({
     initialName,
@@ -114,11 +132,22 @@ export function MyPokemonPage({
     const collection = useCollection();
     const offlineStatus = useCollectionOffline();
     const { document, update, ready } = collection;
-    const [selectedRunId, setSelectedRunId] = useState('');
-    const [view, setView] = useState<'party' | 'collection'>('party');
+    const [selectedRunId, setSelectedRunId] = useState(
+        () => readWorkspaceSession()?.playthroughId ?? '',
+    );
+    const [selectedMemberId, setSelectedMemberId] = useState(
+        () => readWorkspaceSession()?.pokemonId ?? '',
+    );
+    const [view, setView] = useState<'party' | 'overview' | 'collection'>(
+        () =>
+            getVisitedWorkspaceSelection(document, readWorkspaceSession()?.pokemonId)?.view ??
+            'party',
+    );
     const [collectionSort, setCollectionSort] = useState<'default' | 'score'>('default');
-    const [cardView, setCardView] = useState<MyPokemonView>('moves');
+    const [cardView, setCardView] = useState<MyPokemonView>('stats');
+    const [recordingStats, setRecordingStats] = useState<Record<string, boolean>>({});
     const cardsId = useId();
+    const workspaceToolbar = useRef<HTMLDivElement>(null);
     const [runEditor, setRunEditor] = useState<'new' | 'rename' | null>(null);
     const [adding, setAdding] = useState(addSpeciesId !== undefined);
     const [selectedSpecies, setSelectedSpecies] = useState<Pokemon | null>(null);
@@ -150,18 +179,20 @@ export function MyPokemonPage({
     const party =
         run?.party
             .map((id) => document.pokemon[id])
-            .filter((entry): entry is OwnedPokemon => Boolean(entry && !entry.deleted)) ?? [];
+            .filter((entry): entry is OwnedPokemon =>
+                Boolean(entry && !entry.deleted && entry.playthroughId === run.id),
+            ) ?? [];
     const scoreTargets =
         pokemonId !== undefined
             ? detailPokemon && !detailPokemon.deleted && run
                 ? [detailPokemon]
                 : []
-            : view === 'party'
+            : view !== 'collection'
               ? party
               : owned;
     const strengths = useBattleStrength(scoreTargets, document, collection.conflicts, datasetId);
     const shown =
-        view === 'party'
+        view !== 'collection'
             ? party
             : collectionSort === 'score'
               ? orderCollectionByScore(
@@ -170,6 +201,30 @@ export function MyPokemonPage({
                     new Map([...strengths].map(([id, strength]) => [id, strength.result.value])),
                 )
               : orderCollectionPokemon(owned, run?.party ?? []);
+    const activePokemon =
+        pokemonId !== undefined
+            ? detailPokemon
+            : ((view === 'collection' ? owned : party).find(
+                  (pokemon) => pokemon.id === selectedMemberId,
+              ) ??
+              party[0] ??
+              (view === 'collection' ? owned[0] : undefined));
+    const activeRunId = run?.id;
+    const activePokemonId = activePokemon?.id;
+    const visitedSelection = getVisitedWorkspaceSelection(document, pokemonId);
+    const visitedRunId = visitedSelection?.playthroughId;
+    const visitedPokemonId = visitedSelection?.pokemonId;
+    const visitedView = visitedSelection?.view;
+    useEffect(() => {
+        if (!visitedRunId || !visitedPokemonId || !visitedView) return;
+        setSelectedRunId(visitedRunId);
+        setSelectedMemberId(visitedPokemonId);
+        setView(visitedView);
+    }, [visitedRunId, visitedPokemonId, visitedView]);
+    useEffect(() => {
+        if (activeRunId && (pokemonId === undefined || visitedPokemonId))
+            rememberWorkspaceSelection({ playthroughId: activeRunId, pokemonId: activePokemonId });
+    }, [activeRunId, activePokemonId, pokemonId, visitedPokemonId]);
     const picked = selectedSpecies ?? (!seedDismissed ? seededSpecies.data : null);
     const deletedRuns = Object.values(document.playthroughs).filter((entry) => entry.deleted);
     const deletedPokemon = Object.values(document.pokemon).filter(
@@ -328,6 +383,16 @@ export function MyPokemonPage({
                 key={pokemon.id}
                 detail={detail}
                 view={cardView}
+                recordingStats={detail ? Boolean(recordingStats[pokemon.id]) : undefined}
+                onRecordingStatsChange={
+                    detail
+                        ? (recording) =>
+                              setRecordingStats((current) => ({
+                                  ...current,
+                                  [pokemon.id]: recording,
+                              }))
+                        : undefined
+                }
                 pokemon={pokemon}
                 strength={strengths.get(pokemon.id)}
                 datasetId={datasetId}
@@ -384,13 +449,7 @@ export function MyPokemonPage({
                     });
                 }}
                 saveObservation={async (observation) => {
-                    await update((current: CollectionDocument) => ({
-                        ...current,
-                        observations: {
-                            ...current.observations,
-                            [observation.id]: observation,
-                        },
-                    }));
+                    await update((current) => saveStatObservation(current, observation));
                 }}
                 onRemove={async () => {
                     await removePokemon(pokemon.id);
@@ -402,6 +461,86 @@ export function MyPokemonPage({
                     }
                 }}
             />
+        );
+    }
+    function selectMember(pokemon: OwnedPokemon) {
+        setSelectedMemberId(pokemon.id);
+        setView('party');
+        setReplacement(null);
+    }
+    function openOverview() {
+        if (run) setSelectedRunId(run.id);
+        setView('overview');
+        setReplacement(null);
+    }
+    function revealCardContent(selector: string, focusInput = false): boolean {
+        const content = window.document
+            .getElementById(cardsId)
+            ?.querySelector<HTMLElement>(selector);
+        if (!content) return false;
+        const visibleTop = (workspaceToolbar.current?.getBoundingClientRect().bottom ?? 0) + 12;
+        const contentTop = content.getBoundingClientRect().top;
+        if (contentTop < visibleTop || contentTop >= window.innerHeight)
+            window.scrollBy({ top: contentTop - visibleTop, behavior: 'auto' });
+        if (focusInput)
+            content.querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
+        return true;
+    }
+    function renderViewToolbar(pokemon: OwnedPokemon | undefined) {
+        return (
+            <div className="my-workspace-toolbar" ref={workspaceToolbar}>
+                <MyPokemonViewToggle
+                    view={cardView}
+                    onViewChange={(nextView) => {
+                        setCardView(nextView);
+                        window.requestAnimationFrame(() => revealCardContent('.my-card-view'));
+                    }}
+                    controlsId={cardsId}
+                />
+                <button
+                    className="my-primary my-record-stats-action"
+                    type="button"
+                    disabled={!pokemon || hasStateConflict(pokemon)}
+                    aria-expanded={
+                        pokemon && (pokemonId !== undefined || view === 'party')
+                            ? Boolean(recordingStats[pokemon.id])
+                            : undefined
+                    }
+                    onClick={() => {
+                        if (!pokemon) return;
+                        if (
+                            recordingStats[pokemon.id] &&
+                            (pokemonId !== undefined || view === 'party') &&
+                            revealCardContent('[data-stat-observation-form]', true)
+                        )
+                            return;
+                        setRecordingStats((current) => ({ ...current, [pokemon.id]: true }));
+                        setView('party');
+                        setSelectedMemberId(pokemon.id);
+                        window.location.hash = `#/my-pokemon/${encodeURIComponent(pokemon.id)}`;
+                    }}
+                >
+                    {t('Record stats', 'Zapsat statistiky')}
+                </button>
+            </div>
+        );
+    }
+    function renderWorkspace(pokemon: OwnedPokemon) {
+        return (
+            <div className="my-pokemon-workspace">
+                <PartyRoster
+                    party={party}
+                    selectedPokemonId={pokemon.id}
+                    conflicts={collection.conflicts}
+                    datasetId={datasetId}
+                    onSelect={selectMember}
+                    onOverview={openOverview}
+                />
+                <div className="my-workspace-detail">
+                    {renderViewToolbar(pokemon)}
+                    <div id={cardsId}>{renderPokemon(pokemon, true)}</div>
+                </div>
+            </div>
         );
     }
     const replacementPokemon = replacement ? document.pokemon[replacement] : undefined;
@@ -454,28 +593,23 @@ export function MyPokemonPage({
     if (pokemonId !== undefined) {
         return (
             <div className="min-h-screen">
-                <DexHeader version={version} />
+                <DexHeader version={version} active="my-pokemon" />
                 <main className="dex-browse-main my-pokemon-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
                     <a
                         className="my-text-button my-detail-back"
                         href="#/my-pokemon"
                         onClick={() => {
-                            if (run) {
-                                setSelectedRunId(run.id);
-                                if (detailPokemon && !run.party.includes(detailPokemon.id))
-                                    setView('collection');
-                            }
-                            setReplacement(null);
+                            openOverview();
                         }}
                     >
-                        ← {t('Back to my Pokémon', 'Zpět na moje Pokémony')}
+                        ← {t('Party overview', 'Přehled týmu')}
                     </a>
                     <div className="my-page-heading">
                         <div>
                             <p className="eyebrow">
                                 {run?.name ?? t('Your collection', 'Vaše sbírka')}
                             </p>
-                            <h1>{t('Pokémon details', 'Detail Pokémona')}</h1>
+                            <h1>{t('My Pokémon', 'Moji Pokémoni')}</h1>
                         </div>
                         <span
                             className={`my-sync-status my-sync-${collection.status}`}
@@ -503,14 +637,7 @@ export function MyPokemonPage({
                             {detailPokemon && !detailPokemon.deleted && run ? (
                                 <div className="my-owned-detail">
                                     {partyReplacement}
-                                    <div className="my-detail-view-toolbar">
-                                        <MyPokemonViewToggle
-                                            view={cardView}
-                                            onViewChange={setCardView}
-                                            controlsId={cardsId}
-                                        />
-                                    </div>
-                                    <div id={cardsId}>{renderPokemon(detailPokemon, true)}</div>
+                                    {renderWorkspace(detailPokemon)}
                                 </div>
                             ) : (
                                 <section className="my-empty" role="status">
@@ -527,13 +654,12 @@ export function MyPokemonPage({
                     )}
                     <DexFooter />
                 </main>
-                <DexNavigation active="my-pokemon" />
             </div>
         );
     }
     return (
         <div className="min-h-screen">
-            <DexHeader version={version} />
+            <DexHeader version={version} active="my-pokemon" />
             <main className="dex-browse-main my-pokemon-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
                 <div className="my-page-heading">
                     <div>
@@ -775,29 +901,30 @@ export function MyPokemonPage({
                                         className="my-view-switch"
                                         aria-label={t('Collection view', 'Zobrazení sbírky')}
                                     >
-                                        {(['party', 'collection'] as const).map((tab) => (
-                                            <button
-                                                key={tab}
-                                                aria-pressed={view === tab}
-                                                type="button"
-                                                onClick={() => setView(tab)}
-                                            >
-                                                {tab === 'party'
-                                                    ? t('Active party', 'Aktivní tým')
-                                                    : t('Collection', 'Sbírka')}
-                                                <span>
+                                        {(['party', 'overview', 'collection'] as const).map(
+                                            (tab) => (
+                                                <button
+                                                    key={tab}
+                                                    aria-pressed={view === tab}
+                                                    type="button"
+                                                    onClick={() => setView(tab)}
+                                                >
                                                     {tab === 'party'
-                                                        ? `${party.length}/6`
-                                                        : owned.length}
-                                                </span>
-                                            </button>
-                                        ))}
+                                                        ? t('Active party', 'Aktivní tým')
+                                                        : tab === 'overview'
+                                                          ? t('Party overview', 'Přehled týmu')
+                                                          : t('Collection', 'Sbírka')}
+                                                    {tab !== 'overview' && (
+                                                        <span>
+                                                            {tab === 'party'
+                                                                ? `${party.length}/6`
+                                                                : owned.length}
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            ),
+                                        )}
                                     </div>
-                                    <MyPokemonViewToggle
-                                        view={cardView}
-                                        onViewChange={setCardView}
-                                        controlsId={cardsId}
-                                    />
                                     <button
                                         className="my-primary"
                                         type="button"
@@ -877,7 +1004,7 @@ export function MyPokemonPage({
                                             ◇
                                         </div>
                                         <h2>
-                                            {view === 'party'
+                                            {view !== 'collection'
                                                 ? t('Your party starts here', 'Tady začíná váš tým')
                                                 : t(
                                                       'Your collection is ready',
@@ -905,9 +1032,23 @@ export function MyPokemonPage({
                                             </button>
                                         )}
                                     </section>
+                                ) : view === 'party' && activePokemon ? (
+                                    renderWorkspace(activePokemon)
                                 ) : (
-                                    <div className="my-party-grid" id={cardsId}>
-                                        {shown.map((pokemon) => renderPokemon(pokemon))}
+                                    <div className="my-workspace-overview">
+                                        {renderViewToolbar(activePokemon)}
+                                        {view === 'overview' && (
+                                            <PartyOverview
+                                                party={party}
+                                                document={document}
+                                                conflicts={collection.conflicts}
+                                                datasetId={datasetId}
+                                                onSelect={selectMember}
+                                            />
+                                        )}
+                                        <div className="my-party-grid" id={cardsId}>
+                                            {shown.map((pokemon) => renderPokemon(pokemon))}
+                                        </div>
                                     </div>
                                 )}
                             </>
@@ -981,7 +1122,6 @@ export function MyPokemonPage({
                 )}
                 <DexFooter />
             </main>
-            <DexNavigation active="my-pokemon" />
         </div>
     );
 }

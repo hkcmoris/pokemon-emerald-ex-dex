@@ -69,7 +69,9 @@ void test('owned Pokemon routes reject malformed and unsupported collection IDs'
 });
 
 void test('simulator links address owned identities and reject malformed or nested paths', () => {
-    strictEqual(damageSimulatorHref('Pinchy_1'), '#/my-pokemon/Pinchy_1/simulator');
+    strictEqual(damageSimulatorHref('Pinchy_1'), '#/simulator/Pinchy_1');
+    strictEqual(damageSimulatorHref(), '#/simulator');
+    deepStrictEqual(parseRoute(damageSimulatorHref()), { kind: 'damage-simulator' });
     deepStrictEqual(parseRoute(damageSimulatorHref('Pinchy_1')), {
         kind: 'damage-simulator',
         id: 'Pinchy_1',
@@ -79,6 +81,15 @@ void test('simulator links address owned identities and reject malformed or nest
         id: 'Pinchy_1',
     });
     for (const hash of [
+        '#/simulator/',
+        '#/simulator/__proto__',
+        '#/simulator/prototype',
+        '#/simulator/%63onstructor',
+        '#/simulator/a%2Fb',
+        '#/simulator/%',
+        '#/simulator/a/extra',
+        '#/simulator/a?level=1',
+        `#/simulator/${'a'.repeat(81)}`,
         '#/my-pokemon//simulator',
         '#/my-pokemon/__proto__/simulator',
         '#/my-pokemon/a%2Fb/simulator',

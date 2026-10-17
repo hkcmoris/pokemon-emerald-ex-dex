@@ -1,4 +1,4 @@
-import { useId, useState, type SubmitEvent } from 'react';
+import { useEffect, useId, useRef, useState, type SubmitEvent } from 'react';
 import {
     interpolateStats,
     getNatureStatEffect,
@@ -11,6 +11,16 @@ import {
 import { useLanguage, type Translate } from './language.js';
 import { NatureStat } from './NatureStat.js';
 import { predictStats } from './collectionStats.js';
+import {
+    clearObservationDraft,
+    getObservationDraft,
+    observationDraftKey,
+    runObservationDraftSave,
+    setObservationDraft,
+    useObservationDraftSaveCount,
+    useObservationDraftSaving,
+    type ObservationDraft,
+} from './observationDrafts.js';
 
 const statKeys: readonly (keyof BaseStats)[] = [
     'hp',
@@ -44,6 +54,7 @@ export function ObservationForm({
     observations = [],
     predictionsEnabled = true,
     natureId = pokemon.natureId,
+    draftKey: selectedDraftKey,
     onSave,
     onCancel,
 }: {
@@ -52,24 +63,40 @@ export function ObservationForm({
     observations?: readonly StatObservation[];
     predictionsEnabled?: boolean;
     natureId?: number | null;
+    draftKey?: string;
     onSave: (value: StatObservation) => Promise<void>;
     onCancel: () => void;
 }) {
     const { t } = useLanguage();
-    const [level, setLevel] = useState(String(observation?.level ?? pokemon.state.level));
-    const [recordedAt, setRecordedAt] = useState(() =>
-        localDateTime(observation?.recordedAt ?? new Date().toISOString()),
+    const draftKey = selectedDraftKey ?? observationDraftKey(pokemon, observation);
+    const [draft, setDraft] = useState<ObservationDraft>(
+        () =>
+            getObservationDraft(draftKey) ?? {
+                speciesId: observation?.speciesId ?? pokemon.state.speciesId,
+                formEpoch: observation?.formEpoch ?? pokemon.state.formEpoch,
+                observationId: observation?.id,
+                level: String(observation?.level ?? pokemon.state.level),
+                recordedAt: localDateTime(observation?.recordedAt ?? new Date().toISOString()),
+                stats: Object.fromEntries(
+                    Object.entries(observation?.stats ?? {}).map(([key, value]) => [
+                        key,
+                        String(value),
+                    ]),
+                ),
+            },
     );
-    const [stats, setStats] = useState<Partial<Record<keyof BaseStats, string>>>(() =>
-        Object.fromEntries(
-            Object.entries(observation?.stats ?? {}).map(([key, value]) => [key, String(value)]),
-        ),
-    );
+    const { level, recordedAt, stats } = draft;
+    const currentForm =
+        draft.speciesId === pokemon.state.speciesId && draft.formEpoch === pokemon.state.formEpoch;
+    function changeDraft(next: ObservationDraft) {
+        setDraft(next);
+        setObservationDraft(draftKey, pokemon.id, next);
+    }
     const predictionHintId = useId();
     const recordingNatureId =
-        !observation && Number(level) === pokemon.state.level ? natureId : null;
+        !observation && currentForm && Number(level) === pokemon.state.level ? natureId : null;
     const predictions =
-        !observation && predictionsEnabled
+        !observation && currentForm && predictionsEnabled
             ? predictStats(pokemon, observations, Number(level))
             : {};
     const isPredicted = (key: keyof BaseStats): boolean =>
@@ -78,10 +105,20 @@ export function ObservationForm({
     // Explicit edits, including clearing a field, always win over changing predictions.
     const statValue = (key: keyof BaseStats): string =>
         stats[key] ?? (predictions[key] === undefined ? '' : String(predictions[key]));
-    const [busy, setBusy] = useState(false);
+    const busy = useObservationDraftSaving(draftKey);
+    const completedSaves = useObservationDraftSaveCount(draftKey);
+    const initialCompletedSaves = useRef(completedSaves);
+    useEffect(() => {
+        if (completedSaves !== initialCompletedSaves.current) {
+            initialCompletedSaves.current = completedSaves;
+            // Also close a replacement editor mounted while the original save was pending.
+            onCancel();
+        }
+    }, [completedSaves, onCancel]);
     const [error, setError] = useState<string | null>(null);
     async function submit(event: SubmitEvent) {
         event.preventDefault();
+        if (busy) return;
         const measured: Partial<BaseStats> = {};
         for (const key of statKeys) {
             const value = statValue(key);
@@ -96,19 +133,20 @@ export function ObservationForm({
             );
             return;
         }
-        setBusy(true);
         setError(null);
         try {
-            await onSave({
-                id: observation?.id ?? crypto.randomUUID(),
-                pokemonId: pokemon.id,
-                speciesId: observation?.speciesId ?? pokemon.state.speciesId,
-                formEpoch: observation?.formEpoch ?? pokemon.state.formEpoch,
-                level: Number(level),
-                recordedAt: new Date(recordedAt).toISOString(),
-                stats: measured,
-                deleted: false,
-            });
+            await runObservationDraftSave(draftKey, () =>
+                onSave({
+                    id: observation?.id ?? crypto.randomUUID(),
+                    pokemonId: pokemon.id,
+                    speciesId: draft.speciesId,
+                    formEpoch: draft.formEpoch,
+                    level: Number(level),
+                    recordedAt: new Date(recordedAt).toISOString(),
+                    stats: measured,
+                    deleted: false,
+                }),
+            );
         } catch {
             setError(
                 t(
@@ -116,13 +154,12 @@ export function ObservationForm({
                     'Záznam se nepodařilo uložit. Zkuste to znovu.',
                 ),
             );
-        } finally {
-            setBusy(false);
         }
     }
     return (
         <form
             className="my-inset my-stack"
+            data-stat-observation-form
             onSubmit={(event) => {
                 void submit(event);
             }}
@@ -138,6 +175,19 @@ export function ObservationForm({
                     'Zadejte hodnoty zobrazené ve hře. Neznámé statistiky nechte prázdné.',
                 )}
             </p>
+            {!observation && (
+                <p className="my-muted">
+                    {!currentForm
+                        ? t(
+                              'This unfinished entry belongs to an earlier form. Saving adds it to history and keeps the current species and level unchanged.',
+                              'Rozepsaný záznam patří k dřívější formě. Uloží se do historie. Aktuální druh ani úroveň se nezmění.',
+                          )
+                        : t(
+                              'Saving a higher level also updates this Pokémon’s current level. Older screenshots stay in history without lowering it. Unfinished entries stay available while you switch Pokémon or views.',
+                              'Vyšší zapsaná úroveň aktualizuje i aktuální úroveň Pokémona. Starší snímky zůstanou v historii a úroveň nesníží. Rozepsané údaje zůstanou zachované při přepnutí Pokémona nebo zobrazení.',
+                          )}
+                </p>
+            )}
             {hasPredictions && (
                 <p className="my-muted" id={predictionHintId}>
                     {t(
@@ -152,12 +202,15 @@ export function ObservationForm({
                     <input
                         className="filter-input"
                         type="number"
+                        inputMode="numeric"
+                        autoFocus
                         min="1"
                         max="100"
                         step="1"
                         required
+                        disabled={busy}
                         value={level}
-                        onChange={(event) => setLevel(event.target.value)}
+                        onChange={(event) => changeDraft({ ...draft, level: event.target.value })}
                     />
                 </label>
                 <label className="filter-label">
@@ -166,8 +219,11 @@ export function ObservationForm({
                         className="filter-input"
                         type="datetime-local"
                         required
+                        disabled={busy}
                         value={recordedAt}
-                        onChange={(event) => setRecordedAt(event.target.value)}
+                        onChange={(event) =>
+                            changeDraft({ ...draft, recordedAt: event.target.value })
+                        }
                     />
                 </label>
             </div>
@@ -189,13 +245,20 @@ export function ObservationForm({
                             min="1"
                             max="65535"
                             step="1"
+                            inputMode="numeric"
+                            disabled={busy}
                             value={statValue(key)}
                             data-nature-effect={
                                 getNatureStatEffect(recordingNatureId, key) ?? undefined
                             }
                             aria-label={statName(key, t)}
                             aria-describedby={isPredicted(key) ? predictionHintId : undefined}
-                            onChange={(event) => setStats({ ...stats, [key]: event.target.value })}
+                            onChange={(event) =>
+                                changeDraft({
+                                    ...draft,
+                                    stats: { ...stats, [key]: event.target.value },
+                                })
+                            }
                         />
                     </label>
                 ))}
@@ -205,9 +268,19 @@ export function ObservationForm({
                 <button className="my-primary" disabled={busy} type="submit">
                     {observation
                         ? t('Save correction', 'Uložit opravu')
-                        : t('Save observation', 'Uložit záznam')}
+                        : currentForm
+                          ? t('Save observation', 'Uložit záznam')
+                          : t('Save to history', 'Uložit do historie')}
                 </button>
-                <button className="page-button" type="button" onClick={onCancel}>
+                <button
+                    className="page-button"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                        clearObservationDraft(draftKey);
+                        onCancel();
+                    }}
+                >
                     {t('Cancel', 'Zrušit')}
                 </button>
             </div>
@@ -370,6 +443,7 @@ export function MyPokemonHistory({
     saveObservation,
     predictionsEnabled = true,
     natureId = pokemon.natureId,
+    onRecord,
 }: {
     pokemon: OwnedPokemon;
     observations: readonly StatObservation[];
@@ -377,6 +451,7 @@ export function MyPokemonHistory({
     saveObservation: (observation: StatObservation) => Promise<void>;
     predictionsEnabled?: boolean;
     natureId?: number | null;
+    onRecord?: () => void;
 }) {
     const { t } = useLanguage();
     const [editing, setEditing] = useState<StatObservation | 'new' | null>(null);
@@ -402,7 +477,14 @@ export function MyPokemonHistory({
         >
             <div className="my-section-heading">
                 <h3>{t('Growth history', 'Historie růstu')}</h3>
-                <button className="page-button" type="button" onClick={() => setEditing('new')}>
+                <button
+                    className="page-button"
+                    type="button"
+                    onClick={() => {
+                        if (onRecord) onRecord();
+                        else setEditing('new');
+                    }}
+                >
                     {t('Record stats', 'Zapsat statistiky')}
                 </button>
             </div>
@@ -424,7 +506,7 @@ export function MyPokemonHistory({
                 <ObservationForm
                     key={
                         editing === 'new'
-                            ? `new-${pokemon.state.speciesId}-${pokemon.state.formEpoch}-${pokemon.state.level}`
+                            ? `new-${pokemon.state.speciesId}-${pokemon.state.formEpoch}`
                             : editing.id
                     }
                     pokemon={pokemon}

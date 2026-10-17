@@ -1,4 +1,4 @@
-import { deepStrictEqual, doesNotMatch, match } from 'node:assert/strict';
+import { deepStrictEqual, doesNotMatch, match, strictEqual } from 'node:assert/strict';
 import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -13,7 +13,7 @@ import {
     type StatObservation,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { DamageSimulatorView } from './DamageSimulatorPage.js';
+import { DamageSimulatorView, getDefaultSimulatorPokemonId } from './DamageSimulatorPage.js';
 import { LanguageProvider } from './language.js';
 
 const waterGun: Move = {
@@ -144,6 +144,7 @@ function render(
         ready?: boolean;
         language?: 'en' | 'cs';
         speciesAvailable?: boolean;
+        pokemonId?: string | null;
     } = {},
 ): string {
     const client = new QueryClient({
@@ -164,7 +165,10 @@ function render(
                     LanguageProvider,
                     { initialLanguage: options.language ?? 'en' },
                     createElement(DamageSimulatorView, {
-                        pokemonId: pokemon.id,
+                        pokemonId:
+                            options.pokemonId === null
+                                ? undefined
+                                : (options.pokemonId ?? pokemon.id),
                         version: '1.0.4',
                         datasetId: 'test',
                         document: options.document ?? collection(),
@@ -384,4 +388,139 @@ void test('simulator reflects saved nature without altering recorded stats and s
     };
     doesNotMatch(render({ document, conflicts: [conflict] }), /data-nature-effect/);
     deepStrictEqual(document, before);
+});
+
+void test('global simulator entry selects the last member of the active playthrough, then party, then collection', () => {
+    const reserve = { ...pokemon, id: 'reserve', playthroughId: 'active' };
+    const first = { ...pokemon, id: 'first', playthroughId: 'active' };
+    const second = { ...pokemon, id: 'second', playthroughId: 'active' };
+    const deleted = { ...pokemon, id: 'deleted', playthroughId: 'active', deleted: true };
+    const document: CollectionDocument = {
+        ...collection(),
+        playthroughs: {
+            ...collection().playthroughs,
+            active: {
+                id: 'active',
+                name: 'Active run',
+                party: ['missing', pokemon.id, deleted.id, first.id, second.id],
+                deleted: false,
+            },
+        },
+        pokemon: {
+            [pokemon.id]: pokemon,
+            [reserve.id]: reserve,
+            [first.id]: first,
+            [second.id]: second,
+            [deleted.id]: deleted,
+        },
+    };
+    const before = structuredClone(document);
+    strictEqual(
+        getDefaultSimulatorPokemonId(document, [], {
+            playthroughId: 'active',
+            pokemonId: second.id,
+        }),
+        second.id,
+    );
+    // The last selected member can be in storage rather than the party.
+    strictEqual(
+        getDefaultSimulatorPokemonId(document, [], {
+            playthroughId: 'active',
+            pokemonId: reserve.id,
+        }),
+        reserve.id,
+    );
+    for (const pokemonId of [undefined, 'missing', pokemon.id, deleted.id]) {
+        strictEqual(
+            getDefaultSimulatorPokemonId(document, [], {
+                playthroughId: 'active',
+                pokemonId,
+            }),
+            first.id,
+        );
+    }
+    strictEqual(getDefaultSimulatorPokemonId(document, [], null), pokemon.id);
+    strictEqual(
+        getDefaultSimulatorPokemonId(document, [], {
+            playthroughId: 'removed',
+            pokemonId: first.id,
+        }),
+        pokemon.id,
+    );
+    const emptyParty: CollectionDocument = {
+        ...document,
+        playthroughs: {
+            ...document.playthroughs,
+            active: { ...document.playthroughs.active, party: [] },
+        },
+    };
+    strictEqual(
+        getDefaultSimulatorPokemonId(emptyParty, [], {
+            playthroughId: 'active',
+        }),
+        reserve.id,
+    );
+    // A conflicting party cannot determine the default attacker; collection order is still safe.
+    strictEqual(
+        getDefaultSimulatorPokemonId(
+            document,
+            [
+                {
+                    id: 'party-conflict',
+                    kind: 'field',
+                    entity: 'playthroughs',
+                    entityId: 'active',
+                    field: 'party',
+                    base: [],
+                    local: [],
+                    remote: [],
+                },
+            ],
+            { playthroughId: 'active' },
+        ),
+        reserve.id,
+    );
+    deepStrictEqual(document, before);
+});
+
+void test('standalone simulator supports first-party entry, loading, empty playthroughs and missing playthroughs', () => {
+    const html = render({ pokemonId: null });
+    match(html, /Clauncher standard back sprite/);
+    match(html, /href="#\/simulator" aria-current="page"/);
+    match(html, /href="#\/simulator\/pinchy"/);
+    doesNotMatch(html, /This Pokémon or its playthrough is unavailable/);
+
+    const loading = render({ pokemonId: null, ready: false });
+    match(loading, /Loading collection…/);
+    doesNotMatch(loading, /Clauncher standard back sprite|Attacking stats|Current moves/);
+
+    const emptyRun = collection();
+    emptyRun.pokemon = {};
+    const empty = render({ pokemonId: null, document: emptyRun });
+    match(empty, /Add a Pokémon to your active playthrough/);
+    match(empty, /href="#\/my-pokemon"[^>]*>Open My Pokémon/);
+    doesNotMatch(empty, /Attacking stats|Current moves/);
+    match(
+        render({ pokemonId: null, document: emptyCollection() }),
+        /Create a playthrough and add your first Pokémon/,
+    );
+    const removed = collection();
+    removed.playthroughs.run.deleted = true;
+    match(
+        render({ pokemonId: null, document: removed }),
+        /Create a playthrough and add your first Pokémon/,
+    );
+});
+
+void test('global simulator never silently leaves an empty active playthrough', () => {
+    const document = collection();
+    document.playthroughs.empty = { id: 'empty', name: 'Empty run', party: [], deleted: false };
+    strictEqual(
+        getDefaultSimulatorPokemonId(document, [], {
+            playthroughId: 'empty',
+            pokemonId: pokemon.id,
+        }),
+        undefined,
+    );
+    strictEqual(getDefaultSimulatorPokemonId(emptyCollection(), [], null), undefined);
 });

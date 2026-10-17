@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { pokemonNatures, getNatureStatEffect } from '@pokemon-emerald-ex-dex/shared';
 import type {
@@ -13,7 +13,7 @@ import type {
 
 import { NatureStat } from './NatureStat.js';
 import { BattleTypeMatchups } from './BattleTypeMatchups.js';
-import { SimulatorParty } from './SimulatorParty.js';
+import { getSimulatorParty, SimulatorParty } from './SimulatorParty.js';
 import { getAbilityChoices, getSelectedAbility } from './pokemonTraits.js';
 import { useCollection } from './collectionStore.js';
 import { getCurrentStats } from './collectionStats.js';
@@ -22,7 +22,6 @@ import { loadCollectionTypeEffectiveness } from './collectionTypeEffectiveness.j
 import { estimateEnemyStats, simulateMoveDamage } from './damageSimulation.js';
 import { getSimulatorMoveOptions, type SimulatorMoveOption } from './simulatorMoves.js';
 import { DexHeader } from './DexHeader.js';
-import { DexNavigation } from './DexNavigation.js';
 import { DexFooter } from './DexFooter.js';
 import { SpeciesPicker } from './MyPokemonForms.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
@@ -32,6 +31,11 @@ import { MoveEffectBadges } from './MoveEffectBadges.js';
 import { damageSimulatorHref, ownedPokemonHref } from './navigation.js';
 import { useLanguage } from './language.js';
 import { typeSurfaceStyle } from './theme.js';
+import {
+    readWorkspaceSession,
+    rememberWorkspaceSelection,
+    type WorkspaceSelection,
+} from './workspaceSession.js';
 
 type AttackStat = 'attack' | 'spAttack' | 'defense';
 type EnemyStat = 'hp' | 'defense' | 'spDefense';
@@ -801,9 +805,29 @@ function OwnedPokemonOption({ pokemon, runName }: { pokemon: OwnedPokemon; runNa
     );
 }
 interface DamageSimulatorProps {
-    pokemonId: string;
+    pokemonId?: string;
     version: string;
     datasetId?: string;
+}
+
+/** Resolve the global simulator entry within the playthrough the user is working in. */
+export function getDefaultSimulatorPokemonId(
+    document: CollectionDocument,
+    conflicts: readonly CollectionConflict[],
+    selection: WorkspaceSelection | null,
+): string | undefined {
+    const runs = Object.values(document.playthroughs).filter((entry) => !entry.deleted);
+    const run = runs.find((entry) => entry.id === selection?.playthroughId) ?? runs[0];
+    if (!run) return undefined;
+    const selected = selection?.pokemonId ? document.pokemon[selection.pokemonId] : undefined;
+    if (selected && !selected.deleted && selected.playthroughId === run.id) return selected.id;
+    const party = getSimulatorParty(document, run, conflicts);
+    return (
+        party?.[0]?.id ??
+        Object.values(document.pokemon).find(
+            (entry) => !entry.deleted && entry.playthroughId === run.id,
+        )?.id
+    );
 }
 
 export function DamageSimulatorPage(props: DamageSimulatorProps) {
@@ -814,7 +838,7 @@ export function DamageSimulatorPage(props: DamageSimulatorProps) {
 }
 
 export function DamageSimulatorView({
-    pokemonId,
+    pokemonId: requestedPokemonId,
     version,
     datasetId,
     document,
@@ -826,6 +850,9 @@ export function DamageSimulatorView({
     ready: boolean;
 }) {
     const { t } = useLanguage();
+    const [workspaceSelection, setWorkspaceSelection] = useState(readWorkspaceSession);
+    const pokemonId =
+        requestedPokemonId ?? getDefaultSimulatorPokemonId(document, conflicts, workspaceSelection);
     // This state belongs to the simulator page, above the keyed attacker scenario.
     const [enemySetup, setEnemySetup] = useState<EnemySetup>({
         pokemon: null,
@@ -838,9 +865,16 @@ export function DamageSimulatorView({
         queryFn: () => loadCollectionTypeEffectiveness(datasetId!),
         enabled: ready && Boolean(datasetId),
     });
-    const pokemon = document.pokemon[pokemonId];
+    const pokemon = pokemonId === undefined ? undefined : document.pokemon[pokemonId];
     const run = pokemon ? document.playthroughs[pokemon.playthroughId] : undefined;
     const missing = !pokemon || pokemon.deleted || !run || run.deleted;
+    useEffect(() => {
+        if (ready && !missing) {
+            const selection = { playthroughId: run.id, pokemonId: pokemon.id };
+            rememberWorkspaceSelection(selection);
+            setWorkspaceSelection(selection);
+        }
+    }, [ready, missing, run?.id, pokemon?.id]);
     const stateConflict = conflicts.some(
         (conflict) =>
             (conflict.entity === 'pokemon' &&
@@ -852,14 +886,14 @@ export function DamageSimulatorView({
     );
     const species = useQuery({
         queryKey: ['collection-species', pokemon?.state.speciesId],
-        queryFn: () => loadCollectionSpecies(pokemon.state.speciesId),
+        queryFn: () => loadCollectionSpecies(pokemon!.state.speciesId),
         enabled: ready && !missing && !stateConflict,
     });
     const observationConflict = conflicts.some(
         (conflict) =>
             conflict.entity === 'observations' &&
             (document.observations[conflict.entityId]?.pokemonId === pokemonId ||
-                conflictMentionsPokemon(conflict, pokemonId)),
+                (pokemonId !== undefined && conflictMentionsPokemon(conflict, pokemonId))),
     );
     const recordedStats =
         pokemon && !observationConflict
@@ -880,17 +914,15 @@ export function DamageSimulatorView({
     return (
         <>
             <DexHeader
+                active="simulator"
                 version={version}
-                backHref={missing ? '#/my-pokemon' : ownedPokemonHref(pokemonId)}
+                backHref={missing ? '#/my-pokemon' : ownedPokemonHref(pokemon.id)}
                 backLabel={t('Back to collection', 'Zpět do sbírky')}
             />
             <main className="dex-browse-main my-pokemon-main sim-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
-                <DexNavigation active="my-pokemon" />
                 <div className="my-page-heading sim-page-heading">
                     <div>
-                        <p className="eyebrow">
-                            {t('MY POKÉMON / SIMULATOR', 'MOJI POKÉMONI / SIMULÁTOR')}
-                        </p>
+                        <p className="eyebrow">{t('BATTLE WORKSPACE', 'BOJOVÉ PRACOVIŠTĚ')}</p>
                         <h1>{t('Damage simulator', 'Simulátor poškození')}</h1>
                         <p className="my-muted">
                             {t(
@@ -929,7 +961,7 @@ export function DamageSimulatorView({
                     <SimulatorParty
                         document={document}
                         run={run}
-                        selectedPokemonId={pokemonId}
+                        selectedPokemonId={pokemon.id}
                         enemy={enemySetup.pokemon}
                         datasetId={datasetId}
                         chart={chart.data}
@@ -941,19 +973,36 @@ export function DamageSimulatorView({
                         {t('Loading collection…', 'Načítání sbírky…')}
                     </p>
                 ) : missing ? (
-                    <p className="my-panel" role="status">
-                        {t(
-                            'This Pokémon or its playthrough is unavailable. Choose another Pokémon from your collection.',
-                            'Tento Pokémon nebo jeho průchod není dostupný. Vyberte jiného Pokémona ze sbírky.',
-                        )}
-                    </p>
+                    <div className="my-panel" role="status">
+                        <p>
+                            {requestedPokemonId !== undefined
+                                ? t(
+                                      'This Pokémon or its playthrough is unavailable. Choose another Pokémon from your collection.',
+                                      'Tento Pokémon nebo jeho průchod není dostupný. Vyberte jiného Pokémona ze sbírky.',
+                                  )
+                                : Object.values(document.playthroughs).some(
+                                        (entry) => !entry.deleted,
+                                    )
+                                  ? t(
+                                        'Add a Pokémon to your active playthrough to start a simulation, or choose one from another playthrough above.',
+                                        'Pro simulaci přidejte Pokémona do aktivního průchodu, nebo výše vyberte Pokémona z jiného průchodu.',
+                                    )
+                                  : t(
+                                        'Create a playthrough and add your first Pokémon to start a simulation.',
+                                        'Pro simulaci vytvořte průchod a přidejte prvního Pokémona.',
+                                    )}
+                        </p>
+                        <a className="my-text-button" href="#/my-pokemon">
+                            {t('Open My Pokémon', 'Otevřít Moje Pokémony')}
+                        </a>
+                    </div>
                 ) : stateConflict ? (
                     <p className="my-panel" role="alert">
                         {t(
                             'Resolve this Pokémon’s collection conflict before simulating. Its form, level or identity is uncertain.',
                             'Před simulací vyřešte konflikt tohoto Pokémona ve sbírce. Jeho forma, úroveň nebo identita není jistá.',
                         )}{' '}
-                        <a className="my-text-button" href={ownedPokemonHref(pokemonId)}>
+                        <a className="my-text-button" href={ownedPokemonHref(pokemon.id)}>
                             {t('Open collection', 'Otevřít sbírku')}
                         </a>
                     </p>

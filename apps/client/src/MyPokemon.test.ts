@@ -18,6 +18,11 @@ import { GrowthTable, ObservationForm } from './MyPokemonHistory.js';
 import { MyPokemonConflicts, conflictValueLabel } from './MyPokemonConflicts.js';
 import { LanguageProvider } from './language.js';
 import { loadCollectionSpeciesFixture } from '../../../packages/shared/test/fixtures/collectionSpecies.js';
+import {
+    clearObservationDraft,
+    observationDraftKey,
+    setObservationDraft,
+} from './observationDrafts.js';
 
 const species: SpeciesDetails = {
     speciesId: 1,
@@ -67,11 +72,13 @@ function card(
     stateConflict = false,
     detail = true,
     view: MyPokemonView = 'moves',
+    recordingStats = false,
 ) {
     return createElement(MyPokemonCard, {
         pokemon,
         detail,
         view,
+        recordingStats,
         observations: [],
         partyIndex: 0,
         partySize: 1,
@@ -94,6 +101,40 @@ void test('owned cards distinguish unknown moves from an intentionally empty mov
     match(empty, /No moves recorded as known/);
     match(empty, /Remove from party/);
     match(empty, /min="1" max="100"/);
+});
+
+void test('recording level and stats is reachable in every card view and keeps explicit save and cancel', () => {
+    for (const view of ['moves', 'stats', 'weaknesses', 'resistances'] as const) {
+        const html = render(card(owned, false, true, view, true));
+        match(html, /Record battle stats/);
+        match(html, /Observed level/);
+        match(html, /Save observation/);
+        match(html, /Cancel/);
+        match(html, /Older screenshots stay in history without lowering it/);
+    }
+    match(render(card(owned, false, false, 'stats')), /Record stats/);
+});
+
+void test('evolving leaves old-form drafts visibly recoverable and discardable', () => {
+    const key = observationDraftKey(owned);
+    setObservationDraft(key, owned.id, {
+        speciesId: owned.state.speciesId,
+        formEpoch: owned.state.formEpoch,
+        level: '14',
+        recordedAt: '2026-10-17T12:30',
+        stats: { hp: '43' },
+    });
+    try {
+        const evolved = { ...owned, state: { ...owned.state, formEpoch: 'new-stage' } };
+        const html = render(card(evolved));
+        match(html, /Unfinished stats from earlier forms/);
+        match(html, /Bulbasaur · Lv\. 14/);
+        match(html, /Resume entry/);
+        match(html, /Discard entry/);
+    } finally {
+        clearObservationDraft(key);
+    }
+    doesNotMatch(render(card()), /Unfinished stats from earlier forms/);
 });
 
 void test('a conflicting species state suspends advice instead of mixing alternatives', () => {

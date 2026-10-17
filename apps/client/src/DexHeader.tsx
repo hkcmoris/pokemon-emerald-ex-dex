@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Button } from '@heroui/react';
 
 import { readTheme, saveTheme } from './theme.js';
 import { useLanguage } from './language.js';
+import { DexNavigation, type DexSection } from './DexNavigation.js';
 
 export function ThemeToggle() {
     const { t } = useLanguage();
@@ -45,16 +46,33 @@ export function ThemeToggle() {
 
 export function DexHeader({
     version,
+    active = 'pokemon',
     backHref,
     backLabel,
 }: {
     version: string;
+    active?: DexSection;
     backHref?: string;
     backLabel?: string;
 }) {
     const { language, setLanguage, t } = useLanguage();
+    const headerRef = useRef<HTMLElement>(null);
+    useLayoutEffect(() => {
+        const header = headerRef.current;
+        if (!header) return;
+        const measure = () => {
+            document.documentElement.style.setProperty(
+                '--dex-header-height',
+                `${header.getBoundingClientRect().height}px`,
+            );
+        };
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(header);
+        return () => observer.disconnect();
+    }, []);
     return (
-        <header className="dex-header sticky top-0 z-10">
+        <header className="dex-header" ref={headerRef}>
             <div className="dex-header-inner">
                 <a className="dex-brand" href="#/" aria-label="Emerald EX Pokédex">
                     <span className="dex-brand-mark" aria-hidden="true">
@@ -99,6 +117,7 @@ export function DexHeader({
                     <ThemeToggle />
                 </div>
             </div>
+            <DexNavigation active={active} />
             {backHref && (
                 <div className="dex-back-row">
                     <a className="back-link" href={backHref}>

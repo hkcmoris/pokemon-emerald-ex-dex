@@ -13,6 +13,7 @@ import './MoveEffectBadges.css';
 import './MoveAffinity.css';
 import './damageSimulator.css';
 import './pokemonTraits.css';
+import './myPokemonWorkspace.css';
 
 applyTheme(readTheme());
 registerCollectionOffline();

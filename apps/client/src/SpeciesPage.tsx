@@ -20,7 +20,6 @@ import { MoveCategory } from './MoveCategory.js';
 import { OffensiveStatIndicator } from './OffensiveStatIndicator.js';
 import { SpeciesDetailHeader } from './SpeciesDetailHeader.js';
 import { DexHeader } from './DexHeader.js';
-import { DexNavigation } from './DexNavigation.js';
 import { useLanguage } from './language.js';
 import { typeSurfaceStyle } from './theme.js';
 import { MoveEffectBadges } from './MoveEffectBadges.js';
@@ -368,7 +367,6 @@ export function SpeciesPage({
                 backLabel={t('All Pokémon', 'Všichni Pokémoni')}
             />
             <main className="detail-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
-                <DexNavigation active="pokemon" />
                 {entry ? (
                     <SpeciesDetailHeader
                         entry={entry}

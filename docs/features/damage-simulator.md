@@ -2,8 +2,13 @@
 
 Status: implemented from the design approved on 2026-10-16.
 
-Open **Simulate damage** on a collection Pokémon to visit
-`#/my-pokemon/<owned-id>/simulator`. The collection selector changes the attacker.
+Open **Simulator** from the persistent main navigation at `#/simulator`, or use
+**Simulate damage** on a collection Pokémon to visit `#/simulator/<owned-id>`.
+The older `#/my-pokemon/<owned-id>/simulator` links remain supported.
+The main entry uses the active playthrough and remembered member, then falls back
+to its first party member or collection Pokémon. An empty playthrough offers a
+link to add Pokémon rather than selecting an attacker from another run.
+The collection selector changes the attacker.
 Its current form uses the back sprite; the selected opponent uses the front sprite.
 The collection's [effective-power score](../move-power.md) remains a separate,
 target-independent comparison.

@@ -34,6 +34,7 @@
     --radius-card: 16px;
     --radius-panel: 20px;
     --radius-sheet: 28px;
+    --dex-header-height: 116px;
     --background: var(--dex-background);
     --foreground: var(--dex-text);
     --surface: var(--dex-surface);
@@ -78,14 +79,14 @@
     --accent-foreground: #f5fff4;
 }
 html {
-    min-width: 320px;
+    min-width: 280px;
     scroll-behavior: smooth;
-    scroll-padding-top: 1.5rem;
+    scroll-padding-top: calc(var(--dex-header-height) + 1rem);
     background: var(--dex-background);
 }
 body {
     margin: 0;
-    min-width: 320px;
+    min-width: 280px;
     background:
         radial-gradient(
             ellipse at 20% 0%,
@@ -116,8 +117,12 @@ button:disabled {
 
 /* The information surfaces stay opaque; glass is reserved for floating controls. */
 .dex-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
     color: var(--dex-text);
-    background: linear-gradient(var(--dex-surface) 60%, transparent 100%);
+    background: var(--dex-surface);
+    border-bottom: 1px solid var(--dex-border);
 }
 .dex-header-inner,
 .dex-back-row {
@@ -126,7 +131,7 @@ button:disabled {
     align-items: center;
     justify-content: space-between;
     margin: auto;
-    padding: 1rem 2rem;
+    padding: 0.8rem 2rem;
 }
 .dex-brand {
     display: inline-flex;
@@ -191,30 +196,22 @@ button:disabled {
     color: var(--dex-accent);
 }
 .dex-navigation {
-    position: fixed;
-    z-index: 20;
-    top: 15px;
-    left: 50%;
     display: flex;
+    max-width: 1280px;
+    margin: 0 auto;
     gap: 0.25rem;
-    transform: translateX(-50%);
-    border: 1px solid var(--dex-border);
-    border-radius: 14px;
-    background: var(--dex-glass);
-    padding: 0.25rem;
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
-    backdrop-filter: blur(18px);
+    padding: 0 2rem 0.5rem;
 }
 .dex-navigation a {
     display: flex;
-    min-height: 34px;
+    min-height: 40px;
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
     border-radius: 10px;
-    padding: 0.35rem 0.8rem;
+    padding: 0.5rem 0.9rem;
     color: var(--dex-muted);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     white-space: nowrap;
     transition:
         color 150ms,
@@ -1280,49 +1277,33 @@ tbody tr:hover {
 }
 
 @media (max-width: 1023px) {
-    body {
-        padding-bottom: calc(88px + env(safe-area-inset-bottom));
-    }
     .dex-navigation {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
         width: 100%;
-        justify-content: space-around;
+        justify-content: space-between;
         gap: 0.2rem;
-        transform: none;
-        border-right: 0;
-        border-bottom: 0;
-        border-left: 0;
-        border-radius: 20px 20px 0 0;
-        padding: 0.6rem 0.5rem calc(0.65rem + env(safe-area-inset-bottom));
-        box-shadow:
-            0 -8px 30px rgb(0 0 0 / 12%),
-            inset 0 1px 0 rgb(255 255 255 / 5%);
+        padding: 0 0.75rem 0.5rem;
     }
     .dex-navigation a {
-        min-height: 49px;
+        min-height: 44px;
         min-width: 0;
         flex: 1;
-        flex-direction: column;
-        gap: 0.3rem;
-        border-radius: 12px;
-        padding: 0.4rem 0.25rem;
-        font-size: clamp(0.58rem, 2.65vw, 0.65rem);
+        gap: 0.35rem;
+        border-radius: 9px;
+        padding: 0.4rem 0.3rem;
+        font-size: 0.75rem;
     }
     .dex-navigation svg {
-        width: 21px;
-        height: 21px;
+        width: 17px;
+        height: 17px;
     }
     .dex-pagination {
-        bottom: calc(88px + env(safe-area-inset-bottom));
+        bottom: env(safe-area-inset-bottom);
     }
 }
 @media (max-width: 767px) {
     .dex-header-inner {
-        min-height: 65px;
-        padding: 0.8rem 1rem;
+        min-height: 58px;
+        padding: 0.6rem 1rem;
     }
     .dex-brand {
         gap: 0.5rem;
@@ -1510,6 +1491,20 @@ tbody tr:hover {
     }
 }
 @media (max-width: 639px) {
+    .dex-navigation svg {
+        display: none;
+    }
+    .dex-navigation {
+        padding-inline: 0.5rem;
+        gap: 0.1rem;
+    }
+    .dex-navigation a {
+        font-size: 0.7rem;
+        padding-inline: 0.2rem;
+    }
+    .version-tag {
+        display: none;
+    }
     .evolution-stages {
         flex-direction: column;
         gap: 2.75rem;
@@ -1523,10 +1518,18 @@ tbody tr:hover {
         content: '↓';
     }
 }
+@media (max-width: 360px) {
+    .dex-navigation a {
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+        font-size: 0.65rem;
+    }
+}
 @media (min-width: 1024px) {
     .detail-panel {
         position: sticky;
-        top: 1.5rem;
+        top: calc(var(--dex-header-height) + 1rem);
     }
 }
 @media (prefers-reduced-motion: reduce) {

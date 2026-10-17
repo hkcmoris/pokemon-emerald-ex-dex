@@ -37,6 +37,12 @@ import { typeSurfaceStyle } from './theme.js';
 import { BattleStrengthBadge } from './BattleStrengthBadge.js';
 import type { OwnedBattleStrength } from './useBattleStrength.js';
 import { applyCatchUpChanges, type CatchUpChanges } from './catchUpChanges.js';
+import {
+    clearObservationDraft,
+    isObservationDraftSaving,
+    observationDraftKey,
+    useObservationDrafts,
+} from './observationDrafts.js';
 
 const evolutionIcon = new URL('./assets/evolution-dna.svg', import.meta.url).href;
 
@@ -588,6 +594,7 @@ export function CatchUpRecap({
     onSave,
     saveObservation,
     onClose,
+    onRecord,
 }: {
     pokemon: OwnedPokemon;
     datasetId?: string;
@@ -601,6 +608,7 @@ export function CatchUpRecap({
     onSave: (changes: CatchUpChanges) => Promise<void>;
     saveObservation: (observation: StatObservation) => Promise<void>;
     onClose: () => void;
+    onRecord?: () => void;
 }) {
     const { t, language } = useLanguage();
     const recap = getCatchUpRecap(details, oldLevel, newLevel);
@@ -649,10 +657,13 @@ export function CatchUpRecap({
                     <button
                         className="page-button"
                         type="button"
-                        aria-expanded={recordingStats}
-                        aria-controls={statsFormId}
+                        aria-expanded={onRecord ? undefined : recordingStats}
+                        aria-controls={onRecord ? undefined : statsFormId}
                         disabled={busy}
-                        onClick={() => setRecordingStats(!recordingStats)}
+                        onClick={() => {
+                            if (onRecord) onRecord();
+                            else setRecordingStats(!recordingStats);
+                        }}
                     >
                         {t('Record stats', 'Zapsat statistiky')}
                     </button>
@@ -669,7 +680,7 @@ export function CatchUpRecap({
             <div id={statsFormId} hidden={!recordingStats}>
                 {recordingStats && (
                     <ObservationForm
-                        key={`${pokemon.state.speciesId}-${pokemon.state.formEpoch}-${pokemon.state.level}`}
+                        key={observationDraftKey(pokemon)}
                         pokemon={pokemon}
                         natureId={natureId}
                         observations={observations}
@@ -857,6 +868,8 @@ export function MyPokemonCard({
     onMove,
     saveObservation,
     onRemove,
+    recordingStats,
+    onRecordingStatsChange,
 }: {
     pokemon: OwnedPokemon;
     strength?: OwnedBattleStrength;
@@ -877,6 +890,8 @@ export function MyPokemonCard({
     onMove: (direction: -1 | 1) => Promise<void>;
     saveObservation: (observation: StatObservation) => Promise<void>;
     onRemove: () => Promise<void>;
+    recordingStats?: boolean;
+    onRecordingStatsChange?: (recording: boolean) => void;
 }) {
     const { t } = useLanguage();
     const species = useQuery({
@@ -889,6 +904,23 @@ export function MyPokemonCard({
     });
     const family = relatives.data ?? (species.data ? [species.data] : []);
     const [editingMoves, setEditingMoves] = useState(false);
+    const [localRecordingStats, setLocalRecordingStats] = useState(false);
+    const [resumingDraftKey, setResumingDraftKey] = useState<string>();
+    const isRecordingStats = recordingStats ?? localRecordingStats;
+    const statsFormId = useId();
+    const drafts = useObservationDrafts(pokemon.id);
+    const hasDraft = drafts.length > 0;
+    const earlierDrafts = drafts.filter(
+        ({ value }) =>
+            !value.observationId &&
+            (value.speciesId !== pokemon.state.speciesId ||
+                value.formEpoch !== pokemon.state.formEpoch),
+    );
+    const activeDraftKey = resumingDraftKey ?? observationDraftKey(pokemon);
+    function setRecordingStats(value: boolean) {
+        setLocalRecordingStats(value);
+        onRecordingStatsChange?.(value);
+    }
     const wishlistPanelId = useId();
     const [showWishlist, setShowWishlist] = useState(false);
     const [changingSpecies, setChangingSpecies] = useState(false);
@@ -932,6 +964,23 @@ export function MyPokemonCard({
                 details: species.data,
                 oldLevel: previous,
                 newLevel: level,
+                formEpoch: pokemon.state.formEpoch,
+            });
+    }
+    async function recordObservation(observation: StatObservation) {
+        await saveObservation(observation);
+        if (
+            !observation.deleted &&
+            !observations.some((entry) => entry.id === observation.id) &&
+            observation.speciesId === pokemon.state.speciesId &&
+            observation.formEpoch === pokemon.state.formEpoch &&
+            observation.level > pokemon.state.level &&
+            species.data
+        )
+            setRecap({
+                details: species.data,
+                oldLevel: pokemon.state.level,
+                newLevel: observation.level,
                 formEpoch: pokemon.state.formEpoch,
             });
     }
@@ -1027,6 +1076,104 @@ export function MyPokemonCard({
                     </div>
                 </div>
             </div>
+            {earlierDrafts.length > 0 && (
+                <section
+                    className="my-inset my-stack"
+                    aria-label={t(
+                        'Unfinished stats from earlier forms',
+                        'Rozepsané statistiky dřívějších forem',
+                    )}
+                >
+                    <h3>
+                        {t(
+                            'Unfinished stats from earlier forms',
+                            'Rozepsané statistiky dřívějších forem',
+                        )}
+                    </h3>
+                    <p className="my-muted">
+                        {t(
+                            'Resume an entry to save it under its original form, or discard it.',
+                            'Pokračujte v zápisu a uložte jej k původní formě, nebo jej zahoďte.',
+                        )}
+                    </p>
+                    {earlierDrafts.map(({ key, value }) => {
+                        const draftName =
+                            family.find((entry) => entry.speciesId === value.speciesId)?.name ??
+                            `#${value.speciesId}`;
+                        return (
+                            <div className="my-list-row" key={key}>
+                                <span>
+                                    {draftName} · Lv. {value.level || '—'}
+                                </span>
+                                <div className="my-actions">
+                                    <button
+                                        className="page-button"
+                                        type="button"
+                                        disabled={stateConflict}
+                                        onClick={() => {
+                                            setResumingDraftKey(key);
+                                            setRecordingStats(true);
+                                        }}
+                                    >
+                                        {t('Resume entry', 'Pokračovat v zápisu')}
+                                    </button>
+                                    <button
+                                        className="my-text-button"
+                                        type="button"
+                                        disabled={isObservationDraftSaving(key)}
+                                        onClick={() => {
+                                            clearObservationDraft(key);
+                                            if (resumingDraftKey === key) {
+                                                setResumingDraftKey(undefined);
+                                                setRecordingStats(false);
+                                            }
+                                        }}
+                                    >
+                                        {t('Discard entry', 'Zahodit záznam')}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </section>
+            )}
+            {!onRecordingStatsChange && (
+                <div className="my-actions">
+                    <button
+                        className="my-primary"
+                        type="button"
+                        disabled={stateConflict}
+                        aria-expanded={isRecordingStats}
+                        aria-controls={statsFormId}
+                        onClick={() => setRecordingStats(!isRecordingStats)}
+                    >
+                        {hasDraft
+                            ? t('Resume stats', 'Pokračovat v zápisu')
+                            : t('Record stats', 'Zapsat statistiky')}
+                    </button>
+                </div>
+            )}
+            <div id={statsFormId} hidden={!isRecordingStats || stateConflict}>
+                {isRecordingStats && !stateConflict && (
+                    <ObservationForm
+                        key={activeDraftKey}
+                        draftKey={activeDraftKey}
+                        pokemon={pokemon}
+                        natureId={natureConflict ? null : pokemon.natureId}
+                        observations={observations}
+                        predictionsEnabled={!statsConflict}
+                        onSave={async (entry) => {
+                            await recordObservation(entry);
+                            setResumingDraftKey(undefined);
+                            setRecordingStats(false);
+                        }}
+                        onCancel={() => {
+                            setResumingDraftKey(undefined);
+                            setRecordingStats(false);
+                        }}
+                    />
+                )}
+            </div>
             {strength && (
                 <BattleStrengthBadge
                     result={strength.result}
@@ -1069,7 +1216,8 @@ export function MyPokemonCard({
                                 applyCatchUpChanges(current, pokemon.state, changes),
                             );
                         }}
-                        saveObservation={saveObservation}
+                        saveObservation={recordObservation}
+                        onRecord={() => setRecordingStats(true)}
                         onClose={() => setRecap(null)}
                     />
                 )}
@@ -1359,7 +1507,8 @@ export function MyPokemonCard({
                                 observations={observations}
                                 predictionsEnabled={!statsConflict}
                                 family={family}
-                                saveObservation={saveObservation}
+                                saveObservation={recordObservation}
+                                onRecord={() => setRecordingStats(true)}
                             />
                         </div>
                     </details>

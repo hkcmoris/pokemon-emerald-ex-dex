@@ -5,7 +5,6 @@ import type { Ability, AbilityFlags } from '@pokemon-emerald-ex-dex/shared';
 import { ApiRequestError, fetchAbility, fetchAbilities } from './api.js';
 import { DexFooter } from './DexFooter.js';
 import { DexHeader } from './DexHeader.js';
-import { DexNavigation } from './DexNavigation.js';
 import { useLanguage } from './language.js';
 import { abilityHref } from './navigation.js';
 
@@ -96,6 +95,7 @@ export function AbilitiesPage({
     return (
         <div className="min-h-screen">
             <DexHeader
+                active="abilities"
                 version={version}
                 {...(abilityId !== undefined
                     ? {
@@ -214,7 +214,6 @@ export function AbilitiesPage({
                 )}
                 <DexFooter context="abilities" />
             </main>
-            <DexNavigation active="abilities" />
         </div>
     );
 }

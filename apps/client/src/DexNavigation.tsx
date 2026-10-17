@@ -1,6 +1,6 @@
 import { useLanguage } from './language.js';
 
-export type DexSection = 'pokemon' | 'items' | 'abilities' | 'my-pokemon';
+export type DexSection = 'pokemon' | 'items' | 'abilities' | 'my-pokemon' | 'simulator';
 
 export function DexSectionIcon({ section }: { section: DexSection }) {
     return (
@@ -28,6 +28,11 @@ export function DexSectionIcon({ section }: { section: DexSection }) {
                     <circle cx="17" cy="9" r="2.5" />
                     <path d="M2 21v-3a6 6 0 0 1 12 0v3M15 14a5 5 0 0 1 7 4v3" />
                 </>
+            ) : section === 'simulator' ? (
+                <>
+                    <path strokeLinejoin="round" d="m4 3 8 7-3 3-7-8Zm16 0-8 7 3 3 7-8Z" />
+                    <path d="m9 13 8 8m-2-8-8 8M5 17l4 4m6 0 4-4" />
+                </>
             ) : (
                 <path strokeLinejoin="round" d="m13.5 2-9 12h6l-1 8 10-13h-6Z" />
             )}
@@ -42,6 +47,7 @@ export function DexNavigation({ active }: { active: DexSection }) {
         { id: 'items', label: t('Items', 'Předměty'), href: '#/items' },
         { id: 'abilities', label: t('Abilities', 'Schopnosti'), href: '#/abilities' },
         { id: 'my-pokemon', label: t('My Pokémon', 'Moji Pokémoni'), href: '#/my-pokemon' },
+        { id: 'simulator', label: t('Simulator', 'Simulátor'), href: '#/simulator' },
     ];
     return (
         <nav className="dex-navigation" aria-label={t('Dex sections', 'Sekce Pokédexu')}>

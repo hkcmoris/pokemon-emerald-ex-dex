@@ -5,7 +5,6 @@ import type { Item } from '@pokemon-emerald-ex-dex/shared';
 import { ApiRequestError, fetchItem, fetchItemPockets, fetchItems } from './api.js';
 import { DexFooter } from './DexFooter.js';
 import { DexHeader } from './DexHeader.js';
-import { DexNavigation } from './DexNavigation.js';
 import { ItemIcon } from './ItemIcon.js';
 import { useLanguage } from './language.js';
 import { itemHref } from './navigation.js';
@@ -90,6 +89,7 @@ export function ItemsPage({ itemId, version }: { itemId: number | undefined; ver
     return (
         <div className="min-h-screen">
             <DexHeader
+                active="items"
                 version={version}
                 {...(itemId !== undefined
                     ? { backHref: '#/items', backLabel: t('All items', 'Všechny předměty') }
@@ -229,7 +229,6 @@ export function ItemsPage({ itemId, version }: { itemId: number | undefined; ver
                 )}
                 <DexFooter context="items" />
             </main>
-            <DexNavigation active="items" />
         </div>
     );
 }

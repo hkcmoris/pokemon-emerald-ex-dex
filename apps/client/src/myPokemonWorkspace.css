@@ -1,0 +1,323 @@
+.my-pokemon-main {
+    padding-bottom: 2rem;
+}
+.my-owned-detail {
+    max-width: none;
+    margin-top: 1rem;
+}
+.my-pokemon-workspace {
+    --my-party-roster-height: 126px;
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    align-items: start;
+    gap: 1.25rem;
+}
+.my-party-roster {
+    position: sticky;
+    top: calc(var(--dex-header-height) + 0.75rem);
+    z-index: 25;
+    max-height: calc(100dvh - var(--dex-header-height) - 1.5rem);
+    overflow-y: auto;
+    border: 1px solid var(--dex-border);
+    border-radius: var(--radius-card);
+    background: var(--dex-surface);
+    padding: 0.65rem;
+    scrollbar-width: thin;
+}
+.my-party-roster-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0 0.25rem 0.5rem;
+}
+.my-party-roster-heading h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.my-party-roster-heading .my-text-button {
+    font-size: 0.75rem;
+}
+.my-party-roster-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.my-party-roster-list > li,
+.my-workspace-detail,
+.my-workspace-overview {
+    min-width: 0;
+}
+.my-party-member {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 64px;
+    border-radius: 11px;
+    padding: 0.5rem;
+    color: var(--dex-text);
+    text-decoration: none;
+}
+.my-party-member:hover {
+    background: var(--dex-surface-raised);
+}
+.my-party-member[aria-current='true'] {
+    background: var(--dex-accent-strong);
+    box-shadow: inset 3px 0 var(--dex-accent);
+}
+.my-party-member .species-sprite {
+    flex-shrink: 0;
+    width: 42px !important;
+    height: 42px !important;
+}
+.my-party-member .species-sprite img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.my-party-member-copy {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+}
+.my-party-member-copy strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.my-party-member-copy > span {
+    color: var(--dex-muted);
+    font-size: 0.7rem;
+    line-height: 1.35;
+}
+.my-party-member-copy .my-party-member-draft {
+    color: var(--dex-accent);
+}
+.my-workspace-toolbar {
+    position: sticky;
+    top: var(--dex-header-height);
+    z-index: 24;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    padding: 0.75rem 0;
+    background: var(--dex-background);
+}
+.my-workspace-toolbar .my-primary {
+    min-height: 46px;
+}
+.appearance-toggle.my-stat-view-toggle {
+    width: 100%;
+    min-width: 0;
+    background: var(--dex-surface);
+}
+.appearance-toggle.my-stat-view-toggle button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+.my-stat-view-toggle svg {
+    flex-shrink: 0;
+}
+.my-party-overview {
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.25rem;
+}
+.my-party-overview-scroll {
+    overflow-x: auto;
+    margin-top: 0.75rem;
+    border-radius: 10px;
+    scrollbar-width: thin;
+}
+.my-party-overview table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.my-party-overview th:not(:first-child),
+.my-party-overview td {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.my-party-overview tbody th,
+.my-party-overview td {
+    border-bottom: 1px solid var(--dex-border);
+    padding: 0.35rem 0.75rem;
+}
+.my-party-overview tbody th {
+    text-align: left;
+    min-width: 185px;
+}
+.my-party-overview tr:last-child :is(th, td) {
+    border-bottom: 0;
+}
+.my-party-overview .my-party-member {
+    min-height: 52px;
+}
+.my-pokemon-main .my-view-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+}
+.my-pokemon-main .my-view-toolbar > .my-primary {
+    grid-column: 2;
+    grid-row: 1;
+}
+.my-pokemon-main .my-view-switch {
+    min-width: 0;
+}
+.my-pokemon-main .my-view-switch button {
+    gap: 0.4rem;
+}
+[data-stat-observation-form] {
+    scroll-margin-top: calc(var(--dex-header-height) + 5rem);
+}
+@media (max-width: 1100px) {
+    .my-workspace-toolbar .my-stat-view-toggle svg {
+        display: none;
+    }
+}
+@media (max-width: 800px) {
+    .my-pokemon-workspace {
+        display: block;
+    }
+    .my-party-roster {
+        top: var(--dex-header-height);
+        max-height: none;
+        overflow: visible;
+        border-radius: 0;
+        border-inline: 0;
+        padding: 0.35rem 0;
+        background: var(--dex-background);
+    }
+    .my-party-roster-heading {
+        padding: 0 0.25rem 0.25rem;
+    }
+    .my-party-roster-heading h2 {
+        font-size: 0.75rem;
+    }
+    .my-party-roster-heading .my-text-button {
+        min-height: 28px;
+        padding-block: 0;
+    }
+    .my-party-roster-list {
+        flex-direction: row;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        gap: 0.3rem;
+        padding: 0 0 0.3rem;
+        scrollbar-width: thin;
+        scroll-padding-inline: 0.25rem;
+    }
+    .my-party-roster-list > li {
+        flex: 0 0 86px;
+    }
+    .my-party-roster .my-party-member {
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 0.1rem;
+        height: 74px;
+        min-height: 0;
+        padding: 0.25rem;
+        text-align: center;
+        background: var(--dex-surface);
+    }
+    .my-party-roster .my-party-member[aria-current='true'] {
+        background: var(--dex-accent-strong);
+        box-shadow: inset 0 -3px var(--dex-accent);
+    }
+    .my-party-roster .my-party-member .species-sprite {
+        width: 34px !important;
+        height: 34px !important;
+    }
+    .my-party-roster .my-party-member-copy {
+        width: 100%;
+        gap: 0;
+    }
+    .my-party-roster .my-party-member-copy strong {
+        font-size: 0.7rem;
+    }
+    .my-party-roster .my-party-member-species {
+        display: none;
+    }
+    .my-party-roster .my-party-member-copy > span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.65rem;
+    }
+    .my-party-roster .my-party-member-copy .my-party-member-draft {
+        position: absolute;
+        top: 4px;
+        right: 5px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--dex-accent);
+        font-size: 0;
+    }
+    .my-pokemon-workspace .my-workspace-toolbar {
+        top: calc(var(--dex-header-height) + var(--my-party-roster-height));
+    }
+    .my-workspace-toolbar {
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+    }
+    .my-workspace-toolbar .my-primary {
+        padding-inline: 0.65rem;
+        font-size: 0.75rem;
+    }
+    .my-workspace-toolbar .my-stat-view-toggle button {
+        padding-inline: 0.2rem;
+        font-size: 0.7rem;
+    }
+    .my-pokemon-workspace [data-stat-observation-form] {
+        scroll-margin-top: calc(var(--dex-header-height) + var(--my-party-roster-height) + 6rem);
+    }
+}
+@media (max-width: 560px) {
+    .my-workspace-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.35rem;
+    }
+    .my-workspace-toolbar .my-record-stats-action {
+        min-height: 38px;
+        padding-block: 0.4rem;
+    }
+    .my-workspace-toolbar .my-stat-view-toggle button {
+        min-height: 40px;
+        font-size: 0.7rem;
+    }
+    .my-pokemon-main .my-view-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .my-pokemon-main .my-view-toolbar > .my-primary {
+        grid-column: 1;
+        grid-row: 2;
+        justify-self: stretch;
+    }
+    .my-view-switch {
+        width: 100%;
+    }
+    .my-view-switch button {
+        flex: 1;
+        justify-content: center;
+        padding-inline: 0.4rem;
+        font-size: 0.7rem;
+    }
+    .my-party-overview {
+        padding: 0.85rem;
+    }
+}

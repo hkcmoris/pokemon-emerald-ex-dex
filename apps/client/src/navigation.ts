@@ -2,7 +2,7 @@ export type DexRoute =
     | { kind: 'dex' }
     | { kind: 'my-pokemon'; addSpeciesId?: number }
     | { kind: 'owned-pokemon'; id: string }
-    | { kind: 'damage-simulator'; id: string }
+    | { kind: 'damage-simulator'; id?: string }
     | { kind: 'species'; id: number }
     | { kind: 'abilities' }
     | { kind: 'ability'; id: number }
@@ -26,12 +26,30 @@ export function ownedPokemonHref(id: string): string {
     return `#/my-pokemon/${encodeURIComponent(id)}`;
 }
 
-export function damageSimulatorHref(id: string): string {
-    return `${ownedPokemonHref(id)}/simulator`;
+export function damageSimulatorHref(id?: string): string {
+    return id === undefined ? '#/simulator' : `#/simulator/${encodeURIComponent(id)}`;
+}
+
+function parseOwnedId(value: string): string | null {
+    try {
+        const id = decodeURIComponent(value);
+        return /^[A-Za-z0-9_-]{1,80}$/.test(id) &&
+            !['__proto__', 'prototype', 'constructor'].includes(id)
+            ? id
+            : null;
+    } catch {
+        return null;
+    }
 }
 
 export function parseRoute(hash: string): DexRoute {
     if (hash === '' || hash === '#' || hash === '#/') return { kind: 'dex' };
+    if (hash === '#/simulator') return { kind: 'damage-simulator' };
+    const simulator = /^#\/simulator\/([^/?#]+)$/.exec(hash);
+    if (simulator) {
+        const id = parseOwnedId(simulator[1]);
+        return id === null ? { kind: 'not-found' } : { kind: 'damage-simulator', id };
+    }
     if (hash === '#/my-pokemon') return { kind: 'my-pokemon' };
     const collection = /^#\/my-pokemon\?add=(\d+)$/.exec(hash);
     if (collection) {
@@ -42,15 +60,10 @@ export function parseRoute(hash: string): DexRoute {
     }
     const ownedPokemon = /^#\/my-pokemon\/([^/?#]+)(\/simulator)?$/.exec(hash);
     if (ownedPokemon) {
-        try {
-            const id = decodeURIComponent(ownedPokemon[1]);
-            return /^[A-Za-z0-9_-]{1,80}$/.test(id) &&
-                !['__proto__', 'prototype', 'constructor'].includes(id)
-                ? { kind: ownedPokemon[2] ? 'damage-simulator' : 'owned-pokemon', id }
-                : { kind: 'not-found' };
-        } catch {
-            return { kind: 'not-found' };
-        }
+        const id = parseOwnedId(ownedPokemon[1]);
+        return id === null
+            ? { kind: 'not-found' }
+            : { kind: ownedPokemon[2] ? 'damage-simulator' : 'owned-pokemon', id };
     }
     if (hash === '#/abilities') return { kind: 'abilities' };
     const ability = /^#\/abilities\/(\d+)$/.exec(hash);

@@ -39,11 +39,11 @@ by speed shows Speed instead. Desktop retains the dense
 base-stat table. The HeroUI v3 filter sheet offers one type at a time and a sort
 order while retaining the visible results during updates. Remove the selected type
 chip to clear it, or choose Reset all in the sheet to clear search, type, and sort.
-Labeled navigation links Pokémon, Items, Abilities, and My Pokémon. It stays visible
-at the top of the viewport on desktop and at the bottom on mobile. A theme control
+Labeled navigation links Pokémon, Items, Abilities, My Pokémon, and Simulator. It stays visible
+in the header on desktop and mobile. A theme control
 switches between dark emerald and light mineral surfaces and remembers the choice locally.
 Pagination stays visible at the bottom of the viewport while browsing Pokémon, Items,
-and Abilities, with space above the bottom navigation on mobile.
+and Abilities, with space for the device's safe area on mobile.
 The interface uses DM Sans, with monospace reserved for identifiers such as species,
 item and ability IDs and TM/HM codes.
 The header language selector switches the interface between English and Čeština and
@@ -112,7 +112,11 @@ contents change. The Webzdarma package includes them automatically.
 
 Open **My Pokémon** at `#/my-pokemon` to maintain separate named playthroughs, each
 with its own collection and an ordered party of up to six Pokémon. The active party
-opens first. Add Pokémon from a species detail page or search within the collection.
+opens first with one member's detail and Stats selected. A persistent party list sits
+beside the detail on desktop and becomes a horizontally scrolling strip on mobile.
+Switch members directly without leaving the workspace; the selected view stays open.
+**Party overview** compares all members' current stats, and **Collection** includes boxed
+Pokémon. Add Pokémon from a species detail page or search within the collection.
 Only species/form and level are required; nicknames, current moves, and battle stats
 are optional. Newly added Pokémon start with up to four distinct moves most recently
 learned by their current level in the selected species/form's level-up learnset.
@@ -144,8 +148,10 @@ conflicting records prevent an overall score. Collection sorting can put the
 highest scores first without changing the saved party order. Cached reference data
 supports offline scoring. Abilities, items and temporary battle effects are excluded;
 see [the scoring formula and limits](docs/battle-strength-score.md).
-Open **Simulate damage** on an owned Pokémon to compare its attacks against any
-opponent species/form and level. The simulator shows the attacker's back sprite,
+Open **Simulator** from the main navigation, or **Simulate damage** on an owned Pokémon,
+to compare its attacks against any opponent species/form and level. The main entry
+uses the current playthrough and remembered member, falling back to its first party
+member or collection Pokémon. The simulator shows the attacker's back sprite,
 HP damage ranges, enemy HP percentages, STAB and type matchups. Enemy stats assume
 neutral nature, 31 IVs and 0 EVs, with temporary HP/Defense/Sp. Def overrides.
 Preview the current form's full learnset and TM/HM moves, including future level
@@ -178,10 +184,10 @@ damaging categories; status moves are excluded. Reduced-motion preferences keep 
 Unused move slots have dashed borders and 45° stripes, keeping the move grid the same
 height for zero to four moves. Unrecorded moves retain an explicit unknown label.
 A shared four-button selector switches all party and collection cards between current
-moves, the recorded stat graph, weaknesses, and resistances/immunities. It is centered
-in the party/collection toolbar on desktop and placed below that row on mobile.
-The selected view stays the same when switching between party and collection.
-The individual detail page keeps the same selector above its card. Each view grows
+moves, the recorded stat graph, weaknesses, and resistances/immunities. The selector
+and **Record stats** stay pinned below the header (and mobile party strip), so they
+remain available while scrolling through a member's details. The selected view stays
+the same when switching between members, party, and collection. Each view grows
 the card vertically as needed, with wrapping type badges and no fixed-height overlay.
 The graph legend sits in a single column on the right, leaving more vertical room for the plot.
 Hover near a chart point, tap it, or focus it with the keyboard to show its recorded value
@@ -198,11 +204,20 @@ Type names remain available
 when icons are missing; saved move names remain visible when reference data is
 unavailable offline.
 
-After adding a Pokémon, levels, moves, and evolutions are updated manually. Edit the level in the card
+**Record stats** opens the entry form from any view. Unfinished entries remain available
+when switching members, views, or visiting the simulator during the same app session;
+a draft badge identifies members with work in progress. Drafts are not synced or retained
+after a reload. Cancel explicitly discards an entry. If a Pokémon evolves before an entry
+is finished, the earlier-form draft can be resumed as history or discarded.
+Saving a new observation above the current level also advances the Pokémon's level in
+the same save. Older screenshots remain in history without lowering the current level.
+Corrections and observations from earlier form stages never change the current level.
+
+Levels, moves, and evolutions can also be updated manually. Edit the level in the card
 header by typing or using the up/down arrows. A save button appears to its left
 only when the level changes. Saving an increase offers a skippable recap; select
-learned moves explicitly. **Record stats** opens stat entry directly in the recap,
-with the current level filled in, on both collection cards and the detail page.
+learned moves explicitly. **Record stats** in the recap opens the shared stat-entry
+form with the current level filled in, on both collection cards and the detail page.
 Evolution opportunities in the recap show the target sprite and DNA icon. Check
 the evolution that happened and choose **Save changes** to record it together with
 any edited moves. Only one evolution branch can be selected; nothing is recorded
