@@ -22,8 +22,6 @@ import { MyPokemonCard } from './MyPokemonCard.js';
 import { MyPokemonViewToggle, type MyPokemonView } from './MyPokemonViewToggle.js';
 import { MyPokemonConflicts } from './MyPokemonConflicts.js';
 import { AddPokemonForm, SpeciesPicker } from './MyPokemonForms.js';
-import './myPokemon.css';
-import './battleStrength.css';
 
 function PlaythroughForm({
     initialName,

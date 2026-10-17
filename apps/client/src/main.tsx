@@ -6,6 +6,8 @@ import { App } from './App.js';
 import { LanguageProvider } from './language.js';
 import { applyTheme, readTheme } from './theme.js';
 import { registerCollectionOffline } from './collectionOffline.js';
+import './myPokemon.css';
+import './battleStrength.css';
 import './style.css';
 import './MoveEffectBadges.css';
 import './MoveAffinity.css';

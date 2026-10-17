@@ -412,6 +412,11 @@ its database pool on shutdown.
 npm run build
 ```
 
+Species details, abilities, items, My Pokémon, and the damage simulator load as
+separate JavaScript chunks when opened, with a localized loading message while a
+page loads. Shared styles load with the app. The production service worker
+precaches all emitted chunks so those pages remain available after offline setup.
+
 For Webzdarma PHP 8.4 hosting at `https://devground.cz/pokemon-emerald-ex-dex/`:
 
 ```bash

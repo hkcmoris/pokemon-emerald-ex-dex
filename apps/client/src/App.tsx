@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import type { DexSort } from './dex.js';
@@ -7,11 +7,6 @@ import { DexFooter } from './DexFooter.js';
 import { DexHeader } from './DexHeader.js';
 import { DexNavigation } from './DexNavigation.js';
 import { TypeBadges } from './TypeBadges.js';
-import { SpeciesPage } from './SpeciesPage.js';
-import { AbilitiesPage } from './AbilitiesPage.js';
-import { ItemsPage } from './ItemsPage.js';
-import { MyPokemonPage } from './MyPokemonPage.js';
-import { DamageSimulatorPage } from './DamageSimulatorPage.js';
 import { PokemonFilterSheet, getSortOptions } from './PokemonFilterSheet.js';
 import { PokemonResults } from './PokemonResults.js';
 import { navigationSnapshot, parseRoute, subscribeToNavigation } from './navigation.js';
@@ -20,7 +15,41 @@ import { typeDisplayName } from './typeNames.js';
 
 const pageSize = 40;
 
+const SpeciesPage = lazy(() =>
+    import('./SpeciesPage.js').then((module) => ({ default: module.SpeciesPage })),
+);
+const AbilitiesPage = lazy(() =>
+    import('./AbilitiesPage.js').then((module) => ({ default: module.AbilitiesPage })),
+);
+const ItemsPage = lazy(() =>
+    import('./ItemsPage.js').then((module) => ({ default: module.ItemsPage })),
+);
+const MyPokemonPage = lazy(() =>
+    import('./MyPokemonPage.js').then((module) => ({ default: module.MyPokemonPage })),
+);
+const DamageSimulatorPage = lazy(() =>
+    import('./DamageSimulatorPage.js').then((module) => ({ default: module.DamageSimulatorPage })),
+);
+
 export function App() {
+    const { t } = useLanguage();
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen">
+                    <DexHeader version="…" />
+                    <main className="mx-auto max-w-7xl px-5 py-12" role="status">
+                        {t('Loading page…', 'Načítání stránky…')}
+                    </main>
+                </div>
+            }
+        >
+            <AppContent />
+        </Suspense>
+    );
+}
+
+function AppContent() {
     const { t, locale, language } = useLanguage();
     const hash = useSyncExternalStore(subscribeToNavigation, navigationSnapshot, () => '');
     const route = parseRoute(hash);
