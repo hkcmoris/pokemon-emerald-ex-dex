@@ -21,12 +21,13 @@ function render(
     language: Language = 'en',
     loading = false,
     onRetry?: () => void,
+    compact = false,
 ): string {
     return renderToStaticMarkup(
         createElement(
             LanguageProvider,
             { initialLanguage: language },
-            createElement(BattleStrengthBadge, { result, loading, onRetry }),
+            createElement(BattleStrengthBadge, { result, loading, onRetry, compact }),
         ),
     );
 }
@@ -120,4 +121,49 @@ void test('incomplete scores offer retry for missing reference data but not unkn
         render({ ...incomplete, reason: 'unknown-moves' }, 'en', false, () => {}),
         /<button|Retry calculation/,
     );
+});
+
+void test('compact strength shows only its number while naming the score and estimates accessibly', () => {
+    const result = { ...available, estimatedStats: ['attack'] as const };
+    for (const [language, label] of [
+        ['en', 'Battle strength: 63/100, estimated'],
+        ['cs', 'Bojová síla: 63/100, odhad'],
+    ] as const) {
+        const html = render(result, language, false, undefined, true);
+        match(html, /<details class="my-strength my-strength-compact"/);
+        match(
+            html,
+            new RegExp(
+                `<summary[^>]*aria-label="${label}" title="${label}"><strong aria-hidden="true">63</strong></summary>`,
+            ),
+        );
+        doesNotMatch(html, /<summary[^>]*(?:role=|tabindex=|aria-expanded=)/);
+        match(html, /<dl class="my-strength-parts">/);
+        doesNotMatch(html, /my-strength-scale|my-strength-estimated/);
+    }
+});
+
+void test('compact loading and unavailable scores show a dash and keep their explanatory disclosure', () => {
+    const loading = render(available, 'en', true, undefined, true);
+    match(loading, /aria-busy="true"/);
+    match(loading, /aria-label="Battle strength: Calculating…"/);
+    match(loading, /<strong aria-hidden="true">—<\/strong><\/summary>/);
+    doesNotMatch(loading, />63<|<dl/);
+    for (const [status, reason, label] of [
+        ['incomplete', 'unknown-moves', 'Incomplete'],
+        ['conflict', 'conflict', 'Conflicting records'],
+        ['unavailable', 'missing-reference', 'Unavailable'],
+    ] as const) {
+        const html = render(
+            { ...available, status, reason, value: null },
+            'en',
+            false,
+            () => {},
+            true,
+        );
+        match(html, new RegExp(`aria-label="Battle strength: ${label}"`));
+        match(html, /<strong aria-hidden="true">—<\/strong><\/summary>/);
+        match(html, /my-strength-breakdown/);
+        if (status === 'unavailable') match(html, /Retry calculation/);
+    }
 });

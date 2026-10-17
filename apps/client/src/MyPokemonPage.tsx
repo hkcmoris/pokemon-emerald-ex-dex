@@ -595,15 +595,25 @@ export function MyPokemonPage({
             <div className="min-h-screen">
                 <DexHeader version={version} active="my-pokemon" />
                 <main className="dex-browse-main my-pokemon-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
-                    <a
-                        className="my-text-button my-detail-back"
-                        href="#/my-pokemon"
-                        onClick={() => {
-                            openOverview();
-                        }}
-                    >
-                        ← {t('Party overview', 'Přehled týmu')}
-                    </a>
+                    <div className="my-detail-toolbar">
+                        <a
+                            className="my-text-button my-detail-back"
+                            href="#/my-pokemon"
+                            onClick={() => {
+                                openOverview();
+                            }}
+                        >
+                            ← {t('Party overview', 'Přehled týmu')}
+                        </a>
+                        <span
+                            className={`my-sync-status my-sync-${collection.status}`}
+                            role="status"
+                            title={syncLabels[collection.status]}
+                        >
+                            <span aria-hidden="true">{syncBadgeLabels[collection.status]}</span>
+                            <span className="sr-only">{syncLabels[collection.status]}</span>
+                        </span>
+                    </div>
                     <div className="my-page-heading">
                         <div>
                             <p className="eyebrow">
@@ -611,12 +621,6 @@ export function MyPokemonPage({
                             </p>
                             <h1>{t('My Pokémon', 'Moji Pokémoni')}</h1>
                         </div>
-                        <span
-                            className={`my-sync-status my-sync-${collection.status}`}
-                            role="status"
-                        >
-                            {syncLabels[collection.status]}
-                        </span>
                     </div>
                     {(error || collection.error) && (
                         <div className="my-error" role="alert">

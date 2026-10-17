@@ -1036,14 +1036,22 @@ export function MyPokemonCard({
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col justify-between">
+                <div className="my-card-metrics">
                     <LevelEditor
                         key={pokemon.state.level}
                         value={pokemon.state.level}
                         disabled={stateConflict}
                         onSave={levelChange}
                     />
-                    <div className="flex justify-between">
+                    <div className="my-card-stat-totals">
+                        {strength && (
+                            <BattleStrengthBadge
+                                result={strength.result}
+                                loading={strength.loading}
+                                compact
+                                onRetry={strength.retry}
+                            />
+                        )}
                         <div
                             className="my-pokemon-stat-total"
                             title={
@@ -1174,13 +1182,6 @@ export function MyPokemonCard({
                     />
                 )}
             </div>
-            {strength && (
-                <BattleStrengthBadge
-                    result={strength.result}
-                    loading={strength.loading}
-                    onRetry={strength.retry}
-                />
-            )}
             <MyPokemonTraits
                 pokemon={pokemon}
                 species={species.data}

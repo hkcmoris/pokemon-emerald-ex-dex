@@ -45,6 +45,11 @@ exporting or importing their collection.
   Unrecorded moves still mean unknown, not absent.
 - Party cards prioritize level updates, current moves, and upcoming opportunities.
   Individual Pokémon details contain stats and history.
+- Individual detail pages place sync status beside the back link. On mobile, the
+  sticky party roster and view toolbar span the full screen width, with their controls
+  aligned to the card's outer edges.
+- Battle strength appears as a number immediately before the current and base stat
+  totals. Its calculation details remain available by selecting the number.
 - Party, Collection, and individual detail cards show the current species/form's base
   stat total beneath its sprite, labeled **Base total** for quick comparison. This is
   separate from recorded individual battle stats; unavailable reference data shows a dash.

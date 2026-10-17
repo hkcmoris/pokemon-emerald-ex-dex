@@ -18,10 +18,12 @@ function statLabel(key: keyof BaseStats, t: Translate): string {
 export function BattleStrengthBadge({
     result,
     loading = false,
+    compact = false,
     onRetry,
 }: {
     result: BattleStrengthResult;
     loading?: boolean;
+    compact?: boolean;
     onRetry?: () => void;
 }) {
     const { t, locale } = useLanguage();
@@ -34,6 +36,12 @@ export function BattleStrengthBadge({
           : result.status === 'incomplete'
             ? t('Incomplete', 'Neúplné')
             : t('Unavailable', 'Nedostupné');
+    const compactLabel = available
+        ? t(
+              `Battle strength: ${result.value}/100${estimated ? ', estimated' : ''}`,
+              `Bojová síla: ${result.value}/100${estimated ? ', odhad' : ''}`,
+          )
+        : `${t('Battle strength', 'Bojová síla')}: ${statusLabel}`;
     const formatPart = (value: number | null): string =>
         value === null
             ? t('Unknown', 'Neznámé')
@@ -60,29 +68,37 @@ export function BattleStrengthBadge({
 
     return (
         <details
-            className="my-strength"
+            className={`my-strength${compact ? ' my-strength-compact' : ''}`}
             data-status={loading ? 'loading' : result.status}
             aria-busy={loading || undefined}
         >
-            <summary className="my-strength-summary">
-                <span className="my-strength-heading">
-                    <span>{t('Battle strength', 'Bojová síla')}</span>
-                    <span className="my-strength-rating">
-                        {available ? (
-                            <>
-                                <strong>{result.value}</strong>
-                                <span className="my-strength-scale">/100</span>
-                                {estimated && (
-                                    <span className="my-strength-estimated">
-                                        {t('Estimated', 'Odhad')}
-                                    </span>
-                                )}
-                            </>
-                        ) : (
-                            <span className="my-strength-state">{statusLabel}</span>
-                        )}
+            <summary
+                className="my-strength-summary"
+                aria-label={compact ? compactLabel : undefined}
+                title={compact ? compactLabel : undefined}
+            >
+                {compact ? (
+                    <strong aria-hidden="true">{available ? result.value : '—'}</strong>
+                ) : (
+                    <span className="my-strength-heading">
+                        <span>{t('Battle strength', 'Bojová síla')}</span>
+                        <span className="my-strength-rating">
+                            {available ? (
+                                <>
+                                    <strong>{result.value}</strong>
+                                    <span className="my-strength-scale">/100</span>
+                                    {estimated && (
+                                        <span className="my-strength-estimated">
+                                            {t('Estimated', 'Odhad')}
+                                        </span>
+                                    )}
+                                </>
+                            ) : (
+                                <span className="my-strength-state">{statusLabel}</span>
+                            )}
+                        </span>
                     </span>
-                </span>
+                )}
             </summary>
             <div className="my-strength-breakdown">
                 {reason && <p>{reason}</p>}

@@ -92,3 +92,55 @@
     min-height: 44px;
     text-align: left;
 }
+.my-card-metrics {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.my-card-stat-totals {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+}
+.my-strength-compact {
+    position: static;
+    z-index: auto;
+    flex: 0 0 auto;
+    border: 0;
+    background: none;
+}
+.my-strength-compact > .my-strength-summary {
+    display: flex;
+    justify-content: center;
+    min-width: 2rem;
+    padding: 0;
+    border-radius: 4px;
+    list-style: none;
+    line-height: 1.2;
+}
+.my-strength-compact > .my-strength-summary::-webkit-details-marker {
+    display: none;
+}
+.my-strength-compact > .my-strength-summary strong {
+    color: var(--dex-accent);
+    font-size: 1.2rem;
+    font-variant-numeric: tabular-nums;
+}
+.my-strength-compact:not([data-status='available']) > .my-strength-summary strong {
+    color: var(--dex-muted);
+}
+.my-strength-compact > .my-strength-breakdown {
+    position: absolute;
+    z-index: 5;
+    inset-inline: 1rem;
+    max-height: min(32rem, 60dvh);
+    overflow-y: auto;
+    margin-top: 0.4rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    background: var(--dex-surface);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+}
