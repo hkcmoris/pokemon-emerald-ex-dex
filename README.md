@@ -212,8 +212,11 @@ unavailable offline.
 entry for the next party member; **Save & add another** keeps recording the same member,
 including repeated measurements at the same level. **Use last observed values** explicitly
 copies unambiguous values for the selected form and level; changed stats show their deltas.
-Predictions from two earlier levels appear as suggestions beside empty inputs and never
-become measured values unless entered by the user. Unknown values remain blank.
+Predictions from two earlier levels prefill supported fields and remain labeled as estimates.
+Check them against the game before saving; saving records the displayed values as observations.
+Untouched predictions follow the selected level, while edited or explicitly cleared fields
+stay as entered, including after reloading. Unsupported values remain blank. Corrections,
+historical forms and entries with unresolved conflicts do not receive prediction prefills.
 
 Unfinished observations and move choices are stored on this device and survive navigation
 and reloads. A roster badge identifies unfinished stats and pending decisions. Cancel

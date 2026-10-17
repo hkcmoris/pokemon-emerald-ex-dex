@@ -62,6 +62,7 @@ function QueuedObservation({
     onSave,
     onSaved,
     onSkip,
+    predictionsEnabled,
 }: {
     screenshot: StatScreenshot;
     pokemon: OwnedPokemon;
@@ -70,6 +71,7 @@ function QueuedObservation({
     onSave: (observation: StatObservation) => Promise<void>;
     onSaved: () => void;
     onSkip: () => void;
+    predictionsEnabled: boolean;
 }) {
     const { t } = useLanguage();
     const relatives = useQuery({
@@ -80,6 +82,7 @@ function QueuedObservation({
         <ObservationForm
             pokemon={pokemon}
             observations={observations.filter((entry) => entry.pokemonId === pokemon.id)}
+            predictionsEnabled={predictionsEnabled}
             family={
                 relatives.data ??
                 (family.some((entry) => entry.speciesId === pokemon.state.speciesId) ? family : [])
@@ -102,6 +105,7 @@ export function ScreenshotObservationQueue({
     observations,
     family = [],
     blockedPokemonIds = [],
+    predictionDisabledPokemonIds = [],
     onSave,
     onClose,
 }: {
@@ -110,6 +114,7 @@ export function ScreenshotObservationQueue({
     observations: readonly StatObservation[];
     family?: readonly SpeciesDetails[];
     blockedPokemonIds?: readonly string[];
+    predictionDisabledPokemonIds?: readonly string[];
     onSave: (observation: StatObservation) => Promise<void>;
     onClose: () => void;
 }) {
@@ -421,6 +426,9 @@ export function ScreenshotObservationQueue({
                                     screenshot={active}
                                     pokemon={activePokemon}
                                     observations={observations}
+                                    predictionsEnabled={
+                                        !predictionDisabledPokemonIds.includes(activePokemon.id)
+                                    }
                                     family={family}
                                     onSave={async (observation) => {
                                         setQueue(

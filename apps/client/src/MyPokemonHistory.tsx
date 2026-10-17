@@ -84,6 +84,19 @@ export function observedStatValues(draft: ObservationDraft): Partial<BaseStats> 
     return measured;
 }
 
+/** Keep edits (including cleared fields) separate from estimates that follow the selected level. */
+export function prefillStatInputs(
+    stats: ObservationDraft['stats'],
+    predictions: Partial<BaseStats>,
+): ObservationDraft['stats'] {
+    return Object.fromEntries(
+        statKeys.map((key) => [
+            key,
+            stats[key] ?? (predictions[key] === undefined ? '' : String(predictions[key])),
+        ]),
+    );
+}
+
 export function latestObservedComparison(
     observations: readonly StatObservation[],
 ): Partial<BaseStats> {
@@ -189,6 +202,7 @@ export function ObservationForm({
             ? predictStats(pokemon, observations, Number(level))
             : {};
     const hasPredictions = statKeys.some((key) => predictions[key] !== undefined);
+    const inputStats = prefillStatInputs(stats, predictions);
     const sameLevelStats = getCurrentStats(
         {
             ...pokemon,
@@ -228,7 +242,7 @@ export function ObservationForm({
     async function submit(event: SubmitEvent) {
         event.preventDefault();
         if (busy) return;
-        const measured = observedStatValues(draft);
+        const measured = observedStatValues({ ...draft, stats: inputStats });
         if (Object.keys(measured).length === 0) {
             setError(
                 t(
@@ -328,8 +342,8 @@ export function ObservationForm({
             {hasPredictions && (
                 <p className="my-muted" id={predictionHintId}>
                     {t(
-                        'Estimates from the last two recorded levels are shown beside the fields. Only values you enter or explicitly copy are saved as observed.',
-                        'U polí jsou odhady ze dvou posledních zaznamenaných úrovní. Jako naměřené se uloží jen zadané nebo výslovně zkopírované hodnoty.',
+                        'Prefilled values are estimates from the last two recorded levels. Check them against the game before saving. Edited or cleared fields stay as you set them.',
+                        'Předvyplněné hodnoty jsou odhady ze dvou posledních zaznamenaných úrovní. Před uložením je ověřte podle hry. Upravená nebo vymazaná pole zůstanou podle vašeho zadání.',
                     )}
                 </p>
             )}
@@ -435,7 +449,7 @@ export function ObservationForm({
                             inputMode="numeric"
                             data-observed-stat
                             disabled={busy}
-                            value={stats[key] ?? ''}
+                            value={inputStats[key]}
                             data-nature-effect={
                                 getNatureStatEffect(recordingNatureId, key) ?? undefined
                             }
@@ -450,15 +464,13 @@ export function ObservationForm({
                                 })
                             }
                         />
-                        {comparison[key] !== undefined &&
-                            stats[key] !== undefined &&
-                            stats[key] !== '' && (
-                                <small className="my-muted">
-                                    {t('Change', 'Změna')}:{' '}
-                                    {Number(stats[key]) - comparison[key] > 0 ? '+' : ''}
-                                    {Number(stats[key]) - comparison[key]}
-                                </small>
-                            )}
+                        {comparison[key] !== undefined && inputStats[key] !== '' && (
+                            <small className="my-muted">
+                                {t('Change', 'Změna')}:{' '}
+                                {Number(inputStats[key]) - comparison[key] > 0 ? '+' : ''}
+                                {Number(inputStats[key]) - comparison[key]}
+                            </small>
+                        )}
                     </label>
                 ))}
             </div>

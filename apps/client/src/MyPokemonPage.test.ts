@@ -3,10 +3,15 @@ import { test } from 'node:test';
 import {
     emptyCollection,
     type CollectionDocument,
+    type CollectionConflict,
     type OwnedPokemon,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { getVisitedWorkspaceSelection, reorderParty } from './MyPokemonPage.js';
+import {
+    getVisitedWorkspaceSelection,
+    hasPokemonObservationConflict,
+    reorderParty,
+} from './MyPokemonPage.js';
 import { throws } from 'node:assert/strict';
 
 const partyMember: OwnedPokemon = {
@@ -26,6 +31,87 @@ const document: CollectionDocument = {
     },
     pokemon: { [partyMember.id]: partyMember, [boxedMember.id]: boxedMember },
 };
+
+function observationConflict(overrides: Partial<CollectionConflict> = {}): CollectionConflict {
+    return {
+        id: 'observation-conflict',
+        kind: 'field',
+        entity: 'observations',
+        entityId: 'measurement',
+        field: 'stats',
+        base: null,
+        local: { hp: 30 },
+        remote: { hp: 31 },
+        ...overrides,
+    };
+}
+
+void test('observation conflict gating uses the saved owner for field conflicts', () => {
+    const withObservation: CollectionDocument = {
+        ...document,
+        observations: {
+            measurement: {
+                id: 'measurement',
+                pokemonId: partyMember.id,
+                speciesId: 255,
+                level: 12,
+                formEpoch: 'first',
+                recordedAt: '2026-10-17T12:00:00.000Z',
+                stats: { hp: 30 },
+                deleted: false,
+            },
+        },
+    };
+    strictEqual(
+        hasPokemonObservationConflict(withObservation, [observationConflict()], partyMember.id),
+        true,
+    );
+    strictEqual(
+        hasPokemonObservationConflict(withObservation, [observationConflict()], boxedMember.id),
+        false,
+    );
+});
+
+void test('missing observation rows still gate predictions using any full-record conflict alternative', () => {
+    for (const field of ['base', 'local', 'remote'] as const) {
+        const conflict = observationConflict({
+            field: '$entity',
+            base: null,
+            local: null,
+            remote: null,
+            [field]: { id: 'measurement', pokemonId: partyMember.id, stats: { hp: 30 } },
+        });
+        strictEqual(hasPokemonObservationConflict(document, [conflict], partyMember.id), true);
+        strictEqual(hasPokemonObservationConflict(document, [conflict], boxedMember.id), false);
+    }
+});
+
+void test('conflicting observation ownership gates both candidate members but ignores unrelated entities', () => {
+    const conflict = observationConflict({
+        field: 'pokemonId',
+        base: partyMember.id,
+        local: partyMember.id,
+        remote: boxedMember.id,
+    });
+    strictEqual(hasPokemonObservationConflict(document, [conflict], partyMember.id), true);
+    strictEqual(hasPokemonObservationConflict(document, [conflict], boxedMember.id), true);
+    strictEqual(
+        hasPokemonObservationConflict(
+            document,
+            [{ ...conflict, entity: 'pokemon' }],
+            partyMember.id,
+        ),
+        false,
+    );
+    strictEqual(
+        hasPokemonObservationConflict(
+            document,
+            [observationConflict({ base: [], local: null, remote: false })],
+            partyMember.id,
+        ),
+        false,
+    );
+});
 
 void test('a directly visited member restores its own run and root mode, including boxed members', () => {
     deepStrictEqual(getVisitedWorkspaceSelection(document, partyMember.id), {

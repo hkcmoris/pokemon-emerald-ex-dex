@@ -10,6 +10,7 @@ import {
     MyPokemonHistory,
     getObservationStages,
     observedStatValues,
+    prefillStatInputs,
     latestObservedComparison,
 } from './MyPokemonHistory.js';
 import {
@@ -81,7 +82,7 @@ function fieldValues(html: string): string[] {
     );
 }
 
-void test('new stat entries show suggestions beside empty measured fields', () => {
+void test('new stat entries prefill labeled estimates without saving until submitted', () => {
     let saves = 0;
     const html = render({
         onSave: () => {
@@ -89,18 +90,18 @@ void test('new stat entries show suggestions beside empty measured fields', () =
             return Promise.resolve();
         },
     });
-    deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
+    deepStrictEqual(fieldValues(html), ['36', '24', '24', '24', '24', '24']);
     strictEqual((html.match(/>Estimate: /g) ?? []).length, 6);
     strictEqual((html.match(/aria-describedby=/g) ?? []).length, 6);
     match(html, /last two recorded levels/);
-    match(html, /Only values you enter or explicitly copy/);
+    match(html, /Check them against the game before saving/);
     strictEqual(saves, 0);
 });
 
-void test('missing latest stats stay blank and supported stats receive suggestions only', () => {
+void test('missing latest stats stay blank and supported stats are prefilled', () => {
     const partial = observations.map((entry) => ({ ...entry, stats: { hp: entry.stats.hp } }));
     const html = render({ observations: partial });
-    deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
+    deepStrictEqual(fieldValues(html), ['36', '', '', '', '', '']);
     strictEqual((html.match(/>Estimate: /g) ?? []).length, 1);
 });
 
@@ -112,7 +113,7 @@ void test('short history, new forms and unresolved conflicts leave new entries b
     ]) {
         const html = render(options);
         deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
-        doesNotMatch(html, /Prefilled values|>Estimate<\/small>/);
+        doesNotMatch(html, /Prefilled values|>Estimate: /);
     }
 });
 
@@ -120,13 +121,13 @@ void test('corrections preserve the recorded fields and never fill previously un
     const html = render({ observation: { ...observations[0], stats: { hp: 31 } } });
     deepStrictEqual(fieldValues(html), ['31', '', '', '', '', '']);
     match(html, /Correct observation/);
-    doesNotMatch(html, /Prefilled values|>Estimate<\/small>/);
+    doesNotMatch(html, /Prefilled values|>Estimate: /);
 });
 
 void test('prediction guidance and field labels follow the Czech interface language', () => {
     const html = render({ language: 'cs' });
-    match(html, /U polí jsou odhady/);
-    match(html, /výslovně zkopírované hodnoty/);
+    match(html, /Předvyplněné hodnoty jsou odhady/);
+    match(html, /Před uložením je ověřte podle hry/);
     strictEqual((html.match(/>Odhad: /g) ?? []).length, 6);
     doesNotMatch(html, /Prefilled|Estimate|Check them against/);
 });
@@ -135,7 +136,7 @@ void test('current nature marks newly recorded stats without applying a second s
     const html = render({ pokemon: { ...pokemon, natureId: 15 } });
     match(html, /data-nature-effect="increased"/);
     match(html, /data-nature-effect="decreased"/);
-    deepStrictEqual(fieldValues(html), ['', '', '', '', '', '']);
+    deepStrictEqual(fieldValues(html), ['36', '24', '24', '24', '24', '24']);
     doesNotMatch(
         render({ pokemon: { ...pokemon, natureId: 15 }, observation: observations[0] }),
         /data-nature-effect/,
@@ -157,7 +158,7 @@ void test('unfinished entries survive remounts without copying values to another
         const html = render();
         match(html, /value="14"/);
         match(html, /value="2026-10-17T12:30"/);
-        deepStrictEqual(fieldValues(html), ['43', '', '', '', '', '']);
+        deepStrictEqual(fieldValues(html), ['43', '', '28', '28', '28', '28']);
         strictEqual(hasObservationDraft(pokemon.id), true);
         deepStrictEqual(getObservationDraft(key), draft);
         const other = { ...pokemon, id: 'another' };
@@ -198,7 +199,7 @@ void test('correction drafts remain separate from a new observation and its esti
             '',
             '',
         ]);
-        deepStrictEqual(fieldValues(render()), ['', '', '', '', '', '']);
+        deepStrictEqual(fieldValues(render()), ['36', '24', '24', '24', '24', '24']);
     } finally {
         clearObservationDraft(key);
     }
@@ -231,17 +232,47 @@ void test('an earlier-form draft can be resumed as history after evolution witho
     }
 });
 
-void test('saving measured stats never implicitly includes prediction values', () => {
+void test('saving uses the displayed prefills while preserving edited and explicitly cleared fields', () => {
+    const stats = { hp: '40', speed: '' };
     deepStrictEqual(
         observedStatValues({
             speciesId: 1,
             formEpoch: 'stage',
             level: '13',
             recordedAt: '2026-10-17T12:00',
-            stats: { hp: '40', speed: '' },
+            stats: prefillStatInputs(stats, { hp: 39, attack: 26, speed: 26 }),
         }),
-        { hp: 40 },
+        { hp: 40, attack: 26 },
     );
+    deepStrictEqual(stats, { hp: '40', speed: '' });
+});
+
+void test('untouched prefills follow level changes while saved edits and cleared fields stay intact', () => {
+    const key = observationDraftKey(pokemon);
+    const draft = {
+        speciesId: pokemon.state.speciesId,
+        formEpoch: pokemon.state.formEpoch,
+        level: '12',
+        recordedAt: '2026-10-17T12:30',
+        stats: { hp: '40', speed: '' },
+    };
+    try {
+        setObservationDraft(key, pokemon.id, draft);
+        deepStrictEqual(fieldValues(render()), ['40', '24', '24', '24', '24', '']);
+        setObservationDraft(key, pokemon.id, { ...draft, level: '13' });
+        deepStrictEqual(fieldValues(render()), ['40', '26', '26', '26', '26', '']);
+        deepStrictEqual(fieldValues(render({ predictionsEnabled: false })), [
+            '40',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ]);
+        deepStrictEqual(getObservationDraft(key)?.stats, { hp: '40', speed: '' });
+    } finally {
+        clearObservationDraft(key);
+    }
 });
 
 void test('historical stages are scoped to this Pokémon and preserve repeated species stages', () => {

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
     getDefaultMoves,
     type CollectionDocument,
+    type CollectionConflict,
     type OwnedPokemon,
     type Pokemon,
     type Playthrough,
@@ -30,6 +31,25 @@ import {
 } from './workspaceSession.js';
 import { saveStatObservation } from './collectionObservations.js';
 import { sameOrder } from './ReorderList.js';
+
+export function hasPokemonObservationConflict(
+    document: CollectionDocument,
+    conflicts: readonly CollectionConflict[],
+    pokemonId: string,
+): boolean {
+    return conflicts.some((conflict) => {
+        if (conflict.entity !== 'observations') return false;
+        if (document.observations[conflict.entityId]?.pokemonId === pokemonId) return true;
+        return [conflict.base, conflict.local, conflict.remote].some(
+            (value) =>
+                (conflict.field === 'pokemonId' && value === pokemonId) ||
+                (value !== null &&
+                    typeof value === 'object' &&
+                    !Array.isArray(value) &&
+                    value.pokemonId === pokemonId),
+        );
+    });
+}
 
 export function reorderParty(
     document: CollectionDocument,
@@ -211,6 +231,13 @@ export function MyPokemonPage({
     const owned = Object.values(document.pokemon).filter(
         (pokemon) => pokemon.playthroughId === run?.id && !pokemon.deleted,
     );
+    const predictionDisabledPokemonIds = owned
+        .filter(
+            (member) =>
+                hasStateConflict(member) ||
+                hasPokemonObservationConflict(document, collection.conflicts, member.id),
+        )
+        .map((member) => member.id);
     const party =
         run?.party
             .map((id) => document.pokemon[id])
@@ -457,6 +484,7 @@ export function MyPokemonPage({
                 )}
                 allObservations={Object.values(document.observations)}
                 blockedRecordingIds={owned.filter(hasStateConflict).map((member) => member.id)}
+                predictionDisabledPokemonIds={predictionDisabledPokemonIds}
                 onRecordNext={
                     detail && !partyOrderDisabled && nextMember && !hasStateConflict(nextMember)
                         ? () => {
@@ -496,10 +524,10 @@ export function MyPokemonPage({
                         conflict.entityId === pokemon.id &&
                         conflict.field === 'moveWishlist',
                 )}
-                observationConflict={collection.conflicts.some(
-                    (conflict) =>
-                        conflict.entity === 'observations' &&
-                        document.observations[conflict.entityId]?.pokemonId === pokemon.id,
+                observationConflict={hasPokemonObservationConflict(
+                    document,
+                    collection.conflicts,
+                    pokemon.id,
                 )}
                 onUpdate={(updater) => updatePokemon(pokemon.id, updater)}
                 onParty={() => toggleParty(pokemon)}

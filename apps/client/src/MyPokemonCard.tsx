@@ -507,6 +507,7 @@ export function MyPokemonCard({
     onRecordNext,
     allObservations,
     blockedRecordingIds,
+    predictionDisabledPokemonIds,
 }: {
     pokemon: OwnedPokemon;
     strength?: OwnedBattleStrength;
@@ -532,6 +533,7 @@ export function MyPokemonCard({
     onRecordNext?: () => void;
     allObservations?: readonly StatObservation[];
     blockedRecordingIds?: readonly string[];
+    predictionDisabledPokemonIds?: readonly string[];
 }) {
     const { t } = useLanguage();
     const species = useQuery({
@@ -888,6 +890,11 @@ export function MyPokemonCard({
                     observations={allObservations ?? observations}
                     family={family}
                     blockedPokemonIds={blockedRecordingIds}
+                    predictionDisabledPokemonIds={
+                        statsConflict
+                            ? [...(predictionDisabledPokemonIds ?? []), pokemon.id]
+                            : predictionDisabledPokemonIds
+                    }
                     onSave={recordObservation}
                     onClose={() => setShowScreenshotQueue(false)}
                 />
