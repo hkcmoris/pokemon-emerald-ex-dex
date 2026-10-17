@@ -47,6 +47,23 @@ _Avoid_: Battle stats
 The six individual stat values of an owned Pokémon, optionally recorded by the player.
 _Avoid_: Base stats
 
+**Battle strength score**:
+An automatic 0–100 comparison of an owned Pokémon's current strength at its present
+level, based on battle stats, known moves, and defensive type matchups. Weaknesses,
+resistances, and immunities contribute according to their severity, and the score
+is independent of which other Pokémon the player owns.
+_Avoid_: Training potential, party fit, damage prediction
+
+**Estimated battle strength score**:
+A battle strength score that uses estimated values for one or more unrecorded battle
+stats, with those estimates identified separately from recorded observations.
+_Avoid_: Measured stats, stat observation
+
+**Incomplete battle strength score**:
+A battle strength assessment whose move contribution is unknown because the owned
+Pokémon's current moves have not been recorded or their reference data is unavailable.
+_Avoid_: Zero strength, empty moveset
+
 **Stat observation**:
 Battle stat values recorded by the player for an owned Pokémon at a particular level
 and species/form. An observation may contain only some of the six stats.

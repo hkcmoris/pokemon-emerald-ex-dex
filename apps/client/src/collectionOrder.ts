@@ -14,3 +14,18 @@ export function orderCollectionPokemon(
         );
     });
 }
+
+/** Rank the collection by score, retaining the default order for ties and unavailable scores. */
+export function orderCollectionByScore(
+    pokemon: readonly OwnedPokemon[],
+    party: readonly string[],
+    scores: ReadonlyMap<string, number | null>,
+): OwnedPokemon[] {
+    return orderCollectionPokemon(pokemon, party).sort((left, right) => {
+        const leftScore = scores.get(left.id) ?? null;
+        const rightScore = scores.get(right.id) ?? null;
+        if (leftScore === null) return rightScore === null ? 0 : 1;
+        if (rightScore === null) return -1;
+        return rightScore - leftScore;
+    });
+}

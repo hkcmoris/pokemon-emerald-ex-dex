@@ -135,6 +135,15 @@ for a matching type, otherwise 1). Tap the number for its explanation. Missing o
 conflicting current stats and moves without a supported fixed-power calculation
 show a dash. This is a comparison score, not HP damage against an opponent; see
 [the formula, exceptions and research sources](docs/move-power.md).
+Owned cards and detail pages also show automatic **Battle strength** from 0–100.
+Expand the score for Stats, Moves and Typing contributions, estimated-stat labels,
+and unsupported moves. The score uses the current form, level and moves, including
+accuracy, STAB, coverage, reviewed support moves, and the severity of weaknesses,
+resistances and immunities. Missing stats use labeled estimates; unknown moves or
+conflicting records prevent an overall score. Collection sorting can put the
+highest scores first without changing the saved party order. Cached reference data
+supports offline scoring. Abilities, items and temporary battle effects are excluded;
+see [the scoring formula and limits](docs/battle-strength-score.md).
 Open **Simulate damage** on an owned Pokémon to compare its attacks against any
 opponent species/form and level. The simulator shows the attacker's back sprite,
 HP damage ranges, enemy HP percentages, STAB and type matchups. Enemy stats assume
@@ -194,6 +203,11 @@ header by typing or using the up/down arrows. A save button appears to its left
 only when the level changes. Saving an increase offers a skippable recap; select
 learned moves explicitly. **Record stats** opens stat entry directly in the recap,
 with the current level filled in, on both collection cards and the detail page.
+Evolution opportunities in the recap show the target sprite and DNA icon. Check
+the evolution that happened and choose **Save changes** to record it together with
+any edited moves. Only one evolution branch can be selected; nothing is recorded
+by merely reaching its required level. Evolution starts a new form stage while
+earlier stat observations retain their original form and untouched moves stay as recorded.
 When the current form has observations at two earlier levels, the new-stat form
 prefills each supported stat by extending its growth between the two latest recorded
 levels, rounded to a whole number. These values are labeled **Estimate** and must be
@@ -207,6 +221,8 @@ Saving or cancelling stat entry leaves the recap open. Unrecorded moves mean unk
 not an empty moveset. Recording an evolution or form change
 preserves the Pokémon's identity, existing moves, and previous stat observations.
 Partial stat observations retain their measurement time, level, and species/form.
+The measurement date field fits the form width on mobile, including iOS, while retaining
+the native date and time picker.
 Corrections update the original observation. Optional estimates interpolate only
 between unambiguous recorded values within the same continuous form period; they
 never cross an evolution/form change or predict future levels.

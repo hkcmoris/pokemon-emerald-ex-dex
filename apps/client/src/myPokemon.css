@@ -197,6 +197,11 @@
     justify-content: center;
     margin-bottom: 1.25rem;
 }
+.my-score-sort {
+    width: min(100%, 22rem);
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0 0 1.25rem auto;
+}
 .my-view-switch {
     display: inline-flex;
     background: var(--dex-surface);
@@ -248,10 +253,18 @@
 .my-stat-inputs {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+.my-fields > .filter-label {
+    grid-template-columns: minmax(0, 1fr);
+}
 .my-pokemon-main .filter-input {
     min-height: 42px;
     width: 100%;
     min-width: 0;
+}
+.my-pokemon-main .filter-input[type='datetime-local'] {
+    /* Stretch instead of using 100% width: iOS adds native date-input padding to it. */
+    width: auto;
+    justify-self: stretch;
 }
 .my-card-summary {
     isolation: isolate;
@@ -662,6 +675,47 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+.my-recap-evolution {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    cursor: pointer;
+}
+.my-recap-evolution:has(input:checked) {
+    border-color: var(--dex-accent);
+}
+.my-recap-evolution > .species-sprite {
+    flex-shrink: 0;
+}
+.my-recap-evolution-copy {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.my-recap-evolution-title,
+.my-recap-evolution-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.my-recap-evolution-title img,
+.my-recap-evolution-choice input {
+    flex-shrink: 0;
+}
+.my-recap-evolution-choice {
+    min-height: 44px;
+    font-weight: 650;
+}
+.my-recap-evolution-choice input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--dex-accent);
 }
 .my-move {
     display: inline-flex;

@@ -9,7 +9,8 @@ import {
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { useCollection } from './collectionStore.js';
-import { orderCollectionPokemon } from './collectionOrder.js';
+import { orderCollectionByScore, orderCollectionPokemon } from './collectionOrder.js';
+import { useBattleStrength } from './useBattleStrength.js';
 import { useCollectionOffline } from './collectionOffline.js';
 import { loadCollectionSpecies } from './collectionSpecies.js';
 import { GoogleSignIn } from './GoogleSignIn.js';
@@ -22,6 +23,7 @@ import { MyPokemonViewToggle, type MyPokemonView } from './MyPokemonViewToggle.j
 import { MyPokemonConflicts } from './MyPokemonConflicts.js';
 import { AddPokemonForm, SpeciesPicker } from './MyPokemonForms.js';
 import './myPokemon.css';
+import './battleStrength.css';
 
 function PlaythroughForm({
     initialName,
@@ -116,6 +118,7 @@ export function MyPokemonPage({
     const { document, update, ready } = collection;
     const [selectedRunId, setSelectedRunId] = useState('');
     const [view, setView] = useState<'party' | 'collection'>('party');
+    const [collectionSort, setCollectionSort] = useState<'default' | 'score'>('default');
     const [cardView, setCardView] = useState<MyPokemonView>('moves');
     const cardsId = useId();
     const [runEditor, setRunEditor] = useState<'new' | 'rename' | null>(null);
@@ -150,7 +153,25 @@ export function MyPokemonPage({
         run?.party
             .map((id) => document.pokemon[id])
             .filter((entry): entry is OwnedPokemon => Boolean(entry && !entry.deleted)) ?? [];
-    const shown = view === 'party' ? party : orderCollectionPokemon(owned, run?.party ?? []);
+    const scoreTargets =
+        pokemonId !== undefined
+            ? detailPokemon && !detailPokemon.deleted && run
+                ? [detailPokemon]
+                : []
+            : view === 'party'
+              ? party
+              : owned;
+    const strengths = useBattleStrength(scoreTargets, document, collection.conflicts, datasetId);
+    const shown =
+        view === 'party'
+            ? party
+            : collectionSort === 'score'
+              ? orderCollectionByScore(
+                    owned,
+                    run?.party ?? [],
+                    new Map([...strengths].map(([id, strength]) => [id, strength.result.value])),
+                )
+              : orderCollectionPokemon(owned, run?.party ?? []);
     const picked = selectedSpecies ?? (!seedDismissed ? seededSpecies.data : null);
     const deletedRuns = Object.values(document.playthroughs).filter((entry) => entry.deleted);
     const deletedPokemon = Object.values(document.pokemon).filter(
@@ -310,6 +331,7 @@ export function MyPokemonPage({
                 detail={detail}
                 view={cardView}
                 pokemon={pokemon}
+                strength={strengths.get(pokemon.id)}
                 datasetId={datasetId}
                 observations={Object.values(document.observations).filter(
                     (entry) => entry.pokemonId === pokemon.id,
@@ -825,6 +847,32 @@ export function MyPokemonPage({
                                     </section>
                                 )}
                                 {partyReplacement}
+                                {view === 'collection' && owned.length > 0 && (
+                                    <label className="my-score-sort filter-label">
+                                        {t('Collection order', 'Řazení sbírky')}
+                                        <select
+                                            className="filter-input"
+                                            value={collectionSort}
+                                            onChange={(event) =>
+                                                setCollectionSort(
+                                                    event.target.value === 'score'
+                                                        ? 'score'
+                                                        : 'default',
+                                                )
+                                            }
+                                        >
+                                            <option value="default">
+                                                {t('Current order', 'Původní pořadí')}
+                                            </option>
+                                            <option value="score">
+                                                {t(
+                                                    'Battle strength: highest first',
+                                                    'Bojová síla: od nejvyšší',
+                                                )}
+                                            </option>
+                                        </select>
+                                    </label>
+                                )}
                                 {shown.length === 0 ? (
                                     <section className="my-empty" id={cardsId}>
                                         <div className="my-empty-mark" aria-hidden="true">

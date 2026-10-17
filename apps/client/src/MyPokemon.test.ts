@@ -133,7 +133,7 @@ void test('catch-up recap saves nothing automatically and keeps the recap skippa
             oldLevel: 12,
             newLevel: 15,
             moves: null,
-            onSaveMoves: () => {
+            onSave: () => {
                 saves++;
                 return Promise.resolve();
             },
@@ -356,7 +356,7 @@ void test('Czech collection guidance and recaps translate item and friendship su
             oldLevel: 19,
             newLevel: 20,
             moves: [],
-            onSaveMoves: async () => {},
+            onSave: async () => {},
             saveObservation: async () => {},
             onClose: () => {},
         }),
@@ -377,7 +377,7 @@ void test('Czech collection guidance and recaps translate item and friendship su
             oldLevel: 11,
             newLevel: 16,
             moves: [],
-            onSaveMoves: async () => {},
+            onSave: async () => {},
             saveObservation: async () => {},
             onClose: () => {},
         }),

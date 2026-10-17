@@ -62,6 +62,7 @@ export function MyPokemonMove({
     prefix,
     suffix,
     onClick,
+    disabled = false,
 }: {
     move: KnownMove;
     reference?: Move;
@@ -71,6 +72,7 @@ export function MyPokemonMove({
     prefix?: ReactNode;
     suffix?: ReactNode;
     onClick?: MouseEventHandler<HTMLElement>;
+    disabled?: boolean;
 }) {
     const { t } = useLanguage();
     const lookup = useQuery({
@@ -109,6 +111,7 @@ export function MyPokemonMove({
                         className="my-move-primary"
                         aria-label={t(`Remove ${move.name}`, `Odebrat ${move.name}`)}
                         onClick={onClick}
+                        disabled={disabled}
                     >
                         {name}
                     </button>

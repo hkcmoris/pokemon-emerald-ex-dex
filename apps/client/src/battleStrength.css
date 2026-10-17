@@ -1,0 +1,94 @@
+.my-strength {
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+    max-width: 100%;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--dex-accent) 6%, var(--dex-surface));
+    font-size: 0.8rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.my-strength-summary {
+    position: relative;
+    z-index: 2;
+    min-height: 44px;
+    padding: 0.65rem 0.8rem;
+    cursor: pointer;
+    border-radius: 12px;
+}
+.my-strength-summary::marker {
+    color: var(--dex-accent);
+}
+.my-strength-summary:focus-visible {
+    outline: 2px solid var(--dex-accent);
+    outline-offset: 3px;
+}
+.my-strength-heading {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.7rem;
+    width: calc(100% - 1rem);
+    vertical-align: middle;
+    font-weight: 650;
+}
+.my-strength-rating {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    min-width: 0;
+}
+.my-strength-rating strong {
+    color: var(--dex-accent);
+    font-size: 1.15rem;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+.my-strength-scale,
+.my-strength-state {
+    color: var(--dex-muted);
+    font-weight: 500;
+}
+.my-strength-estimated {
+    margin-left: 0.25rem;
+    color: var(--dex-muted);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+.my-strength-breakdown {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.8rem;
+    border-top: 1px solid var(--dex-border);
+    color: var(--dex-muted);
+}
+.my-strength-breakdown p {
+    margin: 0;
+}
+.my-strength-parts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0;
+}
+.my-strength-parts > div {
+    min-width: 0;
+}
+.my-strength-parts dd {
+    margin: 0.15rem 0 0;
+    color: var(--dex-text);
+    font-size: 1rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+}
+.my-strength-breakdown > button {
+    justify-self: start;
+    min-height: 44px;
+    text-align: left;
+}
