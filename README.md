@@ -208,7 +208,9 @@ Type names remain available
 when icons are missing; saved move names remain visible when reference data is
 unavailable offline.
 
-**Record stats** opens the entry form from any view. **Save & next member** saves and opens
+**Record stats** opens the entry form from any view. Saving a higher level in Stats or History
+also opens stat entry at the new level; an unfinished entry keeps its original level and values.
+Lowering the level does not open an entry. **Save & next member** saves and opens
 entry for the next party member; **Save & add another** keeps recording the same member,
 including repeated measurements at the same level. **Use last observed values** explicitly
 copies unambiguous values for the selected form and level; changed stats show their deltas.

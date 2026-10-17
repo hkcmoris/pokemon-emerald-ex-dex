@@ -546,6 +546,7 @@ export function MyPokemonCard({
     });
     const family = relatives.data ?? (species.data ? [species.data] : []);
     const [localRecordingStats, setLocalRecordingStats] = useState(false);
+    const [statsEntryRevision, setStatsEntryRevision] = useState(0);
     const [resumingDraftKey, setResumingDraftKey] = useState<string>();
     const isRecordingStats = recordingStats ?? localRecordingStats;
     const statsFormId = useId();
@@ -626,6 +627,12 @@ export function MyPokemonCard({
         const previous = pokemon.state.level;
         await onUpdate((current) => ({ ...current, state: { ...current.state, level } }));
         reviewLevelChange(previous, level);
+        if (level > previous && (view === 'stats' || view === 'history')) {
+            setResumingDraftKey(undefined);
+            // Refresh an untouched open form; persisted edits keep their original context.
+            setStatsEntryRevision((revision) => revision + 1);
+            setRecordingStats(true);
+        }
     }
     async function recordObservation(observation: StatObservation) {
         const target =
@@ -721,7 +728,7 @@ export function MyPokemonCard({
                     <LevelEditor
                         key={pokemon.state.level}
                         value={pokemon.state.level}
-                        disabled={stateConflict}
+                        disabled={stateConflict || isObservationDraftSaving(activeDraftKey)}
                         onSave={levelChange}
                     />
                     <div className="my-card-stat-totals">
@@ -845,7 +852,7 @@ export function MyPokemonCard({
             <div id={statsFormId} hidden={!isRecordingStats || stateConflict}>
                 {isRecordingStats && !stateConflict && (
                     <ObservationForm
-                        key={activeDraftKey}
+                        key={`${activeDraftKey}:${statsEntryRevision}`}
                         draftKey={activeDraftKey}
                         pokemon={pokemon}
                         natureId={natureConflict ? null : pokemon.natureId}
