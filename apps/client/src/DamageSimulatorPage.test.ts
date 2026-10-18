@@ -270,6 +270,126 @@ function input(html: string, label: string): string {
     );
 }
 
+void test('arena badges use recorded damaging moves, exclude previews and never infer unrevealed enemy coverage', () => {
+    const icicleSpear: Move = {
+        ...tackle,
+        moveId: 333,
+        name: 'Icicle Spear',
+        typeId: 15,
+        type: 'Ice',
+        power: 25,
+        effectId: 25,
+    };
+    const withdraw: Move = {
+        ...waterGun,
+        moveId: 110,
+        name: 'Withdraw',
+        categoryId: 2,
+        category: 'Status',
+        power: 0,
+    };
+    const vineWhip: Move = {
+        ...tackle,
+        moveId: 22,
+        name: 'Vine Whip',
+        typeId: 12,
+        type: 'Grass',
+    };
+    const shellder: SpeciesDetails = { ...species, speciesId: 90, name: 'Shellder' };
+    const slugma: SpeciesDetails = {
+        ...species,
+        speciesId: 218,
+        name: 'Slugma',
+        typeIds: [10],
+        types: ['Fire'],
+    };
+    const owned: OwnedPokemon = {
+        ...pokemon,
+        nickname: 'Milan',
+        state: { ...pokemon.state, speciesId: 90, moves: [icicleSpear, withdraw] },
+    };
+    const document: CollectionDocument = {
+        ...collection(owned),
+        encounters: {
+            gym: {
+                id: 'gym',
+                name: 'Gym',
+                playthroughId: 'run',
+                party: ['slugma'],
+                deleted: false,
+                createdAt: '2026-10-18T10:00:00Z',
+            },
+        },
+        opponents: {
+            slugma: {
+                id: 'slugma',
+                encounterId: 'gym',
+                speciesId: 218,
+                level: 25,
+                moves: [],
+                deleted: false,
+            },
+        },
+    };
+    const typeIds = [0, 10, 11, 12, 15];
+    const chart: TypeEffectivenessChart = {
+        types: typeIds.map((typeId) => ({ typeId, name: String(typeId), iconFile: null })),
+        matchups: typeIds.flatMap((attackingTypeId) =>
+            typeIds.map((defendingTypeId) => ({
+                attackingTypeId,
+                defendingTypeId,
+                multiplier:
+                    (attackingTypeId === 11 && defendingTypeId === 10) ||
+                    (attackingTypeId === 12 && defendingTypeId === 11)
+                        ? 2
+                        : (attackingTypeId === 15 && defendingTypeId === 10) ||
+                            (attackingTypeId === 10 && defendingTypeId === 11)
+                          ? 0.5
+                          : 1,
+            })),
+        ),
+    };
+    const options = {
+        document,
+        references: [shellder, slugma],
+        moves: [icicleSpear, withdraw, vineWhip, surf],
+        chart,
+    };
+    function badges(html: string): string {
+        return [...html.matchAll(/<aside class="sim-battle-matchups"[\s\S]*?<\/aside>/g)]
+            .map((entry) => entry[0])
+            .join('');
+    }
+    const before = structuredClone(document);
+    const html = render(options);
+    const hints = badges(html);
+    match(hints, /Slugma: recorded move matchups/);
+    match(hints, /Icicle Spear \(Ice\): ½× damage taken/);
+    doesNotMatch(hints, /Water Gun|Surf|Withdraw|Weakness|Milan: recorded move matchups/);
+    // Water attacks remain available in the preview catalogue, but do not influence hints.
+    match(html, /Surf/);
+    if (!document.opponents) throw new Error('Missing opponent fixture');
+    const revealed = render({
+        ...options,
+        document: {
+            ...document,
+            opponents: { slugma: { ...document.opponents.slugma, moves: [vineWhip] } },
+        },
+    });
+    match(badges(revealed), /Milan: recorded move matchups/);
+    match(badges(revealed), /Vine Whip \(Grass\): 2× damage taken/);
+    const newlyRecorded = render({
+        ...options,
+        document: {
+            ...document,
+            pokemon: { [owned.id]: { ...owned, state: { ...owned.state, moves: [surf] } } },
+        },
+    });
+    match(badges(newlyRecorded), /Surf \(Water\): 2× damage taken/);
+    doesNotMatch(badges(newlyRecorded), /Icicle Spear/);
+    deepStrictEqual(document, before);
+});
+
 void test('simulator exposes saved level controls with a one-click increase and caps leveling at 100', () => {
     const html = render();
     match(html, /aria-label="Saved Pokémon level"/);

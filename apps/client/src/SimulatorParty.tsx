@@ -1,6 +1,5 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
 import {
-    getTypeDefenses,
     type CollectionConflict,
     type CollectionDocument,
     type KnownMove,
@@ -8,37 +7,27 @@ import {
     type OwnedPokemon,
     type Playthrough,
     type Pokemon,
-    type TypeDefense,
     type TypeEffectivenessChart,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { loadCollectionMove, loadCollectionSpecies } from './collectionSpecies.js';
 import { getMoveEffectiveness } from './damageSimulation.js';
+import { getRecordedMoveMatchups, type RecordedMoveMatchups } from './recordedMoveMatchups.js';
 import { useLanguage } from './language.js';
 import { damageSimulatorHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { TypeBadges } from './TypeBadges.js';
 
-export interface PartyTypeMatchup {
+export interface PartyMoveMatchup {
     kind: 'effective' | 'neutral' | 'ineffective' | 'immune';
     multiplier: number;
-    types: TypeDefense[];
+    moves: readonly Move[];
 }
 
-/** Best outgoing matchup among this Pokemon's own types, without assuming its moves. */
-export function getPartyTypeMatchup(
-    attackingTypeIds: readonly number[],
-    defendingTypeIds: readonly number[],
-    chart: TypeEffectivenessChart | undefined,
-): PartyTypeMatchup | null {
-    if (!chart || attackingTypeIds.length === 0) return null;
-    const defenses = getTypeDefenses(defendingTypeIds, chart);
-    if (!defenses) return null;
-    const knownTypes = new Set(chart.types.map((type) => type.typeId));
-    if (attackingTypeIds.some((typeId) => !knownTypes.has(typeId))) return null;
-    const ownTypes = new Set(attackingTypeIds);
-    const matchups = defenses.filter((type) => ownTypes.has(type.typeId));
-    const multiplier = Math.max(...matchups.map((type) => type.multiplier));
+/** Best verified matchup among the Pokémon's recorded damaging moves. */
+export function getPartyMoveMatchup(results: RecordedMoveMatchups): PartyMoveMatchup | null {
+    if (results.status !== 'available') return null;
+    const multiplier = Math.max(...results.moves.map((result) => result.multiplier));
     return {
         kind:
             multiplier === 0
@@ -49,7 +38,9 @@ export function getPartyTypeMatchup(
                     ? 'ineffective'
                     : 'neutral',
         multiplier,
-        types: matchups.filter((type) => type.multiplier === multiplier),
+        moves: results.moves
+            .filter((result) => result.multiplier === multiplier)
+            .map(({ move }) => move),
     };
 }
 
@@ -93,7 +84,11 @@ function PartyThreats({
 }) {
     const { t } = useLanguage();
     if (moves.length === 0)
-        return <p className="sim-party-threat-note">{t('Moves unknown', 'Útoky neznámé')}</p>;
+        return (
+            <p className="sim-party-threat-note">
+                {t('Enemy moves unknown', 'Útoky soupeře neznámé')}
+            </p>
+        );
     const results = moves.map((move) => ({
         move,
         matchup: getMoveEffectiveness(moveDetails.get(move.moveId), typeIds, chart),
@@ -174,6 +169,7 @@ function PartyMember({
     enemyMoves,
     moveDetails,
     moveLookupFailed,
+    ownMoveLookupFailed,
     onRetryMoves,
 }: {
     pokemon: OwnedPokemon;
@@ -185,6 +181,7 @@ function PartyMember({
     enemyMoves: readonly KnownMove[];
     moveDetails: ReadonlyMap<number, Move>;
     moveLookupFailed: boolean;
+    ownMoveLookupFailed: boolean;
     onRetryMoves: () => void;
 }) {
     const { t } = useLanguage();
@@ -200,22 +197,37 @@ function PartyMember({
         enabled: !uncertain,
     });
     const details = uncertain ? undefined : species.data;
-    const matchup =
-        details && enemy ? getPartyTypeMatchup(details.typeIds, enemy.typeIds, chart) : null;
+    const moveResults =
+        details && enemy
+            ? getRecordedMoveMatchups(pokemon.state.moves, moveDetails, enemy.typeIds, chart)
+            : null;
+    const matchup = moveResults ? getPartyMoveMatchup(moveResults) : null;
+    const bestTypes = [...new Map(matchup?.moves.map((move) => [move.typeId, move])).values()];
     const name = pokemon.nickname || details?.name || `#${pokemon.state.speciesId}`;
     const status = uncertain
         ? t('Sync conflict', 'Konflikt synchronizace')
         : !enemy
           ? t('Choose an opponent', 'Vyberte soupeře')
-          : !matchup
-            ? t('Type data unavailable', 'Typové údaje nejsou dostupné')
-            : matchup.kind === 'effective'
-              ? t('Effective', 'Účinný')
-              : matchup.kind === 'ineffective'
-                ? t('Ineffective', 'Málo účinný')
-                : matchup.kind === 'immune'
-                  ? t('No effect', 'Bez účinku')
-                  : t('Neutral', 'Neutrální');
+          : !details
+            ? t('Species data unavailable', 'Údaje o druhu nejsou dostupné')
+            : moveResults?.status === 'unknown-moves'
+              ? t('Moves not recorded', 'Útoky nejsou zaznamenané')
+              : moveResults?.status === 'no-damaging-moves'
+                ? t('No damaging moves', 'Bez útoků s poškozením')
+                : moveResults?.status === 'unsupported'
+                  ? t('Moves not fully modeled', 'Útoky nejsou plně vyhodnoceny')
+                  : !matchup
+                    ? t(
+                          'Move or type data unavailable',
+                          'Údaje o útoku nebo typech nejsou dostupné',
+                      )
+                    : matchup.kind === 'effective'
+                      ? t('Effective', 'Účinný')
+                      : matchup.kind === 'ineffective'
+                        ? t('Ineffective', 'Málo účinný')
+                        : matchup.kind === 'immune'
+                          ? t('No effect', 'Bez účinku')
+                          : t('Neutral', 'Neutrální');
     const multiplier =
         matchup?.multiplier === 0.5
             ? '½×'
@@ -251,16 +263,26 @@ function PartyMember({
                     {matchup && (
                         <span className="sim-party-types">
                             <TypeBadges
-                                types={matchup.types.map((type) => type.name)}
-                                iconFiles={matchup.types.map((type) => type.iconFile)}
+                                types={bestTypes.map((move) => move.type)}
+                                iconFiles={bestTypes.map((move) => move.typeIconFile)}
                                 iconOnly
                             />
                             <b>{multiplier}</b>
                         </span>
                     )}
                     <span>{status}</span>
+                    {matchup && (
+                        <span className="sim-party-move">
+                            {matchup.moves.map((move) => move.name).join(' / ')}
+                        </span>
+                    )}
                 </span>
             </a>
+            {ownMoveLookupFailed && moveResults?.status === 'missing-data' && (
+                <button type="button" className="my-text-button" onClick={onRetryMoves}>
+                    {t('Retry move data', 'Načíst útoky znovu')}
+                </button>
+            )}
             {enemy && details && (
                 <PartyThreats
                     name={name}
@@ -296,10 +318,19 @@ export function SimulatorParty({
     enemyMoves?: readonly KnownMove[];
 }) {
     const { t } = useLanguage();
+    const party = getSimulatorParty(document, run, conflicts);
+    const moveIds = [
+        ...new Set([
+            ...enemyMoves.map((move) => move.moveId),
+            ...(party ?? []).flatMap(
+                (pokemon) => pokemon.state.moves?.map((move) => move.moveId) ?? [],
+            ),
+        ]),
+    ];
     const moveLookups = useQueries({
-        queries: enemyMoves.map((move) => ({
-            queryKey: ['collection-move', move.moveId],
-            queryFn: () => loadCollectionMove(move.moveId),
+        queries: moveIds.map((moveId) => ({
+            queryKey: ['collection-move', moveId],
+            queryFn: () => loadCollectionMove(moveId),
             enabled: Boolean(enemy),
         })),
     });
@@ -308,7 +339,7 @@ export function SimulatorParty({
             lookup.data ? [[lookup.data.moveId, lookup.data]] : [],
         ),
     );
-    const party = getSimulatorParty(document, run, conflicts);
+    const failedMoveIds = new Set(moveIds.filter((_, index) => moveLookups[index].isError));
     if (party?.length === 0) return null;
     return (
         <section className="sim-party" aria-label={t('Party matchups', 'Účinnost týmu')}>
@@ -316,8 +347,8 @@ export function SimulatorParty({
                 <h2>{t('Your party', 'Váš tým')}</h2>
                 <p>
                     {t(
-                        'Best own type against the opponent. Warnings use revealed enemy moves; unrevealed moves and abilities remain unknown.',
-                        'Nejlepší vlastní typ proti soupeři. Varování vycházejí z odhalených útoků soupeře; neodhalené útoky a schopnosti zůstávají neznámé.',
+                        'Best type matchup among recorded damaging moves. Warnings use revealed enemy moves; unrevealed moves and abilities remain unknown.',
+                        'Nejvyšší typová účinnost zaznamenaných útoků s poškozením. Varování vycházejí z odhalených útoků soupeře; neodhalené útoky a schopnosti zůstávají neznámé.',
                     )}
                 </p>
             </div>
@@ -341,7 +372,12 @@ export function SimulatorParty({
                             datasetId={datasetId}
                             enemyMoves={enemyMoves}
                             moveDetails={moveDetails}
-                            moveLookupFailed={moveLookups.some((lookup) => lookup.isError)}
+                            moveLookupFailed={enemyMoves.some((move) =>
+                                failedMoveIds.has(move.moveId),
+                            )}
+                            ownMoveLookupFailed={Boolean(
+                                pokemon.state.moves?.some((move) => failedMoveIds.has(move.moveId)),
+                            )}
                             onRetryMoves={() => {
                                 for (const lookup of moveLookups) {
                                     if (lookup.isError) void lookup.refetch();

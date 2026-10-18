@@ -436,7 +436,7 @@ function SimulatorScenario({
                             {enemy && (
                                 <BattleTypeMatchups
                                     defendingTypeIds={enemy.typeIds}
-                                    attackingTypeIds={species.typeIds}
+                                    attackingMoves={pokemon.state.moves}
                                     chart={chart}
                                     defenderName={enemy.name}
                                 />
@@ -504,7 +504,7 @@ function SimulatorScenario({
                             {enemy && (
                                 <BattleTypeMatchups
                                     defendingTypeIds={species.typeIds}
-                                    attackingTypeIds={enemy.typeIds}
+                                    attackingMoves={enemyMoves}
                                     chart={chart}
                                     defenderName={ownName}
                                 />

@@ -15,7 +15,8 @@ import {
     type TypeEffectivenessChart,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { getPartyTypeMatchup, getSimulatorParty, SimulatorParty } from './SimulatorParty.js';
+import { getPartyMoveMatchup, getSimulatorParty, SimulatorParty } from './SimulatorParty.js';
+import { getRecordedMoveMatchups } from './recordedMoveMatchups.js';
 import { LanguageProvider } from './language.js';
 
 const types = [
@@ -26,7 +27,10 @@ const types = [
     { typeId: 5, name: 'Rock', iconFile: 'rock.png' },
     { typeId: 6, name: 'Bug', iconFile: 'bug.png' },
     { typeId: 7, name: 'Ghost', iconFile: 'ghost.png' },
+    { typeId: 10, name: 'Fire', iconFile: 'fire.png' },
+    { typeId: 11, name: 'Water', iconFile: 'water.png' },
     { typeId: 12, name: 'Grass', iconFile: 'grass.png' },
+    { typeId: 15, name: 'Ice', iconFile: 'ice.png' },
 ];
 const multipliers = new Map<string, number>([
     ['2:6', 2],
@@ -39,6 +43,8 @@ const multipliers = new Map<string, number>([
     ['4:2', 0],
     ['4:12', 0.5],
     ['4:3', 2],
+    ['11:10', 2],
+    ['15:10', 0.5],
 ]);
 const chart: TypeEffectivenessChart = {
     types,
@@ -51,37 +57,57 @@ const chart: TypeEffectivenessChart = {
     ),
 };
 
-void test('party guidance uses the best own attack type against both enemy types', () => {
-    const effective = getPartyTypeMatchup([12, 5], [6, 2], chart);
+function matchupForMoves(
+    attackingTypeIds: readonly number[],
+    defendingTypeIds: readonly number[],
+    reference: TypeEffectivenessChart | undefined,
+) {
+    const moves = attackingTypeIds.map((typeId) => ({
+        ...rockSlide,
+        moveId: 1000 + typeId,
+        typeId,
+    }));
+    return getPartyMoveMatchup(
+        getRecordedMoveMatchups(
+            moves,
+            new Map(moves.map((move) => [move.moveId, move])),
+            defendingTypeIds,
+            reference,
+        ),
+    );
+}
+
+void test('party guidance uses the best recorded attack type against both enemy types', () => {
+    const effective = matchupForMoves([12, 5], [6, 2], chart);
     strictEqual(effective?.kind, 'effective');
     strictEqual(effective?.multiplier, 4);
     deepStrictEqual(
-        effective?.types.map((type) => type.typeId),
+        effective?.moves.map((move) => move.typeId),
         [5],
     );
-    const resisted = getPartyTypeMatchup([12], [6, 3], chart);
+    const resisted = matchupForMoves([12], [6, 3], chart);
     strictEqual(resisted?.kind, 'ineffective');
     strictEqual(resisted?.multiplier, 0.25);
 });
 
-void test('a neutral own type prevents a resisted or immune alternative marking the Pokemon ineffective', () => {
-    strictEqual(getPartyTypeMatchup([0, 6], [2], chart)?.kind, 'neutral');
-    strictEqual(getPartyTypeMatchup([0, 4], [2], chart)?.multiplier, 1);
-    strictEqual(getPartyTypeMatchup([4], [12, 3], chart)?.kind, 'neutral');
-    const immune = getPartyTypeMatchup([0, 4], [7, 2], chart);
+void test('a neutral damaging move prevents a resisted or immune alternative marking the Pokemon ineffective', () => {
+    strictEqual(matchupForMoves([0, 6], [2], chart)?.kind, 'neutral');
+    strictEqual(matchupForMoves([0, 4], [2], chart)?.multiplier, 1);
+    strictEqual(matchupForMoves([4], [12, 3], chart)?.kind, 'neutral');
+    const immune = matchupForMoves([0, 4], [7, 2], chart);
     strictEqual(immune?.kind, 'immune');
     strictEqual(immune?.multiplier, 0);
     deepStrictEqual(
-        immune?.types.map((type) => type.typeId),
+        immune?.moves.map((move) => move.typeId),
         [0, 4],
     );
 });
 
-void test('duplicate own and enemy types are counted once and all best ties are preserved', () => {
-    const result = getPartyTypeMatchup([2, 2, 5], [6, 6], chart);
+void test('duplicate moves and enemy types are counted once and all best ties are preserved', () => {
+    const result = matchupForMoves([2, 2, 5], [6, 6], chart);
     strictEqual(result?.multiplier, 2);
     deepStrictEqual(
-        result?.types.map((type) => type.typeId),
+        result?.moves.map((move) => move.typeId),
         [2, 5],
     );
 });
@@ -96,7 +122,7 @@ void test('unknown, incomplete or absent data cannot produce party recommendatio
         [[2, 999], [6], chart],
         [[2], [999], chart],
     ] as const)
-        strictEqual(getPartyTypeMatchup(attackers, defenders, reference), null);
+        strictEqual(matchupForMoves(attackers, defenders, reference), null);
 });
 
 const species: SpeciesDetails = {
@@ -152,12 +178,26 @@ const rockSlide: Move = {
     effectId: 0,
     targetId: 0,
 };
+const peck: Move = {
+    ...rockSlide,
+    moveId: 64,
+    name: 'Peck',
+    typeId: 2,
+    type: 'Flying',
+    typeIconFile: 'flying.png',
+    power: 35,
+};
 function owned(id: string, options: Partial<OwnedPokemon> = {}): OwnedPokemon {
     return {
         id,
         playthroughId: 'run',
         nickname: id,
-        state: { speciesId: 21, level: 16, moves: null, formEpoch: 'form' },
+        state: {
+            speciesId: 21,
+            level: 16,
+            moves: [{ moveId: peck.moveId, name: peck.name }],
+            formEpoch: 'form',
+        },
         deleted: false,
         createdAt: '2026-10-16T12:00:00.000Z',
         ...options,
@@ -208,6 +248,7 @@ function render(
         language?: 'en' | 'cs';
         enemyMoves?: readonly KnownMove[];
         moveDetails?: readonly Move[];
+        references?: readonly SpeciesDetails[];
     } = {},
 ): string {
     const client = new QueryClient({
@@ -215,6 +256,9 @@ function render(
     });
     if (options.speciesAvailable !== false)
         client.setQueryData(['collection-species', species.speciesId], species);
+    client.setQueryData(['collection-move', peck.moveId], peck);
+    for (const reference of options.references ?? [])
+        client.setQueryData(['collection-species', reference.speciesId], reference);
     for (const move of options.moveDetails ?? [])
         client.setQueryData(['collection-move', move.moveId], move);
     const document = options.document ?? collection();
@@ -271,14 +315,120 @@ void test('party links show selected state, sprite and explicit outgoing effecti
     match(html, /flying\.png/);
     match(html, /2×/);
     match(html, /Effective/);
-    match(html, /Best own type against the opponent/);
+    match(html, /Best type matchup among recorded damaging moves/);
+    match(html, /sim-party-move">Peck/);
     const czech = render({ language: 'cs' });
     match(czech, /Váš tým/);
     match(czech, /Účinný/);
     match(czech, /Létající/);
 });
 
-void test('known enemy coverage warns a member even when its outgoing typing is effective', () => {
+function selectedCard(html: string): string {
+    const card = html.match(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?<\/a>/)?.[0];
+    ok(card, 'selected party member is rendered');
+    return card;
+}
+
+void test('Shellder needs a recorded damaging Water move before it is effective against Slugma', () => {
+    const icicleSpear: Move = {
+        ...rockSlide,
+        moveId: 333,
+        name: 'Icicle Spear',
+        typeId: 15,
+        type: 'Ice',
+        typeIconFile: 'ice.png',
+        power: 25,
+        effectId: 25,
+    };
+    const withdraw: Move = {
+        ...rockSlide,
+        moveId: 110,
+        name: 'Withdraw',
+        typeId: 11,
+        type: 'Water',
+        typeIconFile: 'water.png',
+        categoryId: 2,
+        power: 0,
+    };
+    const supersonic: Move = {
+        ...withdraw,
+        moveId: 48,
+        name: 'Supersonic',
+        typeId: 0,
+        type: 'Normal',
+    };
+    const protect: Move = { ...supersonic, moveId: 182, name: 'Protect' };
+    const waterGun: Move = { ...withdraw, moveId: 55, name: 'Water Gun', categoryId: 1, power: 40 };
+    const shellder: SpeciesDetails = {
+        ...species,
+        speciesId: 90,
+        name: 'Shellder',
+        typeIds: [11],
+        types: ['Water'],
+    };
+    const slugma: Pokemon = {
+        ...enemy,
+        speciesId: 218,
+        name: 'Slugma',
+        typeIds: [10],
+        types: ['Fire'],
+    };
+    const moves = [icicleSpear, withdraw, supersonic, protect];
+    const document = collection();
+    document.pokemon.first = {
+        ...owned('first'),
+        nickname: 'Milan',
+        state: { ...owned('first').state, speciesId: 90, moves },
+    };
+    const before = structuredClone(document);
+    const options = {
+        document,
+        references: [shellder],
+        enemy: slugma,
+        moveDetails: [...moves, waterGun],
+    };
+    const card = selectedCard(render(options));
+    match(card, /data-matchup="ineffective"/);
+    match(card, /ice\.png/);
+    match(card, /½×/);
+    match(card, /Ineffective/);
+    match(card, /sim-party-move">Icicle Spear/);
+    doesNotMatch(card, /water\.png|2×|Withdraw|Supersonic|Protect/);
+    const czech = selectedCard(render({ ...options, language: 'cs' }));
+    match(czech, /Málo účinný/);
+    deepStrictEqual(document, before);
+
+    // A loaded move (or a learnset preview) is not coverage until it is recorded.
+    document.pokemon.first.state.moves = [icicleSpear, waterGun];
+    const water = selectedCard(render(options));
+    match(water, /data-matchup="effective"/);
+    match(water, /water\.png/);
+    match(water, /2×/);
+    match(water, /sim-party-move">Water Gun/);
+    doesNotMatch(water, /ice\.png/);
+});
+
+void test('missing, empty, status-only and unsupported recorded moves never imply type coverage', () => {
+    const growl: Move = { ...peck, moveId: 45, name: 'Growl', categoryId: 2, power: 0 };
+    const unknown: KnownMove = { moveId: 9999, name: 'Missing move' };
+    const unsupported: Move = { ...peck, moveId: 573, name: 'Freeze-Dry' };
+    for (const { moves, message } of [
+        { moves: null, message: /Moves not recorded/ },
+        { moves: [], message: /No damaging moves/ },
+        { moves: [growl], message: /No damaging moves/ },
+        { moves: [peck, unknown], message: /Move or type data unavailable/ },
+        { moves: [peck, unsupported], message: /Moves not fully modeled/ },
+    ]) {
+        const document = collection();
+        document.pokemon.first.state.moves = moves;
+        const card = selectedCard(render({ document, moveDetails: [growl, unsupported] }));
+        match(card, /data-matchup="unknown"/);
+        match(card, message);
+        doesNotMatch(card, /sim-party-types|sim-party-move|data-matchup="effective"/);
+    }
+});
+
+void test('known enemy coverage warns a member even when its recorded attack is effective', () => {
     const html = render({ enemyMoves: [rockSlide], moveDetails: [rockSlide] });
     match(html, /data-matchup="effective"/);
     match(html, /<details class="sim-party-threats" data-warning="true"/);
@@ -294,7 +444,7 @@ void test('known enemy coverage warns a member even when its outgoing typing is 
 });
 
 void test('unrevealed, unavailable and unsupported enemy moves never imply a safe party member', () => {
-    match(render(), /Moves unknown/);
+    match(render(), /Enemy moves unknown/);
     const unavailable = render({ enemyMoves: [rockSlide] });
     match(unavailable, /Moves not fully modeled/);
     doesNotMatch(unavailable, /data-warning="true"|No known type weakness/);

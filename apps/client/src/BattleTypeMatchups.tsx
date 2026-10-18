@@ -1,48 +1,78 @@
-import {
-    getTypeDefenses,
-    type TypeDefense,
-    type TypeEffectivenessChart,
-} from '@pokemon-emerald-ex-dex/shared';
+import { useQueries } from '@tanstack/react-query';
+import type { KnownMove, Move, TypeEffectivenessChart } from '@pokemon-emerald-ex-dex/shared';
 
+import { loadCollectionMove } from './collectionSpecies.js';
 import { useLanguage } from './language.js';
+import { getRecordedMoveMatchups } from './recordedMoveMatchups.js';
 import { TypeBadges } from './TypeBadges.js';
 import { typeDisplayName } from './typeNames.js';
 
-/** Incoming type matchups relevant to the other combatant's types, excluding neutral hits. */
+interface BattleMoveMatchup {
+    typeId: number;
+    name: string;
+    iconFile: string | null;
+    multiplier: number;
+    moveNames: string[];
+}
+
+/** Verified recorded damaging moves only, grouped without implying unrecorded coverage. */
 export function getBattleTypeMatchups(
     defendingTypeIds: readonly number[],
-    attackingTypeIds: readonly number[],
+    attackingMoves: readonly KnownMove[] | null,
+    moveDetails: ReadonlyMap<number, Move>,
     chart: TypeEffectivenessChart | undefined,
-): TypeDefense[] | null {
-    if (!chart || attackingTypeIds.length === 0) return null;
-    const defenses = getTypeDefenses(defendingTypeIds, chart);
-    if (!defenses) return null;
-    const knownTypes = new Set(chart.types.map((type) => type.typeId));
-    if (attackingTypeIds.some((id) => !knownTypes.has(id))) return null;
-    const attacks = new Set(attackingTypeIds);
-    return defenses.filter((type) => attacks.has(type.typeId) && type.multiplier !== 1);
+): BattleMoveMatchup[] {
+    const matchups = getRecordedMoveMatchups(attackingMoves, moveDetails, defendingTypeIds, chart);
+    if (matchups.status !== 'available') return [];
+    const grouped = new Map<string, BattleMoveMatchup>();
+    for (const { move, multiplier } of matchups.moves) {
+        if (multiplier === 1) continue;
+        const key = `${move.typeId}:${multiplier}`;
+        const existing = grouped.get(key);
+        if (existing) existing.moveNames.push(move.name);
+        else
+            grouped.set(key, {
+                typeId: move.typeId,
+                name: move.type,
+                iconFile: move.typeIconFile,
+                multiplier,
+                moveNames: [move.name],
+            });
+    }
+    return [...grouped.values()];
 }
 
 export function BattleTypeMatchups({
     defendingTypeIds,
-    attackingTypeIds,
+    attackingMoves,
     chart,
     defenderName,
 }: {
     defendingTypeIds: readonly number[];
-    attackingTypeIds: readonly number[];
+    attackingMoves: readonly KnownMove[] | null;
     chart?: TypeEffectivenessChart;
     defenderName: string;
 }) {
     const { t, language } = useLanguage();
-    const matchups = getBattleTypeMatchups(defendingTypeIds, attackingTypeIds, chart);
+    const ids = [...new Set((attackingMoves ?? []).map((move) => move.moveId))];
+    const lookups = useQueries({
+        queries: ids.map((moveId) => ({
+            queryKey: ['collection-move', moveId],
+            queryFn: () => loadCollectionMove(moveId),
+        })),
+    });
+    const moveDetails = new Map<number, Move>();
+    for (const lookup of lookups) {
+        if (lookup.data) moveDetails.set(lookup.data.moveId, lookup.data);
+    }
+    const matchups = getBattleTypeMatchups(defendingTypeIds, attackingMoves, moveDetails, chart);
     if (!matchups?.length) return null;
     return (
         <aside
             className="sim-battle-matchups"
             aria-label={t(
-                `${defenderName}: incoming type matchups`,
-                `${defenderName}: přijaté poškození podle typu`,
+                `${defenderName}: recorded move matchups`,
+                `${defenderName}: účinnost zaznamenaných útoků`,
             )}
         >
             <ul>
@@ -67,12 +97,12 @@ export function BattleTypeMatchups({
                               : `${type.multiplier}×`;
                     return (
                         <li
-                            key={type.typeId}
+                            key={`${type.typeId}:${type.multiplier}`}
                             data-matchup={kind}
                             data-multiplier={type.multiplier}
                             title={t(
-                                `${typeDisplayName(type.name, language)} attacks: ${multiplier} damage taken`,
-                                `Útoky typu ${typeDisplayName(type.name, language)}: přijaté poškození ${multiplier}`,
+                                `${type.moveNames.join(', ')} (${typeDisplayName(type.name, language)}): ${multiplier} damage taken`,
+                                `${type.moveNames.join(', ')} (${typeDisplayName(type.name, language)}): přijaté poškození ${multiplier}`,
                             )}
                         >
                             <span className="sim-matchup-label">{label}</span>
@@ -90,8 +120,8 @@ export function BattleTypeMatchups({
             </ul>
             <span className="sr-only">
                 {t(
-                    'Based on the opposing Pokémon’s types. Abilities and battle effects are excluded.',
-                    'Podle typů protějšího Pokémona. Schopnosti a bojové efekty nejsou zahrnuty.',
+                    'Based on recorded damaging moves. Unrecorded moves, abilities and battle effects are excluded.',
+                    'Podle zaznamenaných útoků s poškozením. Nezaznamenané útoky, schopnosti a bojové efekty nejsou zahrnuty.',
                 )}
             </span>
         </aside>

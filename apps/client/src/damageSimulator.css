@@ -665,6 +665,10 @@
     font-size: 0.68rem;
     line-height: 1.3;
 }
+.sim-party-move {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
 .sim-party-types {
     display: flex;
     align-items: center;

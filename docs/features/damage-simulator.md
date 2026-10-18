@@ -91,19 +91,26 @@ Change nature and ability on the collection card. Saved level controls update th
 named encounter levels and revealed moves also persist; quick matchups, stat overrides
 and move previews remain temporary.
 
-The battle preview shows relevant incoming type matchups beside each name: left
-of the enemy and right of your Pokémon. Only non-neutral matchups against the
-other combatant’s own types appear, including immunities. Both defensive types
-multiply; these hints do not assume the enemy’s moves or include ability effects.
-They update when either combatant changes and stay hidden without verified type data.
+The battle preview shows relevant recorded move matchups beside each name: left
+of the enemy for your recorded moves, and right of your Pokémon for the enemy's
+revealed moves. Only non-neutral damaging moves appear, including immunities;
+status moves and learnset previews never imply attacking coverage. Moves sharing
+the same type and multiplier share one badge, with move names in its tooltip.
+Both defensive types multiply. Unknown enemy moves produce no badge, and unresolved,
+unsupported or conflicting move data suppresses the hints rather than substituting
+the combatant's own types. Ability effects remain excluded from these type hints.
 
 The party strip follows the current playthrough's saved party order and switches
 attackers without changing the opponent. Green means at least one of a member's
-own types is super effective against the enemy. Red means every own type is resisted
-(or blocked by immunity); a neutral option keeps the card neutral. The label and
-multiplier use the best own attacking type against both enemy types. This is type
-coverage guidance, not a prediction from recorded moves, stats, level or abilities.
-Missing or conflicting data produces no effectiveness claim. The selected attacker
+recorded damaging moves is super effective against the enemy. Red means every
+recorded damaging move is resisted (or blocked by immunity); a neutral option keeps
+the card neutral. The label, move name and multiplier use the highest type-effectiveness
+multiplier among recorded moves against both enemy types. A Water Pokémon with only Icicle Spear and status moves
+is therefore resisted by a Fire opponent; a status move such as Withdraw never
+supplies Water coverage. Off-type coverage moves count normally. This is move type
+coverage guidance, not a prediction from stats, level or abilities. Unknown moves,
+no damaging moves, missing data and unsupported mechanics get distinct neutral
+labels. Missing or conflicting data produces no effectiveness claim. The selected attacker
 has a separate outline so selection remains distinguishable from effectiveness.
 
 ## Damage calculation

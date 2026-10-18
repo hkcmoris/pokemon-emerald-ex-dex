@@ -2,7 +2,8 @@ import { deepStrictEqual, doesNotMatch, match, strictEqual } from 'node:assert/s
 import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import type { TypeEffectivenessChart } from '@pokemon-emerald-ex-dex/shared';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { KnownMove, Move, TypeEffectivenessChart } from '@pokemon-emerald-ex-dex/shared';
 
 import { BattleTypeMatchups, getBattleTypeMatchups } from './BattleTypeMatchups.js';
 import { LanguageProvider, type Language } from './language.js';
@@ -15,7 +16,10 @@ const types = [
     { typeId: 5, name: 'Rock', iconFile: 'rock.png' },
     { typeId: 6, name: 'Bug', iconFile: 'bug.png' },
     { typeId: 7, name: 'Ghost', iconFile: 'ghost.png' },
+    { typeId: 10, name: 'Fire', iconFile: 'fire.png' },
+    { typeId: 11, name: 'Water', iconFile: 'water.png' },
     { typeId: 12, name: 'Grass', iconFile: 'grass.png' },
+    { typeId: 15, name: 'Ice', iconFile: 'ice.png' },
 ];
 const multipliers = new Map<string, number>([
     ['2:6', 2],
@@ -27,6 +31,8 @@ const multipliers = new Map<string, number>([
     ['0:7', 0],
     ['4:12', 0.5],
     ['4:3', 2],
+    ['11:10', 2],
+    ['15:10', 0.5],
 ]);
 const chart: TypeEffectivenessChart = {
     types,
@@ -39,99 +45,129 @@ const chart: TypeEffectivenessChart = {
     ),
 };
 
-function matchupValues(defendingTypeIds: number[], attackingTypeIds: number[]) {
-    return getBattleTypeMatchups(defendingTypeIds, attackingTypeIds, chart)?.map(
-        ({ typeId, multiplier }) => ({ typeId, multiplier }),
-    );
+function move(typeId: number, overrides: Partial<Move> = {}): Move {
+    const type = types.find((entry) => entry.typeId === typeId)!;
+    return {
+        moveId: 1000 + typeId,
+        name: `${type.name} hit`,
+        typeId,
+        type: type.name,
+        typeIconFile: type.iconFile,
+        categoryId: 0,
+        category: 'Physical',
+        categoryIconFile: null,
+        description: '',
+        descriptionCs: null,
+        power: 40,
+        accuracy: 100,
+        pp: 20,
+        priority: 0,
+        effectId: 0,
+        targetId: 0,
+        ...overrides,
+    };
+}
+
+function matchupValues(defendingTypeIds: number[], attackingMoves: Move[]) {
+    return getBattleTypeMatchups(
+        defendingTypeIds,
+        attackingMoves,
+        new Map(attackingMoves.map((entry) => [entry.moveId, entry])),
+        chart,
+    ).map(({ typeId, multiplier }) => ({ typeId, multiplier }));
 }
 
 function render(
-    defendingTypeIds: number[],
-    attackingTypeIds: number[],
+    defendingTypeIds: readonly number[],
+    attackingMoves: readonly KnownMove[] | null,
+    details: readonly Move[],
     language: Language = 'en',
     reference: TypeEffectivenessChart | undefined = chart,
 ): string {
-    return renderToStaticMarkup(
-        createElement(
-            LanguageProvider,
-            { initialLanguage: language },
-            createElement(BattleTypeMatchups, {
-                defendingTypeIds,
-                attackingTypeIds,
-                chart: reference,
-                defenderName: 'Butterfree',
-            }),
-        ),
-    );
+    const client = new QueryClient({
+        defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    for (const entry of details) client.setQueryData(['collection-move', entry.moveId], entry);
+    try {
+        return renderToStaticMarkup(
+            createElement(
+                QueryClientProvider,
+                { client },
+                createElement(
+                    LanguageProvider,
+                    { initialLanguage: language },
+                    createElement(BattleTypeMatchups, {
+                        defendingTypeIds,
+                        attackingMoves,
+                        chart: reference,
+                        defenderName: 'Slugma',
+                    }),
+                ),
+            ),
+        );
+    } finally {
+        client.clear();
+    }
 }
 
-void test('battle hints describe incoming damage in each direction and only opposing types', () => {
-    deepStrictEqual(matchupValues([6, 3], [2]), [{ typeId: 2, multiplier: 2 }]);
-    deepStrictEqual(matchupValues([2], [6, 3]), [{ typeId: 6, multiplier: 0.5 }]);
-    // Rock also exploits Bug, but it is not a type of the opposing Pokemon.
-    doesNotMatch(render([6, 3], [2]), /Rock|rock\.png|Poison|poison\.png/);
+void test('Shellder with Icicle Spear and Withdraw shows Ice resistance, never Water effectiveness', () => {
+    const icicleSpear = move(15, { moveId: 333, name: 'Icicle Spear', power: 25, effectId: 25 });
+    const withdraw = move(11, {
+        moveId: 110,
+        name: 'Withdraw',
+        categoryId: 2,
+        category: 'Status',
+        power: 0,
+    });
+    const moves = [icicleSpear, withdraw];
+    deepStrictEqual(matchupValues([10], moves), [{ typeId: 15, multiplier: 0.5 }]);
+    const html = render([10], moves, moves);
+    match(html, /Resistance/);
+    match(html, /title="Icicle Spear \(Ice\): ½× damage taken"/);
+    match(html, /ice\.png/);
+    doesNotMatch(html, /Withdraw|water\.png|Weakness|data-multiplier="2"/);
 });
 
-void test('dual defensive types multiply weakness, resistance and immunity and can cancel', () => {
-    deepStrictEqual(matchupValues([6, 2], [5]), [{ typeId: 5, multiplier: 4 }]);
-    deepStrictEqual(matchupValues([6, 3], [12]), [{ typeId: 12, multiplier: 0.25 }]);
-    deepStrictEqual(matchupValues([7, 3], [0]), [{ typeId: 0, multiplier: 0 }]);
-    deepStrictEqual(matchupValues([12, 3], [4]), []);
+void test('recorded off-type coverage counts and same-type moves share a named badge', () => {
+    const water = [move(11, { name: 'Water Gun' }), move(11, { moveId: 57, name: 'Surf' })];
+    deepStrictEqual(matchupValues([10], water), [{ typeId: 11, multiplier: 2 }]);
+    const html = render([10], water, water);
+    match(html, /title="Water Gun, Surf \(Water\): 2× damage taken"/);
+    strictEqual((html.match(/data-matchup="weak"/g) ?? []).length, 1);
+    match(html, /Based on recorded damaging moves/);
 });
 
-void test('duplicated mono types do not square damage or duplicate hints', () => {
-    deepStrictEqual(matchupValues([6, 6], [2, 2]), [{ typeId: 2, multiplier: 2 }]);
+void test('both defensive types multiply resistance and immunity, while cancellation stays hidden', () => {
+    deepStrictEqual(matchupValues([6, 2], [move(5)]), [{ typeId: 5, multiplier: 4 }]);
+    deepStrictEqual(matchupValues([6, 3], [move(12)]), [{ typeId: 12, multiplier: 0.25 }]);
+    deepStrictEqual(matchupValues([7, 3], [move(0)]), [{ typeId: 0, multiplier: 0 }]);
+    strictEqual(render([12, 3], [move(4)], [move(4)]), '');
+    deepStrictEqual(matchupValues([6, 6], [move(2), move(2)]), [{ typeId: 2, multiplier: 2 }]);
 });
 
-void test('missing, partial or unknown type data cannot produce a matchup claim', () => {
-    for (const [defenders, attackers, reference] of [
-        [[6], [2], undefined],
-        [[6], [2], { ...chart, matchups: chart.matchups.slice(1) }],
-        [[999], [2], chart],
-        [[6], [999], chart],
-        [[6], [2, 999], chart],
-        [[], [2], chart],
-        [[6], [], chart],
-    ] as const) {
-        strictEqual(getBattleTypeMatchups(defenders, attackers, reference), null);
-        strictEqual(
-            renderToStaticMarkup(
-                createElement(BattleTypeMatchups, {
-                    defendingTypeIds: defenders,
-                    attackingTypeIds: attackers,
-                    chart: reference,
-                    defenderName: 'Butterfree',
-                }),
-            ),
-            '',
-        );
-    }
-    strictEqual(render([12, 3], [4]), '');
+void test('unknown, empty, status-only or unresolved moves cannot create a type fallback', () => {
+    const status = move(11, { categoryId: 2, category: 'Status', power: 0 });
+    const water = move(11);
+    for (const moves of [null, [], [status]]) strictEqual(render([10], moves, [status]), '');
+    strictEqual(render([10], [water], []), '');
+    strictEqual(render([10], [water, move(15)], [water]), '');
+    strictEqual(render([999], [water], [water]), '');
+    strictEqual(render([], [water], [water]), '');
+    strictEqual(
+        render([10], [water], [water], 'en', { ...chart, matchups: chart.matchups.slice(1) }),
+        '',
+    );
+    const unsupported = move(11, { moveId: 311, name: 'Weather Ball' });
+    strictEqual(render([10], [water, unsupported], [water, unsupported]), '');
 });
 
-void test('battle hints render readable weakness, resistance and immunity with type icons', () => {
-    const weakness = render([6, 3], [2]);
-    match(weakness, /Weakness/);
-    match(weakness, /flying\.png/);
-    match(weakness, /2×|×2/);
-    const resistance = render([2], [6]);
-    match(resistance, /Resistance/);
-    match(resistance, /bug\.png/);
-    match(resistance, /½×|0\.5×|×0\.5/);
-    const immunity = render([7], [0]);
-    match(immunity, /Immune/);
-    match(immunity, /0×|×0/);
-});
-
-void test('battle hints localize categories and type names in Czech', () => {
-    const weakness = render([6, 3], [2], 'cs');
-    match(weakness, /Slabost|Slabina/);
-    match(weakness, /Létající/);
-    doesNotMatch(weakness, /Weakness|>Flying</);
-    const resistance = render([6, 3], [12], 'cs');
+void test('battle hints localize category and type names and retain move names for identification', () => {
+    const grass = move(12, { name: 'Vine Whip' });
+    const resistance = render([6, 3], [grass], [grass], 'cs');
     match(resistance, /Odolnost/);
-    match(resistance, /Travní/);
-    match(resistance, /¼×|0[.,]25×|×0[.,]25/);
-    const immunity = render([7], [0], 'cs');
-    match(immunity, /Imunita/);
+    match(resistance, /Vine Whip \(Travní\)/);
+    match(resistance, /¼×/);
+    doesNotMatch(resistance, /Resistance|>Grass</);
+    match(render([7], [move(0)], [move(0)], 'cs'), /Imunita/);
+    match(render([6], [move(2)], [move(2)], 'cs'), /Slabina/);
 });
