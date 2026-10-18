@@ -275,12 +275,42 @@ void test('saved encounters drive the selected opponent and incoming moves witho
     match(switchers, /aria-label="Pinchy · Clauncher · Lv\. 17/);
     match(switchers, /<button[^>]*aria-pressed="true"[^>]*aria-label="Clauncher · Lv\. 21"/);
     const battleContent = html.search(/class="[^"]*\bsim-battle-content\b/);
-    const management = html.search(/class="[^"]*\bsim-management\b/);
-    strictEqual(battleContent >= 0 && management > battleContent, true);
+    const ownPanel =
+        html.match(/<aside\b[^>]*aria-label="Own Pokémon controls"[\s\S]*?<\/aside>/)?.[0] ?? '';
+    const enemyPanel =
+        html.match(/<aside\b[^>]*aria-label="Enemy team controls"[\s\S]*?<\/aside>/)?.[0] ?? '';
+    strictEqual(
+        battleContent >= 0 &&
+            html.indexOf(ownPanel) > battleOrder[battleOrder.length - 1] &&
+            html.indexOf(enemyPanel) > html.indexOf(ownPanel),
+        true,
+        'Battle content precedes the separate own and enemy panels in reading order',
+    );
     match(html, /tabindex="-1" class="sim-battle-content"/);
-    match(html, /tabindex="-1" class="sim-management"/);
-    match(html, /Teams &amp; encounter/);
-    match(html, /Back to battle/);
+    for (const panel of [ownPanel, enemyPanel]) {
+        match(panel, /^<aside\b[^>]*tabindex="-1"/);
+        match(panel, /Back to battle/);
+    }
+    match(html, /aria-label="Open your team controls"/);
+    match(html, /aria-label="Open enemy team controls"/);
+    for (const marker of [
+        'Collection Pokémon',
+        'aria-label="Saved Pokémon level"',
+        'aria-label="Party matchups"',
+    ]) {
+        strictEqual(ownPanel.includes(marker), true, `${marker} belongs to your team panel`);
+        strictEqual(enemyPanel.includes(marker), false);
+        strictEqual(html.split(marker).length - 1, 1, `${marker} mounts only once`);
+    }
+    for (const marker of [
+        'aria-label="Enemy encounters"',
+        '>Reset scenario</button>',
+        'my-sync-status',
+    ]) {
+        strictEqual(enemyPanel.includes(marker), true, `${marker} belongs to the enemy panel`);
+        strictEqual(ownPanel.includes(marker), false);
+        strictEqual(html.split(marker).length - 1, 1, `${marker} mounts only once`);
+    }
     deepStrictEqual(document, before);
     const blocked = render({
         document,

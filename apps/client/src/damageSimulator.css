@@ -31,15 +31,23 @@
 }
 .sim-workspace {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'battle' 'own' 'enemy';
     align-items: start;
     gap: 1rem;
+}
+.sim-own-management {
+    grid-area: own;
+}
+.sim-enemy-management {
+    grid-area: enemy;
 }
 .sim-battle-content,
 .sim-management {
     min-width: 0;
 }
 .sim-battle-content {
+    grid-area: battle;
     scroll-margin-top: 0.75rem;
 }
 .sim-party-strips {
@@ -118,16 +126,21 @@ a.sim-sprite-choice {
     font-size: 0.68rem;
 }
 .sim-management {
-    max-height: calc(100dvh - 240px);
-    overflow-y: auto;
-    scrollbar-gutter: stable;
+    container: sim-panel / inline-size;
     padding: 0.25rem;
     border: 1px solid var(--dex-border);
     border-radius: 14px;
     scroll-margin-top: 0.75rem;
 }
+.sim-management-heading {
+    padding: 0.5rem 0.75rem;
+}
+.sim-management .sim-management-heading {
+    margin: 0;
+    font-size: 1rem;
+}
 .sim-teams-shortcut {
-    display: none;
+    display: inline-block;
 }
 .sim-management .my-panel {
     padding: 0.75rem;
@@ -138,8 +151,86 @@ a.sim-sprite-choice {
 .sim-management .sim-party-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+.sim-management .sim-party-grid > li {
+    display: flex;
+    flex-direction: column;
+}
+.sim-management .sim-party-member {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 0.2rem 0.5rem;
+    flex: 1;
+    height: auto;
+    text-align: left;
+}
+.sim-management .sim-party-slot {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+.sim-management .sim-party-name,
+.sim-management .sim-party-species {
+    grid-column: 2;
+}
+.sim-management .sim-party-result {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem 0.5rem;
+    padding-top: 0.2rem;
+}
+.sim-management .sim-party-move {
+    flex-basis: 100%;
+}
 .sim-management .sim-save-status {
     padding: 0.5rem;
+}
+@media (min-width: 800px) {
+    .sim-workspace {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas: 'battle battle' 'own enemy';
+    }
+}
+@media (min-width: 1440px) {
+    .sim-workspace {
+        grid-template-columns: minmax(280px, 1fr) minmax(640px, 2.5fr) minmax(320px, 1.15fr);
+        grid-template-areas: 'own battle enemy';
+    }
+    .sim-management {
+        position: sticky;
+        top: calc(var(--dex-header-height, 112px) + 0.75rem);
+        max-height: calc(100dvh - var(--dex-header-height, 112px) - 4rem);
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+    }
+    .sim-teams-shortcut {
+        display: none;
+    }
+}
+@container sim-panel (max-width: 380px) {
+    .sim-management .sim-party-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .sim-management .sim-party-slot {
+        grid-column: 1;
+        grid-row: 1 / span 3;
+    }
+    .sim-management .sim-party-name,
+    .sim-management .sim-party-species,
+    .sim-management .sim-party-result {
+        flex-direction: column;
+        grid-column: 2;
+    }
+    .sim-management .sim-party-result {
+        align-items: flex-start;
+        padding-top: 0;
+    }
+    .sim-management .sim-party-move,
+    .sim-management .sim-party-types {
+        justify-content: flex-start;
+    }
 }
 .sim-matchup {
     container: matchup / inline-size;
@@ -614,19 +705,6 @@ a.sim-sprite-choice {
     font-size: 0.8rem;
     line-height: 1.7;
     margin-top: 0.8rem;
-}
-@media (max-width: 1000px) {
-    .sim-teams-shortcut {
-        display: inline-block;
-        margin-left: 0.75rem;
-    }
-    .sim-workspace {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .sim-management {
-        max-height: none;
-        overflow: visible;
-    }
 }
 @media (max-width: 800px) {
     .sim-setup-grid {

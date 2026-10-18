@@ -990,8 +990,13 @@ export function DamageSimulatorView({
     signedIn?: boolean;
 }) {
     const { t } = useLanguage();
-    const managementRef = useRef<HTMLElement>(null);
+    const ownManagementRef = useRef<HTMLElement>(null);
+    const enemyManagementRef = useRef<HTMLElement>(null);
     const battleRef = useRef<HTMLDivElement>(null);
+    function focusPanel(panel: HTMLElement | null) {
+        panel?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        panel?.focus({ preventScroll: true });
+    }
     const [workspaceSelection, setWorkspaceSelection] = useState(readWorkspaceSession);
     const pokemonId =
         requestedPokemonId ?? getDefaultSimulatorPokemonId(document, conflicts, workspaceSelection);
@@ -1171,7 +1176,7 @@ export function DamageSimulatorView({
     return (
         <>
             <DexHeader active="simulator" version={version} />
-            <main className="dex-browse-main my-pokemon-main sim-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
+            <main className="dex-browse-main my-pokemon-main sim-main mx-auto px-4 py-5 sm:px-8 sm:py-8">
                 <div className="my-page-heading sim-page-heading">
                     <h1>{t('Damage simulator', 'Simulátor poškození')}</h1>
                     <div className="sim-page-actions">
@@ -1187,20 +1192,30 @@ export function DamageSimulatorView({
                             ← {missing ? t('Collection', 'Sbírka') : t('Stats', 'Statistiky')}
                         </a>
                         {ready && !missing && (
-                            <button
-                                type="button"
-                                className="my-text-button sim-teams-shortcut"
-                                aria-label={t('Teams & encounter', 'Týmy a souboj')}
-                                onClick={() => {
-                                    managementRef.current?.scrollIntoView({
-                                        block: 'start',
-                                        behavior: 'instant',
-                                    });
-                                    managementRef.current?.focus({ preventScroll: true });
-                                }}
-                            >
-                                {t('Teams', 'Týmy')} ↓
-                            </button>
+                            <>
+                                <button
+                                    type="button"
+                                    className="my-text-button sim-teams-shortcut"
+                                    aria-label={t(
+                                        'Open your team controls',
+                                        'Otevřít ovládání vlastního týmu',
+                                    )}
+                                    onClick={() => focusPanel(ownManagementRef.current)}
+                                >
+                                    {t('Your team', 'Váš tým')} ↓
+                                </button>
+                                <button
+                                    type="button"
+                                    className="my-text-button sim-teams-shortcut"
+                                    aria-label={t(
+                                        'Open enemy team controls',
+                                        'Otevřít ovládání soupeřova týmu',
+                                    )}
+                                    onClick={() => focusPanel(enemyManagementRef.current)}
+                                >
+                                    {t('Enemy team', 'Soupeř')} ↓
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>
@@ -1351,124 +1366,140 @@ export function DamageSimulatorView({
                         )}
                     </div>
                     {ready && !missing && (
-                        <aside
-                            ref={managementRef}
-                            tabIndex={-1}
-                            className="sim-management"
-                            aria-label={t('Teams and encounter', 'Týmy a souboj')}
-                        >
-                            <button
-                                type="button"
-                                className="my-text-button sim-teams-shortcut"
-                                onClick={() => {
-                                    battleRef.current?.scrollIntoView({
-                                        block: 'start',
-                                        behavior: 'instant',
-                                    });
-                                    battleRef.current?.focus({ preventScroll: true });
-                                }}
+                        <>
+                            <aside
+                                ref={ownManagementRef}
+                                tabIndex={-1}
+                                className="sim-management sim-own-management"
+                                aria-label={t('Own Pokémon controls', 'Vlastní Pokémoni')}
                             >
-                                {t('Back to battle', 'Zpět k souboji')} ↑
-                            </button>
-                            <div className="sim-management-tools">
-                                {collectionSelector}
+                                <h2 className="sim-management-heading">
+                                    {t('Your Pokémon', 'Vaši Pokémoni')}
+                                </h2>
                                 <button
                                     type="button"
-                                    className="my-text-button"
-                                    onClick={() => {
-                                        resetSimulatorSession(datasetKey);
-                                        setQuickEnemySetup(emptyEnemySetup());
-                                        refreshEnemyOverrides((value) => value + 1);
-                                        setScenarioRevision((value) => value + 1);
-                                    }}
+                                    className="my-text-button sim-teams-shortcut"
+                                    onClick={() => focusPanel(battleRef.current)}
                                 >
-                                    {t('Reset scenario', 'Obnovit scénář')}
+                                    {t('Back to battle', 'Zpět k souboji')} ↑
                                 </button>
-                            </div>
-                            <div className="sim-save-status">
-                                <span
-                                    className={`my-sync-status my-sync-${syncStatus}`}
-                                    role="status"
-                                >
-                                    {syncLabel}
-                                </span>
-                                {!signedIn && (
-                                    <a className="my-text-button" href="#/my-pokemon">
-                                        {t(
-                                            'Sign in from My Pokémon to sync encounters across devices',
-                                            'Pro synchronizaci soubojů mezi zařízeními se přihlaste v Moji Pokémoni',
-                                        )}
-                                    </a>
+                                <div className="sim-management-tools">{collectionSelector}</div>
+                                {!stateConflict && species.data && (
+                                    <SimulatorLevelControls
+                                        key={`${pokemon.id}:${pokemon.state.formEpoch}`}
+                                        pokemon={pokemon}
+                                        species={species.data}
+                                        onSave={onSaveLevel}
+                                    />
                                 )}
-                                {syncError && <p role="alert">{syncError}</p>}
-                            </div>
-                            {onResolveConflict && (
-                                <MyPokemonConflicts
+                                <SimulatorParty
                                     document={document}
-                                    conflicts={conflicts.filter(
-                                        (entry) =>
-                                            entry.entity === 'encounters' ||
-                                            entry.entity === 'opponents',
-                                    )}
-                                    resolve={onResolveConflict}
+                                    run={run}
+                                    selectedPokemonId={pokemon.id}
+                                    enemy={enemySetup.pokemon}
+                                    enemyMoves={enemyMoves}
+                                    datasetId={datasetId}
+                                    chart={chart.data}
+                                    conflicts={conflicts}
                                 />
-                            )}
-                            <SimulatorEncounters
-                                key={`${datasetKey}:${run.id}`}
-                                document={document}
-                                conflicts={conflicts}
-                                runId={run.id}
-                                datasetId={datasetId}
-                                defaultLevel={pokemon.state.level}
-                                selectedEncounterId={encounter?.id}
-                                selectedOpponentId={opponent?.id}
-                                onSelect={selectEncounter}
-                                onUpdate={onUpdateCollection}
-                            />
-                            {encounterConflict && (
-                                <p className="sim-notice" role="alert">
-                                    {t(
-                                        'Resolve the encounter conflict before using its matchup or damage estimates.',
-                                        'Před použitím účinnosti a odhadů poškození vyřešte konflikt souboje.',
-                                    )}
-                                </p>
-                            )}
-                            {opponent && !encounterConflict && enemySpecies.isError && (
-                                <p className="sim-notice" role="alert">
-                                    {t(
-                                        'Opponent data could not be loaded.',
-                                        'Údaje o soupeři se nepodařilo načíst.',
-                                    )}{' '}
+                            </aside>
+                            <aside
+                                ref={enemyManagementRef}
+                                tabIndex={-1}
+                                className="sim-management sim-enemy-management"
+                                aria-label={t('Enemy team controls', 'Soupeřův tým')}
+                            >
+                                <h2 className="sim-management-heading">
+                                    {t('Opponent', 'Soupeř')}
+                                </h2>
+                                <button
+                                    type="button"
+                                    className="my-text-button sim-teams-shortcut"
+                                    onClick={() => focusPanel(battleRef.current)}
+                                >
+                                    {t('Back to battle', 'Zpět k souboji')} ↑
+                                </button>
+                                <div className="sim-management-tools">
                                     <button
                                         type="button"
                                         className="my-text-button"
                                         onClick={() => {
-                                            void enemySpecies.refetch();
+                                            resetSimulatorSession(datasetKey);
+                                            setQuickEnemySetup(emptyEnemySetup());
+                                            refreshEnemyOverrides((value) => value + 1);
+                                            setScenarioRevision((value) => value + 1);
                                         }}
                                     >
-                                        {t('Retry', 'Zkusit znovu')}
+                                        {t('Reset scenario', 'Obnovit scénář')}
                                     </button>
-                                </p>
-                            )}
-                            <SimulatorParty
-                                document={document}
-                                run={run}
-                                selectedPokemonId={pokemon.id}
-                                enemy={enemySetup.pokemon}
-                                enemyMoves={enemyMoves}
-                                datasetId={datasetId}
-                                chart={chart.data}
-                                conflicts={conflicts}
-                            />
-                            {!stateConflict && species.data && (
-                                <SimulatorLevelControls
-                                    key={`${pokemon.id}:${pokemon.state.formEpoch}`}
-                                    pokemon={pokemon}
-                                    species={species.data}
-                                    onSave={onSaveLevel}
+                                </div>
+                                <div className="sim-save-status">
+                                    <span
+                                        className={`my-sync-status my-sync-${syncStatus}`}
+                                        role="status"
+                                    >
+                                        {syncLabel}
+                                    </span>
+                                    {!signedIn && (
+                                        <a className="my-text-button" href="#/my-pokemon">
+                                            {t(
+                                                'Sign in from My Pokémon to sync encounters across devices',
+                                                'Pro synchronizaci soubojů mezi zařízeními se přihlaste v Moji Pokémoni',
+                                            )}
+                                        </a>
+                                    )}
+                                    {syncError && <p role="alert">{syncError}</p>}
+                                </div>
+                                {onResolveConflict && (
+                                    <MyPokemonConflicts
+                                        document={document}
+                                        conflicts={conflicts.filter(
+                                            (entry) =>
+                                                entry.entity === 'encounters' ||
+                                                entry.entity === 'opponents',
+                                        )}
+                                        resolve={onResolveConflict}
+                                    />
+                                )}
+                                <SimulatorEncounters
+                                    key={`${datasetKey}:${run.id}`}
+                                    document={document}
+                                    conflicts={conflicts}
+                                    runId={run.id}
+                                    datasetId={datasetId}
+                                    defaultLevel={pokemon.state.level}
+                                    selectedEncounterId={encounter?.id}
+                                    selectedOpponentId={opponent?.id}
+                                    onSelect={selectEncounter}
+                                    onUpdate={onUpdateCollection}
                                 />
-                            )}
-                        </aside>
+                                {encounterConflict && (
+                                    <p className="sim-notice" role="alert">
+                                        {t(
+                                            'Resolve the encounter conflict before using its matchup or damage estimates.',
+                                            'Před použitím účinnosti a odhadů poškození vyřešte konflikt souboje.',
+                                        )}
+                                    </p>
+                                )}
+                                {opponent && !encounterConflict && enemySpecies.isError && (
+                                    <p className="sim-notice" role="alert">
+                                        {t(
+                                            'Opponent data could not be loaded.',
+                                            'Údaje o soupeři se nepodařilo načíst.',
+                                        )}{' '}
+                                        <button
+                                            type="button"
+                                            className="my-text-button"
+                                            onClick={() => {
+                                                void enemySpecies.refetch();
+                                            }}
+                                        >
+                                            {t('Retry', 'Zkusit znovu')}
+                                        </button>
+                                    </p>
+                                )}
+                            </aside>
+                        </>
                     )}
                 </div>
                 <DexFooter />

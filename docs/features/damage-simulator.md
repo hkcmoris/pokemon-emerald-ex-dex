@@ -25,10 +25,15 @@ matchups show the single selected opponent instead of inventing an enemy party.
 **Edit battle stats** starts collapsed and contains both sides' temporary stat overrides;
 opening it retains the current values and calculations. Quick opponent selection stays
 outside the disclosure, with search open until an opponent is chosen. Detailed encounter
-management and party warnings, the collection selector, scenario reset, and saved-level
-controls sit in a desktop sidebar and follow the battle column on phones. **Teams**
-and **Back to battle** phone shortcuts move focus between them. Incoming damage and move
-previews follow the stat editor.
+management and your own Pokémon controls occupy separate panels. At desktop widths of
+1440 pixels or more, the simulator uses the full page width: your party, collection selector,
+and saved-level controls sit on the left; the battle stays in the center; the enemy encounter,
+revealed moves, sync status, and scenario reset sit on the right. Both side panels remain
+visible beneath the navigation and scroll independently. At widths from 800 to 1439 pixels,
+the panels sit side by side below the battle; below 800 pixels they stack. **Your team**,
+**Enemy team**, and **Back to battle** shortcuts move focus between the battle and panels
+on these narrower layouts. Enemy roster entries and revealed moves wrap within their panel
+without a horizontal roster scrollbar. Incoming damage and move previews follow the stat editor.
 
 ## Inputs and move previews
 
@@ -69,9 +74,10 @@ previews follow the stat editor.
 
 Create named encounters within the current playthrough, for example **Rival · Route 110**.
 Each encounter holds up to six opponents with independent identities, so two Pokémon of
-the same species can have different levels and revealed moves. Use the horizontal enemy
-roster to switch the selected matchup without re-entering anything. Duplicate an encounter
-for a rematch; its opponents receive new identities, leaving the original battle intact.
+the same species can have different levels and revealed moves. Use the enemy sprite strip
+or roster in the enemy panel to switch the selected matchup without re-entering anything.
+Duplicate an encounter for a rematch; its opponents receive new identities, leaving the
+original battle intact.
 
 Each opponent starts with unknown moves. Record up to four moves as they are revealed,
 using the full move search rather than assuming a level-up learnset. Changes save locally

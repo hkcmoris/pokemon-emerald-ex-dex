@@ -164,10 +164,13 @@ HP damage ranges, enemy HP percentages, STAB and type matchups. Compact sprite s
 for your party and the saved enemy party sit above the matchup, so either side can
 be switched without scrolling through management controls. Selected members are marked;
 known enemy move weaknesses and sync conflicts retain warning icons. Current move cards
-sit directly below the matchup. **Edit battle stats** starts collapsed. Detailed encounter
-and party information, collection selection, scenario reset, and saved-level controls sit
-beside the battle on desktop and below it on phones, with phone shortcuts between the
-battle and team controls. Enemy stats assume
+sit directly below the matchup. **Edit battle stats** starts collapsed. At widths of
+1440 pixels and above, the simulator fills the desktop with your Pokémon controls on the
+left, the battle in the center, and enemy team controls on the right. Both side panels
+stay visible beneath the navigation and scroll independently. Below 1440 pixels, the
+panels follow the battle side by side; below 800 pixels, they stack. Separate team and
+battle shortcuts move focus between these sections. Enemy roster entries and revealed
+moves fit their panel without horizontal scrolling. Enemy stats assume
 neutral nature, 31 IVs and 0 EVs, with temporary HP and offensive/defensive stat overrides.
 Preview the current form's full learnset and TM/HM moves, including future level
 labels and recorded inherited moves. Save named enemy encounters with up to six opponents,
