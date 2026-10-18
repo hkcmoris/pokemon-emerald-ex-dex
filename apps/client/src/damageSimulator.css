@@ -142,6 +142,7 @@ a.sim-sprite-choice {
     padding: 0.5rem;
 }
 .sim-matchup {
+    container: matchup / inline-size;
     overflow: hidden;
     border: 1px solid var(--dex-border);
     border-radius: 14px;
@@ -276,19 +277,20 @@ a.sim-sprite-choice {
 }
 .sim-enemy .sim-sprite-platform {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 1 / span 2;
 }
 .sim-own {
     order: 1;
 }
 .sim-combatant > .sim-battle-matchups {
-    grid-column: 1 / -1;
+    grid-column: 2;
     grid-row: 2;
     max-width: none;
     justify-self: start;
     padding: 0.2rem 0.4rem;
 }
 .sim-enemy > .sim-battle-matchups {
+    grid-column: 1;
     justify-self: end;
 }
 .sim-combatant > .sim-battle-matchups ul,
@@ -298,6 +300,8 @@ a.sim-sprite-choice {
     align-items: center;
 }
 .sim-combatant-label {
+    grid-column: 2;
+    grid-row: 1;
     flex: 0 1 auto;
     display: flex;
     flex-direction: column;
@@ -324,12 +328,14 @@ a.sim-sprite-choice {
     color: var(--dex-muted);
 }
 .sim-sprite-platform {
+    grid-column: 1;
+    grid-row: 1 / span 2;
     position: relative;
     display: grid;
     place-items: center;
     flex-shrink: 0;
-    width: 80px;
-    height: 80px;
+    width: 128px;
+    height: 128px;
 }
 .sim-sprite-platform::before {
     content: '';
@@ -345,8 +351,29 @@ a.sim-sprite-choice {
 .sim-sprite-platform .species-sprite {
     position: relative;
     z-index: 1;
-    max-width: 80px;
-    max-height: 80px;
+    max-width: 128px;
+    max-height: 128px;
+}
+@container matchup (max-width: 600px) {
+    .sim-combatant {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        text-align: center;
+    }
+    .sim-combatant .sim-combatant-label {
+        grid-column: 1;
+        grid-row: 1;
+        align-items: center;
+    }
+    .sim-combatant .sim-sprite-platform {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .sim-combatant > .sim-battle-matchups {
+        grid-column: 1;
+        grid-row: 3;
+        justify-self: center;
+    }
 }
 .sim-enemy-placeholder {
     font-size: 3rem;
@@ -652,13 +679,6 @@ a.sim-sprite-choice {
     }
     .sim-combatant {
         gap: 0.25rem;
-    }
-    .sim-sprite-platform,
-    .sim-sprite-platform .species-sprite {
-        width: 48px;
-        height: 56px;
-        max-width: 48px;
-        max-height: 56px;
     }
     .sim-combatant-label > strong {
         font-size: 0.95rem;

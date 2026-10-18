@@ -10,6 +10,8 @@ to its first party member or collection Pokémon. An empty playthrough offers a
 link to add Pokémon rather than selecting an attacker from another run.
 The collection selector changes the attacker.
 Its current form uses the back sprite; the selected opponent uses the front sprite.
+Both matchup sprites render at 128 × 128 pixels, with labels above them on narrow
+screens. The party selection strips keep their compact sprites.
 The collection's [effective-power score](../move-power.md) remains a separate,
 target-independent comparison.
 
