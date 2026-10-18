@@ -40,11 +40,9 @@ import { DexFooter } from './DexFooter.js';
 import { SpeciesPicker } from './MyPokemonForms.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { TypeBadges } from './TypeBadges.js';
-import { MoveCategory } from './MoveCategory.js';
-import { MoveEffectBadges } from './MoveEffectBadges.js';
+import { MoveDisplay } from './MoveDisplay.js';
 import { damageSimulatorHref, ownedPokemonHref } from './navigation.js';
 import { useLanguage } from './language.js';
-import { typeSurfaceStyle } from './theme.js';
 import {
     attackerFingerprint,
     emptyEnemySetup,
@@ -169,19 +167,15 @@ function DamageMove({
                         'Chybí potřebné statistiky nebo údaje o typech',
                     );
     return (
-        <article
-            className={`sim-move${move ? ' type-surface' : ''}`}
-            style={move ? typeSurfaceStyle([move.type]) : undefined}
-        >
-            <div className="sim-move-heading">
-                <div>
-                    {move && (
-                        <TypeBadges types={[move.type]} iconFiles={[move.typeIconFile]} iconOnly />
-                    )}
-                    <h3>{option.move.name}</h3>
-                    <MoveEffectBadges move={move} />
-                </div>
-                {onRemove && (
+        <MoveDisplay
+            as="article"
+            move={option.move}
+            reference={move}
+            size="large"
+            show={{ accuracy: true, pp: true }}
+            metadata={<MoveSources option={option} level={level} />}
+            actions={
+                onRemove && (
                     <button
                         type="button"
                         className="sim-remove"
@@ -193,74 +187,60 @@ function DamageMove({
                     >
                         ×
                     </button>
-                )}
-            </div>
-            <MoveSources option={option} level={level} />
-            <div className="sim-damage-row">
-                <span className="sim-category">
-                    {move && (
-                        <MoveCategory
-                            category={move.category}
-                            iconFile={move.categoryIconFile}
-                            iconOnly
-                        />
-                    )}
-                </span>
-                <div className="sim-damage-values">
-                    {damage.status === 'available' && (
-                        <span className="sim-damage-percent">
-                            <DamageHitSummary damage={damage} />
-                        </span>
-                    )}
-                    <strong className="sim-damage-number">
-                        {damage.status === 'available' ? (
-                            <>
-                                {damage.min.toLocaleString(language)}–
-                                {damage.max.toLocaleString(language)} <span>HP</span>
-                            </>
-                        ) : (
-                            '—'
+                )
+            }
+            metric={{
+                label:
+                    damage.status === 'available' ? (
+                        <DamageHitSummary damage={damage} />
+                    ) : (
+                        t('Total damage', 'Celkové poškození')
+                    ),
+                value:
+                    damage.status === 'available'
+                        ? `${damage.min.toLocaleString(language)}–${damage.max.toLocaleString(language)} HP`
+                        : '—',
+                detail:
+                    damage.status === 'available'
+                        ? damage.minPercent !== null && damage.maxPercent !== null
+                            ? t(
+                                  `${damage.minPercent.toLocaleString(language, { maximumFractionDigits: 1 })}–${damage.maxPercent.toLocaleString(language, { maximumFractionDigits: 1 })}% of enemy HP`,
+                                  `${damage.minPercent.toLocaleString(language, { maximumFractionDigits: 1 })}–${damage.maxPercent.toLocaleString(language, { maximumFractionDigits: 1 })} % HP soupeře`,
+                              )
+                            : t('Enemy HP unavailable', 'HP soupeře není dostupné')
+                        : reason,
+            }}
+            footer={
+                damage.status === 'available' && (
+                    <details className="sim-move-detail">
+                        <summary>
+                            {t('Calculation', 'Výpočet')}{' '}
+                            <span>
+                                STAB ×{damage.stab} · {t('type', 'typ')} ×{damage.effectiveness}
+                            </span>
+                        </summary>
+                        <p>
+                            {t(statLabels[damage.attackStat][0], statLabels[damage.attackStat][1])}{' '}
+                            {stats[damage.attackStat]} →{' '}
+                            {t(
+                                statLabels[damage.defenseStat][0],
+                                statLabels[damage.defenseStat][1],
+                            )}{' '}
+                            {enemyStats[damage.defenseStat]}.{' '}
+                            {t('Attacker level', 'Úroveň útočníka')} {level}.{' '}
+                            {t(
+                                'Random roll 85–100% for each hit. The headline totals the shown hit counts, assuming the first hit lands.',
+                                'Náhodný faktor 85–100 % pro každý zásah. Hlavní výsledek sčítá uvedený počet zásahů a předpokládá, že první zásah uspěje.',
+                            )}
+                        </p>
+                        <DamagePerHit damage={damage} />
+                        {move && (
+                            <p>{t(move.description, move.descriptionCs || move.description)}</p>
                         )}
-                    </strong>
-                    <span className="sim-damage-percent">
-                        {damage.status === 'available'
-                            ? damage.minPercent !== null && damage.maxPercent !== null
-                                ? t(
-                                      `${damage.minPercent.toLocaleString(language, { maximumFractionDigits: 1 })}–${damage.maxPercent.toLocaleString(language, { maximumFractionDigits: 1 })}% of enemy HP`,
-                                      `${damage.minPercent.toLocaleString(language, { maximumFractionDigits: 1 })}–${damage.maxPercent.toLocaleString(language, { maximumFractionDigits: 1 })} % HP soupeře`,
-                                  )
-                                : t('Enemy HP unavailable', 'HP soupeře není dostupné')
-                            : reason}
-                    </span>
-                    <span className="sim-base-power">
-                        {t('Base power', 'Základní síla')} <b>{move ? move.power || '—' : '?'}</b>
-                    </span>
-                </div>
-            </div>
-            {damage.status === 'available' && (
-                <details className="sim-move-detail">
-                    <summary>
-                        {t('Calculation', 'Výpočet')}{' '}
-                        <span>
-                            STAB ×{damage.stab} · {t('type', 'typ')} ×{damage.effectiveness}
-                        </span>
-                    </summary>
-                    <p>
-                        {t(statLabels[damage.attackStat][0], statLabels[damage.attackStat][1])}{' '}
-                        {stats[damage.attackStat]} →{' '}
-                        {t(statLabels[damage.defenseStat][0], statLabels[damage.defenseStat][1])}{' '}
-                        {enemyStats[damage.defenseStat]}. {t('Attacker level', 'Úroveň útočníka')}{' '}
-                        {level}.{' '}
-                        {t(
-                            'Random roll 85–100% for each hit. The headline totals the shown hit counts, assuming the first hit lands.',
-                            'Náhodný faktor 85–100 % pro každý zásah. Hlavní výsledek sčítá uvedený počet zásahů a předpokládá, že první zásah uspěje.',
-                        )}
-                    </p>
-                    <DamagePerHit damage={damage} />
-                    {move && <p>{t(move.description, move.descriptionCs || move.description)}</p>}
-                </details>
-            )}
-        </article>
+                    </details>
+                )
+            }
+        />
     );
 }
 
@@ -794,32 +774,33 @@ function SimulatorScenario({
                         </label>
                         <div className="sim-candidate-list">
                             {candidates.map((option) => (
-                                <button
+                                <MoveDisplay
                                     className="sim-candidate"
-                                    type="button"
                                     key={option.move.moveId}
-                                    disabled={previewIds.includes(option.move.moveId)}
-                                    onClick={() =>
-                                        setPreviewIds((ids) => [...ids, option.move.moveId])
+                                    move={option.move}
+                                    reference={option.reference}
+                                    size="small"
+                                    interaction={{
+                                        kind: 'button',
+                                        label: t(
+                                            `Preview ${option.move.name}`,
+                                            `Náhled ${option.move.name}`,
+                                        ),
+                                        disabled: previewIds.includes(option.move.moveId),
+                                        onClick: () =>
+                                            setPreviewIds((ids) => [...ids, option.move.moveId]),
+                                    }}
+                                    metadata={
+                                        <MoveSources option={option} level={pokemon.state.level} />
                                     }
-                                >
-                                    <span className="sim-candidate-name">
-                                        {option.reference && (
-                                            <TypeBadges
-                                                types={[option.reference.type]}
-                                                iconFiles={[option.reference.typeIconFile]}
-                                                iconOnly
-                                            />
-                                        )}
-                                        <strong>{option.move.name}</strong>
-                                    </span>
-                                    <MoveSources option={option} level={pokemon.state.level} />
-                                    <span className="sim-candidate-action">
-                                        {previewIds.includes(option.move.moveId)
-                                            ? t('Previewing', 'V náhledu')
-                                            : t('+ Preview', '+ Náhled')}
-                                    </span>
-                                </button>
+                                    actions={
+                                        <span className="sim-candidate-action">
+                                            {previewIds.includes(option.move.moveId)
+                                                ? t('Previewing', 'V náhledu')
+                                                : t('+ Preview', '+ Náhled')}
+                                        </span>
+                                    }
+                                />
                             ))}
                             {candidates.length === 0 && (
                                 <p className="my-muted">

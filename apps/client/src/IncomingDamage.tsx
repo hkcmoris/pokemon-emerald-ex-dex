@@ -10,9 +10,7 @@ import { loadCollectionMove } from './collectionSpecies.js';
 import { simulateMoveDamage } from './damageSimulation.js';
 import { DamageHitSummary, DamagePerHit } from './DamageHitDetails.js';
 import { useLanguage } from './language.js';
-import { MoveCategory } from './MoveCategory.js';
-import { TypeBadges } from './TypeBadges.js';
-import { typeSurfaceStyle } from './theme.js';
+import { MoveDisplay } from './MoveDisplay.js';
 
 export interface IncomingDamageProps {
     moves: readonly KnownMove[];
@@ -70,34 +68,26 @@ function IncomingMove({
                         'Chybí potřebné statistiky nebo údaje o typech',
                     );
     return (
-        <article
-            className={`sim-incoming-move${move ? ' type-surface' : ''}`}
-            style={move ? typeSurfaceStyle([move.type]) : undefined}
-        >
-            <div className="sim-incoming-move-heading">
-                <h3>{knownMove.name}</h3>
-                {move && (
-                    <span>
-                        <TypeBadges types={[move.type]} iconFiles={[move.typeIconFile]} iconOnly />
-                        <MoveCategory
-                            category={move.category}
-                            iconFile={move.categoryIconFile}
-                            iconOnly
-                        />
-                    </span>
-                )}
-            </div>
-            {damage.status === 'available' ? (
-                <>
-                    <p>
+        <MoveDisplay
+            as="article"
+            move={knownMove}
+            reference={move}
+            size="large"
+            show={{ accuracy: true, pp: true }}
+            metric={{
+                label:
+                    damage.status === 'available' ? (
                         <DamageHitSummary damage={damage} />
-                    </p>
-                    <strong className="sim-incoming-range">
-                        {damage.min.toLocaleString(language)}–{damage.max.toLocaleString(language)}{' '}
-                        HP
-                    </strong>
-                    <p>
-                        {damage.minPercent !== null && damage.maxPercent !== null
+                    ) : (
+                        t('Total damage', 'Celkové poškození')
+                    ),
+                value:
+                    damage.status === 'available'
+                        ? `${damage.min.toLocaleString(language)}–${damage.max.toLocaleString(language)} HP`
+                        : '—',
+                detail:
+                    damage.status === 'available'
+                        ? damage.minPercent !== null && damage.maxPercent !== null
                             ? t(
                                   `${damage.minPercent.toLocaleString(language, { maximumFractionDigits: 1 })}–${damage.maxPercent.toLocaleString(language, { maximumFractionDigits: 1 })}% of ${ownName}’s HP`,
                                   `${damage.minPercent.toLocaleString(language, { maximumFractionDigits: 1 })}–${damage.maxPercent.toLocaleString(language, { maximumFractionDigits: 1 })} % HP: ${ownName}`,
@@ -105,33 +95,42 @@ function IncomingMove({
                             : t(
                                   'Your HP is unknown; percentage unavailable',
                                   'Vaše HP není známé; procento nelze vypočítat',
-                              )}
-                    </p>
-                    <p className={damage.effectiveness > 1 ? 'sim-incoming-weakness' : undefined}>
-                        {damage.effectiveness > 1 && <span aria-hidden="true">⚠ </span>}
-                        {t('Type effectiveness', 'Typová účinnost')} {damage.effectiveness}× · STAB{' '}
-                        {damage.stab}×
-                    </p>
-                    {damage.hits.max > 1 && (
-                        <details className="sim-move-detail">
-                            <summary>{t('Calculation', 'Výpočet')}</summary>
-                            <DamagePerHit damage={damage} />
-                        </details>
-                    )}
-                </>
-            ) : (
-                <p className="sim-incoming-unavailable">{reason}</p>
-            )}
-            {lookup.isError && (
-                <button
-                    type="button"
-                    className="my-text-button"
-                    onClick={() => void lookup.refetch()}
-                >
-                    {t('Retry move data', 'Načíst útok znovu')}
-                </button>
-            )}
-        </article>
+                              )
+                        : reason,
+            }}
+            footer={
+                damage.status === 'available' && (
+                    <>
+                        <p
+                            className={
+                                damage.effectiveness > 1 ? 'sim-incoming-weakness' : undefined
+                            }
+                        >
+                            {damage.effectiveness > 1 && <span aria-hidden="true">⚠ </span>}
+                            {t('Type effectiveness', 'Typová účinnost')} {damage.effectiveness}× ·
+                            STAB {damage.stab}×
+                        </p>
+                        {damage.hits.max > 1 && (
+                            <details className="sim-move-detail">
+                                <summary>{t('Calculation', 'Výpočet')}</summary>
+                                <DamagePerHit damage={damage} />
+                            </details>
+                        )}
+                    </>
+                )
+            }
+            actions={
+                lookup.isError && (
+                    <button
+                        type="button"
+                        className="my-text-button"
+                        onClick={() => void lookup.refetch()}
+                    >
+                        {t('Retry move data', 'Načíst útok znovu')}
+                    </button>
+                )
+            }
+        />
     );
 }
 

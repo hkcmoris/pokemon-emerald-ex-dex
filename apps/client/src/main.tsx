@@ -11,6 +11,7 @@ import './battleStrength.css';
 import './style.css';
 import './MoveEffectBadges.css';
 import './MoveAffinity.css';
+import './MoveDisplay.css';
 import './damageSimulator.css';
 import './simulatorEncounters.css';
 import './incomingDamage.css';

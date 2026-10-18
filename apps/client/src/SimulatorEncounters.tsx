@@ -1,4 +1,4 @@
-import { useRef, useState, type SubmitEvent } from 'react';
+import { useRef, useState, type ReactNode, type SubmitEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type {
     BattleEncounter,
@@ -9,11 +9,15 @@ import type {
     Pokemon,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { loadCollectionSpecies, searchCollectionMoves } from './collectionSpecies.js';
+import {
+    loadCollectionMove,
+    loadCollectionSpecies,
+    searchCollectionMoves,
+} from './collectionSpecies.js';
 import { useLanguage } from './language.js';
 import { SpeciesPicker } from './MyPokemonForms.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
-import { TypeBadges } from './TypeBadges.js';
+import { MoveDisplay } from './MoveDisplay.js';
 import {
     addEncounterOpponent,
     createEncounter,
@@ -33,6 +37,23 @@ import {
 type Update = (current: CollectionDocument) => CollectionDocument;
 type Scope = { encounterId?: string; opponentId?: string };
 type MoveDraft = { query: string; targetMoveId?: number };
+
+function RevealedMove({ move, actions }: { move: KnownMove; actions: ReactNode }) {
+    const lookup = useQuery({
+        queryKey: ['collection-move', move.moveId],
+        queryFn: () => loadCollectionMove(move.moveId),
+    });
+    return (
+        <MoveDisplay
+            as="li"
+            move={move}
+            reference={lookup.data}
+            size="medium"
+            show={{ effectivePower: false }}
+            actions={actions}
+        />
+    );
+}
 
 function parseLevel(value: string): number | undefined {
     if (!/^\d+$/.test(value)) return undefined;
@@ -656,86 +677,91 @@ export function SimulatorEncounters({
                             </div>
                             <ul className="sim-revealed-moves">
                                 {selected.moves.map((move) => (
-                                    <li key={move.moveId}>
-                                        <strong>{move.name}</strong>
-                                        <div className="my-actions">
-                                            <button
-                                                className="my-text-button"
-                                                type="button"
-                                                disabled={selectedPaused}
-                                                aria-label={t(
-                                                    `Replace ${move.name}`,
-                                                    `Nahradit ${move.name}`,
-                                                )}
-                                                onClick={() =>
-                                                    setMoveDrafts((current) => ({
-                                                        ...current,
-                                                        [selected.id]: {
-                                                            query: '',
-                                                            targetMoveId: move.moveId,
-                                                        },
-                                                    }))
-                                                }
-                                            >
-                                                {t('Replace', 'Nahradit')}
-                                            </button>
-                                            <button
-                                                className="my-text-button"
-                                                type="button"
-                                                disabled={selectedPaused}
-                                                aria-label={t(
-                                                    `Remove ${move.name}`,
-                                                    `Odebrat ${move.name}`,
-                                                )}
-                                                onClick={() => {
-                                                    const moves = selected.moves.filter(
-                                                        (known) => known.moveId !== move.moveId,
-                                                    );
-                                                    void save(
-                                                        (current) =>
-                                                            setEncounterOpponentMoves(
-                                                                current,
-                                                                selected,
-                                                                moves,
-                                                            ),
-                                                        {
-                                                            encounterId: selected.encounterId,
-                                                            opponentId: selected.id,
-                                                        },
-                                                        () => {
-                                                            setUndo({
-                                                                label: t(
-                                                                    `${move.name} removed.`,
-                                                                    `${move.name} odebrán.`,
+                                    <RevealedMove
+                                        key={move.moveId}
+                                        move={move}
+                                        actions={
+                                            <div className="my-actions">
+                                                <button
+                                                    className="my-text-button"
+                                                    type="button"
+                                                    disabled={selectedPaused}
+                                                    aria-label={t(
+                                                        `Replace ${move.name}`,
+                                                        `Nahradit ${move.name}`,
+                                                    )}
+                                                    onClick={() =>
+                                                        setMoveDrafts((current) => ({
+                                                            ...current,
+                                                            [selected.id]: {
+                                                                query: '',
+                                                                targetMoveId: move.moveId,
+                                                            },
+                                                        }))
+                                                    }
+                                                >
+                                                    {t('Replace', 'Nahradit')}
+                                                </button>
+                                                <button
+                                                    className="my-text-button"
+                                                    type="button"
+                                                    disabled={selectedPaused}
+                                                    aria-label={t(
+                                                        `Remove ${move.name}`,
+                                                        `Odebrat ${move.name}`,
+                                                    )}
+                                                    onClick={() => {
+                                                        const moves = selected.moves.filter(
+                                                            (known) => known.moveId !== move.moveId,
+                                                        );
+                                                        void save(
+                                                            (current) =>
+                                                                setEncounterOpponentMoves(
+                                                                    current,
+                                                                    selected,
+                                                                    moves,
                                                                 ),
-                                                                run: () => {
-                                                                    void save(
-                                                                        (current) =>
-                                                                            setEncounterOpponentMoves(
-                                                                                current,
-                                                                                {
-                                                                                    ...selected,
-                                                                                    moves,
-                                                                                },
-                                                                                selected.moves,
-                                                                            ),
-                                                                        {
-                                                                            encounterId:
-                                                                                selected.encounterId,
-                                                                            opponentId: selected.id,
-                                                                        },
-                                                                        () => setUndo(undefined),
-                                                                    );
-                                                                },
-                                                            });
-                                                        },
-                                                    );
-                                                }}
-                                            >
-                                                {t('Remove', 'Odebrat')}
-                                            </button>
-                                        </div>
-                                    </li>
+                                                            {
+                                                                encounterId: selected.encounterId,
+                                                                opponentId: selected.id,
+                                                            },
+                                                            () => {
+                                                                setUndo({
+                                                                    label: t(
+                                                                        `${move.name} removed.`,
+                                                                        `${move.name} odebrán.`,
+                                                                    ),
+                                                                    run: () => {
+                                                                        void save(
+                                                                            (current) =>
+                                                                                setEncounterOpponentMoves(
+                                                                                    current,
+                                                                                    {
+                                                                                        ...selected,
+                                                                                        moves,
+                                                                                    },
+                                                                                    selected.moves,
+                                                                                ),
+                                                                            {
+                                                                                encounterId:
+                                                                                    selected.encounterId,
+                                                                                opponentId:
+                                                                                    selected.id,
+                                                                            },
+                                                                            () =>
+                                                                                setUndo(undefined),
+                                                                        );
+                                                                    },
+                                                                });
+                                                            },
+                                                        );
+                                                    }}
+                                                >
+                                                    {t('Remove', 'Odebrat')}
+                                                </button>
+                                            </div>
+                                        }
+                                    />
                                 ))}
                                 {Array.from({ length: 4 - selected.moves.length }, (_, index) => (
                                     <li key={`unknown-${index}`} className="sim-unknown-move">
@@ -812,30 +838,28 @@ export function SimulatorEncounters({
                                         <ul className="sim-move-search-results">
                                             {search.data.map((move) => (
                                                 <li key={move.moveId}>
-                                                    <button
-                                                        type="button"
-                                                        className="page-button"
-                                                        disabled={
-                                                            selectedPaused ||
-                                                            moveTargetMissing ||
-                                                            selected.moves.some(
-                                                                (known) =>
-                                                                    known.moveId === move.moveId,
-                                                            )
-                                                        }
-                                                        onClick={() => chooseMove(move)}
-                                                    >
-                                                        <strong>{move.name}</strong>
-                                                        <TypeBadges
-                                                            types={[move.type]}
-                                                            iconFiles={[move.typeIconFile]}
-                                                            iconOnly
-                                                        />
-                                                        <small>
-                                                            {move.category} · {t('Power', 'Síla')}{' '}
-                                                            {move.power || '—'}
-                                                        </small>
-                                                    </button>
+                                                    <MoveDisplay
+                                                        move={move}
+                                                        reference={move}
+                                                        size="medium"
+                                                        show={{ effectivePower: false }}
+                                                        interaction={{
+                                                            kind: 'button',
+                                                            label: t(
+                                                                `Record ${move.name}`,
+                                                                `Zapsat ${move.name}`,
+                                                            ),
+                                                            disabled:
+                                                                selectedPaused ||
+                                                                moveTargetMissing ||
+                                                                selected.moves.some(
+                                                                    (known) =>
+                                                                        known.moveId ===
+                                                                        move.moveId,
+                                                                ),
+                                                            onClick: () => chooseMove(move),
+                                                        }}
+                                                    />
                                                 </li>
                                             ))}
                                         </ul>

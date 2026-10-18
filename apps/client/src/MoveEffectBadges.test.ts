@@ -128,8 +128,8 @@ void test('damaging move cards combine effects and affinity without nested inter
         for (const [, contents] of html.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/g))
             doesNotMatch(contents, /<button/);
         match(html, /aria-label="Remove Poison Sting"/);
-        strictEqual(html.indexOf('my-move-name') < html.indexOf('move-effects'), true);
-        strictEqual(html.indexOf('move-effects') < html.indexOf('my-move-stats'), true);
+        strictEqual(html.indexOf('move-display-name') < html.indexOf('move-effects'), true);
+        strictEqual(html.indexOf('move-effects') < html.indexOf('move-display-stats'), true);
     } finally {
         client.clear();
     }

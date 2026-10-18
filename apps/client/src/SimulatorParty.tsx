@@ -17,6 +17,7 @@ import { useLanguage } from './language.js';
 import { damageSimulatorHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
 import { TypeBadges } from './TypeBadges.js';
+import { MoveDisplay } from './MoveDisplay.js';
 
 export interface PartyMoveMatchup {
     kind: 'effective' | 'neutral' | 'ineffective' | 'immune';
@@ -122,32 +123,48 @@ function PartyThreats({
             </summary>
             <ul>
                 {threats.map(({ move, matchup }) => (
-                    <li key={move.moveId}>
-                        {move.name} ·{' '}
-                        <strong>
-                            {matchup.status === 'available' ? matchup.multiplier : ''}×{' '}
-                            {t('weakness', 'slabina')}
-                        </strong>
-                    </li>
+                    <MoveDisplay
+                        as="li"
+                        key={move.moveId}
+                        move={move}
+                        reference={moveDetails.get(move.moveId)}
+                        size="small"
+                        show={{ effects: false }}
+                        passive
+                        metadata={
+                            <strong>
+                                {matchup.status === 'available' ? matchup.multiplier : ''}×{' '}
+                                {t('weakness', 'slabina')}
+                            </strong>
+                        }
+                    />
                 ))}
                 {unmodeled.map(({ move, matchup }) => (
-                    <li key={move.moveId}>
-                        {move.name} ·{' '}
-                        {matchup.status === 'not-applicable'
-                            ? t(
-                                  'Status effects not modeled',
-                                  'Účinky stavového útoku nejsou modelovány',
-                              )
-                            : matchup.status === 'unsupported'
-                              ? t(
-                                    'Special mechanics not modeled',
-                                    'Zvláštní mechanika není modelována',
-                                )
-                              : t(
-                                    'Move or type data unavailable',
-                                    'Údaje o útoku nebo typech nejsou dostupné',
-                                )}
-                    </li>
+                    <MoveDisplay
+                        as="li"
+                        key={move.moveId}
+                        move={move}
+                        reference={moveDetails.get(move.moveId)}
+                        size="small"
+                        show={{ effects: false }}
+                        passive
+                        metadata={
+                            matchup.status === 'not-applicable'
+                                ? t(
+                                      'Status effects not modeled',
+                                      'Účinky stavového útoku nejsou modelovány',
+                                  )
+                                : matchup.status === 'unsupported'
+                                  ? t(
+                                        'Special mechanics not modeled',
+                                        'Zvláštní mechanika není modelována',
+                                    )
+                                  : t(
+                                        'Move or type data unavailable',
+                                        'Údaje o útoku nebo typech nejsou dostupné',
+                                    )
+                        }
+                    />
                 ))}
             </ul>
             {failed && (
@@ -273,7 +290,16 @@ function PartyMember({
                     <span>{status}</span>
                     {matchup && (
                         <span className="sim-party-move">
-                            {matchup.moves.map((move) => move.name).join(' / ')}
+                            {matchup.moves.map((move) => (
+                                <MoveDisplay
+                                    key={move.moveId}
+                                    move={move}
+                                    reference={move}
+                                    size="small"
+                                    show={{ type: false, effects: false }}
+                                    passive
+                                />
+                            ))}
                         </span>
                     )}
                 </span>

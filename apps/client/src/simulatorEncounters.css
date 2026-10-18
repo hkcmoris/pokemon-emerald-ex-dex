@@ -108,27 +108,25 @@
     gap: 0.5rem;
 }
 .sim-revealed-moves > li {
+    min-width: 0;
+}
+.sim-revealed-moves > .sim-unknown-move {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     justify-content: center;
-    gap: 0.25rem;
+    gap: 0.6rem;
     padding: 0.6rem 0.75rem;
     min-height: 72px;
-    border: 1px solid var(--dex-border);
+    border: 1px dashed var(--dex-border);
     border-radius: 12px;
     font-size: 0.83rem;
     overflow-wrap: anywhere;
+    color: var(--dex-muted);
 }
 .sim-revealed-moves .my-text-button {
     font-size: 0.72rem;
     min-height: 32px;
-}
-.sim-revealed-moves > .sim-unknown-move {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.6rem;
-    color: var(--dex-muted);
-    border-style: dashed;
 }
 .sim-revealed-picker {
     margin-top: 0.75rem;
@@ -151,16 +149,20 @@
     gap: 0.5rem;
     padding: 0.2rem;
 }
-.sim-move-search-results button {
+.sim-move-search-results .move-display {
+    width: 100%;
+}
+.sim-move-search-results > li {
+    min-width: 0;
+}
+.sim-party-move {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.4rem;
-    width: 100%;
-    text-align: left;
+    justify-content: center;
+    gap: 0.25rem;
 }
-.sim-move-search-results small {
-    flex-basis: 100%;
+.sim-party-threats .move-display {
+    width: 100%;
 }
 .sim-encounter-feedback {
     margin-top: 0.75rem;

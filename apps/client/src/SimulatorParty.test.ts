@@ -316,7 +316,7 @@ void test('party links show selected state, sprite and explicit outgoing effecti
     match(html, /2×/);
     match(html, /Effective/);
     match(html, /Best type matchup among recorded damaging moves/);
-    match(html, /sim-party-move">Peck/);
+    match(html, /sim-party-move">[\s\S]*?move-display[\s\S]*?>Peck</);
     const czech = render({ language: 'cs' });
     match(czech, /Váš tým/);
     match(czech, /Účinný/);
@@ -392,7 +392,7 @@ void test('Shellder needs a recorded damaging Water move before it is effective 
     match(card, /ice\.png/);
     match(card, /½×/);
     match(card, /Ineffective/);
-    match(card, /sim-party-move">Icicle Spear/);
+    match(card, /sim-party-move">[\s\S]*?move-display[\s\S]*?>Icicle Spear</);
     doesNotMatch(card, /water\.png|2×|Withdraw|Supersonic|Protect/);
     const czech = selectedCard(render({ ...options, language: 'cs' }));
     match(czech, /Málo účinný/);
@@ -404,7 +404,7 @@ void test('Shellder needs a recorded damaging Water move before it is effective 
     match(water, /data-matchup="effective"/);
     match(water, /water\.png/);
     match(water, /2×/);
-    match(water, /sim-party-move">Water Gun/);
+    match(water, /sim-party-move">[\s\S]*?move-display[\s\S]*?>Water Gun</);
     doesNotMatch(water, /ice\.png/);
 });
 
@@ -433,7 +433,7 @@ void test('known enemy coverage warns a member even when its recorded attack is 
     match(html, /data-matchup="effective"/);
     match(html, /<details class="sim-party-threats" data-warning="true"/);
     match(html, /Known move weaknesses for first/);
-    match(html, /Rock Slide · <strong>2× weakness/);
+    match(html, /move-display[\s\S]*?>Rock Slide<[\s\S]*?<strong>2× weakness/);
     // Native disclosure is outside the party navigation link, so it can be opened without switching.
     match(html, /<\/a><details class="sim-party-threats"/);
     match(html, /unrevealed moves and abilities remain unknown/);
@@ -441,6 +441,18 @@ void test('known enemy coverage warns a member even when its recorded attack is 
         render({ enemyMoves: [rockSlide], moveDetails: [rockSlide], language: 'cs' }),
         /2× slabina/,
     );
+});
+
+void test('party recommendations share the compact move display without interactive controls in navigation', () => {
+    const html = render({ enemyMoves: [rockSlide], moveDetails: [rockSlide] });
+    const links = [...html.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map(([link]) => link);
+    strictEqual(links.length, 2);
+    for (const link of links) {
+        match(link, /move-display/);
+        match(link, />Peck</);
+        doesNotMatch(link, /<(?:button|input|details)\b/);
+    }
+    match(html, /<details class="sim-party-threats"[\s\S]*?<li[^>]*move-display/);
 });
 
 void test('unrevealed, unavailable and unsupported enemy moves never imply a safe party member', () => {

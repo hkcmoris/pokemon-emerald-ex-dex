@@ -99,10 +99,13 @@ function render(
 
 void test('incoming damage uses enemy offense and level against the selected member defense and HP', () => {
     const html = render();
+    match(html, /<article class="move-display move-display--large[^"]*" data-move-id="55"/);
     match(html, /Squirtle → Flame/);
     match(html, /18–24 HP/);
     match(html, /Total · 1 hit/);
     match(html, /18–24% of Flame’s HP/);
+    match(html, /Accuracy<\/span><strong[^>]*>100%<\/strong>/);
+    match(html, /PP<\/span><strong>25<\/strong>/);
     match(html, /Type effectiveness 2× · STAB 1\.5×/);
     match(html, /Unspecified enemy stats assume neutral nature/);
     match(html, /Uses your recorded stats or simulator overrides/);

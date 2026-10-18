@@ -310,15 +310,36 @@ function MoveEffectBadge({ effect }: { effect: MoveEffect }) {
     );
 }
 
-export function MoveEffectBadges({ move }: { move?: Move }) {
+export function MoveEffectBadges({
+    move,
+    interactive = true,
+}: {
+    move?: Move;
+    interactive?: boolean;
+}) {
     const { t } = useLanguage();
     const effects = move ? getMoveEffects(move) : [];
     if (effects.length === 0) return null;
     return (
         <span className="move-effects" role="list" aria-label={t('Move effects', 'Účinky útoku')}>
-            {effects.map((effect, index) => (
-                <MoveEffectBadge key={index} effect={effect} />
-            ))}
+            {effects.map((effect, index) =>
+                interactive ? (
+                    <MoveEffectBadge key={index} effect={effect} />
+                ) : (
+                    <span key={index} className="move-effect-item" role="listitem">
+                        <span
+                            className="move-effect-badge"
+                            role="img"
+                            aria-label={effectLabel(effect, t)}
+                            title={effectLabel(effect, t)}
+                            data-effect={effect.kind === 'status' ? effect.status : effect.kind}
+                            data-direction={effect.kind === 'stat' ? effect.direction : undefined}
+                        >
+                            <MoveEffectIcon effect={effect} />
+                        </span>
+                    </span>
+                ),
+            )}
         </span>
     );
 }

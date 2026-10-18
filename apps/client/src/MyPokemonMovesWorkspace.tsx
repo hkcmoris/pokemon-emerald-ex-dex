@@ -372,15 +372,20 @@ export function MyPokemonMovesWorkspace({
                                         </button>
                                     )}
                                     {moves.map((move) => (
-                                        <button
-                                            type="button"
-                                            className="page-button"
+                                        <MyPokemonMove
+                                            as="button"
                                             key={move.moveId}
+                                            move={move}
+                                            reference={findReferenceMove(move.moveId, family)}
+                                            showStats
                                             disabled={busy}
+                                            prefix={t('Replace', 'Nahradit')}
+                                            actionLabel={t(
+                                                `Replace ${move.name}`,
+                                                `Nahradit ${move.name}`,
+                                            )}
                                             onClick={() => choose(choice.candidate!, move.moveId)}
-                                        >
-                                            {t(`Replace ${move.name}`, `Nahradit ${move.name}`)}
-                                        </button>
+                                        />
                                     ))}
                                 </div>
                             )}

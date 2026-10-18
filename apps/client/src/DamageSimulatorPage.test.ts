@@ -410,6 +410,12 @@ void test('simulator exposes saved level controls with a one-click increase and 
 
 void test('the preview catalogue includes future current-form and HM moves, with clear acquisition labels', () => {
     const html = render();
+    match(html, /<article class="move-display move-display--large[^"]*" data-move-id="55"/);
+    match(
+        html,
+        /<span class="move-display move-display--small[^"]*sim-candidate" data-move-id="57"/,
+    );
+    match(html, /aria-label="Preview Surf"/);
     match(html, /Bubble Beam/);
     match(html, /Lv\. 20 · future/);
     match(html, /Surf/);
@@ -418,9 +424,12 @@ void test('the preview catalogue includes future current-form and HM moves, with
     match(html, /Level labels describe the learnset, not immediate availability/);
     match(html, /Future moves use today’s recorded level, stats and types/);
     doesNotMatch(html, /Dark Pulse/);
-    match(html, /Base power <b>40<\/b>/);
+    match(html, /Base power<\/span><strong>40<\/strong>/);
+    const waterGunCard = html.match(/<article[^>]*data-move-id="55"[\s\S]*?<\/article>/)?.[0] ?? '';
+    match(waterGunCard, /Accuracy<\/span><strong[^>]*>100%<\/strong>/);
+    match(waterGunCard, /PP<\/span><strong>25<\/strong>/);
     match(html, /Choose an opponent/);
-    doesNotMatch(html, /[0-9]–[0-9]+ <span>HP<\/span>/);
+    doesNotMatch(html, /[0-9]–[0-9]+ HP/);
 });
 
 void test('attacking inputs use the latest current observation and never fill gaps with older or base stats', () => {
@@ -708,12 +717,13 @@ void test('simulator totals Icicle Spear hits using the selected ability without
     const options = { document, references: [shellder, venusaur], moves: [icicleSpear], chart };
     const html = render(options);
     match(html, /Total · 5 hits · Skill Link/);
-    match(html, /40–50 <span>HP<\/span>/);
+    match(html, /40–50 HP/);
     match(html, /58–72\.5% of enemy HP/);
     match(html, /Per hit: 8–10 HP/);
     const incoming =
         html.match(/<section[^>]*aria-label="Estimated incoming damage"[\s\S]*?<\/section>/)?.[0] ??
         '';
+    match(incoming, /<article class="move-display move-display--large[^"]*" data-move-id="333"/);
     match(incoming, /Total · 2–5 hits/);
     match(incoming, /4–15 HP/);
     doesNotMatch(incoming, /Total · 5 hits · Skill Link/);
@@ -733,7 +743,7 @@ void test('simulator totals Icicle Spear hits using the selected ability without
             document: { ...document, pokemon: { [owned.id]: { ...owned, ability } } },
         });
         match(normal, /Total · 2–5 hits/);
-        match(normal, /16–50 <span>HP<\/span>/);
+        match(normal, /16–50 HP/);
         doesNotMatch(normal, /Total · 5 hits · Skill Link/);
     }
     const conflicting = render({
@@ -751,7 +761,7 @@ void test('simulator totals Icicle Spear hits using the selected ability without
             },
         ],
     });
-    match(conflicting, /16–50 <span>HP<\/span>/);
+    match(conflicting, /16–50 HP/);
     doesNotMatch(conflicting, /Total · 5 hits · Skill Link/);
 });
 

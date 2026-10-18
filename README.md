@@ -583,6 +583,26 @@ edge highlights. Move rows use the move’s own type, including level-up moves a
 TM/HM compatibility.
 Type colors supply the tint; text tones adapt to the light and dark themes.
 
+Every move display uses `apps/client/src/MoveDisplay.tsx`: Pokédex learnsets,
+collection moves and learning plans, pickers, revealed enemy moves, party guidance,
+and both directions of simulated damage. `size="small"` provides a compact chip,
+`medium` provides a collection card, and `large` provides a detailed card. All sizes
+wrap long names and adapt their spacing on phones. The `show` options independently
+control type, category, effects, description, power, accuracy, PP, priority, and the
+individual comparison score. Contextual metadata, actions, and calculation details
+use the component's slots; they do not introduce separate move-card layouts.
+Cards with a contextual result put the move beside the damage range and HP percentage.
+Simulator cards show base power, accuracy, and base PP together in a compact stats row.
+The simulator shows a compact two-by-two move grid on larger
+screens and short full-width cards on phones, with calculations expandable below.
+
+Pass a full `Move` or a `KnownMove` plus its resolved `reference`. `MyPokemonMove`
+is a collection data adapter for the same display. Calculations stay with their
+feature: the optional `metric` displays total HP damage separately from base power,
+while the labeled comparison score keeps its explanatory tooltip. Use `interaction`
+for a selectable move or checkbox; effect and score controls remain separate from
+that action. Use `passive` inside an existing link or button to avoid nested controls.
+
 Species detail headings receive focus after navigation for screen readers, without
 a visible outline. Interactive controls retain their keyboard focus indicators.
 The appearance toggle sits directly below the sprite. Either button switches between

@@ -231,7 +231,7 @@ for (const language of ['en', 'cs'] as const) {
         };
         const html = renderSpecies(language, details);
         const descriptions = Array.from(
-            html.matchAll(/<p class="move-description">([^<]*)<\/p>/g),
+            html.matchAll(/<span class="move-display-description">([^<]*)<\/span>/g),
             ([, description]) => description,
         );
         deepStrictEqual(descriptions, [
@@ -268,7 +268,7 @@ for (const language of ['en', 'cs'] as const) {
             learnset: [{ ...move, entryOrder: 0, level: 0 }, move],
         });
         const labels = Array.from(
-            html.matchAll(/<p class="move-acquisition">([^<]*)<\/p>/g),
+            html.matchAll(/<span class="move-display-metadata">([^<]*)<\/span>/g),
             ([, label]) => label,
         );
         deepStrictEqual(
@@ -279,6 +279,6 @@ for (const language of ['en', 'cs'] as const) {
             html,
             language === 'cs' ? /Úroveň naučení v ROM<\/dt><dd>0/ : /Raw learning level<\/dt><dd>0/,
         );
-        doesNotMatch(html, /class="move-acquisition">(?:Level|Úroveň) 0/);
+        doesNotMatch(html, /class="move-display-metadata">(?:Level|Úroveň) 0/);
     });
 }

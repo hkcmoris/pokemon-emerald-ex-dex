@@ -1,37 +1,19 @@
-import { useId, useMemo, useState, type ReactNode } from 'react';
+import { useId, useMemo, useState } from 'react';
 import {
     assessMoveWishlistAddition,
     planMoveWishlist,
     recordLearnedWishlistMoves,
     type KnownMove,
-    type Move,
     type MovePlanSource,
     type OwnedPokemon,
     type SpeciesDetails,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { MyPokemonMove, MyPokemonMoveStats, findReferenceMove } from './MyPokemonMove.js';
+import { MyPokemonMove, findReferenceMove } from './MyPokemonMove.js';
+import { MoveDisplay } from './MoveDisplay.js';
 import { useLanguage, type Translate } from './language.js';
 import { evolutionSummary } from './evolutionText.js';
 import { setWishlistMove } from './moveWishlistActions.js';
-import { moveAffinityLabel, useMoveAffinity } from './MoveAffinity.js';
-import { MoveEffectBadges } from './MoveEffectBadges.js';
-
-function WishlistTimelineStep({ move, children }: { move?: Move; children: ReactNode }) {
-    const { t } = useLanguage();
-    const affinity = useMoveAffinity(move);
-    const label = moveAffinityLabel(affinity, t);
-    return (
-        <li
-            className={affinity ? 'my-move-affinity' : undefined}
-            data-affinity={affinity ?? undefined}
-            title={label}
-        >
-            {label && <span className="sr-only">{label}</span>}
-            {children}
-        </li>
-    );
-}
 
 function sourceLabel(
     source: MovePlanSource,
@@ -340,70 +322,61 @@ export function MyPokemonWishlist({
                             </p>
                             <ol>
                                 {plan.steps.map((step, index) => (
-                                    <WishlistTimelineStep
+                                    <li
                                         key={index}
-                                        move={
+                                        aria-label={
                                             step.kind === 'learn'
-                                                ? findReferenceMove(step.moveId, family)
+                                                ? t(`Learn ${step.name}`, `Naučit ${step.name}`)
                                                 : undefined
                                         }
                                     >
-                                        <span className="my-level-badge">Lv. {step.level}</span>
-                                        <div>
-                                            {step.kind === 'learn' ? (
-                                                <>
-                                                    <span className="my-move-heading">
-                                                        <strong>
-                                                            {t(
-                                                                `Learn ${step.name}`,
-                                                                `Naučit ${step.name}`,
-                                                            )}
-                                                        </strong>
-                                                        <MoveEffectBadges
-                                                            move={findReferenceMove(
-                                                                step.moveId,
-                                                                family,
-                                                            )}
-                                                        />
+                                        {step.kind === 'learn' ? (
+                                            <MoveDisplay
+                                                as="article"
+                                                move={step}
+                                                reference={findReferenceMove(step.moveId, family)}
+                                                leading={
+                                                    <span className="my-level-badge">
+                                                        Lv. {step.level}
                                                     </span>
-                                                    <MyPokemonMoveStats
-                                                        move={findReferenceMove(
-                                                            step.moveId,
-                                                            family,
-                                                        )}
-                                                    />
-                                                    <p className="my-muted">
+                                                }
+                                                metadata={
+                                                    <span>
+                                                        {t('Learn', 'Naučit')} ·{' '}
                                                         {sourceLabel(step.source, family, t)}
-                                                    </p>
-                                                    {step.source.requirement && (
-                                                        <p className="my-muted">
-                                                            {step.source.requirement}
-                                                        </p>
-                                                    )}
-                                                    {onLearnMove &&
-                                                        !pokemon.state.moves?.some(
-                                                            (known) => known.moveId === step.moveId,
-                                                        ) && (
-                                                            <button
-                                                                type="button"
-                                                                className="page-button"
-                                                                disabled={busy}
-                                                                onClick={() =>
-                                                                    onLearnMove({
-                                                                        moveId: step.moveId,
-                                                                        name: step.name,
-                                                                    })
-                                                                }
-                                                            >
-                                                                {t(
-                                                                    'Learn / Replace…',
-                                                                    'Naučit / Nahradit…',
-                                                                )}
-                                                            </button>
-                                                        )}
-                                                </>
-                                            ) : (
-                                                <>
+                                                    </span>
+                                                }
+                                                footer={step.source.requirement}
+                                                actions={
+                                                    onLearnMove &&
+                                                    !pokemon.state.moves?.some(
+                                                        (known) => known.moveId === step.moveId,
+                                                    ) && (
+                                                        <button
+                                                            type="button"
+                                                            className="page-button"
+                                                            disabled={busy}
+                                                            onClick={() =>
+                                                                onLearnMove({
+                                                                    moveId: step.moveId,
+                                                                    name: step.name,
+                                                                })
+                                                            }
+                                                        >
+                                                            {t(
+                                                                'Learn / Replace…',
+                                                                'Naučit / Nahradit…',
+                                                            )}
+                                                        </button>
+                                                    )
+                                                }
+                                            />
+                                        ) : (
+                                            <>
+                                                <span className="my-level-badge">
+                                                    Lv. {step.level}
+                                                </span>
+                                                <div>
                                                     <strong>
                                                         {t('Evolve', 'Vyvinout')}:{' '}
                                                         {family.find(
@@ -427,10 +400,10 @@ export function MyPokemonWishlist({
                                                             )}
                                                         </p>
                                                     )}
-                                                </>
-                                            )}
-                                        </div>
-                                    </WishlistTimelineStep>
+                                                </div>
+                                            </>
+                                        )}
+                                    </li>
                                 ))}
                             </ol>
                         </div>

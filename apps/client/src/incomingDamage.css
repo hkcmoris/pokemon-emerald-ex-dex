@@ -61,16 +61,13 @@
     border-radius: 18px;
     background: var(--dex-surface-soft);
 }
-.sim-incoming-heading,
-.sim-incoming-move-heading,
-.sim-incoming-move-heading > span {
+.sim-incoming-heading {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
 }
-.sim-incoming-heading,
-.sim-incoming-move-heading {
+.sim-incoming-heading {
     justify-content: space-between;
 }
 .sim-incoming h2 {
@@ -89,32 +86,12 @@
 }
 .sim-incoming-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 0.5rem;
 }
-.sim-incoming-move {
-    min-width: 0;
-    padding: 0.75rem;
-    border: 1px solid var(--dex-border);
-    border-radius: 12px;
-    background: var(--dex-surface);
-    overflow-wrap: anywhere;
-}
-.sim-incoming-move h3 {
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-.sim-incoming-range {
-    display: block;
-    margin-top: 0.6rem;
-    font-size: 1.15rem;
-    font-variant-numeric: tabular-nums;
-}
-.sim-incoming-move p {
-    margin-top: 0.3rem;
-    font-size: 0.75rem;
-    line-height: 1.4;
-}
-.sim-incoming-move .my-text-button {
-    margin-top: 0.6rem;
+@media (max-width: 480px) {
+    .sim-incoming-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }

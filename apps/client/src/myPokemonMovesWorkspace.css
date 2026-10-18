@@ -18,7 +18,7 @@
     gap: 0.55rem;
     padding: 0.45rem 0;
 }
-.my-move-slot > .my-move {
+.my-move-slot > .move-display {
     width: 100%;
     min-width: 0;
 }
@@ -97,7 +97,7 @@
     align-items: center;
     gap: 0.5rem;
 }
-.my-direct-move-option > .my-move {
+.my-direct-move-option > .move-display {
     width: 100%;
 }
 .my-direct-move-candidates .my-muted {
@@ -105,8 +105,8 @@
     font-size: 0.75rem;
 }
 .my-move-replacement-options {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
     gap: 0.5rem;
 }
 .my-moves-saved {
@@ -133,9 +133,6 @@
     .my-move-slot-actions .page-button {
         padding-inline: 0.5rem;
         font-size: 0.75rem;
-    }
-    .my-move-slot .my-move-stats {
-        flex-wrap: wrap;
     }
     .my-direct-move-candidates {
         max-height: 22rem;

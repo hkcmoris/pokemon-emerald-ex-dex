@@ -22,7 +22,7 @@ export function MovePowerProvider({
 }
 
 /** Compare moves using this individual's current recorded battle stats. */
-export function MovePower({ move }: { move?: Move }) {
+export function MovePower({ move, showLabel = false }: { move?: Move; showLabel?: boolean }) {
     const context = useContext(MovePowerContext);
     const { language, t } = useLanguage();
     const hintId = useId();
@@ -61,6 +61,11 @@ export function MovePower({ move }: { move?: Move }) {
                 onClick={(event) => event.stopPropagation()}
             >
                 <strong>{value}</strong>
+                {showLabel && (
+                    <span className="move-display-score-label">
+                        {t('Comparison score', 'Srovnávací skóre')}
+                    </span>
+                )}
             </button>
             <span id={hintId} popover="auto" className="my-move-power-hint">
                 <strong>
