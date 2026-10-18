@@ -93,3 +93,83 @@ void test('trait conflict choices have localized headings and visible independen
         match(html, language === 'en' ? /Species: #2 · Ability: #34/ : /Druh: #2 · Schopnost: #34/);
     }
 });
+
+void test('encounter conflicts identify the encounter, opponent and revealed move alternatives', () => {
+    const withEncounter = {
+        ...document,
+        encounters: {
+            rival: {
+                id: 'rival',
+                playthroughId: 'run',
+                name: 'Rival · Route 110',
+                party: ['enemy'],
+                deleted: false,
+                createdAt: '2026-10-18T10:00:00.000Z',
+            },
+        },
+        opponents: {
+            enemy: {
+                id: 'enemy',
+                encounterId: 'rival',
+                speciesId: 256,
+                level: 20,
+                moves: [],
+                deleted: false,
+            },
+        },
+    };
+    strictEqual(conflictValueLabel(['enemy'], 'party', withEncounter, english), '#256');
+    match(
+        conflictValueLabel(
+            { ...withEncounter.encounters.rival, deleted: true },
+            '$entity',
+            withEncounter,
+            english,
+        ),
+        /Removed encounter · Rival · Route 110 · #256/,
+    );
+    const conflicts: CollectionConflict[] = [
+        {
+            id: 'enemy-moves',
+            entity: 'opponents',
+            entityId: 'enemy',
+            kind: 'field',
+            field: 'moves',
+            base: [],
+            local: [{ moveId: 58, name: 'Ice Beam' }],
+            remote: [{ moveId: 52, name: 'Ember' }],
+        },
+        {
+            id: 'rival-name',
+            entity: 'encounters',
+            entityId: 'rival',
+            kind: 'field',
+            field: 'name',
+            base: 'Rival',
+            local: 'Route 110',
+            remote: 'Route 119',
+        },
+    ];
+    for (const language of ['en', 'cs'] as const) {
+        const html = renderToStaticMarkup(
+            createElement(
+                LanguageProvider,
+                { initialLanguage: language },
+                createElement(MyPokemonConflicts, {
+                    document: withEncounter,
+                    conflicts,
+                    resolve: async () => {},
+                }),
+            ),
+        );
+        match(
+            html,
+            language === 'en'
+                ? /#256 · Rival · Route 110 · Revealed moves/
+                : /#256 · Rival · Route 110 · Odhalené útoky/,
+        );
+        match(html, language === 'en' ? /Rival · Route 110 · Name/ : /Rival · Route 110 · Název/);
+        match(html, /Ice Beam/);
+        match(html, /Ember/);
+    }
+});

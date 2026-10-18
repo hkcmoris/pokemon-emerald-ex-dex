@@ -31,24 +31,30 @@ const unsupportedMoveIds = new Set([
     881, // Light That Burns the Sky: category depends on the current offensive stats.
 ]);
 
+/** Classifies move mechanics without assuming an attacker's stats or battle state. */
+export function getMovePowerSupport(
+    move: Pick<Move, 'moveId' | 'power' | 'categoryId' | 'typeId'> | undefined,
+): 'supported' | 'missing-data' | 'not-applicable' | 'unsupported' {
+    if (!move) return 'missing-data';
+    if (move.categoryId === 2 || move.power <= 0) return 'not-applicable';
+    // The ROM uses 1 as a placeholder for fixed damage, variable power and OHKO moves.
+    if (move.power === 1 || unsupportedMoveIds.has(move.moveId)) return 'unsupported';
+    if (move.categoryId !== 0 && move.categoryId !== 1) return 'unsupported';
+    if (!Number.isInteger(move.power) || !Number.isInteger(move.typeId) || move.typeId < 0)
+        return 'missing-data';
+    return 'supported';
+}
+
 /** Attacker-side comparison score, not damage in HP: base power × recorded stat × STAB. */
 export function calculateMovePower(
     move: Pick<Move, 'moveId' | 'power' | 'categoryId' | 'typeId'> | undefined,
     stats: Partial<BaseStats>,
     typeIds: readonly number[] | undefined,
 ): MovePower {
+    const support = getMovePowerSupport(move);
+    if (support !== 'supported') return { status: support };
     if (!move) return { status: 'missing-data' };
-    if (move.categoryId === 2 || move.power <= 0) return { status: 'not-applicable' };
-    // The ROM uses 1 as a placeholder for fixed damage, variable power and OHKO moves.
-    if (move.power === 1 || unsupportedMoveIds.has(move.moveId)) return { status: 'unsupported' };
-    if (move.categoryId !== 0 && move.categoryId !== 1) return { status: 'unsupported' };
-    if (
-        !Number.isInteger(move.power) ||
-        !Number.isInteger(move.typeId) ||
-        move.typeId < 0 ||
-        !typeIds?.length ||
-        typeIds.some((typeId) => !Number.isInteger(typeId) || typeId < 0)
-    )
+    if (!typeIds?.length || typeIds.some((typeId) => !Number.isInteger(typeId) || typeId < 0))
         return { status: 'missing-data' };
 
     // Upstream mechanics: Body Press uses Defense; Struggle never receives STAB.

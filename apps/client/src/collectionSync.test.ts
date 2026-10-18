@@ -2,6 +2,7 @@ import { deepStrictEqual, strictEqual, rejects } from 'node:assert/strict';
 import { test } from 'node:test';
 import {
     emptyCollection,
+    validateCollectionDocument,
     type CollectionDocument,
     type OwnedPokemon,
 } from '@pokemon-emerald-ex-dex/shared';
@@ -38,6 +39,31 @@ function fixture(): CollectionDocument {
         playthroughs: { run: { id: 'run', name: 'Emerald', party: ['one'], deleted: false } },
         pokemon: { one: owned('one'), two: owned('two') },
         observations: {},
+    };
+}
+function encounterFixture(): CollectionDocument {
+    return {
+        ...fixture(),
+        encounters: {
+            rival: {
+                id: 'rival',
+                playthroughId: 'run',
+                name: 'Rival · Route 110',
+                party: ['enemy'],
+                deleted: false,
+                createdAt: now,
+            },
+        },
+        opponents: {
+            enemy: {
+                id: 'enemy',
+                encounterId: 'rival',
+                speciesId: 1,
+                level: 20,
+                moves: [],
+                deleted: false,
+            },
+        },
     };
 }
 function saved(document = fixture()): CollectionPersistence {
@@ -228,6 +254,92 @@ void test('guest import keeps same-named runs and remaps actual identity collisi
         (entry) => entry.nickname === 'Independent',
     )!;
     strictEqual(imported.playthroughs[guest.playthroughId].party.includes(guest.id), true);
+});
+
+void test('guest encounter import remaps colliding encounters, opponent identities and their playthroughs', () => {
+    const first = encounterFixture();
+    const guest = encounterFixture();
+    guest.opponents!.enemy.level = 23;
+    guest.opponents!.enemy.moves = [{ moveId: 58, name: 'Ice Beam' }];
+    let next = 0;
+    const imported = importGuestCollection(first, guest, () => `new-${++next}`);
+    strictEqual(Object.keys(imported.encounters!).length, 2);
+    strictEqual(Object.keys(imported.opponents!).length, 2);
+    strictEqual(imported.opponents!.enemy.level, 20);
+    const added = Object.values(imported.opponents!).find((entry) => entry.level === 23)!;
+    const encounter = imported.encounters![added.encounterId];
+    strictEqual(encounter.playthroughId === 'run', false);
+    deepStrictEqual(encounter.party, [added.id]);
+    deepStrictEqual(added.moves, guest.opponents!.enemy.moves);
+    strictEqual(validateCollectionDocument(imported), true);
+    const fromLegacy = importGuestCollection(first, fixture(), () => `new-${++next}`);
+    deepStrictEqual(fromLegacy.encounters, first.encounters);
+    deepStrictEqual(fromLegacy.opponents, first.opponents);
+});
+
+void test('sync retains an opponent conflict locally while uploading independent revealed moves', () => {
+    const base = encounterFixture();
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    local.opponents!.enemy.level = 21;
+    local.opponents!.enemy.moves = [{ moveId: 58, name: 'Ice Beam' }];
+    remote.opponents!.enemy.level = 23;
+    const prepared = prepareCollectionSync(
+        { user, base, document: local, revision: 1, conflicts: [] },
+        { revision: 2, document: remote },
+    );
+    strictEqual(prepared.conflicts.length, 1);
+    strictEqual(prepared.document.opponents!.enemy.level, 21);
+    strictEqual(prepared.upload.opponents!.enemy.level, 23);
+    deepStrictEqual(prepared.upload.opponents!.enemy.moves, local.opponents!.enemy.moves);
+    strictEqual(validateCollectionDocument(prepared.upload), true);
+    const repeated = prepareCollectionSync(
+        {
+            user,
+            base: prepared.upload,
+            document: prepared.document,
+            revision: 2,
+            conflicts: prepared.conflicts,
+        },
+        { revision: 2, document: prepared.upload },
+    );
+    strictEqual(repeated.conflicts.length, 1);
+    strictEqual(repeated.document.opponents!.enemy.level, 21);
+    const legacyRemote = structuredClone(prepared.upload);
+    delete legacyRemote.encounters;
+    delete legacyRemote.opponents;
+    const legacyRepeat = prepareCollectionSync(
+        {
+            user,
+            base: prepared.upload,
+            document: prepared.document,
+            revision: 2,
+            conflicts: prepared.conflicts,
+        },
+        { revision: 3, document: legacyRemote },
+    );
+    strictEqual(legacyRepeat.conflicts.length, 1);
+    strictEqual(legacyRepeat.conflicts[0].remote, 23);
+    strictEqual(legacyRepeat.document.opponents!.enemy.level, 21);
+    strictEqual(legacyRepeat.upload.opponents!.enemy.level, 23);
+    strictEqual(validateCollectionDocument(legacyRepeat.upload), true);
+});
+
+void test('sync resolves removed opponents before restoring a remote enemy lineup', () => {
+    const base = encounterFixture();
+    const local = structuredClone(base);
+    const remote = structuredClone(base);
+    local.opponents!.enemy.deleted = true;
+    local.encounters!.rival.party = [];
+    remote.opponents!.enemy.level = 21;
+    const prepared = prepareCollectionSync(
+        { user, base, document: local, revision: 1, conflicts: [] },
+        { revision: 2, document: remote },
+    );
+    strictEqual(prepared.document.opponents!.enemy.deleted, true);
+    strictEqual(prepared.upload.opponents!.enemy.deleted, false);
+    strictEqual(prepared.upload.opponents!.enemy.level, 21);
+    strictEqual(validateCollectionDocument(prepared.upload), true);
 });
 
 void test('an edit made during an upload is rebased and sent without losing either value', async () => {

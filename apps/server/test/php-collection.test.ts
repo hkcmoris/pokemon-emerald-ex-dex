@@ -188,6 +188,104 @@ void test(
             value.pokemon.owned.ability = { speciesId: 1, abilityId: 65 };
             value.pokemon.owned.moveWishlist = wishlist;
         });
+        const withEncounter: CollectionDocument = {
+            ...document,
+            encounters: {
+                rival: {
+                    id: 'rival',
+                    playthroughId: 'run',
+                    name: 'Rival · Route 110',
+                    party: ['a', 'b'],
+                    deleted: false,
+                    createdAt: '2026-10-18T10:00:00.000Z',
+                },
+            },
+            opponents: {
+                a: {
+                    id: 'a',
+                    encounterId: 'rival',
+                    speciesId: 1,
+                    level: 20,
+                    moves: [{ moveId: 58, name: 'Ice Beam' }],
+                    deleted: false,
+                },
+                b: {
+                    id: 'b',
+                    encounterId: 'rival',
+                    speciesId: 1,
+                    level: 22,
+                    moves: [],
+                    deleted: false,
+                },
+            },
+        };
+        documents.push(withEncounter, { ...document, encounters: {}, opponents: {} });
+        for (const change of [
+            (d: CollectionDocument) => {
+                d.encounters!.rival.playthroughId = 'missing';
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.encounterId = 'missing';
+            },
+            (d: CollectionDocument) => {
+                d.encounters!.rival.party = ['missing'];
+            },
+            (d: CollectionDocument) => {
+                d.encounters!.rival.party = ['a', 'a'];
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.deleted = true;
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.level = 101;
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.speciesId = 0;
+            },
+            (d: CollectionDocument) => {
+                d.encounters!.rival.name = ' ';
+            },
+            (d: CollectionDocument) => {
+                d.encounters!.rival.createdAt = 'yesterday';
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.id = 'wrong';
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.moves = [{ moveId: 1, name: '' }];
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.moves = [
+                    { moveId: 1, name: 'Pound' },
+                    { moveId: 1, name: 'Pound' },
+                ];
+            },
+            (d: CollectionDocument) => {
+                d.opponents!.a.moves = Array.from({ length: 5 }, (_, i) => ({
+                    moveId: i + 1,
+                    name: 'Move',
+                }));
+            },
+            (d: CollectionDocument) => {
+                d.encounters!.gym = { ...d.encounters!.rival, id: 'gym', party: ['a'] };
+            },
+            (d: CollectionDocument) => {
+                d.encounters!.rival.party = Array.from({ length: 7 }, (_, i) => `opponent${i}`);
+                for (const id of d.encounters!.rival.party)
+                    d.opponents![id] = { ...d.opponents!.a, id };
+            },
+        ]) {
+            const value = structuredClone(withEncounter);
+            change(value);
+            strictEqual(validateCollectionDocument(value), false);
+            documents.push(value);
+        }
+        for (const invalidMap of [null, [], false]) {
+            documents.push(
+                { ...withEncounter, encounters: invalidMap },
+                { ...withEncounter, opponents: invalidMap },
+            );
+        }
         const validToken = token();
         const parts = validToken.split('.');
         const tampered = `${parts[0]}.${Buffer.from(JSON.stringify({ ...claims, sub: 'intruder' })).toString('base64url')}.${parts[2]}`;

@@ -1,0 +1,120 @@
+.sim-party-grid > li {
+    display: flex;
+    flex-direction: column;
+}
+.sim-party-member {
+    flex: 1;
+    height: auto;
+}
+.sim-party-threats,
+.sim-party-threat-note {
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+.sim-party-threat-note {
+    color: var(--dex-muted);
+    text-align: center;
+}
+.sim-party-threats {
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 10px;
+    background: var(--dex-surface);
+}
+.sim-party-threats[data-warning='true'] {
+    border-color: color-mix(in srgb, var(--sim-weakness) 60%, var(--dex-border));
+    background: color-mix(in srgb, var(--sim-weakness) 9%, var(--dex-surface));
+}
+.sim-party-threats summary {
+    min-height: 44px;
+    align-content: center;
+    cursor: pointer;
+}
+.sim-party-threats[data-warning='true'] summary,
+.sim-incoming-weakness {
+    color: var(--sim-weakness);
+}
+.sim-party-threats summary:focus-visible {
+    outline: 2px solid var(--dex-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+.sim-party-threats ul {
+    padding: 0;
+    margin: 0.5rem 0 0;
+    list-style: none;
+}
+.sim-party-threats li + li {
+    margin-top: 0.4rem;
+}
+.sim-party-threats button {
+    margin-top: 0.5rem;
+    max-width: 100%;
+    font-size: inherit;
+}
+.sim-incoming {
+    margin: 1.25rem 0;
+    padding: 1rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 18px;
+    background: var(--dex-surface-soft);
+}
+.sim-incoming-heading,
+.sim-incoming-move-heading,
+.sim-incoming-move-heading > span {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.sim-incoming-heading,
+.sim-incoming-move-heading {
+    justify-content: space-between;
+}
+.sim-incoming h2 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+.sim-incoming-heading > p,
+.sim-incoming-assumptions,
+.sim-incoming-unavailable {
+    color: var(--dex-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+.sim-incoming-assumptions {
+    margin: 0.5rem 0 1rem;
+}
+.sim-incoming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+    gap: 0.75rem;
+}
+.sim-incoming-move {
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    background: var(--dex-surface);
+    overflow-wrap: anywhere;
+}
+.sim-incoming-move h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+.sim-incoming-range {
+    display: block;
+    margin-top: 0.6rem;
+    font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+}
+.sim-incoming-move p {
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+.sim-incoming-move .my-text-button {
+    margin-top: 0.6rem;
+}

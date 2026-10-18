@@ -4,7 +4,8 @@ export interface EnemySetup {
     pokemon: Pokemon | null;
     level: string;
     picking: boolean;
-    overrides: Record<'hp' | 'defense' | 'spDefense', string>;
+    overrides: Record<'hp' | 'defense' | 'spDefense', string> &
+        Partial<Record<'attack' | 'spAttack', string>>;
 }
 
 export interface AttackerSetup {
@@ -53,6 +54,7 @@ export function rememberSimulatorAttacker(
 }
 
 export function resetSimulatorSession(dataset: string): void {
-    opponents.delete(dataset);
+    for (const key of opponents.keys())
+        if (key === dataset || key.startsWith(`${dataset}:`)) opponents.delete(key);
     for (const key of attackers.keys()) if (key.startsWith(`${dataset}:`)) attackers.delete(key);
 }

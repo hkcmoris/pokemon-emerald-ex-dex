@@ -90,7 +90,15 @@ deploy `assets/types/` alongside the backend. See
 [how to replace type icons](docs/database.md#update-type-icons).
 Related species link to their own pages. Detail URLs
 such as `#/species/1` can be bookmarked; returning to the list preserves its filters
-during the session. JSON exports in `docs/` are import inputs and test fixtures;
+during the session. Opening a species contracts the list into an independently scrolling
+sprite column on desktop, or a horizontal strip on phones. The navigator includes all
+matching results in the same search, type filter and sort order, loading further matches
+as you scroll in either direction. Switching sprites preserves the selected detail tab.
+Expand the list to edit filters or resume browsing at the previous page and scroll position.
+Names and species IDs appear on hover or keyboard focus, and reduced-motion settings
+skip the transition. Direct detail links start with the unfiltered list; following a form
+or evolution outside the active filter leaves that filter unchanged.
+JSON exports in `docs/` are import inputs and test fixtures;
 neither the client nor the server reads them at runtime.
 
 ## Favicons and installation
@@ -153,10 +161,17 @@ to compare its attacks against any opponent species/form and level. The main ent
 uses the current playthrough and remembered member, falling back to its first party
 member or collection Pokémon. The simulator shows the attacker's back sprite,
 HP damage ranges, enemy HP percentages, STAB and type matchups. Enemy stats assume
-neutral nature, 31 IVs and 0 EVs, with temporary HP/Defense/Sp. Def overrides.
+neutral nature, 31 IVs and 0 EVs, with temporary HP and offensive/defensive stat overrides.
 Preview the current form's full learnset and TM/HM moves, including future level
-labels and recorded inherited moves. All scenario changes stay separate from the
-saved collection. See [the simulator's formula and limits](docs/features/damage-simulator.md).
+labels and recorded inherited moves. Save named enemy encounters with up to six opponents,
+switch between them in one click, and record up to four revealed moves per opponent.
+Levels and moves autosave and sync with the signed-in collection; duplicate an encounter
+for a rematch while retaining the original. Known super-effective enemy moves add an
+expandable warning to each vulnerable party member. The selected matchup also shows
+estimated incoming HP damage, using current measured defenses when available and clearly
+labeled estimates otherwise. Unknown moves remain unknown. Quick matchups, stat overrides
+and move previews stay temporary; resetting the scenario keeps saved encounters.
+See [the simulator's formula and limits](docs/features/damage-simulator.md).
 Each collection Pokémon has a saved **Nature** selection and, when its current form
 has multiple distinct abilities, an **Ability** selection including hidden abilities.
 Unknown remains a valid choice. A form with one ability displays it directly.

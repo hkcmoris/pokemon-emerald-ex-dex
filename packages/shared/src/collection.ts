@@ -27,6 +27,25 @@ export interface Playthrough {
     deleted: boolean;
 }
 
+export interface BattleEncounter {
+    id: string;
+    playthroughId: string;
+    name: string;
+    party: string[];
+    deleted: boolean;
+    createdAt: string;
+}
+
+export interface EncounterOpponent {
+    id: string;
+    encounterId: string;
+    speciesId: number;
+    level: number;
+    /** Only moves revealed or explicitly recorded by the player. */
+    moves: KnownMove[];
+    deleted: boolean;
+}
+
 export interface OwnedPokemonAbility {
     speciesId: number;
     abilityId: number;
@@ -78,11 +97,15 @@ export interface CollectionDocument {
     playthroughs: Record<string, Playthrough>;
     pokemon: Record<string, OwnedPokemon>;
     observations: Record<string, StatObservation>;
+    /** Absent in collections saved before encounter tracking was introduced. */
+    encounters?: Record<string, BattleEncounter>;
+    opponents?: Record<string, EncounterOpponent>;
 }
 
 export type JsonValue =
     null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
-export type CollectionEntity = 'playthroughs' | 'pokemon' | 'observations';
+export type CollectionEntity =
+    'playthroughs' | 'pokemon' | 'observations' | 'encounters' | 'opponents';
 
 export interface CollectionConflict {
     id: string;
@@ -174,6 +197,21 @@ function validState(value: unknown): boolean {
     );
 }
 
+function validKnownMoves(value: unknown): value is KnownMove[] {
+    return (
+        Array.isArray(value) &&
+        value.length <= 4 &&
+        value.every(
+            (move: unknown) =>
+                record(move) &&
+                keys(move, ['moveId', 'name']) &&
+                integer(move.moveId, 1, 100000) &&
+                text(move.name, 80, false),
+        ) &&
+        new Set(value.map((move: KnownMove) => move.moveId)).size === value.length
+    );
+}
+
 function validWishlist(value: unknown): boolean {
     return (
         record(value) &&
@@ -200,18 +238,31 @@ function validWishlist(value: unknown): boolean {
 export function validateCollectionDocument(value: unknown): value is CollectionDocument {
     if (
         !record(value) ||
-        !keys(value, ['version', 'playthroughs', 'pokemon', 'observations']) ||
+        !keys(value, [
+            'version',
+            'playthroughs',
+            'pokemon',
+            'observations',
+            ...(Object.hasOwn(value, 'encounters') ? ['encounters'] : []),
+            ...(Object.hasOwn(value, 'opponents') ? ['opponents'] : []),
+        ]) ||
         value.version !== 1 ||
         !record(value.playthroughs) ||
         !record(value.pokemon) ||
-        !record(value.observations)
+        !record(value.observations) ||
+        (Object.hasOwn(value, 'encounters') && !record(value.encounters)) ||
+        (Object.hasOwn(value, 'opponents') && !record(value.opponents))
     )
         return false;
     const { playthroughs, pokemon, observations } = value;
+    const encounters = (value.encounters ?? {}) as Record<string, unknown>;
+    const opponents = (value.opponents ?? {}) as Record<string, unknown>;
     if (
         Object.keys(playthroughs).length > 50 ||
         Object.keys(pokemon).length > 3000 ||
-        Object.keys(observations).length > 10000
+        Object.keys(observations).length > 10000 ||
+        Object.keys(encounters).length > 1000 ||
+        Object.keys(opponents).length > 6000
     )
         return false;
     for (const [key, run] of Object.entries(playthroughs)) {
@@ -307,6 +358,45 @@ export function validateCollectionDocument(value: unknown): value is CollectionD
         )
             return false;
     }
+    for (const [key, encounter] of Object.entries(encounters)) {
+        if (
+            !id(key) ||
+            !record(encounter) ||
+            !keys(encounter, ['id', 'playthroughId', 'name', 'party', 'deleted', 'createdAt']) ||
+            encounter.id !== key ||
+            !id(encounter.playthroughId) ||
+            !Object.hasOwn(playthroughs, encounter.playthroughId) ||
+            !text(encounter.name, 80, false) ||
+            typeof encounter.deleted !== 'boolean' ||
+            !timestamp(encounter.createdAt) ||
+            !Array.isArray(encounter.party) ||
+            encounter.party.length > 6 ||
+            !encounter.party.every(id) ||
+            new Set(encounter.party).size !== encounter.party.length ||
+            !encounter.party.every((opponentId: string) => {
+                const opponent = opponents[opponentId];
+                return (
+                    record(opponent) && opponent.encounterId === key && opponent.deleted === false
+                );
+            })
+        )
+            return false;
+    }
+    for (const [key, opponent] of Object.entries(opponents)) {
+        if (
+            !id(key) ||
+            !record(opponent) ||
+            !keys(opponent, ['id', 'encounterId', 'speciesId', 'level', 'moves', 'deleted']) ||
+            opponent.id !== key ||
+            !id(opponent.encounterId) ||
+            !Object.hasOwn(encounters, opponent.encounterId) ||
+            !integer(opponent.speciesId, 1, 100000) ||
+            !integer(opponent.level, 1, 100) ||
+            !validKnownMoves(opponent.moves) ||
+            typeof opponent.deleted !== 'boolean'
+        )
+            return false;
+    }
     return true;
 }
 
@@ -352,6 +442,33 @@ function changedChildren(
     base: CollectionDocument,
     other: CollectionDocument,
 ): boolean {
+    if (entity === 'opponents') {
+        const opponent = other.opponents?.[entityId] ?? base.opponents?.[entityId];
+        const encounter = opponent ? other.encounters?.[opponent.encounterId] : undefined;
+        return (
+            !!encounter?.party.includes(entityId) &&
+            !equal(encounter.party, base.encounters?.[encounter.id]?.party)
+        );
+    }
+    if (entity === 'playthroughs' || entity === 'encounters') {
+        for (const encounter of Object.values(other.encounters ?? {})) {
+            const belongs =
+                entity === 'encounters'
+                    ? encounter.id === entityId
+                    : encounter.playthroughId === entityId;
+            if (!belongs) continue;
+            if (entity === 'playthroughs' && !equal(encounter, base.encounters?.[encounter.id]))
+                return true;
+            for (const opponent of Object.values(other.opponents ?? {})) {
+                if (
+                    opponent.encounterId === encounter.id &&
+                    !equal(opponent, base.opponents?.[opponent.id])
+                )
+                    return true;
+            }
+        }
+    }
+    if (entity === 'encounters') return false;
     const belongs = (owned: OwnedPokemon): boolean =>
         entity === 'pokemon' ? owned.id === entityId : owned.playthroughId === entityId;
     if (entity === 'playthroughs') {
@@ -394,21 +511,40 @@ export function mergeCollections(
     remote = remember(remote);
     const document = emptyCollection();
     const conflicts: CollectionConflict[] = [];
-    for (const entity of ['playthroughs', 'pokemon', 'observations'] as const) {
+    for (const entity of [
+        'playthroughs',
+        'pokemon',
+        'observations',
+        'encounters',
+        'opponents',
+    ] as const) {
+        if (entity === 'encounters' || entity === 'opponents') {
+            if (
+                base[entity] === undefined &&
+                local[entity] === undefined &&
+                remote[entity] === undefined
+            )
+                continue;
+            document[entity] = {};
+        }
         const destination = document[entity] as unknown as Record<string, Record<string, unknown>>;
+        const baseEntities = base[entity] ?? {};
+        // Older clients can omit these maps. Absence is not a request to remove saved encounters.
+        const localEntities = local[entity] ?? baseEntities;
+        const remoteEntities = remote[entity] ?? baseEntities;
         const ids = [
             ...new Set([
-                ...Object.keys(base[entity]),
-                ...Object.keys(local[entity]),
-                ...Object.keys(remote[entity]),
+                ...Object.keys(baseEntities),
+                ...Object.keys(localEntities),
+                ...Object.keys(remoteEntities),
             ]),
         ].sort();
         for (const entityId of ids) {
-            const ancestor = structuredClone(base[entity][entityId]) as unknown as
+            const ancestor = structuredClone(baseEntities[entityId]) as unknown as
                 Record<string, unknown> | undefined;
-            const ours = structuredClone(local[entity][entityId]) as unknown as
+            const ours = structuredClone(localEntities[entityId]) as unknown as
                 Record<string, unknown> | undefined;
-            const theirs = structuredClone(remote[entity][entityId]) as unknown as
+            const theirs = structuredClone(remoteEntities[entityId]) as unknown as
                 Record<string, unknown> | undefined;
             if (entity === 'pokemon') {
                 // Acquisition history is monotonic; only wishlist choices need conflict resolution.
@@ -561,7 +697,48 @@ export function mergeCollections(
             run.party = validParty;
         }
     }
+    for (const encounter of Object.values(document.encounters ?? {})) {
+        const validParty = validEncounterLineup(document, encounter.id, encounter.party);
+        if (equal(validParty, encounter.party)) continue;
+        if (
+            !conflicts.some(
+                (item) =>
+                    item.entity === 'encounters' &&
+                    item.entityId === encounter.id &&
+                    item.field === 'party',
+            )
+        )
+            conflicts.push(
+                conflict(
+                    'encounters',
+                    encounter.id,
+                    'party',
+                    base.encounters?.[encounter.id]?.party,
+                    local.encounters?.[encounter.id]?.party ??
+                        base.encounters?.[encounter.id]?.party ??
+                        [],
+                    remote.encounters?.[encounter.id]?.party ??
+                        base.encounters?.[encounter.id]?.party ??
+                        [],
+                    'party',
+                ),
+            );
+        encounter.party = validParty;
+    }
     return { document, conflicts };
+}
+
+function validEncounterLineup(
+    document: CollectionDocument,
+    encounterId: string,
+    party: readonly string[],
+): string[] {
+    return [...new Set(party)]
+        .filter((opponentId) => {
+            const opponent = document.opponents?.[opponentId];
+            return opponent && !opponent.deleted && opponent.encounterId === encounterId;
+        })
+        .slice(0, 6);
 }
 
 function validLineup(
@@ -584,6 +761,8 @@ export function applyConflictChoice(
     choice: 'local' | 'remote',
 ): CollectionDocument {
     const next = structuredClone(document);
+    if (item.entity === 'encounters') next.encounters ??= {};
+    if (item.entity === 'opponents') next.opponents ??= {};
     const entities = next[item.entity] as unknown as Record<string, Record<string, unknown>>;
     const selected = structuredClone(item[choice]);
     if (item.field === '$entity') {
@@ -604,6 +783,17 @@ export function applyConflictChoice(
             );
         }
     }
+    if (item.entity === 'encounters' && (item.field === 'party' || item.field === '$entity')) {
+        const encounter = next.encounters?.[item.entityId];
+        if (
+            encounter &&
+            !equal(encounter.party, validEncounterLineup(next, encounter.id, encounter.party))
+        ) {
+            throw new Error(
+                'Resolve related removed opponents first, then choose this enemy party. Your alternatives are still available.',
+            );
+        }
+    }
     for (const [id, pokemon] of Object.entries(next.pokemon)) {
         if (pokemon.moveWishlist) {
             pokemon.moveWishlist.learnedMoveIds = [
@@ -617,6 +807,8 @@ export function applyConflictChoice(
     }
     for (const run of Object.values(next.playthroughs))
         run.party = validLineup(next, run.id, run.party);
+    for (const encounter of Object.values(next.encounters ?? {}))
+        encounter.party = validEncounterLineup(next, encounter.id, encounter.party);
     return next;
 }
 
@@ -625,7 +817,7 @@ export function readConflictValue(
     document: CollectionDocument,
     item: CollectionConflict,
 ): JsonValue {
-    const entity = document[item.entity][item.entityId] as unknown as
+    const entity = document[item.entity]?.[item.entityId] as unknown as
         Record<string, unknown> | undefined;
     return json(item.field === '$entity' ? entity : entity?.[item.field]);
 }

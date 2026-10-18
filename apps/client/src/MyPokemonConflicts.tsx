@@ -35,7 +35,7 @@ export function conflictValueLabel(
                   .map((entry) =>
                       field === 'party' && typeof entry === 'string'
                           ? document.pokemon[entry]?.nickname ||
-                            `#${document.pokemon[entry]?.state.speciesId ?? '?'}`
+                            `#${document.pokemon[entry]?.state.speciesId ?? document.opponents?.[entry]?.speciesId ?? '?'}`
                           : conflictValueLabel(entry, field, document, t),
                   )
                   .join(' → ');
@@ -67,8 +67,12 @@ export function conflictValueLabel(
     if ('party' in value)
         return [
             value.deleted === true
-                ? t('Removed playthrough', 'Odstraněný průchod')
-                : t('Kept playthrough', 'Zachovaný průchod'),
+                ? 'playthroughId' in value
+                    ? t('Removed encounter', 'Odstraněné střetnutí')
+                    : t('Removed playthrough', 'Odstraněný průchod')
+                : 'playthroughId' in value
+                  ? t('Kept encounter', 'Zachované střetnutí')
+                  : t('Kept playthrough', 'Zachovaný průchod'),
             typeof value.name === 'string' ? value.name : '',
             conflictValueLabel(value.party, 'party', document, t),
         ].join(' · ');
@@ -122,12 +126,19 @@ export function MyPokemonConflicts({
                           reason.message,
                           'Nejprve vyřešte související odstraněné Pokémony a pak zvolte tuto sestavu týmu. Obě možnosti jsou stále dostupné.',
                       )
-                    : reason instanceof Error && reason.message
-                      ? reason.message
-                      : t(
-                            'Could not save the conflict choice. Your alternatives are still available.',
-                            'Volbu se nepodařilo uložit. Obě možnosti jsou stále dostupné.',
-                        ),
+                    : reason instanceof Error &&
+                        reason.message ===
+                            'Resolve related removed opponents first, then choose this enemy party. Your alternatives are still available.'
+                      ? t(
+                            reason.message,
+                            'Nejprve vyřešte související odstraněné soupeře a pak zvolte tento soupeřův tým. Obě možnosti jsou stále dostupné.',
+                        )
+                      : reason instanceof Error && reason.message
+                        ? reason.message
+                        : t(
+                              'Could not save the conflict choice. Your alternatives are still available.',
+                              'Volbu se nepodařilo uložit. Obě možnosti jsou stále dostupné.',
+                          ),
             );
         } finally {
             setBusy(null);
@@ -149,14 +160,20 @@ export function MyPokemonConflicts({
                 const pokemon = document.pokemon[conflict.entityId];
                 const observation = document.observations[conflict.entityId];
                 const owner = observation ? document.pokemon[observation.pokemonId] : undefined;
+                const opponent = document.opponents?.[conflict.entityId];
                 const title =
                     conflict.entity === 'playthroughs'
                         ? document.playthroughs[conflict.entityId]?.name
-                        : pokemon
-                          ? pokemon.nickname || `#${pokemon.state.speciesId}`
-                          : owner
-                            ? `${owner.nickname || `#${owner.state.speciesId}`} · ${t('Stat observation', 'Měření statistik')}`
-                            : t('Saved entry', 'Uložený záznam');
+                        : conflict.entity === 'encounters'
+                          ? (document.encounters?.[conflict.entityId]?.name ??
+                            t('Encounter', 'Střetnutí'))
+                          : conflict.entity === 'opponents'
+                            ? `${opponent ? `#${opponent.speciesId}` : t('Opponent', 'Soupeř')} · ${opponent ? (document.encounters?.[opponent.encounterId]?.name ?? '') : ''}`
+                            : pokemon
+                              ? pokemon.nickname || `#${pokemon.state.speciesId}`
+                              : owner
+                                ? `${owner.nickname || `#${owner.state.speciesId}`} · ${t('Stat observation', 'Měření statistik')}`
+                                : t('Saved entry', 'Uložený záznam');
                 return (
                     <div className="my-conflict" key={conflict.id}>
                         <h3>
@@ -177,7 +194,11 @@ export function MyPokemonConflicts({
                                             ? t('Nickname', 'Přezdívka')
                                             : conflict.field === 'name'
                                               ? t('Name', 'Název')
-                                              : t('Recorded values', 'Zaznamenané hodnoty')}
+                                              : conflict.field === 'level'
+                                                ? t('Level', 'Úroveň')
+                                                : conflict.field === 'moves'
+                                                  ? t('Revealed moves', 'Odhalené útoky')
+                                                  : t('Recorded values', 'Zaznamenané hodnoty')}
                         </h3>
                         <div className="my-conflict-options">
                             {(['local', 'remote'] as const).map((choice) => (

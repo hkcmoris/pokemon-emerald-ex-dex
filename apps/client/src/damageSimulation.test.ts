@@ -4,6 +4,7 @@ import type { Move, Pokemon, TypeEffectivenessChart } from '@pokemon-emerald-ex-
 
 import {
     estimateEnemyStats,
+    getMoveEffectiveness,
     simulateMoveDamage,
     type DamageSimulationInput,
 } from './damageSimulation.js';
@@ -57,6 +58,48 @@ const input: DamageSimulationInput = {
     chart,
 };
 
+void test('known-move threats use actual move type independently of attacker typing or stats', () => {
+    deepStrictEqual(getMoveEffectiveness(waterGun, [10], chart), {
+        status: 'available',
+        multiplier: 2,
+    });
+    deepStrictEqual(getMoveEffectiveness({ ...waterGun, typeId: 10 }, [12, 15], chart), {
+        status: 'available',
+        multiplier: 4,
+    });
+    deepStrictEqual(getMoveEffectiveness(waterGun, [11], chart), {
+        status: 'available',
+        multiplier: 0.5,
+    });
+    deepStrictEqual(getMoveEffectiveness({ ...waterGun, typeId: 0 }, [7], chart), {
+        status: 'available',
+        multiplier: 0,
+    });
+    deepStrictEqual(getMoveEffectiveness({ ...waterGun, moveId: 165, typeId: 0 }, [7], chart), {
+        status: 'available',
+        multiplier: 1,
+    });
+});
+
+void test('threat guidance does not treat status, variable damage or special effectiveness as ordinary weaknesses', () => {
+    equal(
+        getMoveEffectiveness({ ...waterGun, categoryId: 2 }, [10], chart).status,
+        'not-applicable',
+    );
+    equal(getMoveEffectiveness({ ...waterGun, power: 1 }, [10], chart).status, 'unsupported');
+    for (const moveId of [237, 311, 492, 560, 573, 614, 804, 805])
+        equal(getMoveEffectiveness({ ...waterGun, moveId }, [10], chart).status, 'unsupported');
+    equal(getMoveEffectiveness(undefined, [10], chart).status, 'missing-data');
+    equal(getMoveEffectiveness(waterGun, [], chart).status, 'missing-data');
+    equal(getMoveEffectiveness(waterGun, [999], chart).status, 'missing-data');
+    equal(getMoveEffectiveness(waterGun, [10], undefined).status, 'missing-data');
+    equal(
+        getMoveEffectiveness(waterGun, [10], { ...chart, matchups: chart.matchups.slice(1) })
+            .status,
+        'missing-data',
+    );
+});
+
 void test('special damage floors the base and random roll before applying STAB', () => {
     // floor(floor(8 * 40 * 31 / 30) / 50) + 2 = 8; random gives 6..8, STAB 9..12.
     deepStrictEqual(simulateMoveDamage(input), {
@@ -69,6 +112,9 @@ void test('special damage floors the base and random roll before applying STAB',
         stab: 1.5,
         attackStat: 'spAttack',
         defenseStat: 'spDefense',
+        hits: { min: 1, max: 1 },
+        perHit: [{ min: 9, max: 12 }],
+        appliedAbility: null,
     });
 });
 

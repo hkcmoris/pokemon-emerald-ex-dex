@@ -5,6 +5,7 @@ import type {
     BaseStats,
     CollectionConflict,
     CollectionDocument,
+    KnownMove,
     OwnedPokemon,
     SpeciesDetails,
     TypeEffectivenessChart,
@@ -17,6 +18,18 @@ import { getAbilityChoices, getSelectedAbility } from './pokemonTraits.js';
 import { useCollection } from './collectionStore.js';
 import { setOwnedPokemonLevel } from './collectionLevel.js';
 import { SimulatorLevelControls } from './SimulatorLevelControls.js';
+import { SimulatorEncounters } from './SimulatorEncounters.js';
+import { IncomingDamage } from './IncomingDamage.js';
+import { DamageHitSummary, DamagePerHit } from './DamageHitDetails.js';
+import { getIncomingStats } from './incomingStats.js';
+import { MyPokemonConflicts } from './MyPokemonConflicts.js';
+import type { CollectionStatus } from './collectionSync.js';
+import {
+    readEncounterSelection,
+    rememberEncounterSelection,
+    resolveEncounterSelection,
+    type EncounterSelection,
+} from './simulatorEncounterSession.js';
 import { getCurrentStats } from './collectionStats.js';
 import { loadCollectionMove, loadCollectionSpecies } from './collectionSpecies.js';
 import { loadCollectionTypeEffectiveness } from './collectionTypeEffectiveness.js';
@@ -49,10 +62,10 @@ import {
 } from './workspaceSession.js';
 
 type AttackStat = 'attack' | 'spAttack' | 'defense';
-type EnemyStat = 'hp' | 'defense' | 'spDefense';
+type EnemyStat = 'hp' | 'attack' | 'defense' | 'spAttack' | 'spDefense';
 
 const attackKeys: readonly AttackStat[] = ['attack', 'spAttack', 'defense'];
-const enemyKeys: readonly EnemyStat[] = ['hp', 'defense', 'spDefense'];
+const enemyKeys: readonly EnemyStat[] = ['hp', 'attack', 'defense', 'spAttack', 'spDefense'];
 const statLabels = {
     hp: ['HP', 'HP'],
     attack: ['Attack', 'Útok'],
@@ -70,10 +83,11 @@ function integerInput(value: string, max = 65535): number | undefined {
 function conflictMentionsPokemon(conflict: CollectionConflict, pokemonId: string): boolean {
     return [conflict.base, conflict.local, conflict.remote].some(
         (value) =>
-            typeof value === 'object' &&
-            value !== null &&
-            !Array.isArray(value) &&
-            value.pokemonId === pokemonId,
+            (conflict.field === 'pokemonId' && value === pokemonId) ||
+            (typeof value === 'object' &&
+                value !== null &&
+                !Array.isArray(value) &&
+                value.pokemonId === pokemonId),
     );
 }
 
@@ -108,6 +122,8 @@ function DamageMove({
     enemyStats,
     enemyTypeIds,
     chart,
+    abilityId,
+    attackerSpeciesId,
     onRemove,
 }: {
     option: SimulatorMoveOption;
@@ -117,6 +133,8 @@ function DamageMove({
     enemyStats: Partial<BaseStats>;
     enemyTypeIds?: readonly number[];
     chart?: TypeEffectivenessChart;
+    abilityId?: number;
+    attackerSpeciesId?: number;
     onRemove?: () => void;
 }) {
     const { language, t } = useLanguage();
@@ -134,6 +152,8 @@ function DamageMove({
         enemyStats,
         enemyTypeIds,
         chart,
+        abilityId,
+        attackerSpeciesId,
     });
     const reason =
         damage.status === 'not-applicable'
@@ -187,6 +207,11 @@ function DamageMove({
                     )}
                 </span>
                 <div className="sim-damage-values">
+                    {damage.status === 'available' && (
+                        <span className="sim-damage-percent">
+                            <DamageHitSummary damage={damage} />
+                        </span>
+                    )}
                     <strong className="sim-damage-number">
                         {damage.status === 'available' ? (
                             <>
@@ -227,10 +252,11 @@ function DamageMove({
                         {enemyStats[damage.defenseStat]}. {t('Attacker level', 'Úroveň útočníka')}{' '}
                         {level}.{' '}
                         {t(
-                            'Random roll 85–100%. Damage per successful hit.',
-                            'Náhodný faktor 85–100 %. Poškození za jeden úspěšný zásah.',
+                            'Random roll 85–100% for each hit. The headline totals the shown hit counts, assuming the first hit lands.',
+                            'Náhodný faktor 85–100 % pro každý zásah. Hlavní výsledek sčítá uvedený počet zásahů a předpokládá, že první zásah uspěje.',
                         )}
                     </p>
+                    <DamagePerHit damage={damage} />
                     {move && <p>{t(move.description, move.descriptionCs || move.description)}</p>}
                 </details>
             )}
@@ -295,6 +321,8 @@ function SimulatorScenario({
     datasetId,
     enemySetup,
     setEnemySetup,
+    enemyMoves,
+    savedEncounter,
     chart,
     chartStatus,
 }: {
@@ -307,6 +335,8 @@ function SimulatorScenario({
     datasetId?: string;
     enemySetup: EnemySetup;
     setEnemySetup: Dispatch<SetStateAction<EnemySetup>>;
+    enemyMoves: readonly KnownMove[];
+    savedEncounter: boolean;
     chart: TypeEffectivenessChart | undefined;
     chartStatus: 'pending' | 'error' | 'success';
 }) {
@@ -350,10 +380,14 @@ function SimulatorScenario({
     // An invalid level suppresses results, including any otherwise valid overrides.
     if (automatic) {
         for (const stat of enemyKeys) {
-            const value =
-                enemyOverrides[stat] === '' ? automatic[stat] : integerInput(enemyOverrides[stat]);
+            const override = enemyOverrides[stat] ?? '';
+            const value = override === '' ? automatic[stat] : integerInput(override);
             if (value !== undefined) enemyStats[stat] = value;
         }
+    }
+    const incoming = getIncomingStats(species, pokemon.state.level, recordedStats, natureId);
+    if (ownOverrides.defense !== '') {
+        incoming.stats.defense = integerInput(ownOverrides.defense);
     }
     const options = getSimulatorMoveOptions(species, pokemon.state.moves ?? []);
     const current = (pokemon.state.moves ?? []).flatMap((known) =>
@@ -367,14 +401,6 @@ function SimulatorScenario({
             !option.recorded &&
             option.move.name.toLocaleLowerCase().includes(moveSearch.trim().toLocaleLowerCase()),
     );
-    const moveProps = {
-        level: pokemon.state.level,
-        stats,
-        typeIds: species.typeIds,
-        enemyStats,
-        enemyTypeIds: enemy?.typeIds,
-        chart,
-    };
     const ownName = pokemon.nickname || species.name;
     const nature = pokemonNatures.find((entry) => entry.id === natureId);
     const abilityChoices = getAbilityChoices(species);
@@ -382,6 +408,16 @@ function SimulatorScenario({
         ? null
         : (getSelectedAbility(pokemon, species) ??
           (abilityChoices.length === 1 ? abilityChoices[0] : null));
+    const moveProps = {
+        level: pokemon.state.level,
+        stats,
+        typeIds: species.typeIds,
+        enemyStats,
+        enemyTypeIds: enemy?.typeIds,
+        chart,
+        abilityId: selectedAbility?.ability.abilityId,
+        attackerSpeciesId: pokemon.state.speciesId,
+    };
     function resetEnemyStats() {
         setEnemySetup((previous) => ({
             ...previous,
@@ -522,8 +558,8 @@ function SimulatorScenario({
                         </div>
                         <p className="my-muted">
                             {t(
-                                'Current recorded level and form. Defense is used by Body Press. Blank fields use recorded stats; entered values apply only here. Recorded values already include nature. The selected ability is not applied to damage.',
-                                'Aktuální zaznamenaná úroveň a forma. Body Press používá Obranu. Prázdná pole použijí zaznamenané statistiky; zadané hodnoty platí jen zde. Zaznamenané hodnoty již zahrnují povahu. Vybraná schopnost se do poškození nezapočítává.',
+                                'Current recorded level and form. Defense is used by Body Press. Blank fields use recorded stats; entered values apply only here. Recorded values already include nature. Saved Skill Link affects supported multi-hit moves; other abilities are not modeled.',
+                                'Aktuální zaznamenaná úroveň a forma. Body Press používá Obranu. Prázdná pole použijí zaznamenané statistiky; zadané hodnoty platí jen zde. Zaznamenané hodnoty již zahrnují povahu. Uložený Skill Link ovlivňuje podporované vícenásobné útoky; ostatní schopnosti nejsou modelovány.',
                             )}
                         </p>
                         {observationConflict && (
@@ -538,8 +574,12 @@ function SimulatorScenario({
                 </section>
                 <section className="my-panel sim-enemy-panel">
                     <div className="sim-section-heading">
-                        <h2>{t('Set the opponent', 'Nastavte soupeře')}</h2>
-                        {enemy && (
+                        <h2>
+                            {savedEncounter
+                                ? t('Opponent estimates', 'Odhady soupeře')
+                                : t('Set the opponent', 'Nastavte soupeře')}
+                        </h2>
+                        {enemy && !savedEncounter && (
                             <button
                                 type="button"
                                 className="my-text-button"
@@ -556,7 +596,7 @@ function SimulatorScenario({
                             </button>
                         )}
                     </div>
-                    {pickingEnemy && (
+                    {pickingEnemy && !savedEncounter && (
                         <SpeciesPicker
                             datasetId={datasetId}
                             onSelect={(selected) => {
@@ -579,34 +619,36 @@ function SimulatorScenario({
                                     iconOnly
                                 />
                             </div>
-                            <label className="filter-label sim-level-field">
-                                {t('Enemy level', 'Úroveň soupeře')}
-                                <input
-                                    className="filter-input"
-                                    type="text"
-                                    inputMode="numeric"
-                                    value={enemyLevel}
-                                    aria-label={t('Enemy level', 'Úroveň soupeře')}
-                                    maxLength={3}
-                                    aria-invalid={parsedEnemyLevel === undefined}
-                                    onChange={(event) => {
-                                        const level = event.target.value;
-                                        setEnemySetup((previous) => ({
-                                            ...previous,
-                                            level,
-                                            overrides: { hp: '', defense: '', spDefense: '' },
-                                        }));
-                                    }}
-                                />
-                                {parsedEnemyLevel === undefined && (
-                                    <small className="sim-invalid">
-                                        {t(
-                                            'Enter a whole level from 1 to 100.',
-                                            'Zadejte celou úroveň od 1 do 100.',
-                                        )}
-                                    </small>
-                                )}
-                            </label>
+                            {!savedEncounter && (
+                                <label className="filter-label sim-level-field">
+                                    {t('Enemy level', 'Úroveň soupeře')}
+                                    <input
+                                        className="filter-input"
+                                        type="text"
+                                        inputMode="numeric"
+                                        value={enemyLevel}
+                                        aria-label={t('Enemy level', 'Úroveň soupeře')}
+                                        maxLength={3}
+                                        aria-invalid={parsedEnemyLevel === undefined}
+                                        onChange={(event) => {
+                                            const level = event.target.value;
+                                            setEnemySetup((previous) => ({
+                                                ...previous,
+                                                level,
+                                                overrides: { hp: '', defense: '', spDefense: '' },
+                                            }));
+                                        }}
+                                    />
+                                    {parsedEnemyLevel === undefined && (
+                                        <small className="sim-invalid">
+                                            {t(
+                                                'Enter a whole level from 1 to 100.',
+                                                'Zadejte celou úroveň od 1 do 100.',
+                                            )}
+                                        </small>
+                                    )}
+                                </label>
+                            )}
                             <p className="my-muted">
                                 {t(
                                     'Assumed stats: neutral nature, 31 IVs, 0 EVs. Override any value below if you know the actual stat.',
@@ -618,7 +660,7 @@ function SimulatorScenario({
                                     <StatInput
                                         key={stat}
                                         stat={stat}
-                                        value={enemyOverrides[stat]}
+                                        value={enemyOverrides[stat] ?? ''}
                                         fallback={automatic?.[stat]}
                                         source={
                                             automatic
@@ -652,6 +694,20 @@ function SimulatorScenario({
                     )}
                 </section>
             </div>
+            {savedEncounter && (
+                <IncomingDamage
+                    moves={enemyMoves}
+                    enemy={enemy}
+                    enemyLevel={parsedEnemyLevel ?? 0}
+                    enemyStats={enemyStats}
+                    ownTypeIds={species.typeIds}
+                    ownStats={incoming.stats}
+                    ownName={ownName}
+                    chart={chart}
+                    estimatedOwnStats={incoming.estimated}
+                    disabled={observationConflict}
+                />
+            )}
             {(!datasetId || chartStatus === 'error') && (
                 <p className="sim-notice" role="status">
                     {t(
@@ -669,7 +725,7 @@ function SimulatorScenario({
                 <div className="sim-section-heading">
                     <h2>{t('Current moves', 'Aktuální útoky')}</h2>
                     <span className="my-muted">
-                        {t('HP damage / successful hit', 'Poškození HP / úspěšný zásah')}
+                        {t('Total HP damage / move use', 'Celkové poškození HP / použití útoku')}
                     </span>
                 </div>
                 {current.length ? (
@@ -787,20 +843,20 @@ function SimulatorScenario({
                 <summary>{t('How this simulation works', 'Jak simulace počítá')}</summary>
                 <p>
                     {t(
-                        'Uses attacker level, move category, attacking and defending stats, STAB, type effectiveness, and the 85–100% random damage range. Every result is per successful hit; accuracy and multi-hit totals are not simulated.',
-                        'Používá úroveň útočníka, kategorii útoku, útočné a obranné statistiky, STAB, účinnost typů a náhodný rozsah poškození 85–100 %. Každý výsledek platí pro jeden úspěšný zásah; přesnost ani součty vícenásobných zásahů se nesimulují.',
+                        'Uses attacker level, move category, attacking and defending stats, STAB, type effectiveness, and the 85–100% random damage range. Results total the shown hit counts for one move use, assuming the first hit lands. Moves that check accuracy on every strike can stop early; other accuracy checks are not included.',
+                        'Používá úroveň útočníka, kategorii útoku, útočné a obranné statistiky, STAB, účinnost typů a náhodný rozsah poškození 85–100 %. Výsledek sčítá uvedený počet zásahů jednoho použití útoku za předpokladu, že první zásah uspěje. Útoky s kontrolou přesnosti při každém zásahu mohou skončit dříve; ostatní kontroly přesnosti nejsou zahrnuté.',
                     )}
                 </p>
                 <p>
                     {t(
-                        'Abilities, held items, weather, critical hits, status conditions and stat boosts are excluded. Conditional-power moves use their listed base power; unsupported special damage shows a dash. These assumptions can differ from an actual battle.',
-                        'Schopnosti, držené předměty, počasí, kritické zásahy, stavové podmínky a změny statistik nejsou zahrnuté. Útoky s podmíněnou silou používají uvedenou základní sílu; nepodporované zvláštní poškození zobrazuje pomlčku. Tyto předpoklady se mohou lišit od skutečného boje.',
+                        'Saved Skill Link changes the hit count for supported moves. Other abilities, held items, weather, critical hits, status conditions and stat boosts are excluded. Conditional-power moves use their listed base power; unsupported special damage shows a dash. These assumptions can differ from an actual battle.',
+                        'Uložený Skill Link mění počet zásahů podporovaných útoků. Ostatní schopnosti, držené předměty, počasí, kritické zásahy, stavové podmínky a změny statistik nejsou zahrnuté. Útoky s podmíněnou silou používají uvedenou základní sílu; nepodporované zvláštní poškození zobrazuje pomlčku. Tyto předpoklady se mohou lišit od skutečného boje.',
                     )}
                 </p>
                 <p>
                     {t(
-                        'Level changes save to your collection. Opponent settings, stat overrides and move previews are temporary and survive navigation during this browser session. New recorded stats, moves, level or form clear stale attacker overrides. Use Reset scenario to start again.',
-                        'Změny úrovně se ukládají do sbírky. Nastavení soupeře, úpravy statistik a náhledy útoků jsou dočasné a zůstanou při přechodu mezi stránkami v této relaci prohlížeče zachované. Nové statistiky, útoky, úroveň či forma vymažou zastaralé úpravy útočníka. Nový scénář spustíte tlačítkem Obnovit scénář.',
+                        'Level changes save to your collection. Named encounters also save their opponents, levels and revealed moves and sync when signed in. Quick matchups, stat overrides and move previews are temporary. New recorded stats, moves, level or form clear stale attacker overrides. Reset scenario clears temporary inputs without deleting saved encounters.',
+                        'Změny úrovně se ukládají do sbírky. Pojmenované souboje ukládají soupeře, úrovně a odhalené útoky a po přihlášení se synchronizují. Rychlé porovnání, úpravy statistik a náhledy útoků jsou dočasné. Nové statistiky, útoky, úroveň či forma vymažou zastaralé úpravy útočníka. Obnovení scénáře vymaže dočasné hodnoty, ale zachová uložené souboje.',
                     )}
                 </p>
             </details>
@@ -847,13 +903,18 @@ export function getDefaultSimulatorPokemonId(
 }
 
 export function DamageSimulatorPage(props: DamageSimulatorProps) {
-    const { document, conflicts, ready, update } = useCollection();
+    const { document, conflicts, ready, update, resolve, status, user, error } = useCollection();
     return (
         <DamageSimulatorView
             {...props}
             document={document}
             conflicts={conflicts}
             ready={ready}
+            onUpdateCollection={update}
+            onResolveConflict={resolve}
+            syncStatus={status}
+            syncError={error}
+            signedIn={Boolean(user)}
             onSaveLevel={(pokemon, level) =>
                 update((current) => setOwnedPokemonLevel(current, pokemon, level))
             }
@@ -869,11 +930,23 @@ export function DamageSimulatorView({
     conflicts,
     ready,
     onSaveLevel,
+    onUpdateCollection,
+    onResolveConflict,
+    syncStatus = 'local',
+    syncError,
+    signedIn = false,
 }: DamageSimulatorProps & {
     document: CollectionDocument;
     conflicts: readonly CollectionConflict[];
     ready: boolean;
     onSaveLevel: (pokemon: OwnedPokemon, level: number) => Promise<void>;
+    onUpdateCollection: (
+        updater: (current: CollectionDocument) => CollectionDocument,
+    ) => Promise<void>;
+    onResolveConflict?: (id: string, choice: 'local' | 'remote') => Promise<void>;
+    syncStatus?: CollectionStatus;
+    syncError?: string | null;
+    signedIn?: boolean;
 }) {
     const { t } = useLanguage();
     const [workspaceSelection, setWorkspaceSelection] = useState(readWorkspaceSession);
@@ -881,11 +954,18 @@ export function DamageSimulatorView({
         requestedPokemonId ?? getDefaultSimulatorPokemonId(document, conflicts, workspaceSelection);
     // This state belongs to the simulator page, above the keyed attacker scenario.
     const datasetKey = datasetId ?? 'default';
-    const [enemySetup, setEnemySetup] = useState<EnemySetup>(() =>
+    const [quickEnemySetup, setQuickEnemySetup] = useState<EnemySetup>(() =>
         readSimulatorOpponent(datasetKey),
     );
     const [scenarioRevision, setScenarioRevision] = useState(0);
-    useEffect(() => rememberSimulatorOpponent(datasetKey, enemySetup), [datasetKey, enemySetup]);
+    const [encounterSelections, setEncounterSelections] = useState<
+        Record<string, EncounterSelection>
+    >({});
+    const [, refreshEnemyOverrides] = useState(0);
+    useEffect(
+        () => rememberSimulatorOpponent(datasetKey, quickEnemySetup),
+        [datasetKey, quickEnemySetup],
+    );
     const chart = useQuery({
         queryKey: ['collection-type-effectiveness', datasetId],
         queryFn: () => loadCollectionTypeEffectiveness(datasetId!),
@@ -894,6 +974,89 @@ export function DamageSimulatorView({
     const pokemon = pokemonId === undefined ? undefined : document.pokemon[pokemonId];
     const run = pokemon ? document.playthroughs[pokemon.playthroughId] : undefined;
     const missing = !pokemon || pokemon.deleted || !run || run.deleted;
+    const encounterSelectionKey = `${datasetKey}:${run?.id ?? ''}`;
+    const encounterSelection =
+        encounterSelections[encounterSelectionKey] ?? readEncounterSelection(encounterSelectionKey);
+    const { encounter, opponent } = resolveEncounterSelection(
+        document,
+        run?.id,
+        encounterSelection,
+    );
+    const encounterConflict = conflicts.some(
+        (conflict) =>
+            (conflict.entity === 'encounters' && conflict.entityId === encounter?.id) ||
+            (conflict.entity === 'opponents' && conflict.entityId === opponent?.id) ||
+            (conflict.entity === 'playthroughs' &&
+                conflict.entityId === run?.id &&
+                ['$entity', 'deleted'].includes(conflict.field)),
+    );
+    const enemySpecies = useQuery({
+        queryKey: ['collection-species', opponent?.speciesId],
+        queryFn: () => loadCollectionSpecies(opponent!.speciesId),
+        enabled: ready && !missing && Boolean(opponent) && !encounterConflict,
+    });
+    const enemyOverrideKey = `${datasetKey}:opponent:${opponent?.id}`;
+    const cachedEnemy = readSimulatorOpponent(enemyOverrideKey);
+    const enemyOverridesCurrent =
+        opponent &&
+        cachedEnemy.pokemon?.speciesId === opponent.speciesId &&
+        cachedEnemy.level === String(opponent.level);
+    const enemySetup: EnemySetup = encounter
+        ? {
+              pokemon: encounterConflict || !opponent ? null : (enemySpecies.data ?? null),
+              level: opponent ? String(opponent.level) : '',
+              picking: false,
+              overrides: enemyOverridesCurrent
+                  ? cachedEnemy.overrides
+                  : emptyEnemySetup().overrides,
+          }
+        : quickEnemySetup;
+    useEffect(() => {
+        if (!opponent || !enemySpecies.data || encounterConflict) return;
+        const previous = readSimulatorOpponent(enemyOverrideKey);
+        if (
+            previous.pokemon?.speciesId !== opponent.speciesId ||
+            previous.level !== String(opponent.level)
+        ) {
+            rememberSimulatorOpponent(enemyOverrideKey, {
+                ...emptyEnemySetup(),
+                pokemon: enemySpecies.data,
+                level: String(opponent.level),
+                picking: false,
+            });
+        }
+    }, [
+        enemyOverrideKey,
+        opponent?.id,
+        opponent?.speciesId,
+        opponent?.level,
+        enemySpecies.data,
+        encounterConflict,
+    ]);
+    const enemyMoves = encounterConflict ? [] : (opponent?.moves ?? []);
+    const setEnemySetup: Dispatch<SetStateAction<EnemySetup>> = (update) => {
+        if (!encounter) {
+            setQuickEnemySetup(update);
+            return;
+        }
+        if (!opponent || encounterConflict) return;
+        const next = typeof update === 'function' ? update(enemySetup) : update;
+        rememberSimulatorOpponent(enemyOverrideKey, next);
+        refreshEnemyOverrides((value) => value + 1);
+    };
+    function selectEncounter(encounterId: string | undefined, opponentId: string | undefined) {
+        const selection = { encounterId, opponentId };
+        rememberEncounterSelection(encounterSelectionKey, selection);
+        setEncounterSelections((previous) => ({ ...previous, [encounterSelectionKey]: selection }));
+    }
+    const syncLabel = {
+        local: t('Saved on this device', 'Uloženo v tomto zařízení'),
+        syncing: t('Syncing…', 'Synchronizace…'),
+        pending: t('Waiting to sync', 'Čeká na synchronizaci'),
+        synced: t('Synced', 'Synchronizováno'),
+        offline: t('Offline · edits saved here', 'Offline · změny jsou uloženy zde'),
+        error: t('Sync needs attention', 'Synchronizace vyžaduje pozornost'),
+    }[syncStatus];
     useEffect(() => {
         if (ready && !missing) {
             const selection = { playthroughId: run.id, pokemonId: pokemon.id };
@@ -968,7 +1131,8 @@ export function DamageSimulatorView({
                             className="my-text-button"
                             onClick={() => {
                                 resetSimulatorSession(datasetKey);
-                                setEnemySetup(emptyEnemySetup());
+                                setQuickEnemySetup(emptyEnemySetup());
+                                refreshEnemyOverrides((value) => value + 1);
                                 setScenarioRevision((value) => value + 1);
                             }}
                         >
@@ -1002,11 +1166,78 @@ export function DamageSimulatorView({
                     )}
                 </div>
                 {ready && !missing && (
+                    <>
+                        <div className="sim-save-status">
+                            <span className={`my-sync-status my-sync-${syncStatus}`} role="status">
+                                {syncLabel}
+                            </span>
+                            {!signedIn && (
+                                <a className="my-text-button" href="#/my-pokemon">
+                                    {t(
+                                        'Sign in from My Pokémon to sync encounters across devices',
+                                        'Pro synchronizaci soubojů mezi zařízeními se přihlaste v Moji Pokémoni',
+                                    )}
+                                </a>
+                            )}
+                            {syncError && <p role="alert">{syncError}</p>}
+                        </div>
+                        {onResolveConflict && (
+                            <MyPokemonConflicts
+                                document={document}
+                                conflicts={conflicts.filter(
+                                    (entry) =>
+                                        entry.entity === 'encounters' ||
+                                        entry.entity === 'opponents',
+                                )}
+                                resolve={onResolveConflict}
+                            />
+                        )}
+                        <SimulatorEncounters
+                            key={`${datasetKey}:${run.id}`}
+                            document={document}
+                            conflicts={conflicts}
+                            runId={run.id}
+                            datasetId={datasetId}
+                            defaultLevel={pokemon.state.level}
+                            selectedEncounterId={encounter?.id}
+                            selectedOpponentId={opponent?.id}
+                            onSelect={selectEncounter}
+                            onUpdate={onUpdateCollection}
+                        />
+                        {encounterConflict && (
+                            <p className="sim-notice" role="alert">
+                                {t(
+                                    'Resolve the encounter conflict before using its matchup or damage estimates.',
+                                    'Před použitím účinnosti a odhadů poškození vyřešte konflikt souboje.',
+                                )}
+                            </p>
+                        )}
+                        {opponent && !encounterConflict && enemySpecies.isError && (
+                            <p className="sim-notice" role="alert">
+                                {t(
+                                    'Opponent data could not be loaded.',
+                                    'Údaje o soupeři se nepodařilo načíst.',
+                                )}{' '}
+                                <button
+                                    type="button"
+                                    className="my-text-button"
+                                    onClick={() => {
+                                        void enemySpecies.refetch();
+                                    }}
+                                >
+                                    {t('Retry', 'Zkusit znovu')}
+                                </button>
+                            </p>
+                        )}
+                    </>
+                )}
+                {ready && !missing && (
                     <SimulatorParty
                         document={document}
                         run={run}
                         selectedPokemonId={pokemon.id}
                         enemy={enemySetup.pokemon}
+                        enemyMoves={enemyMoves}
                         datasetId={datasetId}
                         chart={chart.data}
                         conflicts={conflicts}
@@ -1094,6 +1325,8 @@ export function DamageSimulatorView({
                             datasetId={datasetId}
                             enemySetup={enemySetup}
                             setEnemySetup={setEnemySetup}
+                            enemyMoves={enemyMoves}
+                            savedEncounter={Boolean(encounter)}
                             chart={chart.data}
                             chartStatus={chart.status}
                         />

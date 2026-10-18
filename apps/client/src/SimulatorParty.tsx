@@ -1,8 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import {
     getTypeDefenses,
     type CollectionConflict,
     type CollectionDocument,
+    type KnownMove,
+    type Move,
     type OwnedPokemon,
     type Playthrough,
     type Pokemon,
@@ -10,7 +12,8 @@ import {
     type TypeEffectivenessChart,
 } from '@pokemon-emerald-ex-dex/shared';
 
-import { loadCollectionSpecies } from './collectionSpecies.js';
+import { loadCollectionMove, loadCollectionSpecies } from './collectionSpecies.js';
+import { getMoveEffectiveness } from './damageSimulation.js';
 import { useLanguage } from './language.js';
 import { damageSimulatorHref } from './navigation.js';
 import { SpeciesSprite } from './SpeciesSprite.js';
@@ -71,6 +74,96 @@ export function getSimulatorParty(
     });
 }
 
+function PartyThreats({
+    name,
+    moves,
+    moveDetails,
+    typeIds,
+    chart,
+    failed,
+    onRetry,
+}: {
+    name: string;
+    moves: readonly KnownMove[];
+    moveDetails: ReadonlyMap<number, Move>;
+    typeIds: readonly number[];
+    chart: TypeEffectivenessChart | undefined;
+    failed: boolean;
+    onRetry: () => void;
+}) {
+    const { t } = useLanguage();
+    if (moves.length === 0)
+        return <p className="sim-party-threat-note">{t('Moves unknown', 'Útoky neznámé')}</p>;
+    const results = moves.map((move) => ({
+        move,
+        matchup: getMoveEffectiveness(moveDetails.get(move.moveId), typeIds, chart),
+    }));
+    const threats = results.filter(
+        ({ matchup }) => matchup.status === 'available' && matchup.multiplier > 1,
+    );
+    const unmodeled = results.filter(({ matchup }) => matchup.status !== 'available');
+    if (threats.length === 0 && unmodeled.length === 0)
+        return (
+            <p className="sim-party-threat-note">
+                {t('No known type weakness', 'Bez známé typové slabiny')}
+            </p>
+        );
+    return (
+        <details className="sim-party-threats" data-warning={threats.length > 0}>
+            <summary
+                aria-label={
+                    threats.length > 0
+                        ? t(
+                              `Known move weaknesses for ${name}`,
+                              `Slabiny vůči známým útokům: ${name}`,
+                          )
+                        : t(`Unmodeled moves against ${name}`, `Nevyhodnocené útoky proti ${name}`)
+                }
+            >
+                <span aria-hidden="true">{threats.length > 0 ? '⚠' : '?'}</span>{' '}
+                {threats.length > 0
+                    ? t('Known move weakness', 'Známý účinný útok')
+                    : t('Moves not fully modeled', 'Útoky nejsou plně vyhodnoceny')}
+            </summary>
+            <ul>
+                {threats.map(({ move, matchup }) => (
+                    <li key={move.moveId}>
+                        {move.name} ·{' '}
+                        <strong>
+                            {matchup.status === 'available' ? matchup.multiplier : ''}×{' '}
+                            {t('weakness', 'slabina')}
+                        </strong>
+                    </li>
+                ))}
+                {unmodeled.map(({ move, matchup }) => (
+                    <li key={move.moveId}>
+                        {move.name} ·{' '}
+                        {matchup.status === 'not-applicable'
+                            ? t(
+                                  'Status effects not modeled',
+                                  'Účinky stavového útoku nejsou modelovány',
+                              )
+                            : matchup.status === 'unsupported'
+                              ? t(
+                                    'Special mechanics not modeled',
+                                    'Zvláštní mechanika není modelována',
+                                )
+                              : t(
+                                    'Move or type data unavailable',
+                                    'Údaje o útoku nebo typech nejsou dostupné',
+                                )}
+                    </li>
+                ))}
+            </ul>
+            {failed && (
+                <button type="button" className="my-text-button" onClick={onRetry}>
+                    {t('Retry move data', 'Načíst útoky znovu')}
+                </button>
+            )}
+        </details>
+    );
+}
+
 function PartyMember({
     pokemon,
     selected,
@@ -78,6 +171,10 @@ function PartyMember({
     chart,
     conflicts,
     datasetId,
+    enemyMoves,
+    moveDetails,
+    moveLookupFailed,
+    onRetryMoves,
 }: {
     pokemon: OwnedPokemon;
     selected: boolean;
@@ -85,6 +182,10 @@ function PartyMember({
     chart: TypeEffectivenessChart | undefined;
     conflicts: readonly CollectionConflict[];
     datasetId?: string;
+    enemyMoves: readonly KnownMove[];
+    moveDetails: ReadonlyMap<number, Move>;
+    moveLookupFailed: boolean;
+    onRetryMoves: () => void;
 }) {
     const { t } = useLanguage();
     const uncertain = conflicts.some(
@@ -160,6 +261,17 @@ function PartyMember({
                     <span>{status}</span>
                 </span>
             </a>
+            {enemy && details && (
+                <PartyThreats
+                    name={name}
+                    moves={enemyMoves}
+                    moveDetails={moveDetails}
+                    typeIds={details.typeIds}
+                    chart={chart}
+                    failed={moveLookupFailed}
+                    onRetry={onRetryMoves}
+                />
+            )}
         </li>
     );
 }
@@ -172,6 +284,7 @@ export function SimulatorParty({
     chart,
     conflicts,
     datasetId,
+    enemyMoves = [],
 }: {
     document: CollectionDocument;
     run: Playthrough;
@@ -180,8 +293,21 @@ export function SimulatorParty({
     chart: TypeEffectivenessChart | undefined;
     conflicts: readonly CollectionConflict[];
     datasetId?: string;
+    enemyMoves?: readonly KnownMove[];
 }) {
     const { t } = useLanguage();
+    const moveLookups = useQueries({
+        queries: enemyMoves.map((move) => ({
+            queryKey: ['collection-move', move.moveId],
+            queryFn: () => loadCollectionMove(move.moveId),
+            enabled: Boolean(enemy),
+        })),
+    });
+    const moveDetails = new Map(
+        moveLookups.flatMap((lookup): [number, Move][] =>
+            lookup.data ? [[lookup.data.moveId, lookup.data]] : [],
+        ),
+    );
     const party = getSimulatorParty(document, run, conflicts);
     if (party?.length === 0) return null;
     return (
@@ -190,8 +316,8 @@ export function SimulatorParty({
                 <h2>{t('Your party', 'Váš tým')}</h2>
                 <p>
                     {t(
-                        'Best own type against the opponent. Moves and abilities are not included.',
-                        'Nejlepší vlastní typ proti soupeři. Útoky a schopnosti nejsou zahrnuty.',
+                        'Best own type against the opponent. Warnings use revealed enemy moves; unrevealed moves and abilities remain unknown.',
+                        'Nejlepší vlastní typ proti soupeři. Varování vycházejí z odhalených útoků soupeře; neodhalené útoky a schopnosti zůstávají neznámé.',
                     )}
                 </p>
             </div>
@@ -213,6 +339,14 @@ export function SimulatorParty({
                             chart={chart}
                             conflicts={conflicts}
                             datasetId={datasetId}
+                            enemyMoves={enemyMoves}
+                            moveDetails={moveDetails}
+                            moveLookupFailed={moveLookups.some((lookup) => lookup.isError)}
+                            onRetryMoves={() => {
+                                for (const lookup of moveLookups) {
+                                    if (lookup.isError) void lookup.refetch();
+                                }
+                            }}
                         />
                     ))}
                 </ol>

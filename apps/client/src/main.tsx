@@ -12,12 +12,16 @@ import './style.css';
 import './MoveEffectBadges.css';
 import './MoveAffinity.css';
 import './damageSimulator.css';
+import './simulatorEncounters.css';
+import './incomingDamage.css';
 import './pokemonTraits.css';
 import './myPokemonWorkspace.css';
 import './reorderList.css';
 import './myPokemonMovesWorkspace.css';
 import './screenshotQueue.css';
 import './levelingWorkspace.css';
+import './dexWorkspace.css';
+import './pokemonSpriteRail.css';
 
 applyTheme(readTheme());
 registerCollectionOffline();

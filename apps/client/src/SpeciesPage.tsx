@@ -333,10 +333,12 @@ export function SpeciesPage({
     speciesId,
     version,
     datasetId,
+    embedded = false,
 }: {
     speciesId: number;
     version: string;
     datasetId: string | undefined;
+    embedded?: boolean;
 }) {
     const { t } = useLanguage();
     const heading = useRef<HTMLHeadingElement>(null);
@@ -349,8 +351,8 @@ export function SpeciesPage({
             !(error instanceof ApiRequestError && error.status === 404) && count < 1,
     });
     useEffect(() => {
-        if (details.isSuccess) heading.current?.focus();
-    }, [details.isSuccess, speciesId]);
+        if (details.isSuccess && !embedded) heading.current?.focus({ preventScroll: true });
+    }, [details.isSuccess, speciesId, embedded]);
     const entry = details.data;
     const evolutionBase = entry?.forms?.members.find(
         (member) => member.speciesId === entry.evolutionBaseSpeciesId,
@@ -358,15 +360,22 @@ export function SpeciesPage({
     const missing = details.error instanceof ApiRequestError && details.error.status === 404;
     const tms = entry?.machines.filter((move) => move.kind === 'TM') ?? [];
     const hms = entry?.machines.filter((move) => move.kind === 'HM') ?? [];
+    const Body = embedded ? 'div' : 'main';
 
     return (
-        <div className="min-h-screen">
-            <DexHeader
-                version={version}
-                backHref="#/"
-                backLabel={t('All Pokémon', 'Všichni Pokémoni')}
-            />
-            <main className="detail-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
+        <div className={embedded ? 'species-workspace-detail' : 'min-h-screen'}>
+            {!embedded && (
+                <DexHeader
+                    version={version}
+                    backHref="#/"
+                    backLabel={t('All Pokémon', 'Všichni Pokémoni')}
+                />
+            )}
+            <Body
+                className={
+                    embedded ? undefined : 'detail-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8'
+                }
+            >
                 {entry ? (
                     <SpeciesDetailHeader
                         entry={entry}
@@ -610,8 +619,8 @@ export function SpeciesPage({
                         </Tabs>
                     )
                 )}
-                <DexFooter />
-            </main>
+                {!embedded && <DexFooter />}
+            </Body>
         </div>
     );
 }

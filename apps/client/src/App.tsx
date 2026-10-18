@@ -8,6 +8,7 @@ import { DexHeader } from './DexHeader.js';
 import { TypeBadges } from './TypeBadges.js';
 import { PokemonFilterSheet, getSortOptions } from './PokemonFilterSheet.js';
 import { PokemonResults } from './PokemonResults.js';
+import { DexWorkspace } from './DexWorkspace.js';
 import { navigationSnapshot, parseRoute, subscribeToNavigation } from './navigation.js';
 import { useLanguage } from './language.js';
 import { typeDisplayName } from './typeNames.js';
@@ -54,11 +55,13 @@ function AppContent() {
     const hash = useSyncExternalStore(subscribeToNavigation, navigationSnapshot, () => '');
     const route = parseRoute(hash);
     const scrollKey =
-        route.kind === 'owned-pokemon' || route.kind === 'my-pokemon'
-            ? 'my-pokemon'
-            : route.kind === 'damage-simulator'
-              ? 'damage-simulator'
-              : hash;
+        route.kind === 'dex'
+            ? 'dex'
+            : route.kind === 'owned-pokemon' || route.kind === 'my-pokemon'
+              ? 'my-pokemon'
+              : route.kind === 'damage-simulator'
+                ? 'damage-simulator'
+                : hash;
     useRouteScroll(scrollKey);
     const [query, setQuery] = useState('');
     const [type, setType] = useState('');
@@ -137,15 +140,6 @@ function AppContent() {
             />
         );
     }
-    if (route.kind === 'species') {
-        return (
-            <SpeciesPage
-                speciesId={route.id}
-                version={dexMetadata?.version ?? '…'}
-                datasetId={dexMetadata?.datasetId}
-            />
-        );
-    }
     if (route.kind === 'not-found') {
         return (
             <div className="min-h-screen">
@@ -164,9 +158,33 @@ function AppContent() {
     }
 
     return (
-        <div className="min-h-screen">
-            <DexHeader version={dexMetadata?.version ?? '…'} />
-            <main className="dex-browse-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-7">
+        <DexWorkspace
+            version={dexMetadata?.version ?? '…'}
+            datasetId={dexMetadata?.datasetId}
+            selectedSpeciesId={route.kind === 'species' ? route.id : undefined}
+            filters={{ q: parameters.q, type, sort }}
+            initialPage={page + 1}
+            initialData={species.isPlaceholderData ? undefined : species.data}
+            detail={
+                route.kind === 'species' ? (
+                    <Suspense
+                        fallback={
+                            <p className="dex-detail-loading" role="status">
+                                {t('Loading page…', 'Načítání stránky…')}
+                            </p>
+                        }
+                    >
+                        <SpeciesPage
+                            speciesId={route.id}
+                            version={dexMetadata?.version ?? '…'}
+                            datasetId={dexMetadata?.datasetId}
+                            embedded
+                        />
+                    </Suspense>
+                ) : undefined
+            }
+        >
+            <div className="dex-browse-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-7">
                 <div className="dex-browse-heading">
                     <div>
                         <p className="eyebrow">
@@ -342,7 +360,7 @@ function AppContent() {
                     </div>
                 )}
                 <DexFooter />
-            </main>
-        </div>
+            </div>
+        </DexWorkspace>
     );
 }

@@ -142,10 +142,19 @@ export function importGuestCollection(
     const result = structuredClone(target);
     const runs = new Map<string, string>();
     const pokemon = new Map<string, string>();
+    const encounters = new Map<string, string>();
+    const opponents = new Map<string, string>();
     for (const entry of Object.values(guest.playthroughs))
         runs.set(entry.id, Object.hasOwn(result.playthroughs, entry.id) ? id() : entry.id);
     for (const entry of Object.values(guest.pokemon))
         pokemon.set(entry.id, Object.hasOwn(result.pokemon, entry.id) ? id() : entry.id);
+    for (const entry of Object.values(guest.encounters ?? {}))
+        encounters.set(
+            entry.id,
+            Object.hasOwn(result.encounters ?? {}, entry.id) ? id() : entry.id,
+        );
+    for (const entry of Object.values(guest.opponents ?? {}))
+        opponents.set(entry.id, Object.hasOwn(result.opponents ?? {}, entry.id) ? id() : entry.id);
     for (const entry of Object.values(guest.playthroughs)) {
         const newId = runs.get(entry.id)!;
         result.playthroughs[newId] = {
@@ -168,6 +177,25 @@ export function importGuestCollection(
             ...structuredClone(entry),
             id: newId,
             pokemonId: pokemon.get(entry.pokemonId)!,
+        };
+    }
+    for (const entry of Object.values(guest.encounters ?? {})) {
+        const newId = encounters.get(entry.id)!;
+        result.encounters ??= {};
+        result.encounters[newId] = {
+            ...structuredClone(entry),
+            id: newId,
+            playthroughId: runs.get(entry.playthroughId)!,
+            party: entry.party.map((member) => opponents.get(member)!),
+        };
+    }
+    for (const entry of Object.values(guest.opponents ?? {})) {
+        const newId = opponents.get(entry.id)!;
+        result.opponents ??= {};
+        result.opponents[newId] = {
+            ...structuredClone(entry),
+            id: newId,
+            encounterId: encounters.get(entry.encounterId)!,
         };
     }
     return result;
@@ -206,17 +234,27 @@ export function prepareCollectionSync(
     upload: CollectionDocument;
     conflicts: CollectionConflict[];
 } {
-    const merged = mergeCollections(local.base, local.document, remote.document);
+    // Match mergeCollections' legacy-map semantics when retaining unresolved alternatives too.
+    const remoteDocument = { ...remote.document };
+    if (remoteDocument.encounters === undefined && local.base.encounters !== undefined)
+        remoteDocument.encounters = local.base.encounters;
+    if (remoteDocument.opponents === undefined && local.base.opponents !== undefined)
+        remoteDocument.opponents = local.base.opponents;
+    const merged = mergeCollections(local.base, local.document, remoteDocument);
     const conflicts = retainConflicts(
         local.conflicts,
         merged.conflicts,
         merged.document,
-        remote.document,
+        remoteDocument,
     );
     let upload = structuredClone(merged.document);
     // Restore referenced records before selecting their party membership.
     const conflictOrder = (conflict: CollectionConflict) =>
-        conflict.kind === 'party' ? 2 : conflict.entity === 'playthroughs' ? 1 : 0;
+        conflict.kind === 'party'
+            ? 2
+            : conflict.entity === 'playthroughs' || conflict.entity === 'encounters'
+              ? 1
+              : 0;
     const uploadConflicts = [...conflicts].sort((a, b) => conflictOrder(a) - conflictOrder(b));
     for (const conflict of uploadConflicts)
         upload = applyConflictChoice(upload, conflict, 'remote');

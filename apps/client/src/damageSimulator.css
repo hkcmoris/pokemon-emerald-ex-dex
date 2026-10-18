@@ -17,6 +17,14 @@
 .sim-level-session {
     margin-bottom: 1.25rem;
 }
+.sim-save-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+}
 .sim-level-actions {
     display: flex;
     flex-wrap: wrap;

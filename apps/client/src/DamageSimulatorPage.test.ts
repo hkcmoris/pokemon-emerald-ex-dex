@@ -11,6 +11,7 @@ import {
     type OwnedPokemon,
     type SpeciesDetails,
     type StatObservation,
+    type TypeEffectivenessChart,
 } from '@pokemon-emerald-ex-dex/shared';
 
 import { DamageSimulatorView, getDefaultSimulatorPokemonId } from './DamageSimulatorPage.js';
@@ -145,6 +146,9 @@ function render(
         language?: 'en' | 'cs';
         speciesAvailable?: boolean;
         pokemonId?: string | null;
+        references?: readonly SpeciesDetails[];
+        moves?: readonly Move[];
+        chart?: TypeEffectivenessChart;
     } = {},
 ): string {
     const client = new QueryClient({
@@ -155,7 +159,16 @@ function render(
     }
     client.setQueryData(['collection-family', species.speciesId], [species, nextForm]);
     client.setQueryData(['collection-move', tackle.moveId], tackle);
+    client.setQueryData(['collection-move', waterGun.moveId], waterGun);
     client.setQueryData(['collection-search', ''], []);
+    for (const reference of options.references ?? []) {
+        client.setQueryData(['collection-species', reference.speciesId], reference);
+    }
+    for (const move of options.moves ?? []) {
+        client.setQueryData(['collection-move', move.moveId], move);
+    }
+    if (options.chart)
+        client.setQueryData(['collection-type-effectiveness', 'test'], options.chart);
     try {
         return renderToStaticMarkup(
             createElement(
@@ -175,6 +188,7 @@ function render(
                         conflicts: options.conflicts ?? [],
                         ready: options.ready ?? true,
                         onSaveLevel: () => Promise.resolve(),
+                        onUpdateCollection: () => Promise.resolve(),
                     }),
                 ),
             ),
@@ -195,6 +209,57 @@ void test('simulator renders the owned back sprite and keeps current and inherit
     match(html, /Tackle/);
     doesNotMatch(html, /Dark Pulse/);
     deepStrictEqual(document, before);
+});
+
+void test('saved encounters drive the selected opponent and incoming moves without mutating the collection', () => {
+    const document: CollectionDocument = {
+        ...collection(),
+        encounters: {
+            rival: {
+                id: 'rival',
+                name: 'Rival · Route 110',
+                playthroughId: 'run',
+                party: ['enemy'],
+                deleted: false,
+                createdAt: '2026-10-18T10:00:00Z',
+            },
+        },
+        opponents: {
+            enemy: {
+                id: 'enemy',
+                encounterId: 'rival',
+                speciesId: species.speciesId,
+                level: 21,
+                moves: [{ moveId: waterGun.moveId, name: waterGun.name }],
+                deleted: false,
+            },
+        },
+    };
+    const before = structuredClone(document);
+    const html = render({ document: freeze(document) });
+    match(html, /Rival · Route 110/);
+    match(html, /aria-label="Estimated incoming damage"/);
+    match(html, /Clauncher → Pinchy/);
+    match(html, /Opponent estimates/);
+    doesNotMatch(html, /Change species/);
+    deepStrictEqual(document, before);
+    const blocked = render({
+        document,
+        conflicts: [
+            {
+                id: 'enemy-level-conflict',
+                kind: 'field',
+                entity: 'opponents',
+                entityId: 'enemy',
+                field: 'level',
+                base: 20,
+                local: 21,
+                remote: 22,
+            },
+        ],
+    });
+    match(blocked, /Resolve the encounter conflict before using its matchup or damage estimates/);
+    doesNotMatch(blocked, /Clauncher → Pinchy/);
 });
 
 function input(html: string, label: string): string {
@@ -340,6 +405,16 @@ void test('ownership conflicts block simulation, while observation conflicts req
             local: null,
             remote: { pokemonId: pokemon.id },
         },
+        {
+            id: 'observation-owner',
+            kind: 'field',
+            entity: 'observations',
+            entityId: 'another-observation',
+            field: 'pokemonId',
+            base: 'another-member',
+            local: 'another-member',
+            remote: pokemon.id,
+        },
     ] satisfies CollectionConflict[]) {
         const html = render({ conflicts: [conflict] });
         match(html, /Recorded stats have a sync conflict. Enter temporary values to simulate/);
@@ -379,7 +454,7 @@ void test('Czech simulator labels explain future moves, temporary inputs and omi
     match(html, /Zvýšit úroveň \+1/);
     match(
         html,
-        /Schopnosti, držené předměty, počasí, kritické zásahy, stavové podmínky a změny statistik nejsou zahrnuté/,
+        /Ostatní schopnosti, držené předměty, počasí, kritické zásahy, stavové podmínky a změny statistik nejsou zahrnuté/,
     );
     doesNotMatch(
         html,
@@ -409,6 +484,155 @@ void test('simulator reflects saved nature without altering recorded stats and s
     };
     doesNotMatch(render({ document, conflicts: [conflict] }), /data-nature-effect/);
     deepStrictEqual(document, before);
+});
+
+void test('simulator totals Icicle Spear hits using the selected ability without applying it to the enemy', () => {
+    const icicleSpear: Move = {
+        ...tackle,
+        moveId: 333,
+        name: 'Icicle Spear',
+        typeId: 15,
+        type: 'Ice',
+        power: 25,
+        effectId: 25,
+    };
+    const shellder: SpeciesDetails = {
+        ...species,
+        speciesId: 90,
+        name: 'Shellder',
+        abilities: [75, 92].map((abilityId, index) => ({
+            slot: index === 0 ? 1 : 2,
+            kind: 'normal',
+            ability: {
+                abilityId,
+                name: abilityId === 92 ? 'Skill Link' : 'Shell Armor',
+                description: '',
+                descriptionCs: null,
+                aiRating: 0,
+                flags: {
+                    cantBeCopied: false,
+                    cantBeSwapped: false,
+                    cantBeTraced: false,
+                    cantBeSuppressed: false,
+                    cantBeOverwritten: false,
+                    breakable: false,
+                    failsOnImposter: false,
+                },
+            },
+        })),
+        learnset: [{ ...icicleSpear, level: 13, entryOrder: 0 }],
+        machines: [],
+    };
+    const venusaur: SpeciesDetails = {
+        ...species,
+        speciesId: 3,
+        name: 'Venusaur',
+        types: ['Grass'],
+        typeIds: [12],
+        stats: { ...species.stats, hp: 100, attack: 82, defense: 85 },
+    };
+    const owned: OwnedPokemon = {
+        ...pokemon,
+        nickname: 'Milan',
+        ability: { speciesId: shellder.speciesId, abilityId: 92 },
+        state: { ...pokemon.state, speciesId: shellder.speciesId, level: 18, moves: [icicleSpear] },
+    };
+    const document: CollectionDocument = {
+        ...collection(owned, [
+            {
+                ...observation,
+                speciesId: shellder.speciesId,
+                level: 18,
+                stats: { hp: 50, attack: 31, defense: 45, spAttack: 24 },
+            },
+        ]),
+        encounters: {
+            rival: {
+                id: 'rival',
+                name: 'Rival',
+                playthroughId: 'run',
+                party: ['enemy'],
+                deleted: false,
+                createdAt: '2026-10-18T10:00:00Z',
+            },
+        },
+        opponents: {
+            enemy: {
+                id: 'enemy',
+                encounterId: 'rival',
+                speciesId: venusaur.speciesId,
+                level: 18,
+                moves: [icicleSpear],
+                deleted: false,
+            },
+        },
+    };
+    const typeIds = [0, 11, 12, 15];
+    const chart: TypeEffectivenessChart = {
+        types: typeIds.map((typeId) => ({ typeId, name: String(typeId), iconFile: null })),
+        matchups: typeIds.flatMap((attackingTypeId) =>
+            typeIds.map((defendingTypeId) => ({
+                attackingTypeId,
+                defendingTypeId,
+                multiplier:
+                    attackingTypeId === 15
+                        ? defendingTypeId === 12
+                            ? 2
+                            : defendingTypeId === 11
+                              ? 0.5
+                              : 1
+                        : 1,
+            })),
+        ),
+    };
+    const options = { document, references: [shellder, venusaur], moves: [icicleSpear], chart };
+    const html = render(options);
+    match(html, /Total · 5 hits · Skill Link/);
+    match(html, /40–50 <span>HP<\/span>/);
+    match(html, /58–72\.5% of enemy HP/);
+    match(html, /Per hit: 8–10 HP/);
+    const incoming =
+        html.match(/<section[^>]*aria-label="Estimated incoming damage"[\s\S]*?<\/section>/)?.[0] ??
+        '';
+    match(incoming, /Total · 2–5 hits/);
+    match(incoming, /4–15 HP/);
+    doesNotMatch(incoming, /Total · 5 hits · Skill Link/);
+    match(html, /Total HP damage \/ move use/);
+    doesNotMatch(html, /Damage per successful hit|HP damage \/ successful hit/);
+
+    const czech = render({ ...options, language: 'cs' });
+    match(czech, /Celkem · 5 zásahů · Skill Link/);
+    match(czech, /Za jeden zásah: 8–10 HP/);
+    for (const ability of [
+        null,
+        { speciesId: 90, abilityId: 75 },
+        { speciesId: 91, abilityId: 92 },
+    ]) {
+        const normal = render({
+            ...options,
+            document: { ...document, pokemon: { [owned.id]: { ...owned, ability } } },
+        });
+        match(normal, /Total · 2–5 hits/);
+        match(normal, /16–50 <span>HP<\/span>/);
+        doesNotMatch(normal, /Total · 5 hits · Skill Link/);
+    }
+    const conflicting = render({
+        ...options,
+        conflicts: [
+            {
+                id: 'ability-conflict',
+                kind: 'field',
+                entity: 'pokemon',
+                entityId: owned.id,
+                field: 'ability',
+                base: null,
+                local: owned.ability ? { ...owned.ability } : null,
+                remote: null,
+            },
+        ],
+    });
+    match(conflicting, /16–50 <span>HP<\/span>/);
+    doesNotMatch(conflicting, /Total · 5 hits · Skill Link/);
 });
 
 void test('global simulator entry selects the last member of the active playthrough, then party, then collection', () => {

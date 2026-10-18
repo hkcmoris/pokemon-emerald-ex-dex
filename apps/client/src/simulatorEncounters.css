@@ -1,0 +1,186 @@
+.sim-encounters {
+    margin-bottom: 1.25rem;
+    min-width: 0;
+}
+.sim-encounter-toolbar,
+.sim-encounter-name,
+.sim-encounter-party-heading,
+.sim-opponent-level-row,
+.sim-encounter-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+.sim-encounter-toolbar,
+.sim-encounter-name {
+    align-items: end;
+}
+.sim-encounter-select {
+    flex: 1 1 15rem;
+    max-width: 30rem;
+}
+.sim-encounter-name {
+    margin-top: 1rem;
+}
+.sim-encounter-name label {
+    flex: 1 1 14rem;
+}
+.sim-encounter-party-heading {
+    justify-content: space-between;
+    margin: 1rem 0 0.6rem;
+}
+.sim-encounter-party-heading h2,
+.sim-encounter-party-heading h3,
+.sim-encounter-party-heading p {
+    margin: 0;
+}
+.sim-encounter-party-heading h2,
+.sim-encounter-party-heading h3 {
+    font-size: 0.95rem;
+}
+.sim-opponent-roster {
+    display: flex;
+    align-items: stretch;
+    gap: 0.6rem;
+    overflow-x: auto;
+    padding: 0.3rem 0.2rem 0.7rem;
+    scroll-snap-type: x proximity;
+}
+.sim-opponent-roster > li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+.sim-opponent-button {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 11.5rem;
+    min-height: 72px;
+    border: 1px solid var(--dex-border);
+    border-radius: 14px;
+    padding: 0.4rem 0.8rem 0.4rem 0.3rem;
+    background: var(--dex-surface);
+    text-align: left;
+}
+.sim-opponent-button[aria-pressed='true'] {
+    border-color: var(--dex-accent);
+    background: color-mix(in srgb, var(--dex-accent) 12%, var(--dex-surface));
+    box-shadow: 0 0 0 1px var(--dex-accent);
+}
+.sim-opponent-button > span {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.sim-opponent-button strong {
+    font-size: 0.87rem;
+}
+.sim-opponent-button small {
+    font-size: 0.72rem;
+    color: var(--dex-muted);
+}
+.sim-opponent-button .species-sprite {
+    width: 56px;
+    height: 56px;
+}
+.sim-encounter-picker,
+.sim-opponent-details {
+    border-top: 1px solid var(--dex-border);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    min-width: 0;
+}
+.sim-encounter-picker legend {
+    font-size: 0.8rem;
+    padding-right: 0.5rem;
+}
+.sim-opponent-level-row {
+    align-items: end;
+    margin-top: 0.75rem;
+}
+.sim-opponent-level-row > label {
+    max-width: 10rem;
+}
+.sim-revealed-moves {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+.sim-revealed-moves > li {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.6rem 0.75rem;
+    min-height: 72px;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    font-size: 0.83rem;
+    overflow-wrap: anywhere;
+}
+.sim-revealed-moves .my-text-button {
+    font-size: 0.72rem;
+    min-height: 32px;
+}
+.sim-revealed-moves > .sim-unknown-move {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--dex-muted);
+    border-style: dashed;
+}
+.sim-revealed-picker {
+    margin-top: 0.75rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 14px;
+    padding: 0.75rem;
+}
+.sim-revealed-picker .sim-encounter-party-heading {
+    margin-top: 0;
+    align-items: end;
+}
+.sim-revealed-picker label {
+    flex: 1 1 12rem;
+}
+.sim-move-search-results {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 18rem;
+    overflow-y: auto;
+    gap: 0.5rem;
+    padding: 0.2rem;
+}
+.sim-move-search-results button {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    width: 100%;
+    text-align: left;
+}
+.sim-move-search-results small {
+    flex-basis: 100%;
+}
+.sim-encounter-feedback {
+    margin-top: 0.75rem;
+}
+.sim-encounter-feedback p {
+    margin: 0;
+}
+.sim-encounter-save-state {
+    display: block;
+    min-height: 1.3rem;
+    margin-top: 0.4rem;
+}
+@media (max-width: 700px) {
+    .sim-revealed-moves {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sim-move-search-results {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .sim-encounter-select {
+        max-width: none;
+    }
+}

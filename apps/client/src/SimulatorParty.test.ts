@@ -7,6 +7,8 @@ import {
     emptyCollection,
     type CollectionConflict,
     type CollectionDocument,
+    type KnownMove,
+    type Move,
     type OwnedPokemon,
     type Pokemon,
     type SpeciesDetails,
@@ -132,6 +134,24 @@ const enemy: Pokemon = {
     typeIds: [6, 3],
     types: ['Bug', 'Poison'],
 };
+const rockSlide: Move = {
+    moveId: 157,
+    name: 'Rock Slide',
+    description: '',
+    descriptionCs: null,
+    typeId: 5,
+    type: 'Rock',
+    typeIconFile: 'rock.png',
+    categoryId: 0,
+    category: 'Physical',
+    categoryIconFile: null,
+    power: 75,
+    accuracy: 90,
+    pp: 10,
+    priority: 0,
+    effectId: 0,
+    targetId: 0,
+};
 function owned(id: string, options: Partial<OwnedPokemon> = {}): OwnedPokemon {
     return {
         id,
@@ -186,6 +206,8 @@ function render(
         enemy?: Pokemon | null;
         speciesAvailable?: boolean;
         language?: 'en' | 'cs';
+        enemyMoves?: readonly KnownMove[];
+        moveDetails?: readonly Move[];
     } = {},
 ): string {
     const client = new QueryClient({
@@ -193,6 +215,8 @@ function render(
     });
     if (options.speciesAvailable !== false)
         client.setQueryData(['collection-species', species.speciesId], species);
+    for (const move of options.moveDetails ?? [])
+        client.setQueryData(['collection-move', move.moveId], move);
     const document = options.document ?? collection();
     try {
         return renderToStaticMarkup(
@@ -210,6 +234,7 @@ function render(
                         chart,
                         conflicts: options.conflicts ?? [],
                         datasetId: 'test',
+                        enemyMoves: options.enemyMoves,
                     }),
                 ),
             ),
@@ -251,6 +276,43 @@ void test('party links show selected state, sprite and explicit outgoing effecti
     match(czech, /Váš tým/);
     match(czech, /Účinný/);
     match(czech, /Létající/);
+});
+
+void test('known enemy coverage warns a member even when its outgoing typing is effective', () => {
+    const html = render({ enemyMoves: [rockSlide], moveDetails: [rockSlide] });
+    match(html, /data-matchup="effective"/);
+    match(html, /<details class="sim-party-threats" data-warning="true"/);
+    match(html, /Known move weaknesses for first/);
+    match(html, /Rock Slide · <strong>2× weakness/);
+    // Native disclosure is outside the party navigation link, so it can be opened without switching.
+    match(html, /<\/a><details class="sim-party-threats"/);
+    match(html, /unrevealed moves and abilities remain unknown/);
+    match(
+        render({ enemyMoves: [rockSlide], moveDetails: [rockSlide], language: 'cs' }),
+        /2× slabina/,
+    );
+});
+
+void test('unrevealed, unavailable and unsupported enemy moves never imply a safe party member', () => {
+    match(render(), /Moves unknown/);
+    const unavailable = render({ enemyMoves: [rockSlide] });
+    match(unavailable, /Moves not fully modeled/);
+    doesNotMatch(unavailable, /data-warning="true"|No known type weakness/);
+    for (const special of [
+        { ...rockSlide, moveId: 573, name: 'Freeze-Dry' },
+        { ...rockSlide, power: 1 },
+        { ...rockSlide, categoryId: 2 },
+    ]) {
+        const html = render({ enemyMoves: [special], moveDetails: [special] });
+        match(html, /Moves not fully modeled/);
+        doesNotMatch(html, /data-warning="true"|No known type weakness/);
+    }
+    const neutral = { ...rockSlide, typeId: 0, type: 'Normal' };
+    match(render({ enemyMoves: [neutral], moveDetails: [neutral] }), /No known type weakness/);
+    doesNotMatch(
+        render({ enemyMoves: [rockSlide], moveDetails: [rockSlide], enemy: null }),
+        /data-warning/,
+    );
 });
 
 void test('uncertain party lineup is replaced with a localized notice', () => {

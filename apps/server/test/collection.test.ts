@@ -172,6 +172,26 @@ void test('collection auth, CSRF, account isolation, strict validation and concu
     const document: CollectionDocument = {
         ...emptyCollection(),
         playthroughs: { run: { id: 'run', name: 'Emerald', party: [], deleted: false } },
+        encounters: {
+            rival: {
+                id: 'rival',
+                playthroughId: 'run',
+                name: 'Rival · Route 110',
+                party: ['enemy'],
+                deleted: false,
+                createdAt: '2026-10-18T10:00:00.000Z',
+            },
+        },
+        opponents: {
+            enemy: {
+                id: 'enemy',
+                encounterId: 'rival',
+                speciesId: 256,
+                level: 20,
+                moves: [{ moveId: 58, name: 'Ice Beam' }],
+                deleted: false,
+            },
+        },
     };
     const write = (headers: Record<string, string>, body: unknown) =>
         request('', { method: 'PUT', headers, body: JSON.stringify(body) });
@@ -185,6 +205,10 @@ void test('collection auth, CSRF, account isolation, strict validation and concu
         400,
     );
     strictEqual((await write(alice, { revision: -1, document })).status, 400);
+    strictEqual(
+        (await write(alice, { revision: 0, document: { ...document, opponents: {} } })).status,
+        400,
+    );
     strictEqual((await write(alice, { revision: 0, document })).status, 200);
     const stale = await write(alice, { revision: 0, document: emptyCollection() });
     strictEqual(stale.status, 409);

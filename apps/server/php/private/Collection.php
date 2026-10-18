@@ -41,8 +41,14 @@ function emptyCollection(): stdClass
 
 function validateCollectionDocument(mixed $document): bool
 {
-    if (!collectionKeys($document, ['version', 'playthroughs', 'pokemon', 'observations']) || $document->version !== 1) { return false; }
-    foreach (['playthroughs' => 50, 'pokemon' => 3000, 'observations' => 10000] as $field => $limit) {
+    if (!$document instanceof stdClass) { return false; }
+    $documentKeys = ['version', 'playthroughs', 'pokemon', 'observations'];
+    $limits = ['playthroughs' => 50, 'pokemon' => 3000, 'observations' => 10000];
+    foreach (['encounters' => 1000, 'opponents' => 6000] as $field => $limit) {
+        if (property_exists($document, $field)) { $documentKeys[] = $field; $limits[$field] = $limit; }
+    }
+    if (!collectionKeys($document, $documentKeys) || $document->version !== 1) { return false; }
+    foreach ($limits as $field => $limit) {
         if (!$document->$field instanceof stdClass || count(get_object_vars($document->$field)) > $limit) { return false; }
         foreach (get_object_vars($document->$field) as $id => $value) {
             if (!collectionId((string) $id) || !$value instanceof stdClass || ($value->id ?? null) !== (string) $id || !is_bool($value->deleted ?? null)) { return false; }
@@ -100,6 +106,31 @@ function validateCollectionDocument(mixed $document): bool
         $stats = get_object_vars($observation->stats);
         if (count($stats) === 0 || array_diff(array_keys($stats), ['hp', 'attack', 'defense', 'spAttack', 'spDefense', 'speed']) !== []) { return false; }
         foreach ($stats as $value) { if (!collectionInteger($value, 1, 65535)) { return false; } }
+    }
+    foreach (($document->encounters ?? new stdClass()) as $encounter) {
+        if (!collectionKeys($encounter, ['id', 'playthroughId', 'name', 'party', 'deleted', 'createdAt']) ||
+            !collectionId($encounter->playthroughId) || !isset($document->playthroughs->{$encounter->playthroughId}) ||
+            !collectionText($encounter->name, 80) || trim($encounter->name) === '' || !collectionDate($encounter->createdAt) ||
+            !is_array($encounter->party) || count($encounter->party) > 6) { return false; }
+        $seen = [];
+        foreach ($encounter->party as $id) {
+            if (!collectionId($id) || isset($seen[$id])) { return false; }
+            $seen[$id] = true;
+            $opponent = $document->opponents->$id ?? null;
+            if (!$opponent instanceof stdClass || ($opponent->encounterId ?? null) !== $encounter->id || $opponent->deleted) { return false; }
+        }
+    }
+    foreach (($document->opponents ?? new stdClass()) as $opponent) {
+        if (!collectionKeys($opponent, ['id', 'encounterId', 'speciesId', 'level', 'moves', 'deleted']) ||
+            !collectionId($opponent->encounterId) || !isset($document->encounters->{$opponent->encounterId}) ||
+            !collectionInteger($opponent->speciesId, 1, 100000) || !collectionInteger($opponent->level, 1, 100) ||
+            !is_array($opponent->moves) || count($opponent->moves) > 4) { return false; }
+        $seen = [];
+        foreach ($opponent->moves as $move) {
+            if (!collectionKeys($move, ['moveId', 'name']) || !collectionInteger($move->moveId, 1, 100000) ||
+                !collectionText($move->name, 80) || trim($move->name) === '' || isset($seen[$move->moveId])) { return false; }
+            $seen[$move->moveId] = true;
+        }
     }
     return true;
 }
