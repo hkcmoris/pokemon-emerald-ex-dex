@@ -188,6 +188,7 @@ function PartyMember({
     moveLookupFailed,
     ownMoveLookupFailed,
     onRetryMoves,
+    compact,
 }: {
     pokemon: OwnedPokemon;
     selected: boolean;
@@ -200,6 +201,7 @@ function PartyMember({
     moveLookupFailed: boolean;
     ownMoveLookupFailed: boolean;
     onRetryMoves: () => void;
+    compact: boolean;
 }) {
     const { t } = useLanguage();
     const uncertain = conflicts.some(
@@ -253,6 +255,59 @@ function PartyMember({
               : matchup
                 ? `${matchup.multiplier}×`
                 : '';
+    if (compact) {
+        const threats =
+            enemy && details
+                ? enemyMoves.flatMap((move) => {
+                      const result = getMoveEffectiveness(
+                          moveDetails.get(move.moveId),
+                          details.typeIds,
+                          chart,
+                      );
+                      return result.status === 'available' && result.multiplier > 1
+                          ? [`${move.name} ${result.multiplier}×`]
+                          : [];
+                  })
+                : [];
+        const label = [
+            name,
+            details && pokemon.nickname ? details.name : null,
+            uncertain ? 'Lv. ?' : `Lv. ${pokemon.state.level}`,
+            status,
+            threats.length > 0
+                ? t(
+                      `Known move weakness: ${threats.join(', ')}`,
+                      `Známý účinný útok: ${threats.join(', ')}`,
+                  )
+                : null,
+        ]
+            .filter(Boolean)
+            .join(' · ');
+        return (
+            <li>
+                <a
+                    className="sim-sprite-choice"
+                    href={damageSimulatorHref(pokemon.id)}
+                    aria-current={selected ? 'page' : undefined}
+                    aria-label={label}
+                    title={label}
+                    data-matchup={matchup?.kind ?? 'unknown'}
+                    data-warning={uncertain || threats.length > 0 || undefined}
+                >
+                    <SpeciesSprite
+                        datasetId={datasetId}
+                        file={details?.sprites?.front ?? null}
+                        name={details?.name ?? name}
+                    />
+                    {(uncertain || threats.length > 0) && (
+                        <span className="sim-sprite-warning" aria-hidden="true">
+                            ⚠
+                        </span>
+                    )}
+                </a>
+            </li>
+        );
+    }
     return (
         <li>
             <a
@@ -333,6 +388,7 @@ export function SimulatorParty({
     conflicts,
     datasetId,
     enemyMoves = [],
+    compact = false,
 }: {
     document: CollectionDocument;
     run: Playthrough;
@@ -342,6 +398,7 @@ export function SimulatorParty({
     conflicts: readonly CollectionConflict[];
     datasetId?: string;
     enemyMoves?: readonly KnownMove[];
+    compact?: boolean;
 }) {
     const { t } = useLanguage();
     const party = getSimulatorParty(document, run, conflicts);
@@ -366,17 +423,26 @@ export function SimulatorParty({
         ),
     );
     const failedMoveIds = new Set(moveIds.filter((_, index) => moveLookups[index].isError));
-    if (party?.length === 0) return null;
+    if (party?.length === 0 && !compact) return null;
     return (
-        <section className="sim-party" aria-label={t('Party matchups', 'Účinnost týmu')}>
+        <section
+            className={compact ? 'sim-quick-party' : 'sim-party'}
+            aria-label={
+                compact
+                    ? t('Switch your Pokémon', 'Přepnout svého Pokémona')
+                    : t('Party matchups', 'Účinnost týmu')
+            }
+        >
             <div className="sim-party-heading">
                 <h2>{t('Your party', 'Váš tým')}</h2>
-                <p>
-                    {t(
-                        'Best type matchup among recorded damaging moves. Warnings use revealed enemy moves; unrevealed moves and abilities remain unknown.',
-                        'Nejvyšší typová účinnost zaznamenaných útoků s poškozením. Varování vycházejí z odhalených útoků soupeře; neodhalené útoky a schopnosti zůstávají neznámé.',
-                    )}
-                </p>
+                {!compact && (
+                    <p>
+                        {t(
+                            'Best type matchup among recorded damaging moves. Warnings use revealed enemy moves; unrevealed moves and abilities remain unknown.',
+                            'Nejvyšší typová účinnost zaznamenaných útoků s poškozením. Varování vycházejí z odhalených útoků soupeře; neodhalené útoky a schopnosti zůstávají neznámé.',
+                        )}
+                    </p>
+                )}
             </div>
             {party === null ? (
                 <p className="sim-party-notice">
@@ -385,12 +451,15 @@ export function SimulatorParty({
                         'Pro porovnání týmu vyřešte konflikt synchronizace sestavy.',
                     )}
                 </p>
+            ) : party.length === 0 ? (
+                <p className="sim-party-notice">{t('No party members', 'Tým je prázdný')}</p>
             ) : (
-                <ol className="sim-party-grid">
+                <ol className={compact ? 'sim-sprite-strip' : 'sim-party-grid'}>
                     {party.map((pokemon) => (
                         <PartyMember
                             key={pokemon.id}
                             pokemon={pokemon}
+                            compact={compact}
                             selected={pokemon.id === selectedPokemonId}
                             enemy={enemy}
                             chart={chart}

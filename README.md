@@ -160,11 +160,14 @@ Open **Simulator** from the main navigation, or **Simulate damage** on an owned 
 to compare its attacks against any opponent species/form and level. The main entry
 uses the current playthrough and remembered member, falling back to its first party
 member or collection Pokémon. The simulator shows the attacker's back sprite,
-HP damage ranges, enemy HP percentages, STAB and type matchups. Current move cards
-sit directly below the matchup. **Edit battle stats** starts collapsed; opponent
-selection stays accessible without opening it. Encounter, party, and saved-level
-controls sit beside the battle on desktop and below it on phones, with phone shortcuts
-between the battle and team controls. Enemy stats assume
+HP damage ranges, enemy HP percentages, STAB and type matchups. Compact sprite strips
+for your party and the saved enemy party sit above the matchup, so either side can
+be switched without scrolling through management controls. Selected members are marked;
+known enemy move weaknesses and sync conflicts retain warning icons. Current move cards
+sit directly below the matchup. **Edit battle stats** starts collapsed. Detailed encounter
+and party information, collection selection, scenario reset, and saved-level controls sit
+beside the battle on desktop and below it on phones, with phone shortcuts between the
+battle and team controls. Enemy stats assume
 neutral nature, 31 IVs and 0 EVs, with temporary HP and offensive/defensive stat overrides.
 Preview the current form's full learnset and TM/HM moves, including future level
 labels and recorded inherited moves. Save named enemy encounters with up to six opponents,

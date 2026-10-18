@@ -67,44 +67,96 @@ function OpponentButton({
     uncertain,
     datasetId,
     onSelect,
+    compact = false,
 }: {
     opponent: EncounterOpponent;
     selected: boolean;
     uncertain: boolean;
     datasetId?: string;
     onSelect: () => void;
+    compact?: boolean;
 }) {
     const { t } = useLanguage();
     const species = useQuery({
         queryKey: ['collection-species', opponent.speciesId],
         queryFn: () => loadCollectionSpecies(opponent.speciesId),
     });
+    const name = species.data?.name ?? `#${opponent.speciesId}`;
+    const label = `${name} · Lv. ${opponent.level}${uncertain ? ` · ${t('Sync conflict', 'Konflikt synchronizace')}` : ''}`;
     return (
         <li>
             <button
                 type="button"
-                className="sim-opponent-button"
+                className={compact ? 'sim-sprite-choice' : 'sim-opponent-button'}
                 aria-pressed={selected}
+                aria-label={compact ? label : undefined}
+                title={compact ? label : undefined}
+                data-warning={compact && uncertain ? true : undefined}
                 onClick={onSelect}
             >
                 <SpeciesSprite
                     datasetId={datasetId}
                     file={species.data?.sprites?.front ?? null}
-                    name={species.data?.name ?? `#${opponent.speciesId}`}
+                    name={name}
                 />
-                <span>
-                    <strong>{species.data?.name ?? `#${opponent.speciesId}`}</strong>
-                    <small>
-                        {uncertain
-                            ? t('Sync conflict', 'Konflikt synchronizace')
-                            : t(
-                                  `Lv. ${opponent.level} · ${opponent.moves.length}/4 revealed`,
-                                  `Lv. ${opponent.level} · ${opponent.moves.length}/4 odhaleny`,
-                              )}
-                    </small>
-                </span>
+                {compact ? (
+                    uncertain && (
+                        <span className="sim-sprite-warning" aria-hidden="true">
+                            ⚠
+                        </span>
+                    )
+                ) : (
+                    <span>
+                        <strong>{name}</strong>
+                        <small>
+                            {uncertain
+                                ? t('Sync conflict', 'Konflikt synchronizace')
+                                : t(
+                                      `Lv. ${opponent.level} · ${opponent.moves.length}/4 revealed`,
+                                      `Lv. ${opponent.level} · ${opponent.moves.length}/4 odhaleny`,
+                                  )}
+                        </small>
+                    </span>
+                )}
             </button>
         </li>
+    );
+}
+
+export function SimulatorOpponentStrip({
+    document,
+    encounter,
+    selectedOpponentId,
+    conflicts,
+    datasetId,
+    onSelect,
+}: {
+    document: CollectionDocument;
+    encounter: BattleEncounter;
+    selectedOpponentId?: string;
+    conflicts: readonly CollectionConflict[];
+    datasetId?: string;
+    onSelect: (opponentId: string) => void;
+}) {
+    const { t } = useLanguage();
+    const opponents = getEncounterOpponents(document, encounter);
+    return (
+        <ul className="sim-sprite-strip" aria-label={t('Switch opponent', 'Přepnout soupeře')}>
+            {opponents.length === 0 && (
+                <li className="sim-party-notice">{t('No opponents yet', 'Zatím žádný soupeř')}</li>
+            )}
+            {opponents.map((opponent) => (
+                <OpponentButton
+                    key={opponent.id}
+                    opponent={opponent}
+                    selected={opponent.id === selectedOpponentId}
+                    uncertain={opponentHasConflict(document, conflicts, opponent)}
+                    datasetId={datasetId}
+                    onSelect={() => onSelect(opponent.id)}
+                    compact
+                />
+            ))}
+        </ul>
     );
 }
 

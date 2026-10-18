@@ -9,9 +9,21 @@
     --sim-weakness: #a62135;
 }
 .sim-page-heading {
-    grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
-    margin: 0 0 0.75rem;
-    gap: 0.5rem 1rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    margin: 0 0 0.5rem;
+    gap: 0.25rem 0.75rem;
+}
+.sim-page-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+.sim-management-tools {
+    padding: 0.5rem;
 }
 .my-pokemon-main.sim-main .sim-page-heading h1 {
     font-size: 1.35rem;
@@ -29,6 +41,81 @@
 }
 .sim-battle-content {
     scroll-margin-top: 0.75rem;
+}
+.sim-party-strips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem 0.75rem;
+    margin-bottom: 0.4rem;
+}
+.sim-quick-party {
+    min-width: 0;
+}
+.sim-quick-party .sim-party-heading {
+    margin: 0;
+}
+.sim-quick-party .sim-party-heading h2 {
+    font-size: 0.68rem;
+    color: var(--dex-muted);
+}
+.sim-sprite-strip {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    list-style: none;
+    padding: 3px;
+    margin: 0;
+}
+.sim-sprite-strip > li {
+    flex: 0 0 auto;
+}
+.sim-sprite-choice {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--dex-border);
+    border-radius: 8px;
+    background: var(--dex-surface);
+    color: var(--dex-text);
+    text-decoration: none;
+}
+button.sim-sprite-choice,
+a.sim-sprite-choice {
+    cursor: pointer;
+}
+.sim-sprite-choice .species-sprite {
+    max-width: 40px;
+    max-height: 40px;
+}
+.sim-sprite-choice[aria-current='page'],
+.sim-sprite-choice[aria-pressed='true'] {
+    outline: 2px solid var(--dex-accent);
+    outline-offset: 0;
+    background: color-mix(in srgb, var(--dex-accent) 18%, var(--dex-surface));
+}
+.sim-sprite-choice:hover,
+.sim-sprite-choice:focus-visible {
+    outline: 2px solid var(--dex-text);
+    outline-offset: 1px;
+}
+.sim-sprite-warning {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    border-radius: 3px;
+    background: var(--dex-surface);
+    color: var(--sim-weakness);
+    font-size: 0.7rem;
+    line-height: 1.1;
+}
+.sim-quick-party .sim-party-notice {
+    margin: 0;
+    font-size: 0.68rem;
 }
 .sim-management {
     max-height: calc(100dvh - 240px);
@@ -515,7 +602,6 @@
     }
 }
 @media (max-width: 800px) {
-    .sim-page-heading,
     .sim-setup-grid {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -527,11 +613,28 @@
     }
 }
 @media (max-width: 480px) {
-    .sim-page-heading {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    .sim-main {
+        padding-top: 0.5rem;
     }
     .my-pokemon-main.sim-main .sim-page-heading h1 {
         font-size: 1rem;
+    }
+    .sim-party-strips {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+    .sim-sprite-strip {
+        gap: 2px;
+    }
+    .sim-quick-party {
+        display: grid;
+        grid-template-columns: 3.5rem minmax(0, 1fr);
+        align-items: center;
+    }
+    .sim-page-actions {
+        font-size: 0.68rem;
+        max-width: 10rem;
+        gap: 0.25rem 0.5rem;
     }
     .sim-teams-shortcut {
         margin-left: 0;

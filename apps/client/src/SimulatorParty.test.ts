@@ -249,6 +249,8 @@ function render(
         enemyMoves?: readonly KnownMove[];
         moveDetails?: readonly Move[];
         references?: readonly SpeciesDetails[];
+        compact?: boolean;
+        selectedPokemonId?: string;
     } = {},
 ): string {
     const client = new QueryClient({
@@ -273,12 +275,13 @@ function render(
                     createElement(SimulatorParty, {
                         document,
                         run: document.playthroughs.run,
-                        selectedPokemonId: 'first',
+                        selectedPokemonId: options.selectedPokemonId ?? 'first',
                         enemy: options.enemy === undefined ? enemy : options.enemy,
                         chart,
                         conflicts: options.conflicts ?? [],
                         datasetId: 'test',
                         enemyMoves: options.enemyMoves,
+                        compact: options.compact,
                     }),
                 ),
             ),
@@ -321,6 +324,82 @@ void test('party links show selected state, sprite and explicit outgoing effecti
     match(czech, /Váš tým/);
     match(czech, /Účinný/);
     match(czech, /Létající/);
+});
+
+void test('compact party preserves roster order and selection without changing collection data', () => {
+    const document = collection();
+    document.playthroughs.run.party.push('second');
+    const before = structuredClone(document);
+    const html = render({ document, compact: true });
+    match(html, /aria-label="Switch your Pokémon"/);
+    const links = [...html.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map(([link]) => link);
+    strictEqual(links.length, 2);
+    match(links[0], /href="#\/simulator\/second"/);
+    doesNotMatch(links[0], /aria-current/);
+    match(links[1], /href="#\/simulator\/first"/);
+    match(links[1], /aria-current="page"/);
+    match(links[1], /aria-label="first · Spearow · Lv\. 16 · Effective"/);
+    match(links[1], /spearow\/front\.png/);
+    for (const link of links) doesNotMatch(link, /<(?:button|input|details)\b/);
+    doesNotMatch(html, /missing|other-run|>deleted</);
+    doesNotMatch(render({ document, compact: true, selectedPokemonId: 'stored' }), /aria-current/);
+    deepStrictEqual(document, before);
+});
+
+void test('compact party warns about revealed damaging moves without inventing unknown threats', () => {
+    const html = render({ compact: true, enemyMoves: [rockSlide], moveDetails: [rockSlide] });
+    const card = selectedCard(html);
+    match(card, /data-matchup="effective"/);
+    match(card, /data-warning="true"/);
+    match(card, /Known move weakness: Rock Slide 2×/);
+    match(card, /aria-hidden="true">⚠/);
+    for (const options of [
+        {},
+        { enemyMoves: [rockSlide] },
+        { enemyMoves: [rockSlide], moveDetails: [{ ...rockSlide, categoryId: 2 }] },
+        { enemyMoves: [rockSlide], moveDetails: [rockSlide], enemy: null },
+    ]) {
+        const unknown = render({ compact: true, ...options });
+        doesNotMatch(
+            unknown,
+            /data-warning="true"|Known move weakness|No known type weakness|Safe/,
+        );
+    }
+    match(
+        render({
+            compact: true,
+            enemyMoves: [rockSlide],
+            moveDetails: [rockSlide],
+            language: 'cs',
+        }),
+        /Známý účinný útok: Rock Slide 2×/,
+    );
+});
+
+void test('compact party keeps uncertain members switchable and explains unavailable lineups', () => {
+    const member = selectedCard(
+        render({
+            compact: true,
+            conflicts: [conflict('pokemon', 'first', 'state')],
+            enemyMoves: [rockSlide],
+            moveDetails: [rockSlide],
+        }),
+    );
+    match(member, /href="#\/simulator\/first"/);
+    match(member, /Lv\. \? · Sync conflict/);
+    match(member, /data-matchup="unknown"/);
+    match(member, /data-warning="true"/);
+    doesNotMatch(member, /Known move weakness/);
+    const uncertain = render({
+        compact: true,
+        conflicts: [conflict('playthroughs', 'run', 'party')],
+    });
+    match(uncertain, /Resolve the party sync conflict/);
+    doesNotMatch(uncertain, /<a\b/);
+    const empty = collection();
+    empty.playthroughs.run.party = [];
+    match(render({ document: empty, compact: true }), /No party members/);
+    match(render({ document: empty, compact: true, language: 'cs' }), /Tým je prázdný/);
 });
 
 function selectedCard(html: string): string {

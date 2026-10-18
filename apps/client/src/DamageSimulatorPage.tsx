@@ -18,7 +18,7 @@ import { getAbilityChoices, getSelectedAbility } from './pokemonTraits.js';
 import { useCollection } from './collectionStore.js';
 import { setOwnedPokemonLevel } from './collectionLevel.js';
 import { SimulatorLevelControls } from './SimulatorLevelControls.js';
-import { SimulatorEncounters } from './SimulatorEncounters.js';
+import { SimulatorEncounters, SimulatorOpponentStrip } from './SimulatorEncounters.js';
 import { IncomingDamage } from './IncomingDamage.js';
 import { DamageHitSummary, DamagePerHit } from './DamageHitDetails.js';
 import { getIncomingStats } from './incomingStats.js';
@@ -1143,41 +1143,54 @@ export function DamageSimulatorView({
                 Number(b.playthroughId === run?.id) - Number(a.playthroughId === run?.id) ||
                 a.nickname.localeCompare(b.nickname),
         );
+    const collectionSelector = ready && ownOptions.length > 0 && (
+        <label className="filter-label sim-owned-selector">
+            {t('Collection Pokémon', 'Pokémon ze sbírky')}
+            <select
+                className="filter-input"
+                value={missing ? '' : pokemonId}
+                onChange={(event) => {
+                    window.location.hash = damageSimulatorHref(event.target.value);
+                }}
+            >
+                {missing && (
+                    <option value="" disabled>
+                        {t('Choose your Pokémon', 'Vyberte svého Pokémona')}
+                    </option>
+                )}
+                {ownOptions.map((entry) => (
+                    <OwnedPokemonOption
+                        key={entry.id}
+                        pokemon={entry}
+                        runName={document.playthroughs[entry.playthroughId].name}
+                    />
+                ))}
+            </select>
+        </label>
+    );
     return (
         <>
-            <DexHeader
-                active="simulator"
-                version={version}
-                backHref={missing ? '#/my-pokemon' : ownedPokemonHref(pokemon.id)}
-                backLabel={
-                    missing
-                        ? t('Back to collection', 'Zpět do sbírky')
-                        : t(
-                              `Back to ${pokemon.nickname || species.data?.name || 'Pokémon'}`,
-                              `Zpět: ${pokemon.nickname || species.data?.name || 'Pokémon'}`,
-                          )
-                }
-            />
+            <DexHeader active="simulator" version={version} />
             <main className="dex-browse-main my-pokemon-main sim-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
                 <div className="my-page-heading sim-page-heading">
-                    <div>
-                        <h1>{t('Damage simulator', 'Simulátor poškození')}</h1>
-                        <button
-                            type="button"
+                    <h1>{t('Damage simulator', 'Simulátor poškození')}</h1>
+                    <div className="sim-page-actions">
+                        <a
                             className="my-text-button"
-                            onClick={() => {
-                                resetSimulatorSession(datasetKey);
-                                setQuickEnemySetup(emptyEnemySetup());
-                                refreshEnemyOverrides((value) => value + 1);
-                                setScenarioRevision((value) => value + 1);
-                            }}
+                            href={missing ? '#/my-pokemon' : ownedPokemonHref(pokemon.id)}
+                            aria-label={
+                                missing
+                                    ? t('Back to collection', 'Zpět do sbírky')
+                                    : t('Stats & history', 'Statistiky a historie')
+                            }
                         >
-                            {t('Reset scenario', 'Obnovit scénář')}
-                        </button>
+                            ← {missing ? t('Collection', 'Sbírka') : t('Stats', 'Statistiky')}
+                        </a>
                         {ready && !missing && (
                             <button
                                 type="button"
                                 className="my-text-button sim-teams-shortcut"
+                                aria-label={t('Teams & encounter', 'Týmy a souboj')}
                                 onClick={() => {
                                     managementRef.current?.scrollIntoView({
                                         block: 'start',
@@ -1186,38 +1199,75 @@ export function DamageSimulatorView({
                                     managementRef.current?.focus({ preventScroll: true });
                                 }}
                             >
-                                {t('Teams & encounter', 'Týmy a souboj')} ↓
+                                {t('Teams', 'Týmy')} ↓
                             </button>
                         )}
                     </div>
-                    {ready && ownOptions.length > 0 && (
-                        <label className="filter-label sim-owned-selector">
-                            {t('Collection Pokémon', 'Pokémon ze sbírky')}
-                            <select
-                                className="filter-input"
-                                value={missing ? '' : pokemonId}
-                                onChange={(event) => {
-                                    window.location.hash = damageSimulatorHref(event.target.value);
-                                }}
-                            >
-                                {missing && (
-                                    <option value="" disabled>
-                                        {t('Choose your Pokémon', 'Vyberte svého Pokémona')}
-                                    </option>
-                                )}
-                                {ownOptions.map((entry) => (
-                                    <OwnedPokemonOption
-                                        key={entry.id}
-                                        pokemon={entry}
-                                        runName={document.playthroughs[entry.playthroughId].name}
-                                    />
-                                ))}
-                            </select>
-                        </label>
-                    )}
                 </div>
+                {missing && collectionSelector}
                 <div className="sim-workspace">
                     <div ref={battleRef} tabIndex={-1} className="sim-battle-content">
+                        {ready && !missing && (
+                            <div className="sim-party-strips">
+                                <SimulatorParty
+                                    compact
+                                    document={document}
+                                    run={run}
+                                    selectedPokemonId={pokemon.id}
+                                    enemy={enemySetup.pokemon}
+                                    enemyMoves={enemyMoves}
+                                    datasetId={datasetId}
+                                    chart={chart.data}
+                                    conflicts={conflicts}
+                                />
+                                <section
+                                    className="sim-quick-party"
+                                    aria-label={t('Switch opponent', 'Přepnout soupeře')}
+                                >
+                                    <div className="sim-party-heading">
+                                        <h2 title={encounter?.name}>
+                                            {t('Enemy party', 'Soupeřův tým')}
+                                        </h2>
+                                    </div>
+                                    {encounter ? (
+                                        <SimulatorOpponentStrip
+                                            document={document}
+                                            encounter={encounter}
+                                            selectedOpponentId={opponent?.id}
+                                            conflicts={conflicts}
+                                            datasetId={datasetId}
+                                            onSelect={(id) => selectEncounter(encounter.id, id)}
+                                        />
+                                    ) : enemySetup.pokemon ? (
+                                        <button
+                                            type="button"
+                                            className="sim-sprite-choice"
+                                            title={enemySetup.pokemon.name}
+                                            aria-label={t(
+                                                `Change opponent: ${enemySetup.pokemon.name}`,
+                                                `Změnit soupeře: ${enemySetup.pokemon.name}`,
+                                            )}
+                                            onClick={() =>
+                                                setEnemySetup((previous) => ({
+                                                    ...previous,
+                                                    picking: true,
+                                                }))
+                                            }
+                                        >
+                                            <SpeciesSprite
+                                                datasetId={datasetId}
+                                                file={enemySetup.pokemon.sprites?.front ?? null}
+                                                name={enemySetup.pokemon.name}
+                                            />
+                                        </button>
+                                    ) : (
+                                        <span className="sim-party-notice">
+                                            {t('Choose an opponent below', 'Níže vyberte soupeře')}
+                                        </span>
+                                    )}
+                                </section>
+                            </div>
+                        )}
                         {!ready ? (
                             <p className="my-panel" role="status">
                                 {t('Loading collection…', 'Načítání sbírky…')}
@@ -1320,6 +1370,21 @@ export function DamageSimulatorView({
                             >
                                 {t('Back to battle', 'Zpět k souboji')} ↑
                             </button>
+                            <div className="sim-management-tools">
+                                {collectionSelector}
+                                <button
+                                    type="button"
+                                    className="my-text-button"
+                                    onClick={() => {
+                                        resetSimulatorSession(datasetKey);
+                                        setQuickEnemySetup(emptyEnemySetup());
+                                        refreshEnemyOverrides((value) => value + 1);
+                                        setScenarioRevision((value) => value + 1);
+                                    }}
+                                >
+                                    {t('Reset scenario', 'Obnovit scénář')}
+                                </button>
+                            </div>
                             <div className="sim-save-status">
                                 <span
                                     className={`my-sync-status my-sync-${syncStatus}`}

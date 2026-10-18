@@ -255,6 +255,8 @@ void test('saved encounters drive the selected opponent and incoming moves witho
         match(input(statEditor, `Opponent: ${stat}`), /<input\b/);
     }
     const battleOrder = [
+        html.indexOf('aria-label="Switch your Pokémon"'),
+        html.indexOf('aria-label="Switch opponent"'),
         html.indexOf('aria-label="Battle preview"'),
         html.indexOf('<h2>Current moves</h2>'),
         html.indexOf(statEditor),
@@ -266,8 +268,12 @@ void test('saved encounters drive the selected opponent and incoming moves witho
                 position >= 0 && (index === 0 || position > battleOrder[index - 1]),
         ),
         true,
-        'The matchup and current moves precede the collapsed stat editor and incoming damage',
+        'Both party switchers precede the matchup, current moves, collapsed stat editor and incoming damage',
     );
+    const switchers = html.slice(battleOrder[0], battleOrder[2]);
+    match(switchers, /href="#\/simulator\/pinchy"[^>]*aria-current="page"/);
+    match(switchers, /aria-label="Pinchy · Clauncher · Lv\. 17/);
+    match(switchers, /<button[^>]*aria-pressed="true"[^>]*aria-label="Clauncher · Lv\. 21"/);
     const battleContent = html.search(/class="[^"]*\bsim-battle-content\b/);
     const management = html.search(/class="[^"]*\bsim-management\b/);
     strictEqual(battleContent >= 0 && management > battleContent, true);
@@ -293,6 +299,40 @@ void test('saved encounters drive the selected opponent and incoming moves witho
     });
     match(blocked, /Resolve the encounter conflict before using its matchup or damage estimates/);
     doesNotMatch(blocked, /Clauncher → Pinchy/);
+});
+
+void test('party switching remains available while the selected attacker is loading or conflicted', () => {
+    const document = collection();
+    document.pokemon.reserve = { ...pokemon, id: 'reserve', nickname: 'Reserve' };
+    document.playthroughs.run.party.push('reserve');
+    const before = structuredClone(document);
+    for (const options of [
+        { speciesAvailable: false },
+        {
+            conflicts: [
+                {
+                    id: 'attacker-state-conflict',
+                    kind: 'field' as const,
+                    entity: 'pokemon' as const,
+                    entityId: pokemon.id,
+                    field: 'state',
+                    base: null,
+                    local: null,
+                    remote: null,
+                },
+            ],
+        },
+    ]) {
+        const html = render({ document: freeze(document), ...options });
+        const start = html.indexOf('aria-label="Switch your Pokémon"');
+        const end = html.indexOf('</section>', start);
+        strictEqual(start >= 0 && end > start, true);
+        const strip = html.slice(start, end);
+        match(strip, /href="#\/simulator\/pinchy"[^>]*aria-current="page"/);
+        match(strip, /href="#\/simulator\/reserve"/);
+        doesNotMatch(html, /aria-label="Battle preview"/);
+    }
+    deepStrictEqual(document, before);
 });
 
 function input(html: string, label: string): string {

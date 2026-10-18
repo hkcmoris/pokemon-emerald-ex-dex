@@ -13,13 +13,20 @@ Its current form uses the back sprite; the selected opponent uses the front spri
 The collection's [effective-power score](../move-power.md) remains a separate,
 target-independent comparison.
 
-The battle column shows the matchup immediately followed by the current move cards.
+The battle column starts with compact sprite strips for your party and the selected
+encounter's enemy party, followed by the matchup and current move cards. Both strips
+keep the saved roster order and mark the selected member. Switch either side directly
+from its sprite; switching your Pokémon preserves the selected opponent and page position.
+Sprite labels include names and levels, and known incoming move weaknesses or sync
+conflicts retain warning icons. An empty or conflicted own party shows a notice. Quick
+matchups show the single selected opponent instead of inventing an enemy party.
 **Edit battle stats** starts collapsed and contains both sides' temporary stat overrides;
 opening it retains the current values and calculations. Quick opponent selection stays
-outside the disclosure, with search open until an opponent is chosen. Encounter management,
-party switching, and saved-level controls sit in a desktop sidebar and follow the battle
-column on phones. **Teams & encounter** and **Back to battle** phone shortcuts move focus
-between them. Incoming damage and move previews follow the stat editor.
+outside the disclosure, with search open until an opponent is chosen. Detailed encounter
+management and party warnings, the collection selector, scenario reset, and saved-level
+controls sit in a desktop sidebar and follow the battle column on phones. **Teams**
+and **Back to battle** phone shortcuts move focus between them. Incoming damage and move
+previews follow the stat editor.
 
 ## Inputs and move previews
 
