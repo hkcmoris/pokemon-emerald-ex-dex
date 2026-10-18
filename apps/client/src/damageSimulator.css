@@ -2,14 +2,106 @@
     --sim-error: #db6952;
     --sim-weakness: #ff9d9d;
     --sim-soft-accent: color-mix(in srgb, var(--dex-accent) 10%, transparent);
+    padding-top: 0.75rem;
 }
 :root.light .sim-main {
     --sim-error: #ad3a28;
     --sim-weakness: #a62135;
 }
 .sim-page-heading {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
-    margin-top: 1.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
+    margin: 0 0 0.75rem;
+    gap: 0.5rem 1rem;
+}
+.my-pokemon-main.sim-main .sim-page-heading h1 {
+    font-size: 1.35rem;
+    margin: 0;
+}
+.sim-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start;
+    gap: 1rem;
+}
+.sim-battle-content,
+.sim-management {
+    min-width: 0;
+}
+.sim-battle-content {
+    scroll-margin-top: 0.75rem;
+}
+.sim-management {
+    max-height: calc(100dvh - 240px);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    padding: 0.25rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 14px;
+    scroll-margin-top: 0.75rem;
+}
+.sim-teams-shortcut {
+    display: none;
+}
+.sim-management .my-panel {
+    padding: 0.75rem;
+}
+.sim-management .sim-party {
+    margin: 0.75rem;
+}
+.sim-management .sim-party-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.sim-management .sim-save-status {
+    padding: 0.5rem;
+}
+.sim-matchup {
+    overflow: hidden;
+    border: 1px solid var(--dex-border);
+    border-radius: 14px;
+    background: var(--dex-surface);
+}
+.sim-matchup-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 32px;
+    padding: 0.25rem 0.75rem;
+}
+.sim-matchup-toolbar:empty {
+    display: none;
+}
+.sim-matchup-toolbar h2 {
+    font-size: 0.85rem;
+}
+.sim-matchup .my-picker {
+    margin: 0;
+    padding: 0.75rem;
+}
+.sim-matchup .my-search-results {
+    max-height: 240px;
+    overflow-y: auto;
+}
+.sim-stat-editor {
+    margin-top: 0.75rem;
+    border: 1px solid var(--dex-border);
+    border-radius: 12px;
+    background: var(--dex-surface);
+}
+.sim-stat-editor > summary {
+    padding: 0.65rem 0.75rem;
+    min-height: 44px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+.sim-stat-editor > summary > span {
+    margin-left: 0.5rem;
+    font-size: 0.72rem;
+}
+.sim-stat-editor > summary:focus-visible {
+    outline: 2px solid var(--dex-accent);
+    outline-offset: 2px;
+    border-radius: inherit;
 }
 .sim-owned-selector {
     align-self: end;
@@ -56,13 +148,14 @@
 }
 .sim-arena {
     position: relative;
-    height: 310px;
-    overflow: hidden;
-    border-bottom: 1px solid var(--dex-border);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0.4rem 0.75rem 0.65rem;
     background: linear-gradient(
         165deg,
-        color-mix(in srgb, var(--dex-accent) 4%, var(--dex-surface)) 55%,
-        color-mix(in srgb, var(--dex-accent) 15%, var(--dex-surface))
+        var(--dex-surface),
+        color-mix(in srgb, var(--dex-accent) 12%, var(--dex-surface))
     );
 }
 .sim-arena::before {
@@ -76,31 +169,46 @@
     opacity: 0.17;
     mask-image: linear-gradient(transparent, black);
 }
-.sim-arena-kicker {
-    position: absolute;
-    top: 1.15rem;
-    left: 1.3rem;
-    color: var(--dex-muted);
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    font-weight: 700;
-}
+
 .sim-combatant {
-    position: absolute;
-    display: flex;
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
-    gap: 1rem;
-    width: calc(100% - 2.8rem);
+    gap: 0.35rem 0.6rem;
+    min-width: 0;
 }
 .sim-enemy {
-    top: 34px;
-    right: 1.4rem;
+    order: 2;
+    grid-template-columns: minmax(0, 1fr) auto;
     text-align: right;
-    justify-content: flex-end;
+}
+.sim-enemy .sim-combatant-label {
+    grid-column: 1;
+    grid-row: 1;
+}
+.sim-enemy .sim-sprite-platform {
+    grid-column: 2;
+    grid-row: 1;
 }
 .sim-own {
-    bottom: 1.1rem;
-    left: 1.4rem;
+    order: 1;
+}
+.sim-combatant > .sim-battle-matchups {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: none;
+    justify-self: start;
+    padding: 0.2rem 0.4rem;
+}
+.sim-enemy > .sim-battle-matchups {
+    justify-self: end;
+}
+.sim-combatant > .sim-battle-matchups ul,
+.sim-combatant > .sim-battle-matchups li {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
 }
 .sim-combatant-label {
     flex: 0 1 auto;
@@ -133,8 +241,8 @@
     display: grid;
     place-items: center;
     flex-shrink: 0;
-    width: 140px;
-    height: 132px;
+    width: 80px;
+    height: 80px;
 }
 .sim-sprite-platform::before {
     content: '';
@@ -150,6 +258,8 @@
 .sim-sprite-platform .species-sprite {
     position: relative;
     z-index: 1;
+    max-width: 80px;
+    max-height: 80px;
 }
 .sim-enemy-placeholder {
     font-size: 3rem;
@@ -244,7 +354,20 @@
 .sim-moves-section {
     margin-top: 1.25rem;
 }
+.sim-current-moves {
+    margin-top: 0.5rem;
+}
+.sim-current-moves .sim-section-heading {
+    margin-bottom: 0.4rem;
+}
+.sim-current-moves .sim-section-heading h2 {
+    font-size: 0.9rem;
+}
+.sim-current-moves .sim-section-heading > span {
+    font-size: 0.7rem;
+}
 .sim-move-grid {
+    container: move-grid / inline-size;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
@@ -303,6 +426,17 @@
 }
 .sim-move-detail p {
     margin-top: 0.5rem;
+}
+.sim-calculation-factors-detail {
+    display: none;
+}
+@container move-grid (max-width: 600px) {
+    .sim-calculation-factors {
+        display: none;
+    }
+    .sim-calculation-factors-detail {
+        display: block;
+    }
 }
 .sim-session-badge {
     color: var(--dex-accent);
@@ -367,6 +501,19 @@
     line-height: 1.7;
     margin-top: 0.8rem;
 }
+@media (max-width: 1000px) {
+    .sim-teams-shortcut {
+        display: inline-block;
+        margin-left: 0.75rem;
+    }
+    .sim-workspace {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .sim-management {
+        max-height: none;
+        overflow: visible;
+    }
+}
 @media (max-width: 800px) {
     .sim-page-heading,
     .sim-setup-grid {
@@ -380,25 +527,38 @@
     }
 }
 @media (max-width: 480px) {
+    .sim-page-heading {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .my-pokemon-main.sim-main .sim-page-heading h1 {
+        font-size: 1rem;
+    }
+    .sim-teams-shortcut {
+        margin-left: 0;
+        font-size: 0.75rem;
+    }
+    .sim-page-heading .sim-owned-selector {
+        font-size: 0.65rem;
+    }
+    .sim-owned-selector .filter-input {
+        padding: 0.4rem;
+    }
     .sim-arena {
-        height: 300px;
-    }
-    .sim-enemy {
-        top: 38px;
-        right: 0.4rem;
-    }
-    .sim-own {
-        bottom: 0.7rem;
-        left: 0.3rem;
+        gap: 0.5rem;
+        padding: 0.35rem 0.5rem 0.5rem;
     }
     .sim-combatant {
-        gap: 0.3rem;
+        gap: 0.25rem;
+    }
+    .sim-sprite-platform,
+    .sim-sprite-platform .species-sprite {
+        width: 48px;
+        height: 56px;
+        max-width: 48px;
+        max-height: 56px;
     }
     .sim-combatant-label > strong {
         font-size: 0.95rem;
-    }
-    .sim-move-grid {
-        grid-template-columns: minmax(0, 1fr);
     }
     .sim-section-heading {
         flex-wrap: wrap;
@@ -450,25 +610,6 @@
 .sim-battle-matchups [data-matchup='immune'] strong {
     color: var(--dex-accent);
 }
-@media (max-width: 480px) {
-    .sim-combatant {
-        width: calc(100% - 0.8rem);
-        gap: 0.45rem;
-    }
-    .sim-combatant:has(.sim-battle-matchups) .sim-sprite-platform {
-        width: 100px;
-        height: 106px;
-    }
-    .sim-combatant:has(.sim-battle-matchups) .species-sprite {
-        max-width: 96px;
-        max-height: 96px;
-    }
-    .sim-battle-matchups {
-        max-width: 78px;
-        padding: 0.4rem;
-    }
-}
-
 .sim-party {
     margin: 1.25rem 0;
 }

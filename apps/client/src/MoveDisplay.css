@@ -179,14 +179,14 @@
     font-size: 0.65rem;
     font-weight: 400;
 }
-/* Contextual results keep damage beside identity and share one full-width stats row. */
+/* Contextual results keep damage beside identity and the compact stats group. */
 .move-display--result {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
         'heading result'
         'metadata result'
-        'stats stats';
+        'stats result';
     gap: 0.25rem 0.75rem;
     padding: 0.65rem 0.75rem;
     align-content: start;
@@ -239,6 +239,33 @@
             'stats stats';
         gap: 0.125rem 0.5rem;
         padding: 0.5rem;
+    }
+}
+
+/* A two-column comparison still fits on phones without hiding battle information. */
+@container move-grid (max-width: 600px) {
+    .move-display--result {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: 'heading' 'result' 'stats' 'metadata';
+        gap: 0.2rem;
+        padding: 0.5rem;
+    }
+    .move-display--result .move-display-heading {
+        gap: 0.2rem;
+        font-size: 0.75rem;
+    }
+    .move-display--result .move-display-metric {
+        align-items: flex-start;
+        text-align: left;
+    }
+    .move-display--result .move-display-metric-value {
+        font-size: 1.4rem;
+    }
+    .move-display--result .move-display-stats {
+        gap: 0.15rem 0.5rem;
+    }
+    .move-display--result .move-display-stat {
+        gap: 0.25rem;
     }
 }
 

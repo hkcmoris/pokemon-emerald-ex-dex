@@ -242,6 +242,39 @@ void test('saved encounters drive the selected opponent and incoming moves witho
     match(html, /Clauncher → Pinchy/);
     match(html, /Opponent estimates/);
     doesNotMatch(html, /Change species/);
+    const statEditor =
+        html.match(
+            /<details\b[^>]*class="[^"]*\bsim-stat-editor\b[^"]*"[^>]*>[\s\S]*?<\/details>/,
+        )?.[0] ?? '';
+    match(statEditor, /Edit battle stats/);
+    doesNotMatch(statEditor.slice(0, statEditor.indexOf('>')), /\sopen(?:\s|=|$)/);
+    for (const stat of ['Attack', 'Sp. Atk', 'Defense']) {
+        match(input(statEditor, `Your Pokémon: ${stat}`), /<input\b/);
+    }
+    for (const stat of ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def']) {
+        match(input(statEditor, `Opponent: ${stat}`), /<input\b/);
+    }
+    const battleOrder = [
+        html.indexOf('aria-label="Battle preview"'),
+        html.indexOf('<h2>Current moves</h2>'),
+        html.indexOf(statEditor),
+        html.indexOf('aria-label="Estimated incoming damage"'),
+    ];
+    strictEqual(
+        battleOrder.every(
+            (position, index) =>
+                position >= 0 && (index === 0 || position > battleOrder[index - 1]),
+        ),
+        true,
+        'The matchup and current moves precede the collapsed stat editor and incoming damage',
+    );
+    const battleContent = html.search(/class="[^"]*\bsim-battle-content\b/);
+    const management = html.search(/class="[^"]*\bsim-management\b/);
+    strictEqual(battleContent >= 0 && management > battleContent, true);
+    match(html, /tabindex="-1" class="sim-battle-content"/);
+    match(html, /tabindex="-1" class="sim-management"/);
+    match(html, /Teams &amp; encounter/);
+    match(html, /Back to battle/);
     deepStrictEqual(document, before);
     const blocked = render({
         document,
@@ -434,6 +467,11 @@ void test('the preview catalogue includes future current-form and HM moves, with
 
 void test('attacking inputs use the latest current observation and never fill gaps with older or base stats', () => {
     const html = render();
+    const editorOpening =
+        html.match(/<details\b[^>]*class="[^"]*\bsim-stat-editor\b[^"]*"[^>]*>/)?.[0] ?? '';
+    match(editorOpening, /sim-stat-editor/);
+    doesNotMatch(editorOpening, /\sopen(?:\s|=|>)/);
+    match(html, /Edit battle stats/);
     match(input(html, 'Your Pokémon: Attack'), /placeholder="27"/);
     match(input(html, 'Your Pokémon: Sp. Atk'), /placeholder="39"/);
     match(input(html, 'Your Pokémon: Defense'), /placeholder="32"/);

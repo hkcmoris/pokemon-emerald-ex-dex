@@ -1,4 +1,4 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { pokemonNatures, getNatureStatEffect } from '@pokemon-emerald-ex-dex/shared';
 import type {
@@ -173,7 +173,11 @@ function DamageMove({
             reference={move}
             size="large"
             show={{ accuracy: true, pp: true }}
-            metadata={<MoveSources option={option} level={level} />}
+            metadata={
+                (!option.recorded || damage.status !== 'available') && (
+                    <MoveSources option={option} level={level} />
+                )
+            }
             actions={
                 onRemove && (
                     <button
@@ -215,10 +219,14 @@ function DamageMove({
                     <details className="sim-move-detail">
                         <summary>
                             {t('Calculation', 'Výpočet')}{' '}
-                            <span>
+                            <span className="sim-calculation-factors">
                                 STAB ×{damage.stab} · {t('type', 'typ')} ×{damage.effectiveness}
                             </span>
                         </summary>
+                        {option.recorded && <MoveSources option={option} level={level} />}
+                        <p className="sim-calculation-factors-detail">
+                            STAB ×{damage.stab} · {t('type', 'typ')} ×{damage.effectiveness}
+                        </p>
                         <p>
                             {t(statLabels[damage.attackStat][0], statLabels[damage.attackStat][1])}{' '}
                             {stats[damage.attackStat]} →{' '}
@@ -398,6 +406,28 @@ function SimulatorScenario({
         abilityId: selectedAbility?.ability.abilityId,
         attackerSpeciesId: pokemon.state.speciesId,
     };
+    const statsNeedAttention =
+        observationConflict ||
+        Object.values(ownOverrides).some(
+            (value) => value !== '' && integerInput(value) === undefined,
+        ) ||
+        Object.values(enemyOverrides).some(
+            (value) => value !== '' && integerInput(value) === undefined,
+        ) ||
+        Boolean(
+            enemy &&
+            (parsedEnemyLevel === undefined ||
+                (chart &&
+                    [...current, ...previews].some(
+                        (option) =>
+                            option.reference &&
+                            simulateMoveDamage({ ...moveProps, move: option.reference }).status ===
+                                'missing-data',
+                    ))),
+        );
+    const hasOverrides = [...Object.values(ownOverrides), ...Object.values(enemyOverrides)].some(
+        (value) => value !== '',
+    );
     function resetEnemyStats() {
         setEnemySetup((previous) => ({
             ...previous,
@@ -406,274 +436,326 @@ function SimulatorScenario({
     }
     return (
         <>
-            <div className="sim-setup-grid">
-                <section className="sim-attacker-panel">
-                    <div className="sim-arena" aria-label={t('Battle preview', 'Náhled boje')}>
-                        <span className="sim-arena-kicker">
-                            {t('DAMAGE LAB', 'SIMULACE POŠKOZENÍ')}
-                        </span>
-                        <div className="sim-combatant sim-enemy">
+            <section className="sim-matchup" aria-label={t('Matchup', 'Souboj')}>
+                <div className="sim-matchup-toolbar">
+                    {!savedEncounter && (
+                        <button
+                            type="button"
+                            className="my-text-button"
+                            onClick={() =>
+                                setEnemySetup((previous) => ({
+                                    ...previous,
+                                    picking: !previous.picking,
+                                }))
+                            }
+                        >
+                            {pickingEnemy
+                                ? t('Close search', 'Zavřít hledání')
+                                : enemy
+                                  ? t('Change species', 'Změnit druh')
+                                  : t('Choose an opponent', 'Vyberte soupeře')}
+                        </button>
+                    )}
+                </div>
+                {pickingEnemy && !savedEncounter && (
+                    <SpeciesPicker
+                        datasetId={datasetId}
+                        onSelect={(selected) => {
+                            setEnemySetup({
+                                pokemon: selected,
+                                level: String(pokemon.state.level),
+                                overrides: { hp: '', defense: '', spDefense: '' },
+                                picking: false,
+                            });
+                        }}
+                    />
+                )}
+                <div className="sim-arena" aria-label={t('Battle preview', 'Náhled boje')}>
+                    <div className="sim-combatant sim-enemy">
+                        {enemy && (
+                            <BattleTypeMatchups
+                                defendingTypeIds={enemy.typeIds}
+                                attackingMoves={pokemon.state.moves}
+                                chart={chart}
+                                defenderName={enemy.name}
+                            />
+                        )}
+                        <div className="sim-combatant-label">
+                            <small>{t('Opponent', 'Soupeř')}</small>
+                            <strong>
+                                {enemy?.name ?? t('Choose an opponent', 'Vyberte soupeře')}
+                            </strong>
                             {enemy && (
-                                <BattleTypeMatchups
-                                    defendingTypeIds={enemy.typeIds}
-                                    attackingMoves={pokemon.state.moves}
-                                    chart={chart}
-                                    defenderName={enemy.name}
-                                />
-                            )}
-                            <div className="sim-combatant-label">
-                                <small>{t('Opponent', 'Soupeř')}</small>
-                                <strong>
-                                    {enemy?.name ?? t('Choose an opponent', 'Vyberte soupeře')}
-                                </strong>
-                                {enemy && (
-                                    <>
-                                        <span>
-                                            Lv. {parsedEnemyLevel ?? '—'} · HP{' '}
-                                            {enemyStats.hp ?? '—'}
-                                        </span>
-                                        <TypeBadges
-                                            types={enemy.types}
-                                            iconFiles={enemy.typeIconFiles}
-                                            iconOnly
-                                        />
-                                    </>
-                                )}
-                            </div>
-                            <div className="sim-sprite-platform">
-                                {enemy ? (
-                                    <SpeciesSprite
-                                        key={enemy.speciesId}
-                                        datasetId={datasetId}
-                                        file={enemy.sprites?.front ?? null}
-                                        name={enemy.name}
-                                        size={128}
-                                        loading="eager"
-                                    />
-                                ) : (
-                                    <span className="sim-enemy-placeholder" aria-hidden="true">
-                                        ?
+                                <>
+                                    <span>
+                                        Lv. {parsedEnemyLevel ?? '—'} · HP {enemyStats.hp ?? '—'}
                                     </span>
-                                )}
-                            </div>
+                                    <TypeBadges
+                                        types={enemy.types}
+                                        iconFiles={enemy.typeIconFiles}
+                                        iconOnly
+                                    />
+                                </>
+                            )}
                         </div>
-                        <div className="sim-combatant sim-own">
-                            <div className="sim-sprite-platform">
+                        <div className="sim-sprite-platform">
+                            {enemy ? (
                                 <SpeciesSprite
+                                    key={enemy.speciesId}
                                     datasetId={datasetId}
-                                    file={species.sprites?.back ?? null}
-                                    name={species.name}
-                                    orientation="back"
+                                    file={enemy.sprites?.front ?? null}
+                                    name={enemy.name}
                                     size={128}
                                     loading="eager"
                                 />
-                            </div>
-                            <div className="sim-combatant-label">
-                                <small>{t('Your Pokémon', 'Váš Pokémon')}</small>
-                                <strong>{ownName}</strong>
-                                <span>
-                                    {pokemon.nickname ? `${species.name} · ` : ''}Lv.{' '}
-                                    {pokemon.state.level}
+                            ) : (
+                                <span className="sim-enemy-placeholder" aria-hidden="true">
+                                    ?
                                 </span>
-                                <TypeBadges
-                                    types={species.types}
-                                    iconFiles={species.typeIconFiles}
-                                    iconOnly
-                                />
-                            </div>
-                            {enemy && (
-                                <BattleTypeMatchups
-                                    defendingTypeIds={species.typeIds}
-                                    attackingMoves={enemyMoves}
-                                    chart={chart}
-                                    defenderName={ownName}
-                                />
                             )}
                         </div>
                     </div>
-                    <div className="sim-own-stats">
-                        <p className="my-muted sim-traits-summary">
-                            {t('Nature', 'Povaha')}:{' '}
-                            {nature?.name ?? t('Not recorded', 'Nezaznamenána')} ·{' '}
-                            {t('Ability', 'Schopnost')}:{' '}
-                            {abilityConflict
-                                ? t('Sync conflict', 'Konflikt synchronizace')
-                                : (selectedAbility?.ability.name ??
-                                  t('Not recorded', 'Nezaznamenána'))}
-                        </p>
-                        <div className="sim-section-heading">
-                            <h2>{t('Attacking stats', 'Útočné statistiky')}</h2>
-                            <button
-                                type="button"
-                                className="my-text-button"
-                                onClick={() =>
-                                    setOwnOverrides({ attack: '', spAttack: '', defense: '' })
-                                }
-                            >
-                                {t('Reset', 'Obnovit')}
-                            </button>
+                    <div className="sim-combatant sim-own">
+                        <div className="sim-sprite-platform">
+                            <SpeciesSprite
+                                datasetId={datasetId}
+                                file={species.sprites?.back ?? null}
+                                name={species.name}
+                                orientation="back"
+                                size={128}
+                                loading="eager"
+                            />
                         </div>
-                        <div className="sim-stat-grid">
-                            {attackKeys.map((stat) => (
-                                <StatInput
-                                    key={stat}
-                                    stat={stat}
-                                    value={ownOverrides[stat]}
-                                    fallback={recordedStats[stat]}
-                                    natureId={natureId}
-                                    source={
-                                        recordedStats[stat] === undefined
-                                            ? t('Missing · enter value', 'Chybí · zadejte hodnotu')
-                                            : t('Recorded', 'Zaznamenané')
-                                    }
-                                    prefix={t('Your Pokémon', 'Váš Pokémon')}
-                                    onChange={(value) =>
-                                        setOwnOverrides((previous) => ({
-                                            ...previous,
-                                            [stat]: value,
-                                        }))
-                                    }
-                                />
-                            ))}
+                        <div className="sim-combatant-label">
+                            <small>{t('Your Pokémon', 'Váš Pokémon')}</small>
+                            <strong>{ownName}</strong>
+                            <span>
+                                {pokemon.nickname ? `${species.name} · ` : ''}Lv.{' '}
+                                {pokemon.state.level}
+                            </span>
+                            <TypeBadges
+                                types={species.types}
+                                iconFiles={species.typeIconFiles}
+                                iconOnly
+                            />
                         </div>
-                        <p className="my-muted">
-                            {t(
-                                'Current recorded level and form. Defense is used by Body Press. Blank fields use recorded stats; entered values apply only here. Recorded values already include nature. Saved Skill Link affects supported multi-hit moves; other abilities are not modeled.',
-                                'Aktuální zaznamenaná úroveň a forma. Body Press používá Obranu. Prázdná pole použijí zaznamenané statistiky; zadané hodnoty platí jen zde. Zaznamenané hodnoty již zahrnují povahu. Uložený Skill Link ovlivňuje podporované vícenásobné útoky; ostatní schopnosti nejsou modelovány.',
-                            )}
-                        </p>
-                        {observationConflict && (
-                            <p role="status" className="sim-notice">
-                                {t(
-                                    'Recorded stats have a sync conflict. Enter temporary values to simulate.',
-                                    'Zaznamenané statistiky mají konflikt synchronizace. Pro simulaci zadejte dočasné hodnoty.',
-                                )}
-                            </p>
+                        {enemy && (
+                            <BattleTypeMatchups
+                                defendingTypeIds={species.typeIds}
+                                attackingMoves={enemyMoves}
+                                chart={chart}
+                                defenderName={ownName}
+                            />
                         )}
                     </div>
-                </section>
-                <section className="my-panel sim-enemy-panel">
-                    <div className="sim-section-heading">
-                        <h2>
-                            {savedEncounter
-                                ? t('Opponent estimates', 'Odhady soupeře')
-                                : t('Set the opponent', 'Nastavte soupeře')}
-                        </h2>
-                        {enemy && !savedEncounter && (
-                            <button
-                                type="button"
-                                className="my-text-button"
-                                onClick={() =>
-                                    setEnemySetup((previous) => ({
-                                        ...previous,
-                                        picking: !previous.picking,
-                                    }))
-                                }
-                            >
-                                {pickingEnemy
-                                    ? t('Close search', 'Zavřít hledání')
-                                    : t('Change species', 'Změnit druh')}
-                            </button>
-                        )}
+                </div>
+            </section>
+            <section className="sim-moves-section sim-current-moves">
+                <div className="sim-section-heading">
+                    <h2>{t('Current moves', 'Aktuální útoky')}</h2>
+                    <span className="my-muted">
+                        {t('Total HP damage / move use', 'Celkové poškození HP / použití útoku')}
+                    </span>
+                </div>
+                {current.length ? (
+                    <div className="sim-move-grid">
+                        {current.map((option) => (
+                            <DamageMove key={option.move.moveId} option={option} {...moveProps} />
+                        ))}
                     </div>
-                    {pickingEnemy && !savedEncounter && (
-                        <SpeciesPicker
-                            datasetId={datasetId}
-                            onSelect={(selected) => {
-                                setEnemySetup({
-                                    pokemon: selected,
-                                    level: String(pokemon.state.level),
-                                    overrides: { hp: '', defense: '', spDefense: '' },
-                                    picking: false,
-                                });
-                            }}
-                        />
-                    )}
-                    {enemy && (
-                        <>
-                            <div className="sim-enemy-summary">
-                                <strong>{enemy.name}</strong>
-                                <TypeBadges
-                                    types={enemy.types}
-                                    iconFiles={enemy.typeIconFiles}
-                                    iconOnly
-                                />
-                            </div>
-                            {!savedEncounter && (
-                                <label className="filter-label sim-level-field">
-                                    {t('Enemy level', 'Úroveň soupeře')}
-                                    <input
-                                        className="filter-input"
-                                        type="text"
-                                        inputMode="numeric"
-                                        value={enemyLevel}
-                                        aria-label={t('Enemy level', 'Úroveň soupeře')}
-                                        maxLength={3}
-                                        aria-invalid={parsedEnemyLevel === undefined}
-                                        onChange={(event) => {
-                                            const level = event.target.value;
-                                            setEnemySetup((previous) => ({
-                                                ...previous,
-                                                level,
-                                                overrides: { hp: '', defense: '', spDefense: '' },
-                                            }));
-                                        }}
-                                    />
-                                    {parsedEnemyLevel === undefined && (
-                                        <small className="sim-invalid">
-                                            {t(
-                                                'Enter a whole level from 1 to 100.',
-                                                'Zadejte celou úroveň od 1 do 100.',
-                                            )}
-                                        </small>
-                                    )}
-                                </label>
-                            )}
-                            <p className="my-muted">
-                                {t(
-                                    'Assumed stats: neutral nature, 31 IVs, 0 EVs. Override any value below if you know the actual stat.',
-                                    'Odhad statistik: neutrální povaha, 31 IV, 0 EV. Pokud znáte skutečnou statistiku, přepište její hodnotu níže.',
+                ) : (
+                    <p className="sim-notice">
+                        {t(
+                            'No moves are recorded. Preview a learnable move below.',
+                            'Nejsou zaznamenané žádné útoky. Níže můžete vyzkoušet útok z nabídky učení.',
+                        )}
+                    </p>
+                )}
+            </section>
+            <details className="sim-stat-editor">
+                <summary>
+                    <strong>{t('Edit battle stats', 'Upravit bojové statistiky')}</strong>
+                    <span className={statsNeedAttention ? 'sim-invalid' : 'my-muted'}>
+                        {statsNeedAttention
+                            ? t(
+                                  'Check missing or invalid values',
+                                  'Ověřte chybějící nebo neplatné hodnoty',
+                              )
+                            : hasOverrides
+                              ? t('Temporary overrides active', 'Dočasné úpravy jsou aktivní')
+                              : t(
+                                    'Recorded stats and opponent estimates',
+                                    'Zaznamenané statistiky a odhady soupeře',
                                 )}
+                    </span>
+                </summary>
+                <div className="sim-setup-grid">
+                    <section className="sim-attacker-panel">
+                        <div className="sim-own-stats">
+                            <p className="my-muted sim-traits-summary">
+                                {t('Nature', 'Povaha')}:{' '}
+                                {nature?.name ?? t('Not recorded', 'Nezaznamenána')} ·{' '}
+                                {t('Ability', 'Schopnost')}:{' '}
+                                {abilityConflict
+                                    ? t('Sync conflict', 'Konflikt synchronizace')
+                                    : (selectedAbility?.ability.name ??
+                                      t('Not recorded', 'Nezaznamenána'))}
                             </p>
+                            <div className="sim-section-heading">
+                                <h2>{t('Attacking stats', 'Útočné statistiky')}</h2>
+                                <button
+                                    type="button"
+                                    className="my-text-button"
+                                    onClick={() =>
+                                        setOwnOverrides({ attack: '', spAttack: '', defense: '' })
+                                    }
+                                >
+                                    {t('Reset', 'Obnovit')}
+                                </button>
+                            </div>
                             <div className="sim-stat-grid">
-                                {enemyKeys.map((stat) => (
+                                {attackKeys.map((stat) => (
                                     <StatInput
                                         key={stat}
                                         stat={stat}
-                                        value={enemyOverrides[stat] ?? ''}
-                                        fallback={automatic?.[stat]}
+                                        value={ownOverrides[stat]}
+                                        fallback={recordedStats[stat]}
+                                        natureId={natureId}
                                         source={
-                                            automatic
-                                                ? t('Estimated', 'Odhadované')
-                                                : t('Unavailable', 'Nedostupné')
+                                            recordedStats[stat] === undefined
+                                                ? t(
+                                                      'Missing · enter value',
+                                                      'Chybí · zadejte hodnotu',
+                                                  )
+                                                : t('Recorded', 'Zaznamenané')
                                         }
-                                        prefix={t('Opponent', 'Soupeř')}
+                                        prefix={t('Your Pokémon', 'Váš Pokémon')}
                                         onChange={(value) =>
-                                            setEnemySetup((previous) => ({
+                                            setOwnOverrides((previous) => ({
                                                 ...previous,
-                                                overrides: { ...previous.overrides, [stat]: value },
+                                                [stat]: value,
                                             }))
                                         }
                                     />
                                 ))}
                             </div>
-                            <button
-                                type="button"
-                                className="my-text-button"
-                                onClick={resetEnemyStats}
-                            >
-                                {t('Reset enemy overrides', 'Obnovit odhad soupeře')}
-                            </button>
                             <p className="my-muted">
                                 {t(
-                                    'Changing the enemy species or level clears its overrides.',
-                                    'Změna druhu nebo úrovně soupeře vymaže jeho přepsané hodnoty.',
+                                    'Current recorded level and form. Defense is used by Body Press. Blank fields use recorded stats; entered values apply only here. Recorded values already include nature. Saved Skill Link affects supported multi-hit moves; other abilities are not modeled.',
+                                    'Aktuální zaznamenaná úroveň a forma. Body Press používá Obranu. Prázdná pole použijí zaznamenané statistiky; zadané hodnoty platí jen zde. Zaznamenané hodnoty již zahrnují povahu. Uložený Skill Link ovlivňuje podporované vícenásobné útoky; ostatní schopnosti nejsou modelovány.',
                                 )}
                             </p>
-                        </>
-                    )}
-                </section>
-            </div>
+                            {observationConflict && (
+                                <p role="status" className="sim-notice">
+                                    {t(
+                                        'Recorded stats have a sync conflict. Enter temporary values to simulate.',
+                                        'Zaznamenané statistiky mají konflikt synchronizace. Pro simulaci zadejte dočasné hodnoty.',
+                                    )}
+                                </p>
+                            )}
+                        </div>
+                    </section>
+                    <section className="my-panel sim-enemy-panel">
+                        <div className="sim-section-heading">
+                            <h2>
+                                {savedEncounter
+                                    ? t('Opponent estimates', 'Odhady soupeře')
+                                    : t('Set the opponent', 'Nastavte soupeře')}
+                            </h2>
+                        </div>
+                        {enemy && (
+                            <>
+                                <div className="sim-enemy-summary">
+                                    <strong>{enemy.name}</strong>
+                                    <TypeBadges
+                                        types={enemy.types}
+                                        iconFiles={enemy.typeIconFiles}
+                                        iconOnly
+                                    />
+                                </div>
+                                {!savedEncounter && (
+                                    <label className="filter-label sim-level-field">
+                                        {t('Enemy level', 'Úroveň soupeře')}
+                                        <input
+                                            className="filter-input"
+                                            type="text"
+                                            inputMode="numeric"
+                                            value={enemyLevel}
+                                            aria-label={t('Enemy level', 'Úroveň soupeře')}
+                                            maxLength={3}
+                                            aria-invalid={parsedEnemyLevel === undefined}
+                                            onChange={(event) => {
+                                                const level = event.target.value;
+                                                setEnemySetup((previous) => ({
+                                                    ...previous,
+                                                    level,
+                                                    overrides: {
+                                                        hp: '',
+                                                        defense: '',
+                                                        spDefense: '',
+                                                    },
+                                                }));
+                                            }}
+                                        />
+                                        {parsedEnemyLevel === undefined && (
+                                            <small className="sim-invalid">
+                                                {t(
+                                                    'Enter a whole level from 1 to 100.',
+                                                    'Zadejte celou úroveň od 1 do 100.',
+                                                )}
+                                            </small>
+                                        )}
+                                    </label>
+                                )}
+                                <p className="my-muted">
+                                    {t(
+                                        'Assumed stats: neutral nature, 31 IVs, 0 EVs. Override any value below if you know the actual stat.',
+                                        'Odhad statistik: neutrální povaha, 31 IV, 0 EV. Pokud znáte skutečnou statistiku, přepište její hodnotu níže.',
+                                    )}
+                                </p>
+                                <div className="sim-stat-grid">
+                                    {enemyKeys.map((stat) => (
+                                        <StatInput
+                                            key={stat}
+                                            stat={stat}
+                                            value={enemyOverrides[stat] ?? ''}
+                                            fallback={automatic?.[stat]}
+                                            source={
+                                                automatic
+                                                    ? t('Estimated', 'Odhadované')
+                                                    : t('Unavailable', 'Nedostupné')
+                                            }
+                                            prefix={t('Opponent', 'Soupeř')}
+                                            onChange={(value) =>
+                                                setEnemySetup((previous) => ({
+                                                    ...previous,
+                                                    overrides: {
+                                                        ...previous.overrides,
+                                                        [stat]: value,
+                                                    },
+                                                }))
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="my-text-button"
+                                    onClick={resetEnemyStats}
+                                >
+                                    {t('Reset enemy overrides', 'Obnovit odhad soupeře')}
+                                </button>
+                                <p className="my-muted">
+                                    {t(
+                                        'Changing the enemy species or level clears its overrides.',
+                                        'Změna druhu nebo úrovně soupeře vymaže jeho přepsané hodnoty.',
+                                    )}
+                                </p>
+                            </>
+                        )}
+                    </section>
+                </div>
+            </details>
             {savedEncounter && (
                 <IncomingDamage
                     moves={enemyMoves}
@@ -701,28 +783,6 @@ function SimulatorScenario({
                     {t('Loading type matchups…', 'Načítání účinnosti typů…')}
                 </p>
             )}
-            <section className="sim-moves-section">
-                <div className="sim-section-heading">
-                    <h2>{t('Current moves', 'Aktuální útoky')}</h2>
-                    <span className="my-muted">
-                        {t('Total HP damage / move use', 'Celkové poškození HP / použití útoku')}
-                    </span>
-                </div>
-                {current.length ? (
-                    <div className="sim-move-grid">
-                        {current.map((option) => (
-                            <DamageMove key={option.move.moveId} option={option} {...moveProps} />
-                        ))}
-                    </div>
-                ) : (
-                    <p className="sim-notice">
-                        {t(
-                            'No moves are recorded. Preview a learnable move below.',
-                            'Nejsou zaznamenané žádné útoky. Níže můžete vyzkoušet útok z nabídky učení.',
-                        )}
-                    </p>
-                )}
-            </section>
             <section className="sim-moves-section">
                 <div className="sim-section-heading">
                     <h2>{t('Move previews', 'Náhledy útoků')}</h2>
@@ -930,6 +990,8 @@ export function DamageSimulatorView({
     signedIn?: boolean;
 }) {
     const { t } = useLanguage();
+    const managementRef = useRef<HTMLElement>(null);
+    const battleRef = useRef<HTMLDivElement>(null);
     const [workspaceSelection, setWorkspaceSelection] = useState(readWorkspaceSession);
     const pokemonId =
         requestedPokemonId ?? getDefaultSimulatorPokemonId(document, conflicts, workspaceSelection);
@@ -1099,14 +1161,7 @@ export function DamageSimulatorView({
             <main className="dex-browse-main my-pokemon-main sim-main mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
                 <div className="my-page-heading sim-page-heading">
                     <div>
-                        <p className="eyebrow">{t('BATTLE WORKSPACE', 'BOJOVÉ PRACOVIŠTĚ')}</p>
                         <h1>{t('Damage simulator', 'Simulátor poškození')}</h1>
-                        <p className="my-muted">
-                            {t(
-                                'Compare attacks against any opponent and update your Pokémon’s level as you play.',
-                                'Porovnejte útoky proti libovolnému soupeři a během hraní aktualizujte úroveň svého Pokémona.',
-                            )}
-                        </p>
                         <button
                             type="button"
                             className="my-text-button"
@@ -1119,6 +1174,21 @@ export function DamageSimulatorView({
                         >
                             {t('Reset scenario', 'Obnovit scénář')}
                         </button>
+                        {ready && !missing && (
+                            <button
+                                type="button"
+                                className="my-text-button sim-teams-shortcut"
+                                onClick={() => {
+                                    managementRef.current?.scrollIntoView({
+                                        block: 'start',
+                                        behavior: 'instant',
+                                    });
+                                    managementRef.current?.focus({ preventScroll: true });
+                                }}
+                            >
+                                {t('Teams & encounter', 'Týmy a souboj')} ↓
+                            </button>
+                        )}
                     </div>
                     {ready && ownOptions.length > 0 && (
                         <label className="filter-label sim-owned-selector">
@@ -1146,173 +1216,196 @@ export function DamageSimulatorView({
                         </label>
                     )}
                 </div>
-                {ready && !missing && (
-                    <>
-                        <div className="sim-save-status">
-                            <span className={`my-sync-status my-sync-${syncStatus}`} role="status">
-                                {syncLabel}
-                            </span>
-                            {!signedIn && (
+                <div className="sim-workspace">
+                    <div ref={battleRef} tabIndex={-1} className="sim-battle-content">
+                        {!ready ? (
+                            <p className="my-panel" role="status">
+                                {t('Loading collection…', 'Načítání sbírky…')}
+                            </p>
+                        ) : missing ? (
+                            <div className="my-panel" role="status">
+                                <p>
+                                    {requestedPokemonId !== undefined
+                                        ? t(
+                                              'This Pokémon or its playthrough is unavailable. Choose another Pokémon from your collection.',
+                                              'Tento Pokémon nebo jeho průchod není dostupný. Vyberte jiného Pokémona ze sbírky.',
+                                          )
+                                        : Object.values(document.playthroughs).some(
+                                                (entry) => !entry.deleted,
+                                            )
+                                          ? t(
+                                                'Add a Pokémon to your active playthrough to start a simulation, or choose one from another playthrough above.',
+                                                'Pro simulaci přidejte Pokémona do aktivního průchodu, nebo výše vyberte Pokémona z jiného průchodu.',
+                                            )
+                                          : t(
+                                                'Create a playthrough and add your first Pokémon to start a simulation.',
+                                                'Pro simulaci vytvořte průchod a přidejte prvního Pokémona.',
+                                            )}
+                                </p>
                                 <a className="my-text-button" href="#/my-pokemon">
-                                    {t(
-                                        'Sign in from My Pokémon to sync encounters across devices',
-                                        'Pro synchronizaci soubojů mezi zařízeními se přihlaste v Moji Pokémoni',
-                                    )}
+                                    {t('Open My Pokémon', 'Otevřít Moje Pokémony')}
                                 </a>
-                            )}
-                            {syncError && <p role="alert">{syncError}</p>}
-                        </div>
-                        {onResolveConflict && (
-                            <MyPokemonConflicts
-                                document={document}
-                                conflicts={conflicts.filter(
-                                    (entry) =>
-                                        entry.entity === 'encounters' ||
-                                        entry.entity === 'opponents',
-                                )}
-                                resolve={onResolveConflict}
-                            />
-                        )}
-                        <SimulatorEncounters
-                            key={`${datasetKey}:${run.id}`}
-                            document={document}
-                            conflicts={conflicts}
-                            runId={run.id}
-                            datasetId={datasetId}
-                            defaultLevel={pokemon.state.level}
-                            selectedEncounterId={encounter?.id}
-                            selectedOpponentId={opponent?.id}
-                            onSelect={selectEncounter}
-                            onUpdate={onUpdateCollection}
-                        />
-                        {encounterConflict && (
-                            <p className="sim-notice" role="alert">
+                            </div>
+                        ) : stateConflict ? (
+                            <p className="my-panel" role="alert">
                                 {t(
-                                    'Resolve the encounter conflict before using its matchup or damage estimates.',
-                                    'Před použitím účinnosti a odhadů poškození vyřešte konflikt souboje.',
-                                )}
-                            </p>
-                        )}
-                        {opponent && !encounterConflict && enemySpecies.isError && (
-                            <p className="sim-notice" role="alert">
-                                {t(
-                                    'Opponent data could not be loaded.',
-                                    'Údaje o soupeři se nepodařilo načíst.',
+                                    'Resolve this Pokémon’s collection conflict before simulating. Its form, level or identity is uncertain.',
+                                    'Před simulací vyřešte konflikt tohoto Pokémona ve sbírce. Jeho forma, úroveň nebo identita není jistá.',
                                 )}{' '}
-                                <button
-                                    type="button"
-                                    className="my-text-button"
-                                    onClick={() => {
-                                        void enemySpecies.refetch();
-                                    }}
-                                >
-                                    {t('Retry', 'Zkusit znovu')}
-                                </button>
+                                <a className="my-text-button" href={ownedPokemonHref(pokemon.id)}>
+                                    {t('Open collection', 'Otevřít sbírku')}
+                                </a>
                             </p>
-                        )}
-                    </>
-                )}
-                {ready && !missing && (
-                    <SimulatorParty
-                        document={document}
-                        run={run}
-                        selectedPokemonId={pokemon.id}
-                        enemy={enemySetup.pokemon}
-                        enemyMoves={enemyMoves}
-                        datasetId={datasetId}
-                        chart={chart.data}
-                        conflicts={conflicts}
-                    />
-                )}
-                {!ready ? (
-                    <p className="my-panel" role="status">
-                        {t('Loading collection…', 'Načítání sbírky…')}
-                    </p>
-                ) : missing ? (
-                    <div className="my-panel" role="status">
-                        <p>
-                            {requestedPokemonId !== undefined
-                                ? t(
-                                      'This Pokémon or its playthrough is unavailable. Choose another Pokémon from your collection.',
-                                      'Tento Pokémon nebo jeho průchod není dostupný. Vyberte jiného Pokémona ze sbírky.',
-                                  )
-                                : Object.values(document.playthroughs).some(
-                                        (entry) => !entry.deleted,
+                        ) : species.isError ? (
+                            <p className="my-panel" role="alert">
+                                {t(
+                                    'Species data could not be loaded. Reconnect and try again.',
+                                    'Údaje o druhu se nepodařilo načíst. Obnovte připojení a zkuste to znovu.',
+                                )}
+                            </p>
+                        ) : !species.data ? (
+                            <p className="my-panel" role="status">
+                                {t('Loading Pokémon data…', 'Načítání údajů Pokémona…')}
+                            </p>
+                        ) : (
+                            <SimulatorScenario
+                                key={`${pokemon.id}:${attackerFingerprint(pokemon, recordedStats)}:${observationConflict}:${scenarioRevision}`}
+                                pokemon={pokemon}
+                                species={species.data}
+                                recordedStats={recordedStats}
+                                natureId={
+                                    conflicts.some(
+                                        (conflict) =>
+                                            conflict.entity === 'pokemon' &&
+                                            conflict.entityId === pokemonId &&
+                                            conflict.field === 'natureId',
                                     )
-                                  ? t(
-                                        'Add a Pokémon to your active playthrough to start a simulation, or choose one from another playthrough above.',
-                                        'Pro simulaci přidejte Pokémona do aktivního průchodu, nebo výše vyberte Pokémona z jiného průchodu.',
-                                    )
-                                  : t(
-                                        'Create a playthrough and add your first Pokémon to start a simulation.',
-                                        'Pro simulaci vytvořte průchod a přidejte prvního Pokémona.',
-                                    )}
-                        </p>
-                        <a className="my-text-button" href="#/my-pokemon">
-                            {t('Open My Pokémon', 'Otevřít Moje Pokémony')}
-                        </a>
-                    </div>
-                ) : stateConflict ? (
-                    <p className="my-panel" role="alert">
-                        {t(
-                            'Resolve this Pokémon’s collection conflict before simulating. Its form, level or identity is uncertain.',
-                            'Před simulací vyřešte konflikt tohoto Pokémona ve sbírce. Jeho forma, úroveň nebo identita není jistá.',
-                        )}{' '}
-                        <a className="my-text-button" href={ownedPokemonHref(pokemon.id)}>
-                            {t('Open collection', 'Otevřít sbírku')}
-                        </a>
-                    </p>
-                ) : species.isError ? (
-                    <p className="my-panel" role="alert">
-                        {t(
-                            'Species data could not be loaded. Reconnect and try again.',
-                            'Údaje o druhu se nepodařilo načíst. Obnovte připojení a zkuste to znovu.',
-                        )}
-                    </p>
-                ) : !species.data ? (
-                    <p className="my-panel" role="status">
-                        {t('Loading Pokémon data…', 'Načítání údajů Pokémona…')}
-                    </p>
-                ) : (
-                    <>
-                        <SimulatorLevelControls
-                            key={`${pokemon.id}:${pokemon.state.formEpoch}`}
-                            pokemon={pokemon}
-                            species={species.data}
-                            onSave={onSaveLevel}
-                        />
-                        <SimulatorScenario
-                            key={`${pokemon.id}:${attackerFingerprint(pokemon, recordedStats)}:${observationConflict}:${scenarioRevision}`}
-                            pokemon={pokemon}
-                            species={species.data}
-                            recordedStats={recordedStats}
-                            natureId={
-                                conflicts.some(
+                                        ? null
+                                        : pokemon.natureId
+                                }
+                                abilityConflict={conflicts.some(
                                     (conflict) =>
                                         conflict.entity === 'pokemon' &&
                                         conflict.entityId === pokemonId &&
-                                        conflict.field === 'natureId',
-                                )
-                                    ? null
-                                    : pokemon.natureId
-                            }
-                            abilityConflict={conflicts.some(
-                                (conflict) =>
-                                    conflict.entity === 'pokemon' &&
-                                    conflict.entityId === pokemonId &&
-                                    conflict.field === 'ability',
+                                        conflict.field === 'ability',
+                                )}
+                                observationConflict={observationConflict}
+                                datasetId={datasetId}
+                                enemySetup={enemySetup}
+                                setEnemySetup={setEnemySetup}
+                                enemyMoves={enemyMoves}
+                                savedEncounter={Boolean(encounter)}
+                                chart={chart.data}
+                                chartStatus={chart.status}
+                            />
+                        )}
+                    </div>
+                    {ready && !missing && (
+                        <aside
+                            ref={managementRef}
+                            tabIndex={-1}
+                            className="sim-management"
+                            aria-label={t('Teams and encounter', 'Týmy a souboj')}
+                        >
+                            <button
+                                type="button"
+                                className="my-text-button sim-teams-shortcut"
+                                onClick={() => {
+                                    battleRef.current?.scrollIntoView({
+                                        block: 'start',
+                                        behavior: 'instant',
+                                    });
+                                    battleRef.current?.focus({ preventScroll: true });
+                                }}
+                            >
+                                {t('Back to battle', 'Zpět k souboji')} ↑
+                            </button>
+                            <div className="sim-save-status">
+                                <span
+                                    className={`my-sync-status my-sync-${syncStatus}`}
+                                    role="status"
+                                >
+                                    {syncLabel}
+                                </span>
+                                {!signedIn && (
+                                    <a className="my-text-button" href="#/my-pokemon">
+                                        {t(
+                                            'Sign in from My Pokémon to sync encounters across devices',
+                                            'Pro synchronizaci soubojů mezi zařízeními se přihlaste v Moji Pokémoni',
+                                        )}
+                                    </a>
+                                )}
+                                {syncError && <p role="alert">{syncError}</p>}
+                            </div>
+                            {onResolveConflict && (
+                                <MyPokemonConflicts
+                                    document={document}
+                                    conflicts={conflicts.filter(
+                                        (entry) =>
+                                            entry.entity === 'encounters' ||
+                                            entry.entity === 'opponents',
+                                    )}
+                                    resolve={onResolveConflict}
+                                />
                             )}
-                            observationConflict={observationConflict}
-                            datasetId={datasetId}
-                            enemySetup={enemySetup}
-                            setEnemySetup={setEnemySetup}
-                            enemyMoves={enemyMoves}
-                            savedEncounter={Boolean(encounter)}
-                            chart={chart.data}
-                            chartStatus={chart.status}
-                        />
-                    </>
-                )}
+                            <SimulatorEncounters
+                                key={`${datasetKey}:${run.id}`}
+                                document={document}
+                                conflicts={conflicts}
+                                runId={run.id}
+                                datasetId={datasetId}
+                                defaultLevel={pokemon.state.level}
+                                selectedEncounterId={encounter?.id}
+                                selectedOpponentId={opponent?.id}
+                                onSelect={selectEncounter}
+                                onUpdate={onUpdateCollection}
+                            />
+                            {encounterConflict && (
+                                <p className="sim-notice" role="alert">
+                                    {t(
+                                        'Resolve the encounter conflict before using its matchup or damage estimates.',
+                                        'Před použitím účinnosti a odhadů poškození vyřešte konflikt souboje.',
+                                    )}
+                                </p>
+                            )}
+                            {opponent && !encounterConflict && enemySpecies.isError && (
+                                <p className="sim-notice" role="alert">
+                                    {t(
+                                        'Opponent data could not be loaded.',
+                                        'Údaje o soupeři se nepodařilo načíst.',
+                                    )}{' '}
+                                    <button
+                                        type="button"
+                                        className="my-text-button"
+                                        onClick={() => {
+                                            void enemySpecies.refetch();
+                                        }}
+                                    >
+                                        {t('Retry', 'Zkusit znovu')}
+                                    </button>
+                                </p>
+                            )}
+                            <SimulatorParty
+                                document={document}
+                                run={run}
+                                selectedPokemonId={pokemon.id}
+                                enemy={enemySetup.pokemon}
+                                enemyMoves={enemyMoves}
+                                datasetId={datasetId}
+                                chart={chart.data}
+                                conflicts={conflicts}
+                            />
+                            {!stateConflict && species.data && (
+                                <SimulatorLevelControls
+                                    key={`${pokemon.id}:${pokemon.state.formEpoch}`}
+                                    pokemon={pokemon}
+                                    species={species.data}
+                                    onSave={onSaveLevel}
+                                />
+                            )}
+                        </aside>
+                    )}
+                </div>
                 <DexFooter />
             </main>
         </>

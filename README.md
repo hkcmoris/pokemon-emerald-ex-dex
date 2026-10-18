@@ -160,7 +160,11 @@ Open **Simulator** from the main navigation, or **Simulate damage** on an owned 
 to compare its attacks against any opponent species/form and level. The main entry
 uses the current playthrough and remembered member, falling back to its first party
 member or collection Pokémon. The simulator shows the attacker's back sprite,
-HP damage ranges, enemy HP percentages, STAB and type matchups. Enemy stats assume
+HP damage ranges, enemy HP percentages, STAB and type matchups. Current move cards
+sit directly below the matchup. **Edit battle stats** starts collapsed; opponent
+selection stays accessible without opening it. Encounter, party, and saved-level
+controls sit beside the battle on desktop and below it on phones, with phone shortcuts
+between the battle and team controls. Enemy stats assume
 neutral nature, 31 IVs and 0 EVs, with temporary HP and offensive/defensive stat overrides.
 Preview the current form's full learnset and TM/HM moves, including future level
 labels and recorded inherited moves. Save named enemy encounters with up to six opponents,
@@ -592,9 +596,10 @@ control type, category, effects, description, power, accuracy, PP, priority, and
 individual comparison score. Contextual metadata, actions, and calculation details
 use the component's slots; they do not introduce separate move-card layouts.
 Cards with a contextual result put the move beside the damage range and HP percentage.
-Simulator cards show base power, accuracy, and base PP together in a compact stats row.
-The simulator shows a compact two-by-two move grid on larger
-screens and short full-width cards on phones, with calculations expandable below.
+Simulator cards show base power, accuracy, and base PP together in a compact stats group.
+Current moves stay in a two-by-two grid on desktop and phones, with damage prominent
+and calculations expandable below. Learning sources for recorded moves are inside
+the calculation disclosure; temporary previews retain their source badges.
 
 Pass a full `Move` or a `KnownMove` plus its resolved `reference`. `MyPokemonMove`
 is a collection data adapter for the same display. Calculations stay with their

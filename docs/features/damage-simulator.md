@@ -13,6 +13,14 @@ Its current form uses the back sprite; the selected opponent uses the front spri
 The collection's [effective-power score](../move-power.md) remains a separate,
 target-independent comparison.
 
+The battle column shows the matchup immediately followed by the current move cards.
+**Edit battle stats** starts collapsed and contains both sides' temporary stat overrides;
+opening it retains the current values and calculations. Quick opponent selection stays
+outside the disclosure, with search open until an opponent is chosen. Encounter management,
+party switching, and saved-level controls sit in a desktop sidebar and follow the battle
+column on phones. **Teams & encounter** and **Back to battle** phone shortcuts move focus
+between them. Incoming damage and move previews follow the stat editor.
+
 ## Inputs and move previews
 
 - **Level up +1** immediately saves one level for the selected collection Pokémon.
@@ -31,7 +39,9 @@ target-independent comparison.
   neutral nature, 31 IVs and 0 EVs. HP, Attack, Defense, Sp. Atk and Sp. Def can be overridden;
   changing enemy species or level clears its overrides. Shedinja's estimated HP is 1.
 - The four recorded moves appear first, including recorded inherited moves absent
-  from the current form's learnset. Preview the **current form's full level-up
+  from the current form's learnset. Their learning-source badges sit inside
+  **Calculation** when damage is available, keeping the battle cards short; preview
+  cards retain their source badges beside the move. Preview the **current form's full level-up
   learnset and TM/HM moves**, with source and future level labels. Future previews
   use today's attacker level, stats and types. Moves exclusive to future evolved
   forms are not included.
